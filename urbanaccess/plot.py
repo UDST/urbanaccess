@@ -30,11 +30,11 @@ def plot_net(nodes=None,edges=None,x_col='x',y_col='y',bbox=None,
     margin : float
         margin around the figure
     edge_color : string
-        the color of the edges' lines
+        the color of the edge lines
     edge_linewidth : float
-        the width of the edges' lines
+        the width of the edge lines
     edge_alpha : float
-        the opacity of the edges' lines
+        the opacity of the edge lines
     node_color : string
         the color of the nodes
     node_size : int
@@ -42,9 +42,10 @@ def plot_net(nodes=None,edges=None,x_col='x',y_col='y',bbox=None,
     node_alpha : float
         the opacity of the nodes
     node_edgecolor : string
-        the color of the node's marker's border
+        the color of the node marker border
     node_zorder : int
-        zorder to plot nodes, edges are always 2, so make node_zorder 1 to plot nodes beneath them or 3 to plot nodes atop them
+        zorder to plot nodes, edges are 2, so you can make node_zorder 1 to plot nodes under them or 3 to plot
+        nodes on top
     nodes_only : bool
         if true only the nodes will plot
 
