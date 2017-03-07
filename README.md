@@ -1,7 +1,7 @@
 # UrbanAccess
 A tool for computing GTFS transit and OSM pedestrian networks for accessibility analysis. 
 
-<img src="https://github.com/UDST/urbanaccess/tree/master/docs/images/travel_time_net.png" alt="Integrated AC Transit and BART transit and pedestrian network travel times for Oakland, CA" width="800">
+![Integrated AC Transit and BART transit and pedestrian network travel times for Oakland, CA](docs/images/travel_time_net.png) <!-- .element height="50%" width="50%" -->
    Integrated AC Transit and BART transit and pedestrian network travel times for Oakland, CA
 
 # Overview
