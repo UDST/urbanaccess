@@ -33,8 +33,6 @@ setup(
         'osmnet>=0.1a',
         'pandana>=0.2.0',
         'matplotlib>=2.0',
-        'urllib>=1.17',
-        'urllib2>=2.7',
         'geopy>=1.11.0',
         'scikit-learn>=0.17.1'
     ]
