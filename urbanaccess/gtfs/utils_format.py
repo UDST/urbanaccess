@@ -388,11 +388,13 @@ def add_unique_agencyid(agency_df=None,stops_df=None,routes_df=None,trips_df=Non
 
     df_list = [stops_df,routes_df,trips_df,stop_times_df,calendar_df,calendar_dates_df]
 
-    if os.path.exists(os.path.join(feed_folder,'agency.txt')) == False and nulls_as_folder == True:
+    if ((os.path.exists(os.path.join(feed_folder,'agency.txt')) == False or
+                 'agency_id' not in agency_df.columns) and
+                nulls_as_folder == True):
         for df in df_list:
             unique_agency_id = sub(r'\s+', '_', os.path.split(feed_folder)[1]).replace('&','and').lower()
             df['unique_agency_id'] = unique_agency_id
-            log('The agency.txt was not found. The unique agency id: {} was generated using the name of the folder containing the GTFS feed text files.'.format(unique_agency_id))
+            log('The agency.txt or agency_id column was not found. The unique agency id: {} was generated using the name of the folder containing the GTFS feed text files.'.format(unique_agency_id))
 
     elif os.path.exists(os.path.join(feed_folder,'agency.txt')) == False and nulls_as_folder == False:
         raise ValueError('No agency.txt file was found in {}. Add the missing file to folder or set nulls_as_folder to True'.format(folder))
