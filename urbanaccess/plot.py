@@ -12,7 +12,7 @@ def plot_net(nodes=None,edges=None,x_col='x',y_col='y',bbox=None,
                edge_color='#999999',edge_linewidth=1,edge_alpha=1,
                node_color='black',node_size=15,node_alpha=1,node_edgecolor='none',node_zorder=3,nodes_only=False):
     """
-    Plot a networkx spatial graph.
+    plot urbanaccess network nodes and edges
 
     Parameters
     ----------
