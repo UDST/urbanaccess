@@ -43,6 +43,8 @@ def txt_encoder_check(csv_rootpath=os.path.join(config.settings.data_folder,'gtf
     start_time = time.time()
     folderlist = [foldername for foldername in os.listdir(csv_rootpath) if
                   os.path.isdir(os.path.join(csv_rootpath, foldername))]
+    if not folderlist:
+        folderlist = [csv_rootpath]
     for folder in folderlist:
         textfilelist = [textfilename for textfilename in os.listdir(os.path.join(csv_rootpath,folder)) if textfilename.endswith(".txt")]
         for textfile in textfilelist:
@@ -74,6 +76,8 @@ def txt_header_whitespace_check(csv_rootpath=os.path.join(config.settings.data_f
     start_time = time.time()
     folderlist = [foldername for foldername in os.listdir(csv_rootpath) if
                   os.path.isdir(os.path.join(csv_rootpath, foldername))]
+    if not folderlist:
+        folderlist = [csv_rootpath]
     for folder in folderlist:
         textfilelist = [textfilename for textfilename in os.listdir(os.path.join(csv_rootpath,folder)) if textfilename.endswith(".txt")]
         for textfile in textfilelist:
@@ -145,6 +149,8 @@ def gtfsfeed_to_df(gtfsfeed_path=None,validation=False,verbose=True,bbox=None,re
 
     folderlist = [foldername for foldername in os.listdir(gtfsfeed_path) if
                   os.path.isdir(os.path.join(gtfsfeed_path, foldername))]
+    if not folderlist:
+        folderlist = [gtfsfeed_path]
     for folder in folderlist:
         textfilelist = [textfilename for textfilename in os.listdir(os.path.join(gtfsfeed_path,folder)) if textfilename.endswith(".txt")]
         required_gtfsfiles = ['stops.txt','routes.txt','trips.txt','stop_times.txt','calendar.txt','calendar_dates.txt']

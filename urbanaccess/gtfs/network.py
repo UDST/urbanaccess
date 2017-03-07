@@ -68,11 +68,14 @@ def create_transit_net(gtfsfeeds_df=None,day=None,timerange=None,overwrite_exist
     assert isinstance(use_existing_stop_times_int,bool)
     assert isinstance(save_processed_gtfs,bool)
 
-    calendar_selected_trips_df = tripschedualselector(input_trips_df=gtfsfeeds_df.trips[['route_id',
-                                                                                         'direction_id',
-                                                                                         'trip_id',
-                                                                                         'service_id',
-                                                                                         'unique_agency_id']],
+    columns = ['route_id',
+               'direction_id',
+               'trip_id',
+               'service_id',
+               'unique_agency_id']
+    if 'direction_id' not in gtfsfeeds_df.trips.columns:
+        columns.remove('direction_id')
+    calendar_selected_trips_df = tripschedualselector(input_trips_df=gtfsfeeds_df.trips[columns],
                                                       input_calendar_df=gtfsfeeds_df.calendar,
                                                       day=day)
 
@@ -162,7 +165,11 @@ def tripschedualselector(input_trips_df=None,input_calendar_df=None,day=None):
     # select and create df of trips that match the service ids for the day of the week specified in function
     # merge calendar df that has service ids for specified day with trips df
     calendar_selected_trips_df = input_trips_df.loc[input_trips_df['unique_service_id'].isin(input_calendar_df['unique_service_id'])]
-    calendar_selected_trips_df.sort_values(by=['route_id', 'trip_id','direction_id'], inplace=True)
+
+    sort_columns = ['route_id', 'trip_id', 'direction_id']
+    if 'direction_id' not in calendar_selected_trips_df.columns:
+        sort_columns.remove('direction_id')
+    calendar_selected_trips_df.sort_values(by=sort_columns, inplace=True)
     calendar_selected_trips_df.reset_index(drop=True,inplace=True)
     calendar_selected_trips_df.drop('unique_service_id', axis=1, inplace=True)
 

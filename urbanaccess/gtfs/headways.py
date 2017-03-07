@@ -70,6 +70,8 @@ def headway_handler(interpolated_stop_times_df=None,trips_df=None,routes_df=None
     trips_df['unique_trip_id'] = trips_df[['trip_id','unique_agency_id']].apply(lambda x : '{}_{}'.format(x[0],x[1]), axis=1)
     trips_df['unique_route_id'] = trips_df[['route_id','unique_agency_id']].apply(lambda x : '{}_{}'.format(x[0],x[1]), axis=1)
     columns = ['direction_id','unique_route_id','service_id','shape_id','unique_trip_id','unique_agency_id']
+    if 'direction_id' not in trips_df.columns:
+        columns.remove('direction_id')
     trips_df = trips_df[columns]
 
     # add unique route id
