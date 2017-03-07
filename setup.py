@@ -34,7 +34,7 @@ setup(
         'pandana>=0.2.0',
         'matplotlib>=2.0',
         'geopy>=1.11.0',
-        'pyyaml>=3.11'
+        'pyyaml>=3.11',
         'scikit-learn>=0.17.1'
     ]
 )
