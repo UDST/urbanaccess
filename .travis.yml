@@ -18,7 +18,7 @@ install:
 - source activate test-environment
 - conda list
 - pip install https://github.com/UDST/osmnet/archive/master.zip
-- pip install pandana urllib urllib2 geopy
+- pip install pandana geopy
 - pip install .
 
 script:
