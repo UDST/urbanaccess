@@ -201,9 +201,16 @@ def interpolatestoptimes(stop_times_df=None,calendar_selected_trips_df=None,day=
 
     start_time = time.time()
 
-    # create unique trip ids
-    calendar_selected_trips_df['unique_trip_id'] = calendar_selected_trips_df[['trip_id','unique_agency_id']].apply(lambda x : '{}_{}'.format(x[0],x[1]), axis=1)
-    stop_times_df['unique_trip_id'] = stop_times_df[['trip_id','unique_agency_id']].apply(lambda x : '{}_{}'.format(x[0],x[1]), axis=1)
+    # create unique trip id
+    calendar_selected_trips_df['unique_trip_id'] = (
+        calendar_selected_trips_df.trip_id.str.cat(
+            calendar_selected_trips_df.unique_agency_id.astype('str'),
+            sep='_'))
+
+    stop_times_df['unique_trip_id'] = (
+        stop_times_df.trip_id.str.cat(
+            stop_times_df.unique_agency_id.astype('str'),
+            sep='_'))
 
     # sort stop times inplace based on first to last stop in sequence -- required as the linear interpolator runs from first value to last value
     if stop_times_df['stop_sequence'].isnull().sum() > 1:
@@ -227,19 +234,35 @@ def interpolatestoptimes(stop_times_df=None,calendar_selected_trips_df=None,day=
     all_trip_int_series = pd.Series()
     # loop over all unique trips in stop time df
     log('Interpolating...')
-    for trip in stop_times_df['unique_trip_id'].unique():
-        # if unique trip id departure time sec column has more than 1 null value then run interpolator for that trip id;
-        #  note: all trip ids have at least 1 null departure time because the last stop in a trip is always null
-        if stop_times_df[stop_times_df['unique_trip_id'] == trip]['departure_time_sec'].isnull().sum() > 1:
-            if verbose:
-                log('Interpolating stop times for trip: {}'.format(trip))
-            # run interpolator and return result as a series -- linear, forward, on column axis = 0
-            # -- need to run on a trip by trip basis in order for only departure time in specific trip to be calculated
-            # based using information available only in that trip
-            trip_int_series = stop_times_df[stop_times_df['unique_trip_id'] == trip]['departure_time_sec'].interpolate(method='linear', axis=0, limit_direction='forward')
-            all_trip_int_series = all_trip_int_series.append(trip_int_series) # append each interpolated trip to the series container
-            if verbose:
-                log('Trip: {} interpolation complete.'.format(trip))
+
+    # Find trips with more than one missing time
+    # Note: all trip ids have at least 1 null departure time because the
+    # last stop in a trip is always null
+    null_times = stop_times_df[stop_times_df.departure_time_sec.isnull()]
+    trips_with_null = null_times.unique_trip_id.value_counts()
+    trips_with_more_than_one_null = trips_with_null[
+        trips_with_null > 1].index.values
+
+    for trip in trips_with_more_than_one_null:
+        if verbose:
+            log('Interpolating stop times for trip: {}'.format(trip))
+        # run interpolator and return result as a series -- linear, forward,
+        # on column axis = 0
+        # -- need to run on a trip by trip basis in order for only departure
+        #    time in specific trip to be calculated
+        #    based using information available only in that trip
+
+        this_trip = stop_times_df[stop_times_df['unique_trip_id'] == trip]
+        dep_times = this_trip['departure_time_sec']
+        trip_int_series = dep_times.interpolate(method='linear',
+                                                axis=0,
+                                                limit_direction='forward')
+
+        # append each interpolated trip to the series container
+        all_trip_int_series = all_trip_int_series.append(trip_int_series)
+        if verbose:
+            log('Trip: {} interpolation complete.'.format(trip))
+
     interpolated_df = all_trip_int_series.to_frame(name=None) # convert final container series to dataframe
     interpolated_df.columns = ['departure_time_sec_interpolate'] # rename column
     # merge interpolated departure times to original stop df as a new column
