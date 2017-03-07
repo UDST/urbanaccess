@@ -507,8 +507,16 @@ def format_transit_net_nodes(df=None):
     final_node_df['node_id'] = df['unique_stop_id']
     final_node_df['x'] = df['stop_lon']
     final_node_df['y'] = df['stop_lat']
+
     # keep useful info from stops table
-    final_node_df = pd.concat([final_node_df, df[['unique_agency_id','location_type','parent_station','route_type','stop_code','stop_id','stop_name','wheelchair_boarding','zone_id']]], axis=1)
+    col_list = ['unique_agency_id','route_type','stop_id','stop_name']
+    # if these optional cols exist then keep those that do
+    optional_gtfs_cols = ['parent_station', 'stop_code', 'wheelchair_boarding', 'zone_id','location_type']
+    for item in optional_gtfs_cols:
+       if item in df.columns:
+            col_list.append(item)
+
+    final_node_df = pd.concat([final_node_df, df[col_list]], axis=1)
     # set node index to be unique stop id
     final_node_df = final_node_df.set_index('node_id')
 
