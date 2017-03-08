@@ -188,15 +188,12 @@ def interpolatestoptimes(stop_times_df, calendar_selected_trips_df, day):
         dataframe of trips that run on specific day
     day : {'friday','monday','saturday','sunday','thursday','tuesday','wednesday'}
         day of the week to extract transit schedule from that corresponds to the day in the GTFS calendar
-    verbose : bool
-        if true, all trips that are interpolated will be printed out for reference. should only be used for debugging
 
     Returns
     -------
     final_stop_times_df : pandas.DataFrame
 
     """
-    #TODO: Optimize interpolator for speed
 
     start_time = time.time()
 
@@ -229,10 +226,6 @@ def interpolatestoptimes(stop_times_df, calendar_selected_trips_df, day):
                                                                             (stop_times_df['departure_time_sec'].isnull().sum() / len(stop_times_df)) *100,
                                                                             len(stop_times_df['departure_time_sec'])))
 
-    # create empty series to hold the interpolated departure times for each
-    # trip id generated below
-    all_trip_int_series = pd.Series()
-    # loop over all unique trips in stop time df
     log('Interpolating...')
 
     # Find trips with more than one missing time
@@ -279,7 +272,7 @@ def interpolatestoptimes(stop_times_df, calendar_selected_trips_df, day):
     final_stop_times_df['departure_time_sec_interpolate'].fillna(final_stop_times_df['departure_time_sec'], inplace=True)
 
     if final_stop_times_df['departure_time_sec_interpolate'].isnull().sum() > 0:
-        log('WARNING: Number of records unable to interpolate: {}. These records have been removed.'.format(final_stop_times_df['departure_time_sec_interpolate'].isnull().sum()),level=lg.WARNING)
+        log('WARNING: Number of records unable to interpolate: {:,}. These records have been removed.'.format(final_stop_times_df['departure_time_sec_interpolate'].isnull().sum()),level=lg.WARNING)
 
     ## convert the interpolated times (float) to integer so all times are the same number format
     # first run int converter on non-null records (nulls here are the last stop times in a trip because there is no departure)
