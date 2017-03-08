@@ -82,8 +82,7 @@ def create_transit_net(gtfsfeeds_df=None,day=None,timerange=None,overwrite_exist
     if gtfsfeeds_df.stop_times_int.empty or overwrite_existing_stop_times_int or use_existing_stop_times_int == False:
         gtfsfeeds_df.stop_times_int = interpolatestoptimes(stop_times_df=gtfsfeeds_df.stop_times,
                                                            calendar_selected_trips_df=calendar_selected_trips_df,
-                                                           day=day,
-                                                           verbose=False)
+                                                           day=day)
 
         gtfsfeeds_df.stop_times_int = timedifference(stop_times_df=gtfsfeeds_df.stop_times_int)
 
@@ -177,7 +176,7 @@ def tripschedualselector(input_trips_df=None,input_calendar_df=None,day=None):
 
     return calendar_selected_trips_df
 
-def interpolatestoptimes(stop_times_df=None,calendar_selected_trips_df=None,day=None,verbose=False):
+def interpolatestoptimes(stop_times_df, calendar_selected_trips_df, day):
     """
     Interpolate missing stop times using a linear interpolator between known stop times
 
@@ -189,15 +188,12 @@ def interpolatestoptimes(stop_times_df=None,calendar_selected_trips_df=None,day=
         dataframe of trips that run on specific day
     day : {'friday','monday','saturday','sunday','thursday','tuesday','wednesday'}
         day of the week to extract transit schedule from that corresponds to the day in the GTFS calendar
-    verbose : bool
-        if true, all trips that are interpolated will be printed out for reference. should only be used for debugging
 
     Returns
     -------
     final_stop_times_df : pandas.DataFrame
 
     """
-    #TODO: Optimize interpolator for speed
 
     start_time = time.time()
 
@@ -230,9 +226,6 @@ def interpolatestoptimes(stop_times_df=None,calendar_selected_trips_df=None,day=
                                                                             (stop_times_df['departure_time_sec'].isnull().sum() / len(stop_times_df)) *100,
                                                                             len(stop_times_df['departure_time_sec'])))
 
-    # create empty series to hold the interpolated departure times for each trip id generated below
-    all_trip_int_series = pd.Series()
-    # loop over all unique trips in stop time df
     log('Interpolating...')
 
     # Find trips with more than one missing time
@@ -243,37 +236,43 @@ def interpolatestoptimes(stop_times_df=None,calendar_selected_trips_df=None,day=
     trips_with_more_than_one_null = trips_with_null[
         trips_with_null > 1].index.values
 
-    for trip in trips_with_more_than_one_null:
-        if verbose:
-            log('Interpolating stop times for trip: {}'.format(trip))
-        # run interpolator and return result as a series -- linear, forward,
-        # on column axis = 0
-        # -- need to run on a trip by trip basis in order for only departure
-        #    time in specific trip to be calculated
-        #    based using information available only in that trip
+    # Subset stop times DataFrame to only those with >1 null time
+    df_for_interpolation = stop_times_df.loc[
+        stop_times_df.unique_trip_id.isin(trips_with_more_than_one_null)]
 
-        this_trip = stop_times_df[stop_times_df['unique_trip_id'] == trip]
-        dep_times = this_trip['departure_time_sec']
-        trip_int_series = dep_times.interpolate(method='linear',
-                                                axis=0,
-                                                limit_direction='forward')
+    # Pivot to DataFrame where each unique trip has its own column
+    # Index is stop_sequence
+    pivot = df_for_interpolation.pivot(index='stop_sequence',
+                                       columns='unique_trip_id',
+                                       values='departure_time_sec')
 
-        # append each interpolated trip to the series container
-        all_trip_int_series = all_trip_int_series.append(trip_int_series)
-        if verbose:
-            log('Trip: {} interpolation complete.'.format(trip))
+    # Interpolate on the whole DataFrame at once
+    interpolator = pivot.interpolate(method='linear', axis=0,
+                                     limit_direction='forward')
 
-    interpolated_df = all_trip_int_series.to_frame(name=None) # convert final container series to dataframe
-    interpolated_df.columns = ['departure_time_sec_interpolate'] # rename column
-    # merge interpolated departure times to original stop df as a new column
-    final_stop_times_df = pd.merge(stop_times_df, interpolated_df, how='left', left_index=True, right_index=True, sort=False, copy=False)
+    # Melt back into stacked format
+    interpolator['stop_sequence'] = interpolator.index
+    melted = pd.melt(interpolator, id_vars='stop_sequence')
+    melted.rename(columns={'value': 'departure_time_sec_interpolate'},
+                  inplace=True)
+
+    # Merge back into original index
+    df_for_interpolation.reset_index(inplace=True)
+    interpolated_df = pd.merge(df_for_interpolation, melted, 'left',
+                               on=['stop_sequence', 'unique_trip_id'])
+    interpolated_df.set_index('index', inplace=True)
+    interpolated_times = interpolated_df[['departure_time_sec_interpolate']]
+
+    final_stop_times_df = pd.merge(stop_times_df, interpolated_times,
+                                   how='left', left_index=True,
+                                   right_index=True, sort=False, copy=False)
 
     # fill in nulls in interpolated departure time column using trips that did not need interpolation in order to create
     # one column with both original and interpolated times
     final_stop_times_df['departure_time_sec_interpolate'].fillna(final_stop_times_df['departure_time_sec'], inplace=True)
 
     if final_stop_times_df['departure_time_sec_interpolate'].isnull().sum() > 0:
-        log('WARNING: Number of records unable to interpolate: {}. These records have been removed.'.format(final_stop_times_df['departure_time_sec_interpolate'].isnull().sum()),level=lg.WARNING)
+        log('WARNING: Number of records unable to interpolate: {:,}. These records have been removed.'.format(final_stop_times_df['departure_time_sec_interpolate'].isnull().sum()),level=lg.WARNING)
 
     ## convert the interpolated times (float) to integer so all times are the same number format
     # first run int converter on non-null records (nulls here are the last stop times in a trip because there is no departure)
