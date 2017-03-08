@@ -82,8 +82,7 @@ def create_transit_net(gtfsfeeds_df=None,day=None,timerange=None,overwrite_exist
     if gtfsfeeds_df.stop_times_int.empty or overwrite_existing_stop_times_int or use_existing_stop_times_int == False:
         gtfsfeeds_df.stop_times_int = interpolatestoptimes(stop_times_df=gtfsfeeds_df.stop_times,
                                                            calendar_selected_trips_df=calendar_selected_trips_df,
-                                                           day=day,
-                                                           verbose=False)
+                                                           day=day)
 
         gtfsfeeds_df.stop_times_int = timedifference(stop_times_df=gtfsfeeds_df.stop_times_int)
 
@@ -177,7 +176,7 @@ def tripschedualselector(input_trips_df=None,input_calendar_df=None,day=None):
 
     return calendar_selected_trips_df
 
-def interpolatestoptimes(stop_times_df=None,calendar_selected_trips_df=None,day=None,verbose=False):
+def interpolatestoptimes(stop_times_df, calendar_selected_trips_df, day):
     """
     Interpolate missing stop times using a linear interpolator between known stop times
 
