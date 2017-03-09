@@ -118,6 +118,11 @@ def integrate_network(urbanaccess_network=None,headways=False,urbanaccess_gtfsfe
         assert headway_statistic in valid_stats and isinstance(headway_statistic,str), '{} is not a supported statistic ' \
                                                                                        'or is not in the correct format'.format(headway_statistic)
 
+        if 'node_id_from' not in urbanaccess_network.transit_edges.columns and 'from' in urbanaccess_network.transit_edges.columns:
+            urbanaccess_network.transit_edges.rename(columns={'from': 'node_id_from'},inplace=True)
+        if 'node_id_to' not in urbanaccess_network.transit_edges.columns and 'to' in urbanaccess_network.transit_edges.columns:
+            urbanaccess_network.transit_edges.rename(columns={'to': 'node_id_to'},inplace=True)
+
         urbanaccess_network.transit_edges['node_id_route_from'] = urbanaccess_network.transit_edges[['node_id_from','unique_route_id']].apply(lambda x : '{}_{}'.format(x[0],x[1]), axis=1)
         urbanaccess_network.transit_edges['node_id_route_to'] = urbanaccess_network.transit_edges[['node_id_to','unique_route_id']].apply(lambda x : '{}_{}'.format(x[0],x[1]), axis=1)
 
