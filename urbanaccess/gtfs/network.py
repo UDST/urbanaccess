@@ -376,7 +376,7 @@ def format_transit_net_edge(stop_times_df=None,verbose=False):
     # set columns for new df for data needed by pandana for edges
     columns = ['sequence', 'node_id_from', 'node_id_to', 'weight', 'unique_trip_id', 'unique_agency_id']
     # create blank edge df to hold data
-    merged_edge_df = pd.DataFrame(columns=columns)
+    merged_edge = []
 
     stop_times_df.sort_values(by=['unique_trip_id', 'stop_sequence'], inplace=True)
 
@@ -401,7 +401,8 @@ def format_transit_net_edge(stop_times_df=None,verbose=False):
         edge_df['unique_trip_id'] = trip
 
         # append completed formatted edge table to master edge table
-        merged_edge_df = merged_edge_df.append(edge_df, ignore_index=True)
+        merged_edge.append(edge_df)
+    merged_edge_df = pd.concat(merged_edge, ignore_index=True)
     merged_edge_df['sequence'] = merged_edge_df['sequence'].astype(int, copy=False)
     merged_edge_df['id'] = merged_edge_df[['unique_trip_id', 'sequence']].apply(lambda x: '{}_{}'.format(x[0], x[1]), axis=1)
 
