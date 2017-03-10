@@ -350,6 +350,7 @@ def timeselector(df=None,starttime=None,endtime=None):
 
     return selected_stop_timesdf
 
+
 def format_transit_net_edge(stop_times_df=None,verbose=False):
     """
     Format transit network data table to match the format required for edges in Pandana graph networks edges
@@ -368,13 +369,13 @@ def format_transit_net_edge(stop_times_df=None,verbose=False):
     """
     start_time = time.time()
 
-    #TODO: Optimize for speed
+    # TODO: Optimize for speed
     log('Note: depending on the number of records this process may take some time to complete')
     log('Starting transformation process for {:,} total trips...'.format(len(stop_times_df['unique_trip_id'].unique())))
 
     # set columns for new df for data needed by pandana for edges
-    columns = ['sequence','node_id_from', 'node_id_to', 'weight','unique_trip_id','unique_agency_id']
-    #create blank edge df to hold data
+    columns = ['sequence', 'node_id_from', 'node_id_to', 'weight', 'unique_trip_id', 'unique_agency_id']
+    # create blank edge df to hold data
     merged_edge_df = pd.DataFrame(columns=columns)
 
     stop_times_df.sort_values(by=['unique_trip_id', 'stop_sequence'], inplace=True)
@@ -385,34 +386,35 @@ def format_transit_net_edge(stop_times_df=None,verbose=False):
         tmp_trip_df = stop_times_df[stop_times_df['unique_trip_id'] == trip]
 
         # create empty dataframe to hold transformed table
-        data = np.empty((len(tmp_trip_df)-1,6,)) # create empty numpy array where # of rows = len of df - 1 and # cols = 6
-        data[:] = np.NAN #set array values as nan
-        edge_df = pd.DataFrame(data,columns=columns) #convert np array to pandas df
+        data = np.empty(
+            (len(tmp_trip_df) - 1, 6,))  # create empty numpy array where # of rows = len of df - 1 and # cols = 6
+        data[:] = np.NAN  # set array values as nan
+        edge_df = pd.DataFrame(data, columns=columns)  # convert np array to pandas df
 
-        i = 0 # initialize counter to 0
+        i = 0  # initialize counter to 0
 
         # iterate over each row in tmp trip df from 0 to len of df - 1
         for unique_stop_id_row in tmp_trip_df.index[0:len(tmp_trip_df)-1]:
-            ## first row of table
+            #  first row of table
             if i == 0:
                 edge_df['node_id_from'].iloc[0:1] = tmp_trip_df['unique_stop_id'].iloc[0:1].values
                 edge_df['node_id_to'].iloc[0:1] = tmp_trip_df['unique_stop_id'].iloc[1:2].values
                 edge_df['weight'].iloc[0:1] = tmp_trip_df['timediff'].iloc[1:2].values
                 edge_df['unique_agency_id'].iloc[0:1] = tmp_trip_df['unique_agency_id'].iloc[1:2].values
-            ## n row of table
+            #  n row of table
             else:
                 edge_df['node_id_from'].iloc[i:i+1] = tmp_trip_df['unique_stop_id'].iloc[i:i+1].values
                 edge_df['node_id_to'].iloc[i:i+1] = tmp_trip_df['unique_stop_id'].iloc[i+1:i+2].values
                 edge_df['weight'].iloc[i:i+1] = tmp_trip_df['timediff'].iloc[i+1:i+2].values
                 edge_df['unique_agency_id'].iloc[i:i+1] = tmp_trip_df['unique_agency_id'].iloc[i+1:i+2].values
-            i += 1 # increase counter by 1
+            i += 1  # increase counter by 1
 
-        #Set current trip id to edge id column adding edge order at end of string
+        # Set current trip id to edge id column adding edge order at end of string
         edge_df['sequence'] = edge_df.index+1
-        #set unique trip id without edge order to join other data later
+        # set unique trip id without edge order to join other data later
         edge_df['unique_trip_id'] = trip
 
-        #append completed formatted edge table to master edge table
+        # append completed formatted edge table to master edge table
         merged_edge_df = merged_edge_df.append(edge_df,ignore_index=True)
         merged_edge_df['sequence'] = merged_edge_df['sequence'].astype(int)
         merged_edge_df['id'] = merged_edge_df[['unique_trip_id','sequence']].apply(lambda x : '{}_{}'.format(x[0],x[1]), axis=1)
@@ -420,6 +422,7 @@ def format_transit_net_edge(stop_times_df=None,verbose=False):
     log('stop time table transformation to Pandana format edge table completed. Took {:,.2f} seconds'.format(time.time()-start_time))
 
     return merged_edge_df
+
 
 def convert_imp_time_units(df=None,time_col='weight',convert_to='minutes'):
     """
