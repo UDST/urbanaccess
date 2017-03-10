@@ -375,7 +375,6 @@ def format_transit_net_edge(stop_times_df=None,verbose=False):
 
     # set columns for new df for data needed by pandana for edges
     columns = ['sequence', 'node_id_from', 'node_id_to', 'weight', 'unique_trip_id', 'unique_agency_id']
-    # create blank edge df to hold data
     merged_edge = []
 
     stop_times_df.sort_values(by=['unique_trip_id', 'stop_sequence'], inplace=True)
@@ -384,21 +383,17 @@ def format_transit_net_edge(stop_times_df=None,verbose=False):
         if verbose:
             log('Reshaping trip: {}'.format(trip))
 
-        # create empty dataframe to hold transformed table
-        data = np.empty(
-            (len(tmp_trip_df) - 1, 6,))  # create empty numpy array where # of rows = len of df - 1 and # cols = 6
-        data[:] = np.NAN  # set array values as nan
-        edge_df = pd.DataFrame(data, columns=columns)  # convert np array to pandas df
-
-        edge_df['node_id_from'] = tmp_trip_df['unique_stop_id'].iloc[:-1].values
-        edge_df['node_id_to'] = tmp_trip_df['unique_stop_id'].iloc[1:].values
-        edge_df['weight'] = tmp_trip_df['timediff'].iloc[1:].values
-        edge_df['unique_agency_id'] = tmp_trip_df['unique_agency_id'].iloc[1:].values
+        edge_df = pd.DataFrame({
+            "node_id_from": tmp_trip_df['unique_stop_id'].iloc[:-1].values,
+            "node_id_to": tmp_trip_df['unique_stop_id'].iloc[1:].values,
+            "weight": tmp_trip_df['timediff'].iloc[1:].values,
+            "unique_agency_id": tmp_trip_df['unique_agency_id'].iloc[1:].values,
+            # set unique trip id without edge order to join other data later
+            "unique_trip_id": trip
+        })
 
         # Set current trip id to edge id column adding edge order at end of string
         edge_df['sequence'] = (edge_df.index+1).astype(int)
-        # set unique trip id without edge order to join other data later
-        edge_df['unique_trip_id'] = trip
 
         # append completed formatted edge table to master edge table
         merged_edge.append(edge_df)
