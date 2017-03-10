@@ -380,10 +380,9 @@ def format_transit_net_edge(stop_times_df=None,verbose=False):
 
     stop_times_df.sort_values(by=['unique_trip_id', 'stop_sequence'], inplace=True)
 
-    for trip in stop_times_df['unique_trip_id'].unique():
+    for trip, tmp_trip_df in stop_times_df.groupby(['unique_trip_id']):
         if verbose:
             log('Reshaping trip: {}'.format(trip))
-        tmp_trip_df = stop_times_df[stop_times_df['unique_trip_id'] == trip]
 
         # create empty dataframe to hold transformed table
         data = np.empty(
