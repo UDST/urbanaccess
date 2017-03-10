@@ -410,14 +410,14 @@ def format_transit_net_edge(stop_times_df=None,verbose=False):
             i += 1  # increase counter by 1
 
         # Set current trip id to edge id column adding edge order at end of string
-        edge_df['sequence'] = edge_df.index+1
+        edge_df['sequence'] = (edge_df.index+1).astype(int)
         # set unique trip id without edge order to join other data later
         edge_df['unique_trip_id'] = trip
 
         # append completed formatted edge table to master edge table
-        merged_edge_df = merged_edge_df.append(edge_df,ignore_index=True)
-        merged_edge_df['sequence'] = merged_edge_df['sequence'].astype(int)
-        merged_edge_df['id'] = merged_edge_df[['unique_trip_id','sequence']].apply(lambda x : '{}_{}'.format(x[0],x[1]), axis=1)
+        merged_edge_df = merged_edge_df.append(edge_df, ignore_index=True)
+    merged_edge_df['sequence'] = merged_edge_df['sequence'].astype(int, copy=False)
+    merged_edge_df['id'] = merged_edge_df[['unique_trip_id', 'sequence']].apply(lambda x: '{}_{}'.format(x[0], x[1]), axis=1)
 
     log('stop time table transformation to Pandana format edge table completed. Took {:,.2f} seconds'.format(time.time()-start_time))
 
