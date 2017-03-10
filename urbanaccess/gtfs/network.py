@@ -103,8 +103,7 @@ def create_transit_net(gtfsfeeds_df=None,day=None,timerange=None,overwrite_exist
                                                                                                   'timediff',
                                                                                                   'stop_sequence',
                                                                                                   'unique_agency_id',
-                                                                                                  'trip_id']],
-                                               verbose=False)
+                                                                                                  'trip_id']])
 
     ua_network.transit_edges = convert_imp_time_units(df=final_edge_table,
                                                       time_col='weight',
@@ -351,16 +350,16 @@ def timeselector(df=None,starttime=None,endtime=None):
     return selected_stop_timesdf
 
 
-def format_transit_net_edge(stop_times_df=None,verbose=False):
+def format_transit_net_edge(stop_times_df=None):
     """
-    Format transit network data table to match the format required for edges in Pandana graph networks edges
+    Format transit network data table to match the format required for edges
+    in Pandana graph networks edges
 
     Parameters
     ----------
     stop_times_df : pandas.DataFrame
-        interpolated stop times with travel time between stops for the subset time and day
-    verbose : bool
-        if true, all trips that are reshaped will be printed out for reference. should only be used for debugging
+        interpolated stop times with travel time between stops for the subset
+        time and day
 
     Returns
     -------
@@ -369,19 +368,18 @@ def format_transit_net_edge(stop_times_df=None,verbose=False):
     """
     start_time = time.time()
 
-    # TODO: Optimize for speed
-    log('Note: depending on the number of records this process may take some time to complete')
-    log('Starting transformation process for {:,} total trips...'.format(len(stop_times_df['unique_trip_id'].unique())))
+    log('Note: depending on the number of records this process may '
+        'take some time to complete')
+    log('Starting transformation process for {:,} '
+        'total trips...'.format(len(stop_times_df['unique_trip_id'].unique())))
 
     # set columns for new df for data needed by pandana for edges
-    columns = ['sequence', 'node_id_from', 'node_id_to', 'weight', 'unique_trip_id', 'unique_agency_id']
     merged_edge = []
 
-    stop_times_df.sort_values(by=['unique_trip_id', 'stop_sequence'], inplace=True)
+    stop_times_df.sort_values(by=['unique_trip_id', 'stop_sequence'],
+                              inplace=True)
 
     for trip, tmp_trip_df in stop_times_df.groupby(['unique_trip_id']):
-        if verbose:
-            log('Reshaping trip: {}'.format(trip))
 
         edge_df = pd.DataFrame({
             "node_id_from": tmp_trip_df['unique_stop_id'].iloc[:-1].values,
@@ -392,16 +390,20 @@ def format_transit_net_edge(stop_times_df=None,verbose=False):
             "unique_trip_id": trip
         })
 
-        # Set current trip id to edge id column adding edge order at end of string
+        # Set current trip id to edge id column adding edge order at
+        # end of string
         edge_df['sequence'] = (edge_df.index+1).astype(int)
 
         # append completed formatted edge table to master edge table
         merged_edge.append(edge_df)
+
     merged_edge_df = pd.concat(merged_edge, ignore_index=True)
     merged_edge_df['sequence'] = merged_edge_df['sequence'].astype(int, copy=False)
     merged_edge_df['id'] = merged_edge_df[['unique_trip_id', 'sequence']].apply(lambda x: '{}_{}'.format(x[0], x[1]), axis=1)
 
-    log('stop time table transformation to Pandana format edge table completed. Took {:,.2f} seconds'.format(time.time()-start_time))
+    log('stop time table transformation to '
+        'Pandana format edge table completed. '
+        'Took {:,.2f} seconds'.format(time.time()-start_time))
 
     return merged_edge_df
 
