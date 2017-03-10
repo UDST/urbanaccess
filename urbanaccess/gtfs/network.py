@@ -390,23 +390,10 @@ def format_transit_net_edge(stop_times_df=None,verbose=False):
         data[:] = np.NAN  # set array values as nan
         edge_df = pd.DataFrame(data, columns=columns)  # convert np array to pandas df
 
-        i = 0  # initialize counter to 0
-
-        # iterate over each row in tmp trip df from 0 to len of df - 1
-        for unique_stop_id_row in tmp_trip_df.index[0:len(tmp_trip_df)-1]:
-            #  first row of table
-            if i == 0:
-                edge_df['node_id_from'].iloc[0:1] = tmp_trip_df['unique_stop_id'].iloc[0:1].values
-                edge_df['node_id_to'].iloc[0:1] = tmp_trip_df['unique_stop_id'].iloc[1:2].values
-                edge_df['weight'].iloc[0:1] = tmp_trip_df['timediff'].iloc[1:2].values
-                edge_df['unique_agency_id'].iloc[0:1] = tmp_trip_df['unique_agency_id'].iloc[1:2].values
-            #  n row of table
-            else:
-                edge_df['node_id_from'].iloc[i:i+1] = tmp_trip_df['unique_stop_id'].iloc[i:i+1].values
-                edge_df['node_id_to'].iloc[i:i+1] = tmp_trip_df['unique_stop_id'].iloc[i+1:i+2].values
-                edge_df['weight'].iloc[i:i+1] = tmp_trip_df['timediff'].iloc[i+1:i+2].values
-                edge_df['unique_agency_id'].iloc[i:i+1] = tmp_trip_df['unique_agency_id'].iloc[i+1:i+2].values
-            i += 1  # increase counter by 1
+        edge_df['node_id_from'] = tmp_trip_df['unique_stop_id'].iloc[:-1].values
+        edge_df['node_id_to'] = tmp_trip_df['unique_stop_id'].iloc[1:].values
+        edge_df['weight'] = tmp_trip_df['timediff'].iloc[1:].values
+        edge_df['unique_agency_id'] = tmp_trip_df['unique_agency_id'].iloc[1:].values
 
         # Set current trip id to edge id column adding edge order at end of string
         edge_df['sequence'] = (edge_df.index+1).astype(int)
