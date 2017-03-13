@@ -257,15 +257,31 @@ def interpolatestoptimes(stop_times_df, calendar_selected_trips_df, day):
                                      limit_direction='forward')
 
     # Melt back into stacked format
-    interpolator['stop_sequence'] = interpolator.index
-    melted = pd.melt(interpolator, id_vars='stop_sequence')
+    interpolator['stop_sequence_merge'] = interpolator.index
+    melted = pd.melt(interpolator, id_vars='stop_sequence_merge')
     melted.rename(columns={'value': 'departure_time_sec_interpolate'},
                   inplace=True)
+
+    # Get the last valid stop for each unique trip, to filter out trailing NaNs
+    last_valid_stop_series = pivot.apply(
+        lambda col: col.last_valid_index(), axis=0)
+    last_valid_stop_df = last_valid_stop_series.to_frame('last_valid_stop')
+
+    df_for_interpolation = df_for_interpolation.merge(last_valid_stop_df,
+                                                      left_on='unique_trip_id',
+                                                      right_index=True)
+    trailing = (df_for_interpolation.stop_sequence >
+                df_for_interpolation.last_valid_stop)
+
+    # Calculate a stop_sequence without trailing NaNs, to merge the correct
+    # interpolated times back in
+    df_for_interpolation['stop_sequence_merge'] = (
+        df_for_interpolation[~trailing]['stop_sequence'])
 
     # Merge back into original index
     df_for_interpolation.reset_index(inplace=True)
     interpolated_df = pd.merge(df_for_interpolation, melted, 'left',
-                               on=['stop_sequence', 'unique_trip_id'])
+                               on=['stop_sequence_merge', 'unique_trip_id'])
     interpolated_df.set_index('index', inplace=True)
     interpolated_times = interpolated_df[['departure_time_sec_interpolate']]
 

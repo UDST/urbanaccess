@@ -7,19 +7,21 @@ from urbanaccess.gtfs import network
 @pytest.fixture
 def stop_times():
     data = {
-        'unique_agency_id': ['citytrains'] * 20,
+        'unique_agency_id': ['citytrains'] * 25,
         'trip_id': ['a', 'a', 'a', 'a', 'a',
                     'b', 'b', 'b', 'b', 'b',
                     'c', 'c', 'c', 'c', 'c',
-                    'd', 'd', 'd', 'd', 'd'],
-        'stop_id': range(20),
+                    'd', 'd', 'd', 'd', 'd',
+                    'e', 'e', 'e', 'e', 'e'],
+        'stop_id': range(25),
         'departure_time_sec': [1, 2, np.nan, np.nan, 5,
                                1, 2, 3, 4, np.nan,
                                np.nan, np.nan, 3, 4, np.nan,
-                               1, 2, 3, 4, 5],
-        'stop_sequence': [1, 2, 3, 4, 5] * 4
+                               1, 2, 3, 4, 5,
+                               1, np.nan, 3, 4, np.nan],
+        'stop_sequence': [1, 2, 3, 4, 5] * 5
     }
-    index = range(20)
+    index = range(25)
 
     df = pd.DataFrame(data, index)
     return df
@@ -28,10 +30,10 @@ def stop_times():
 @pytest.fixture
 def calendar():
     data = {
-        'unique_agency_id': ['citytrains'] * 3,
-        'trip_id': ['a', 'b', 'c']
+        'unique_agency_id': ['citytrains'] * 4,
+        'trip_id': ['a', 'b', 'c', 'e']
     }
-    index = range(3)
+    index = range(4)
 
     df = pd.DataFrame(data, index)
     return df
@@ -96,12 +98,16 @@ def test_interpolator(stop_times, calendar):
 
     # trip 'c' should be interpolated
     # no starting value, so first two times removed
-    # missing value at end should be equal to last existing value
+    # NaN values should be removed from start and end
     assert df.loc[df.trip_id == 'c',
-                  'departure_time_sec_interpolate'].tolist() == [3, 4, 4]
+                  'departure_time_sec_interpolate'].tolist() == [3, 4]
 
     # trip 'd' should be removed because it's not in the calendar df
     assert len(df.loc[df.trip_id == 'd']) == 0
+
+    # trip 'e' should interpolate the second row but leave off the trailing NA
+    assert df.loc[df.trip_id == 'e',
+                  'departure_time_sec_interpolate'].tolist() == [1, 2, 3, 4]
 
 
 def test_edge_reformatter(stop_times_interpolated):
