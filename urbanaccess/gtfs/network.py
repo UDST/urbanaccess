@@ -209,7 +209,11 @@ def interpolatestoptimes(stop_times_df, calendar_selected_trips_df, day):
 
     # sort stop times inplace based on first to last stop in sequence -- required as the linear interpolator runs from first value to last value
     if stop_times_df['stop_sequence'].isnull().sum() > 1:
-        log('WARNING: There are {:,} stop_sequence records missing in the stop_times dataframe. Please check these missing values. In order for interpolation to proceed correctly, all records must have a stop_sequence value.'.format(stop_times_df['stop_sequence'].isnull().sum()),level=lg.WARNING)
+        log('WARNING: There are {:,} '
+            'stop_sequence records missing in the stop_times dataframe. '
+            'Please check these missing values. In order for interpolation '
+            'to proceed correctly, '
+            'all records must have a stop_sequence value.'.format(stop_times_df['stop_sequence'].isnull().sum()),level=lg.WARNING)
 
     stop_times_df.sort_values(by=['unique_trip_id', 'stop_sequence'], inplace=True)
     # make list of unique trip ids from the calendar_selected_trips_df
@@ -217,13 +221,16 @@ def interpolatestoptimes(stop_times_df, calendar_selected_trips_df, day):
     # select trip ids that match the trips in the calendar_selected_trips_df -- resulting df will be stop times only for trips that run on the service day of interest
     stop_times_df = stop_times_df[stop_times_df['unique_trip_id'].isin(uniquetriplist)]
 
-    log('Note: Processing may take a long time depending on the number of records. Total unique trips to assess: {:,}'.format(len(stop_times_df['unique_trip_id'].unique())),level=lg.WARNING)
+    log('Note: Processing may take a long time depending'
+        ' on the number of records. '
+        'Total unique trips to assess: {:,}'.format(len(stop_times_df['unique_trip_id'].unique())),level=lg.WARNING)
     log('Starting departure stop time interpolation...')
     log('Departure time records missing from trips following'
-        ' {} schedule: {:,} ({:.2f} percent of {:,}) total records)'.format(day,
-                                                                            stop_times_df['departure_time_sec'].isnull().sum(),
-                                                                            (stop_times_df['departure_time_sec'].isnull().sum() / len(stop_times_df)) *100,
-                                                                            len(stop_times_df['departure_time_sec'])))
+        ' {} schedule: {:,} '
+        '({:.2f} percent of {:,} total records)'.format(day,
+                                                        stop_times_df['departure_time_sec'].isnull().sum(),
+                                                        (stop_times_df['departure_time_sec'].isnull().sum() / len(stop_times_df)) *100,
+                                                        len(stop_times_df['departure_time_sec'])))
 
     log('Interpolating...')
 
@@ -271,7 +278,8 @@ def interpolatestoptimes(stop_times_df, calendar_selected_trips_df, day):
     final_stop_times_df['departure_time_sec_interpolate'].fillna(final_stop_times_df['departure_time_sec'], inplace=True)
 
     if final_stop_times_df['departure_time_sec_interpolate'].isnull().sum() > 0:
-        log('WARNING: Number of records unable to interpolate: {:,}. These records have been removed.'.format(final_stop_times_df['departure_time_sec_interpolate'].isnull().sum()),level=lg.WARNING)
+        log('WARNING: Number of records unable to interpolate: {:,}. '
+            'These records have been removed.'.format(final_stop_times_df['departure_time_sec_interpolate'].isnull().sum()),level=lg.WARNING)
 
     ## convert the interpolated times (float) to integer so all times are the same number format
     # first run int converter on non-null records (nulls here are the last stop times in a trip because there is no departure)
@@ -368,8 +376,6 @@ def format_transit_net_edge(stop_times_df=None):
     """
     start_time = time.time()
 
-    log('Note: depending on the number of records this process may '
-        'take some time to complete')
     log('Starting transformation process for {:,} '
         'total trips...'.format(len(stop_times_df['unique_trip_id'].unique())))
 
