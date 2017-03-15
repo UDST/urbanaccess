@@ -1,7 +1,7 @@
 UrbanAccess
 =============
 
-Under construction
+A tool for computing GTFS transit and OSM pedestrian networks for accessibility analysis.
 
 Contents
 --------
@@ -9,10 +9,10 @@ Contents
 .. toctree::
    :maxdepth: 2
 
-   Introduction <introduction>
    Installation <installation>
-   Data Loaders <data_loaders>
-   Network Integration <integrated_network>
+   Introduction <introduction>
+   Download and Load Data <data_loaders>
+   Create an Integrated Transit and Street Network <integrated_network>
 
 
 * :ref:`genindex`

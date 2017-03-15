@@ -1,3 +1,5 @@
+.. _network-section:
+
 Network Integration
 =====================
 

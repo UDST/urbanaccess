@@ -44,6 +44,10 @@ python setup.py install
 
 Documentation for UrbanAccess is currently under construction.
 
+## Minimum GTFS data requirements
+
+The minimum [GTFS data types](https://developers.google.com/transit/gtfs/) required to use UrbanAccess are: ``stop_times``, ``stops``, ``routes``, ``calendar``, and ``trips``
+
 ## Citation and academic literature
 To cite this tool and for a complete description of the UrbanAccess methodology see the paper below:  
 `Samuel D. Blanchard and Paul Waddell. Forthcoming 2017. "UrbanAccess: A Generalized Methodology for Measuring Regional Accessibility with an Integrated Pedestrian and Transit Network." Transportation Research Record: Journal of the Transportation Research Board. No. 2653.`
