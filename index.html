@@ -1,0 +1,257 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>UrbanAccess &mdash; UrbanAccess 0.1a.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="UrbanAccess 0.1a.0 documentation" href="#"/>
+        <link rel="next" title="Installation" href="installation.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="#" class="icon icon-home"> UrbanAccess
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1a
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction and Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_loaders.html">Download and Load Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="integrated_network.html">Create an Integrated Transit and Street Network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot.html">Plot Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">Utilities</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="#">UrbanAccess</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="#">Docs</a> &raquo;</li>
+      
+    <li>UrbanAccess</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="urbanaccess">
+<h1>UrbanAccess<a class="headerlink" href="#urbanaccess" title="Permalink to this headline">¶</a></h1>
+<p>A tool for computing GTFS transit and OSM pedestrian networks for accessibility analysis.</p>
+<div class="section" id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#current-status">Current status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#id1">Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction and Workflow</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#minimum-gtfs-data-requirements">Minimum GTFS data requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#license">License</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#citation-and-academic-literature">Citation and academic literature</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#reporting-bugs">Reporting bugs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#contributing-to-urbanaccess">Contributing to UrbanAccess</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#related-udst-libraries">Related UDST libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#general-workflow">General workflow</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data_loaders.html">Download and Load Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="data_loaders.html#the-gtfs-data-object">The GTFS Data Object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_loaders.html#downloading-gtfs-data">Downloading GTFS Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_loaders.html#loading-gtfs-data">Loading GTFS Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_loaders.html#saving-processed-gtfs-data">Saving Processed GTFS data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_loaders.html#loading-processed-gtfs-data">Loading Processed GTFS data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_loaders.html#downloading-and-loading-openstreetmap-data">Downloading and Loading OpenStreetMap Data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="integrated_network.html">Create an Integrated Transit and Street Network</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="integrated_network.html#the-network-data-object">The Network Data Object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="integrated_network.html#creating-a-transit-network">Creating a transit network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="integrated_network.html#creating-a-street-network">Creating a street network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="integrated_network.html#network-integration">Network Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="integrated_network.html#save-network">Save Network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="integrated_network.html#load-network">Load Network</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="plot.html">Plot Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">Utilities</a></li>
+</ul>
+</div>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, UrbanSim Inc..
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1a.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

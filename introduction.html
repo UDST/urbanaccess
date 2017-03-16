@@ -1,0 +1,303 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Introduction &mdash; UrbanAccess 0.1a.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="UrbanAccess 0.1a.0 documentation" href="index.html"/>
+        <link rel="next" title="Acquire and Load Data" href="data_loaders.html"/>
+        <link rel="prev" title="Installation" href="installation.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> UrbanAccess
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1a
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction and Workflow</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#minimum-gtfs-data-requirements">Minimum GTFS data requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#license">License</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#citation-and-academic-literature">Citation and academic literature</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reporting-bugs">Reporting bugs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#contributing-to-urbanaccess">Contributing to UrbanAccess</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#related-udst-libraries">Related UDST libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#general-workflow">General workflow</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data_loaders.html">Download and Load Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="integrated_network.html">Create an Integrated Transit and Street Network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot.html">Plot Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">Utilities</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">UrbanAccess</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Introduction</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/introduction.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="introduction">
+<span id="intro-section"></span><h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p>UrbanAccess: A tool for computing GTFS transit and OSM pedestrian networks for accessibility analysis.</p>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>UrbanAccess is tool for creating multi-modal graph networks for use in multi-scale (e.g. address level to the metropolitan level) transit accessibility analyses with the network analysis tool Pandana. UrbanAccess uses open data from General Transit Feed Specification (GTFS) data to represent disparate operational schedule transit networks and pedestrian OpenStreetMap (OSM) data to represent the pedestrian network. UrbanAccess provides a generalized, computationally efficient, and unified accessibility calculation framework by linking tools for: 1) network data acquisition, validation, and processing; 2) computing an integrated pedestrian and transit weighted network graph; and 3) network analysis using Pandana.</p>
+<p>UrbanAccess offers the following tools:</p>
+<ul class="simple">
+<li>GTFS and OSM network data acquisition via APIs</li>
+<li>Network data validation and regional network aggregation</li>
+<li>Compute network impedance:<ul>
+<li>by transit schedule day of the week and time of day</li>
+<li>by transit mode</li>
+<li>by including average passenger headways to approximate passenger transit stop wait time</li>
+</ul>
+</li>
+<li>Integrate pedestrian and transit networks to approximate pedestrian scale accessibility</li>
+<li>Resulting networks are designed to be used to compute accessibility metrics using the open source network analysis tool <a class="reference external" href="https://github.com/UDST/pandana">Pandana</a></li>
+</ul>
+<p><a class="reference internal" href="_images/travel_time_net.png"><img alt="travel_time_net" src="_images/travel_time_net.png" style="width: 1265.6px; height: 1361.6px;" /></a>
+<em>Integrated AC Transit and BART transit and pedestrian network travel times for Oakland, CA</em></p>
+</div>
+<div class="section" id="minimum-gtfs-data-requirements">
+<h2>Minimum GTFS data requirements<a class="headerlink" href="#minimum-gtfs-data-requirements" title="Permalink to this headline">¶</a></h2>
+<p>The minimum <a class="reference external" href="https://developers.google.com/transit/gtfs/">GTFS data types</a> required to use UrbanAccess are: <code class="docutils literal"><span class="pre">stop_times</span></code>, <code class="docutils literal"><span class="pre">stops</span></code>, <code class="docutils literal"><span class="pre">routes</span></code>, <code class="docutils literal"><span class="pre">calendar</span></code>, and <code class="docutils literal"><span class="pre">trips</span></code></p>
+</div>
+<div class="section" id="license">
+<h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
+<p>UrbanAccess is licensed under the AGPL license.</p>
+</div>
+<div class="section" id="citation-and-academic-literature">
+<h2>Citation and academic literature<a class="headerlink" href="#citation-and-academic-literature" title="Permalink to this headline">¶</a></h2>
+<p>To cite this tool and for a complete description of the UrbanAccess methodology see the paper below:</p>
+<p><cite>Samuel D. Blanchard and Paul Waddell. Forthcoming 2017. &#8220;UrbanAccess: A Generalized Methodology for Measuring Regional Accessibility with an Integrated Pedestrian and Transit Network.&#8221; Transportation Research Record: Journal of the Transportation Research Board. No. 2653.</cite></p>
+</div>
+<div class="section" id="reporting-bugs">
+<h2>Reporting bugs<a class="headerlink" href="#reporting-bugs" title="Permalink to this headline">¶</a></h2>
+<p>Please report any bugs you encounter via <a class="reference external" href="https://github.com/UDST/urbanaccess/issues">GitHub Issues</a>.</p>
+</div>
+<div class="section" id="contributing-to-urbanaccess">
+<h2>Contributing to UrbanAccess<a class="headerlink" href="#contributing-to-urbanaccess" title="Permalink to this headline">¶</a></h2>
+<p>If you have improvements or new features you would like to see in UrbanAccess:</p>
+<ol class="arabic simple">
+<li>Open a feature request via <a class="reference external" href="https://github.com/UDST/urbanaccess/issues">GitHub Issues</a>.</li>
+<li>Contribute your code from a fork or branch by using a Pull Request and request a review so it can be considered as an addition to the codebase.</li>
+</ol>
+</div>
+<div class="section" id="related-udst-libraries">
+<h2>Related UDST libraries<a class="headerlink" href="#related-udst-libraries" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference external" href="https://github.com/UDST/pandana">Pandana</a></li>
+<li><a class="reference external" href="https://github.com/UDST/osmnet">OSMnet</a></li>
+</ul>
+</div>
+<div class="section" id="general-workflow">
+<h2>General workflow<a class="headerlink" href="#general-workflow" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li><strong>Download and load data</strong></li>
+</ol>
+<ul class="simple">
+<li><a class="reference internal" href="data_loaders.html#gtfs-download"><span class="std std-ref">Download GTFS data</span></a></li>
+<li><a class="reference internal" href="data_loaders.html#gtfs-loader"><span class="std std-ref">Load and process GTFS data</span></a></li>
+<li><a class="reference internal" href="data_loaders.html#osm-download-load"><span class="std std-ref">Download and load OSM street network data</span></a></li>
+</ul>
+<ol class="arabic simple" start="2">
+<li><strong>Create network graphs</strong></li>
+</ol>
+<ul class="simple">
+<li><a class="reference internal" href="integrated_network.html#transit-network"><span class="std std-ref">Transit network: Create a travel time weight graph network</span></a></li>
+<li><a class="reference internal" href="integrated_network.html#street-network"><span class="std std-ref">Street network: Create a travel time weight graph network</span></a></li>
+<li><a class="reference internal" href="integrated_network.html#int-network"><span class="std std-ref">Integrate the two graph networks</span></a></li>
+</ul>
+<ol class="arabic simple" start="3">
+<li><strong>Plot the network</strong></li>
+</ol>
+<ul class="simple">
+<li><a class="reference internal" href="plot.html#plot-section"><span class="std std-ref">Inspect the network and visualize the impedance</span></a></li>
+</ul>
+<ol class="arabic simple" start="4">
+<li><strong>Compute a network analysis</strong></li>
+</ol>
+<ul class="simple">
+<li><a class="reference external" href="https://github.com/UDST/pandana">Compute an accessibility query using Pandana</a></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="data_loaders.html" class="btn btn-neutral float-right" title="Acquire and Load Data" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="installation.html" class="btn btn-neutral" title="Installation" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, UrbanSim Inc..
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1a.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

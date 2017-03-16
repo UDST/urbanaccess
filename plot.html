@@ -1,0 +1,332 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Plot Networks &mdash; UrbanAccess 0.1a.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="UrbanAccess 0.1a.0 documentation" href="index.html"/>
+        <link rel="next" title="Utilities" href="utilities.html"/>
+        <link rel="prev" title="Create an Integrated Transit and Street Network" href="integrated_network.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> UrbanAccess
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1a
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction and Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_loaders.html">Download and Load Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="integrated_network.html">Create an Integrated Transit and Street Network</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Plot Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">Utilities</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">UrbanAccess</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Plot Networks</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/plot.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="plot-networks">
+<span id="plot-section"></span><h1>Plot Networks<a class="headerlink" href="#plot-networks" title="Permalink to this headline">¶</a></h1>
+<p>UrbanAccess offers some basic plotting methods to visualize your UrbanAccess network data.</p>
+<p>For example you can:</p>
+<p><strong>Plot the transit network</strong>
+<a class="reference internal" href="_images/transit_net.png"><img alt="transit_net" src="_images/transit_net.png" style="width: 1265.6px; height: 1361.6px;" /></a>
+<em>AC Transit and BART transit network for Oakland, CA</em></p>
+<p><strong>Plot the street network network</strong>
+<a class="reference internal" href="_images/ped_net.png"><img alt="ped_net" src="_images/ped_net.png" style="width: 1265.6px; height: 1361.6px;" /></a>
+<em>Pedestrian network for Oakland, CA</em></p>
+<p><strong>Plot the travel times on the integrated network</strong>
+<a class="reference internal" href="_images/travel_time_net.png"><img alt="travel_time_net" src="_images/travel_time_net.png" style="width: 1265.6px; height: 1361.6px;" /></a>
+<em>Integrated AC Transit and BART transit and pedestrian network travel times for Oakland, CA</em></p>
+<dl class="function">
+<dt id="urbanaccess.plot.plot_net">
+<code class="descclassname">urbanaccess.plot.</code><code class="descname">plot_net</code><span class="sig-paren">(</span><em>nodes=None</em>, <em>edges=None</em>, <em>x_col='x'</em>, <em>y_col='y'</em>, <em>bbox=None</em>, <em>fig_height=6</em>, <em>margin=0.02</em>, <em>edge_color='#999999'</em>, <em>edge_linewidth=1</em>, <em>edge_alpha=1</em>, <em>node_color='black'</em>, <em>node_size=15</em>, <em>node_alpha=1</em>, <em>node_edgecolor='none'</em>, <em>node_zorder=3</em>, <em>nodes_only=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.plot.plot_net" title="Permalink to this definition">¶</a></dt>
+<dd><p>plot urbanaccess network nodes and edges</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>nodes</strong> : pandas.DataFrame</p>
+<p><strong>edges</strong> : pandas.DataFrame</p>
+<p><strong>x_col</strong> : str, optional</p>
+<p><strong>y_col</strong> : str, optional</p>
+<p><strong>bbox</strong> : tuple</p>
+<blockquote>
+<div><p>Bounding box formatted as a 4 element tuple: (lng_max, lat_min, lng_min, lat_max)
+example: (-122.304611,37.798933,-122.263412,37.822802)
+a bbox can be extracted for an area using: the CSV format bbox from <a class="reference external" href="http://boundingbox.klokantech.com/">http://boundingbox.klokantech.com/</a>
+if None bbox will be calculated from spatial extents of data</p>
+</div></blockquote>
+<p><strong>fig_height</strong> : int</p>
+<blockquote>
+<div><p>matplotlib figure height in inches</p>
+</div></blockquote>
+<p><strong>margin</strong> : float</p>
+<blockquote>
+<div><p>margin around the figure</p>
+</div></blockquote>
+<p><strong>edge_color</strong> : string</p>
+<blockquote>
+<div><p>the color of the edge lines</p>
+</div></blockquote>
+<p><strong>edge_linewidth</strong> : float</p>
+<blockquote>
+<div><p>the width of the edge lines</p>
+</div></blockquote>
+<p><strong>edge_alpha</strong> : float</p>
+<blockquote>
+<div><p>the opacity of the edge lines</p>
+</div></blockquote>
+<p><strong>node_color</strong> : string</p>
+<blockquote>
+<div><p>the color of the nodes</p>
+</div></blockquote>
+<p><strong>node_size</strong> : int</p>
+<blockquote>
+<div><p>the size of the nodes</p>
+</div></blockquote>
+<p><strong>node_alpha</strong> : float</p>
+<blockquote>
+<div><p>the opacity of the nodes</p>
+</div></blockquote>
+<p><strong>node_edgecolor</strong> : string</p>
+<blockquote>
+<div><p>the color of the node marker border</p>
+</div></blockquote>
+<p><strong>node_zorder</strong> : int</p>
+<blockquote>
+<div><p>zorder to plot nodes, edges are 2, so you can make node_zorder 1 to plot nodes under them or 3 to plot
+nodes on top</p>
+</div></blockquote>
+<p><strong>nodes_only</strong> : bool</p>
+<blockquote>
+<div><p>if true only the nodes will plot</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">fig, ax</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="urbanaccess.plot.col_colors">
+<code class="descclassname">urbanaccess.plot.</code><code class="descname">col_colors</code><span class="sig-paren">(</span><em>df=None</em>, <em>col=None</em>, <em>num_bins=5</em>, <em>cmap='spectral'</em>, <em>start=0.1</em>, <em>stop=0.9</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.plot.col_colors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of colors by binning a continuous-variable column into quantiles</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>df</strong> : pandas.DataFrame</p>
+<p><strong>col</strong> : string</p>
+<blockquote>
+<div><p>the name of the continuous-variable column in the dataframe</p>
+</div></blockquote>
+<p><strong>num_bins</strong> : int</p>
+<blockquote>
+<div><p>how many quantiles</p>
+</div></blockquote>
+<p><strong>cmap</strong> : string</p>
+<blockquote>
+<div><p>name of a colormap</p>
+</div></blockquote>
+<p><strong>start</strong> : float</p>
+<blockquote>
+<div><p>where to start in the colorspace</p>
+</div></blockquote>
+<p><strong>stop</strong> : float</p>
+<blockquote>
+<div><p>where to end in the colorspace</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>colors</strong> : list</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="utilities.html" class="btn btn-neutral float-right" title="Utilities" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="integrated_network.html" class="btn btn-neutral" title="Create an Integrated Transit and Street Network" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, UrbanSim Inc..
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1a.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
