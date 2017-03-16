@@ -46,7 +46,6 @@ To cite this tool and for a complete description of the UrbanAccess methodology 
 
 `Samuel D. Blanchard and Paul Waddell. Forthcoming 2017. "UrbanAccess: A Generalized Methodology for Measuring Regional Accessibility with an Integrated Pedestrian and Transit Network." Transportation Research Record: Journal of the Transportation Research Board. No. 2653.`
 
-
 Reporting bugs
 ~~~~~~~~~~~~~~~~~~~~~~~~
 Please report any bugs you encounter via `GitHub Issues <https://github.com/UDST/urbanaccess/issues>`__.
@@ -56,7 +55,7 @@ Contributing to UrbanAccess
 If you have improvements or new features you would like to see in UrbanAccess:
 
 1. Open a feature request via `GitHub Issues <https://github.com/UDST/urbanaccess/issues>`__.
-2. Contribute your code using a Pull Request with your changes and request a review so it can be considered as an addition to the codebase.
+2. Contribute your code from a fork or branch by using a Pull Request and request a review so it can be considered as an addition to the codebase.
 
 Related UDST libraries
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

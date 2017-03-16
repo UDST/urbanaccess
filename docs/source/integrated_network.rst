@@ -12,9 +12,10 @@ The Network Data Object
 
 The network data object stores the individual transit and street network node and edge components as well as the final integrated network in Pandas dataframes.
 
-.. autofunction:: urbanaccess.network.ua_network
+.. autodata:: urbanaccess.network.ua_network
 
-.. autofunction:: urbanaccess.network.urbanaccess_network
+.. autoclass:: urbanaccess.network.urbanaccess_network
+    :members:
 
 .. _transit-network:
 

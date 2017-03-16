@@ -32,7 +32,7 @@ Please report any bugs you encounter via [GitHub issues](https://github.com/UDST
 ## Contributing to UrbanAccess
 If you have improvements or new features you would like to see in UrbanAccess:
 1. Open a feature request via [GitHub issues](https://github.com/UDST/urbanaccess/issues).
-2. Contribute your code using a Pull Request with your changes and request a review so it can be considered as an addition to the codebase.
+2. Contribute your code from a fork or branch by using a Pull Request and request a review so it can be considered as an addition to the codebase.
 
 ## Installation
 pip and conda installations are forthcoming. UrbanAccess is currently in a alpha release and further code refinements and speed optimizations are expected. As such, it is suggest to install using the ``develop`` command rather than ``install``. Make sure you are using the latest version of the code base by using git's ``git pull`` inside the cloned repository.
