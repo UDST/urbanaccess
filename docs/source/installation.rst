@@ -1,9 +1,7 @@
 Installation
 =====================
 
-Under Construction
-
-UrbanAccess relies on a number of libraries in scientific Python stack which can be easily installed using the `Anaconda`_ python distribution.
+UrbanAccess relies on a number of libraries in the scientific Python stack which can be easily installed using the `Anaconda`_ python distribution.
 
 Dependencies
 ~~~~~~~~~~~~~~~~~~
@@ -21,18 +19,17 @@ Dependencies
 Current status
 ~~~~~~~~~~~~~~~~~~
 
-UrbanAccess is currently in a alpha release. Further code refinements and speed optimizations are expected.
+UrbanAccess is currently in a alpha release. Further code refinements are expected.
 
 *Forthcoming improvements:*
 
 * Tutorial/demo
 * Unit tests
-* Speed optimizations
 
 Installation
 ~~~~~~~~~~~~~~
 
-pip and conda installations are forthcoming. UrbanAccess is currently in a alpha release and further code refinements and speed optimizations are expected. As such, it is suggest to install using the ``develop`` command rather than the ``install``. Make sure you are using the latest version of the code base by using git's ``git pull`` inside the cloned repository.
+pip and conda installations are forthcoming. UrbanAccess is currently in a alpha release and further code refinements and speed optimizations are expected. As such, it is suggest to install using the ``develop`` command rather than ``install``. Make sure you are using the latest version of the code base by using git's ``git pull`` inside the cloned repository.
 
 To install UrbanAccess follow these steps:
 

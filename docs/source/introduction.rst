@@ -46,11 +46,42 @@ To cite this tool and for a complete description of the UrbanAccess methodology 
 
 `Samuel D. Blanchard and Paul Waddell. Forthcoming 2017. "UrbanAccess: A Generalized Methodology for Measuring Regional Accessibility with an Integrated Pedestrian and Transit Network." Transportation Research Record: Journal of the Transportation Research Board. No. 2653.`
 
+
+Reporting bugs
+~~~~~~~~~~~~~~~~~~~~~~~~
+Please report any bugs you encounter via `GitHub Issues <https://github.com/UDST/urbanaccess/issues>`__.
+
+Contributing to UrbanAccess
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If you have improvements or new features you would like to see in UrbanAccess:
+
+1. Open a feature request via `GitHub Issues <https://github.com/UDST/urbanaccess/issues>`__.
+2. Contribute your code using a Pull Request with your changes and request a review so it can be considered as an addition to the codebase.
+
 Related UDST libraries
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 - `Pandana <https://github.com/UDST/pandana>`__
 - `OSMnet <https://github.com/UDST/osmnet>`__
 
 General workflow
-------------------
+~~~~~~~~~~~~~~~~~~~
 
+1. **Download and load data**
+
+* :ref:`Download GTFS data <gtfs-download>`
+* :ref:`Load and process GTFS data <gtfs-loader>`
+* :ref:`Download and load OSM street network data <osm-download-load>`
+
+2. **Create network graphs**
+
+* :ref:`Transit network: Create a travel time weight graph network <transit-network>`
+* :ref:`Street network: Create a travel time weight graph network <street-network>`
+* :ref:`Integrate the two graph networks <int-network>`
+
+3. **Plot the network**
+
+* :ref:`Inspect the network and visualize the impedance <plot-section>`
+
+4. **Compute a network analysis**
+
+* `Compute an accessibility query using Pandana <https://github.com/UDST/pandana>`__

@@ -7,13 +7,12 @@ UrbanAccess has data downloaders and data loaders that can be used to acquire an
 
 1. Transit Network: General Transit Feed Specification (GTFS)
 
-    :ref:`Download <gtfs-download>`
+* :ref:`Download <gtfs-download>`
+* :ref:`Load <gtfs-loader>`
 
-    :ref:`Load <gtfs-loader>`
+2. Street Network: OpenStreetMap (OSM)
 
-2. Street Network: OpenStreetMap
-
-    :ref:`Download and Load <osm-download-load>`
+* :ref:`Download and Load <osm-download-load>`
 
 .. _gtfs-data-object:
 

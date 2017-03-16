@@ -20,25 +20,31 @@ UrbanAccess offers the following tools:
 * Resulting networks are designed to be used to compute accessibility metrics using the open source network analysis tool [Pandana](https://github.com/UDST/pandana) 
 
 ## Current status
-UrbanAccess is currently in a alpha release. Further code refinements and speed optimizations are expected.
+UrbanAccess is currently in a alpha release. Further code refinements are expected.
 
 *Forthcoming improvements:*
-- Documentation
 - Tutorial/demo
 - Unit tests
-- Speed optimizations
 
-## Reporting Bugs
+## Reporting bugs
 Please report any bugs you encounter via [GitHub issues](https://github.com/UDST/urbanaccess/issues).
 
-## Installation
-pip and conda installations are forthcoming. To install UrbanAccess follow these steps:
+## Contributing to UrbanAccess
+If you have improvements or new features you would like to see in UrbanAccess:
+1. Open a feature request via [GitHub issues](https://github.com/UDST/urbanaccess/issues).
+2. Contribute your code using a Pull Request with your changes and request a review so it can be considered as an addition to the codebase.
 
-1. Git clone this repo
-2. in the cloned directory run:  
-```
-python setup.py install
-```
+## Installation
+pip and conda installations are forthcoming. UrbanAccess is currently in a alpha release and further code refinements and speed optimizations are expected. As such, it is suggest to install using the ``develop`` command rather than ``install``. Make sure you are using the latest version of the code base by using git's ``git pull`` inside the cloned repository.
+
+To install UrbanAccess follow these steps:
+
+1. Git clone the `UrbanAccess repo <https://github.com/udst/urbanaccess>`__
+2. in the cloned directory run: ``python setup.py develop``
+
+To update to the latest version:
+
+Use ``git pull`` inside the cloned repository
 
 ## Documentation
 

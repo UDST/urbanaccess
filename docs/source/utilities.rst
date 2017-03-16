@@ -8,5 +8,3 @@ Global configuration settings can be changed using the settings object. By defau
 .. autofunction:: urbanaccess.config.settings
 
 .. autofunction:: urbanaccess.config.urbanaccess_config
-
-
