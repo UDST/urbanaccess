@@ -39,7 +39,7 @@ pip and conda installations are forthcoming. UrbanAccess is currently in a alpha
 
 To install UrbanAccess follow these steps:
 
-1. Git clone the `UrbanAccess repo <https://github.com/udst/urbanaccess>`__
+1. Git clone the [UrbanAccess repo](https://github.com/udst/urbanaccess)
 2. in the cloned directory run: ``python setup.py develop``
 
 To update to the latest version:
@@ -48,7 +48,7 @@ Use ``git pull`` inside the cloned repository
 
 ## Documentation
 
-Documentation for UrbanAccess is currently under construction.
+Documentation for UrbanAccess can be found [here](https://udst.github.io/urbanaccess/index.html).
 
 ## Minimum GTFS data requirements
 
