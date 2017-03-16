@@ -20,8 +20,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.mathjax',
     'numpydoc',
-    'sphinx.ext.autosummary',
-    'sphinxtogithub'
+    'sphinx.ext.autosummary'
 ]
 
 
