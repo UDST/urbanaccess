@@ -292,11 +292,14 @@ def search(api='gtfsdataexch',search_text=None,search_field=None,match='contains
                 return search_result_df
 
 def download(data_folder=os.path.join(config.settings.data_folder),
-             feed_name=None, feed_url=None, feed_dict=None, error_pause_duration=5,delete_zips=False):
+             feed_name=None, feed_url=None, feed_dict=None,
+             error_pause_duration=5, delete_zips=False):
     """
-    Connect to the URLs passed in function or the URLs stored in the urbanaccess_gtfsfeeds instance and
-     download the GTFS feed zipfile(s) then unzip inside a local root directory. Resulting GTFS feed text
-     files will be located in the root folder: gtfsfeed_text unless otherwise specified
+    Connect to the URLs passed in function or the URLs stored in the
+    urbanaccess_gtfsfeeds instance and download the GTFS feed zipfile(s)
+    then unzip inside a local root directory. Resulting GTFS feed text files
+    will be located in the root folder: gtfsfeed_text unless otherwise
+    specified
 
     Parameters
     ----------
@@ -305,11 +308,11 @@ def download(data_folder=os.path.join(config.settings.data_folder),
     feed_name : str, optional
         name of transit agency or service to use to name downloaded zipfile
     feed_url : str, optional
-        corresponding URL to the feed_name to use to download GTFS feed zipile
+        corresponding URL to the feed_name to use to download GTFS feed zipfile
     feed_dict : dict, optional
         Dictionary specifying the name of the transit service or
         agency GTFS feed as the key and the GTFS feed URL as the value:
-         {unique name of GTFS feed or transit service/agency : URL of feed}
+        {unique name of GTFS feed or transit service/agency : URL of feed}
     error_pause_duration : int
         how long to pause in seconds before re-trying requests if error
     delete_zips : bool

@@ -10,9 +10,11 @@ Contents
    :maxdepth: 2
 
    Installation <installation>
-   Introduction <introduction>
+   Introduction and Workflow <introduction>
    Download and Load Data <data_loaders>
    Create an Integrated Transit and Street Network <integrated_network>
+   Plot Networks <plot>
+   Utilities <utilities>
 
 
 * :ref:`genindex`

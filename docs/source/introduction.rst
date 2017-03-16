@@ -1,7 +1,7 @@
+.. _intro-section:
+
 Introduction
 =============
-
-Under Construction
 
 UrbanAccess: A tool for computing GTFS transit and OSM pedestrian networks for accessibility analysis.
 
@@ -34,6 +34,10 @@ Minimum GTFS data requirements
 
 The minimum `GTFS data types <https://developers.google.com/transit/gtfs/>`__ required to use UrbanAccess are: ``stop_times``, ``stops``, ``routes``, ``calendar``, and ``trips``
 
+License
+~~~~~~~~
+
+UrbanAccess is licensed under the AGPL license.
 
 Citation and academic literature
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -42,8 +46,11 @@ To cite this tool and for a complete description of the UrbanAccess methodology 
 
 `Samuel D. Blanchard and Paul Waddell. Forthcoming 2017. "UrbanAccess: A Generalized Methodology for Measuring Regional Accessibility with an Integrated Pedestrian and Transit Network." Transportation Research Record: Journal of the Transportation Research Board. No. 2653.`
 
-
 Related UDST libraries
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 - `Pandana <https://github.com/UDST/pandana>`__
 - `OSMnet <https://github.com/UDST/osmnet>`__
+
+General workflow
+------------------
+
