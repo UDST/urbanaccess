@@ -48,12 +48,14 @@ def ua_network_from_bbox(lat_min=None, lng_min=None, lat_max=None,
     max_query_area_size : float, optional
         max area for any part of the geometry, in the units the geometry
         is in: any polygon bigger will get divided up
-        for multiple queries to Overpass API (default is 50,000 * 50,000 units
-         (ie, 50km x 50km in area, if units are meters))
+        for multiple queries to Overpass API
+        (default is 50,000 * 50,000 units
+        (ie, 50km x 50km in area, if units are meters))
     remove_lcn : bool, optional
         remove low connectivity nodes from the resulting network.
         this ensures the resulting network does
-        not have nodes that are unconnected from the rest of the larger network
+        not have nodes that are unconnected
+        from the rest of the larger network
 
     Returns
     -------
