@@ -35,7 +35,7 @@ If you have improvements or new features you would like to see in UrbanAccess:
 2. Contribute your code from a fork or branch by using a Pull Request and request a review so it can be considered as an addition to the codebase.
 
 ## Installation
-pip and conda installations are forthcoming. UrbanAccess is currently in a alpha release and further code refinements and speed optimizations are expected. As such, it is suggest to install using the ``develop`` command rather than ``install``. Make sure you are using the latest version of the code base by using git's ``git pull`` inside the cloned repository.
+pip and conda installations are forthcoming. UrbanAccess is currently in a alpha release and further code refinements are expected. As such, it is suggest to install using the ``develop`` command rather than ``install``. Make sure you are using the latest version of the code base by using git's ``git pull`` inside the cloned repository.
 
 To install UrbanAccess follow these steps:
 

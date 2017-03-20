@@ -19,7 +19,10 @@ class urbanaccess_gtfsfeeds(object):
     Parameters
     ----------
     gtfs_feeds : dict
-        dictionary of the name of the transit service or agency GTFS feed as the key and
+        dictionary of the name of the transit service or agency GTFS feed
+        as the key -note: this name will be used as the feed folder name.
+        If the GTFS feed does not have a agency name in the agency.txt file
+        this key will be used to name the agency- and
         the GTFS feed URL as the value to pass to the GTFS downloader as:
         {unique name of GTFS feed or transit service/agency : URL of feed}
     """
@@ -30,7 +33,9 @@ class urbanaccess_gtfsfeeds(object):
         self.gtfs_feeds = gtfs_feeds
 
     @classmethod
-    def from_yaml(cls, gtfsfeeddir=os.path.join(config.settings.data_folder,'gtfsfeeds'), yamlname='gtfsfeeds.yaml'):
+    def from_yaml(cls, gtfsfeeddir=os.path.join(config.settings.data_folder,
+                                                'gtfsfeeds'),
+                  yamlname='gtfsfeeds.yaml'):
         """
         Create a urbanaccess_gtfsfeeds instance from a saved YAML.
 
@@ -46,23 +51,28 @@ class urbanaccess_gtfsfeeds(object):
         """
 
         assert isinstance(gtfsfeeddir,str), 'gtfsfeeddir must be a string'
-        assert os.path.exists(gtfsfeeddir), ('{} does not exist or was not found').format(gtfsfeeddir)
-        assert isinstance(yamlname,str) and '.yaml' in yamlname, 'yaml must be a string and have file extension .yaml'
+        assert os.path.exists(gtfsfeeddir), \
+            ('{} does not exist or was not found').format(gtfsfeeddir)
+        assert isinstance(yamlname,str) and '.yaml' in yamlname, \
+            'yaml must be a string and have file extension .yaml'
 
         yaml_file = os.path.join(gtfsfeeddir, yamlname)
 
         with open(yaml_file, 'r') as f:
             yaml_config = yaml.load(f)
 
-        assert isinstance(yaml_config,dict), 'yamlname is not a dict'.format(yamlname)
+        assert isinstance(yaml_config,dict), \
+            'yamlname is not a dict'.format(yamlname)
 
         validkey = 'gtfs_feeds'
-        assert validkey in yaml_config.keys(), 'key gtfs_feeds was not found in YAML file'
+        assert validkey in yaml_config.keys(), \
+            'key gtfs_feeds was not found in YAML file'
 
         for key in yaml_config['gtfs_feeds'].keys():
             assert isinstance(key,str), ('{} must be a string').format(key)
             for value in yaml_config['gtfs_feeds'][key]:
-                assert isinstance(value,str), ('{} must be a string').format(value)
+                assert isinstance(value,str), \
+                    ('{} must be a string').format(value)
 
         assert (pd.Series(yaml_config['gtfs_feeds'].values()).value_counts() == 1).all(), ('duplicate values were found '
                                                                                            'when the passed add_dict '
@@ -78,7 +88,7 @@ class urbanaccess_gtfsfeeds(object):
 
     def to_dict(self):
         """
-        Return a dict representation of an UrbanAccess urbanaccess_gtfsfeeds instance.
+        Return a dict representation of an urbanaccess_gtfsfeeds instance.
         """
         return {'gtfs_feeds': self.gtfs_feeds}
 
@@ -89,12 +99,14 @@ class urbanaccess_gtfsfeeds(object):
         Parameters
         ----------
         add_dict : dict
-            Dictionary to add to existing urbanaccess_gtfsfeeds with the name of the transit service or
-            agency GTFS feed as the key and the GTFS feed URL as the value to pass to the GTFS downloader
-            as: {unique name of GTFS feed or transit service/agency : URL of feed}
+            Dictionary to add to existing urbanaccess_gtfsfeeds with the name
+            of the transit service or agency GTFS feed as the key and the
+            GTFS feed URL as the value to pass to the GTFS downloader
+            as:
+            {unique name of GTFS feed or transit service/agency : URL of feed}
         replace : bool
-            If key of dict is already in the UrbanAccess replace the existing dict value with the
-            value passed
+            If key of dict is already in the UrbanAccess replace
+            the existing dict value with the value passed
         """
 
         assert isinstance(add_dict,dict), 'add_dict is not a dict'
@@ -103,17 +115,20 @@ class urbanaccess_gtfsfeeds(object):
         if replace != True:
 
             for key in add_dict.keys():
-                assert key not in self.gtfs_feeds.keys(), ('{} passed in add_dict already exists in gtfs_feeds. '
-                                                           'Only unique keys are allowed to be added.').format(key)
+                assert key not in self.gtfs_feeds.keys(), \
+                    ('{} passed in add_dict already exists in gtfs_feeds. '
+                     'Only unique keys are allowed to be added.').format(key)
                 assert isinstance(key,str), ('{} must be a string').format(key)
                 for value in add_dict[key]:
-                    assert isinstance(value,str), ('{} must be a string').format(value)
+                    assert isinstance(value,str), \
+                        ('{} must be a string').format(value)
 
             for key, value in add_dict.items():
-                assert value not in self.gtfs_feeds.values(), ('duplicate values were found when the '
-                                                               'passed add_dict dictionary was added to '
-                                                               'the existing dictionary. Feed URL values '
-                                                               'must be unique.')
+                assert value not in self.gtfs_feeds.values(), \
+                    ('duplicate values were found when the '
+                     'passed add_dict dictionary was added to '
+                     'the existing dictionary. Feed URL values '
+                     'must be unique.')
             gtfs_feeds = self.gtfs_feeds.update(add_dict)
 
         else:
@@ -122,7 +137,8 @@ class urbanaccess_gtfsfeeds(object):
                     log('{} passed in add_dict will replace existing {} feed in gtfs_feeds.'.format(key,key))
                 assert isinstance(key,str), ('{} must be a string').format(key)
                 for value in add_dict[key]:
-                    assert isinstance(value,str), ('{} must be a string').format(value)
+                    assert isinstance(value,str), \
+                        ('{} must be a string').format(value)
 
             gtfs_feeds = self.gtfs_feeds.update(add_dict)
 
@@ -137,9 +153,11 @@ class urbanaccess_gtfsfeeds(object):
         Parameters
         ----------
         del_key : str or list
-            dict keys as a single string or list of strings to remove from existing
+            dict keys as a single string or list of
+            strings to remove from existing
         remove_all : bool
-            if true, remove all keys from existing urbanaccess_gtfsfeeds instance
+            if true, remove all keys from existing
+            urbanaccess_gtfsfeeds instance
         """
 
         assert isinstance(remove_all,bool)
@@ -150,17 +168,23 @@ class urbanaccess_gtfsfeeds(object):
 
         else:
 
-            assert isinstance(del_key,list) or isinstance(del_key,str), 'del_key must be a string or list of strings'
-            assert remove_all == False, 'remove_all must be False in order to remove individual records: {}'.format(del_key)
+            assert isinstance(del_key,list) or isinstance(del_key,str), \
+                'del_key must be a string or list of strings'
+            assert remove_all == False, \
+                'remove_all must be False in order to ' \
+                'remove individual records: {}'.format(del_key)
 
             del_key = [del_key]
 
             for key in del_key:
-                assert key in self.gtfs_feeds.keys(), ('{} key to delete was not found in gtfs_feeds').format(key)
+                assert key in self.gtfs_feeds.keys(), \
+                    ('{} key to delete was not found in gtfs_feeds').format(key)
                 del self.gtfs_feeds[key]
                 log('Removed {} feed from gtfs_feeds'.format(key))
 
-    def to_yaml(self, gtfsfeeddir=os.path.join(config.settings.data_folder,'gtfsfeeds'), yamlname='gtfsfeeds.yaml', overwrite=False):
+    def to_yaml(self, gtfsfeeddir=os.path.join(config.settings.data_folder,
+                                               'gtfsfeeds'),
+                yamlname='gtfsfeeds.yaml', overwrite=False):
         """
         Save a urbanaccess_gtfsfeeds representation to a YAML file.
 
@@ -193,29 +217,33 @@ class urbanaccess_gtfsfeeds(object):
 # instantiate the UrbanAccess gtfs feed object
 feeds = urbanaccess_gtfsfeeds()
 
-def search(api='gtfsdataexch',search_text=None,search_field=None,match='contains',add_feed=False,overwrite_feed=False):
+def search(api='gtfsdataexch',search_text=None,search_field=None,
+           match='contains',add_feed=False,overwrite_feed=False):
     """
-    Connect to a GTFS feed repository API and search for GTFS feeds that exist in a remote GTFS repository
-    and whether or not to add the GTFS feed name and download URL to the urbanaccess_gtfsfeeds instance.
+    Connect to a GTFS feed repository API and search for GTFS feeds that exist
+    in a remote GTFS repository and whether or not to add the GTFS feed name
+    and download URL to the urbanaccess_gtfsfeeds instance.
     Currently only supports access to the GTFS Data Exchange API.
 
     Parameters
     ----------
-    api : {'gtfsdataexch'}
-        name of GTFS feed repository to search in. name corresponds to the dict specified in
-        the urbanacess_config instance. Currently only supports access to the GTFS Data Exchange repository.
+    api : {'gtfsdataexch'}, optional
+        name of GTFS feed repository to search in. name corresponds to the
+        dict specified in the urbanacess_config instance. Currently only
+        supports access to the GTFS Data Exchange repository.
     search_text : str
         string pattern to search for
-    search_field : string or list
-        name of the field to search for string
-    match : {'contains', 'exact'}
+    search_field : string or list, optional
+        name of the field or column to search for string
+    match : {'contains', 'exact'}, optional
         search string matching method as either: contains or exact
-    add_feed : bool
-        add search results to existing urbanaccess_gtfsfeeds instance using the name field as the key and
-        the URL as the value
-    overwrite_feed : bool
-        If true the existing urbanaccess_gtfsfeeds instance will be replaced with the records returned in
-        the search results. All existing records will be removed.
+    add_feed : bool, optional
+        add search results to existing urbanaccess_gtfsfeeds instance using
+        the name field as the key and the URL as the value
+    overwrite_feed : bool, optional
+        If true the existing urbanaccess_gtfsfeeds instance will be replaced
+        with the records returned in the search results.
+        All existing records will be removed.
     Returns
     -------
     search_result_df : pandas.DataFrame
@@ -399,7 +427,8 @@ def download(data_folder=os.path.join(config.settings.data_folder),
 
 def unzip(zip_rootpath=None,delete_zips=True):
     """
-    unzip all GTFS feed zipfiles in a root directory with resulting text files in the root folder: gtfsfeed_text
+    unzip all GTFS feed zipfiles in a root directory with resulting text files
+    in the root folder: gtfsfeed_text
 
     Parameters
     ----------

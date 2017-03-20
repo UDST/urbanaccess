@@ -11,7 +11,7 @@ For example you can:
 |transit_net|
 *AC Transit and BART transit network for Oakland, CA*
 
-**Plot the street network network**
+**Plot the street network**
 |ped_net|
 *Pedestrian network for Oakland, CA*
 
