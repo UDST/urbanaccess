@@ -48,7 +48,7 @@ Download data from feeds in your ``feeds`` object or from custom feed URLs.
 Loading GTFS Data
 ~~~~~~~~~~~~~~~~~~~
 
-Load raw GTFS data (from multiple feeds) into a urbanaccess transit data object and run data through the validation and formatting sequence.
+Load raw GTFS data (from multiple feeds) into a UrbanAccess transit data object and run data through the validation and formatting sequence.
 
 GTFS feeds are assumed to either be a single feed designated by the feed folder or multiple feeds desginated as the root folder that holds all individual feed folders.
 

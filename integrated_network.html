@@ -151,8 +151,9 @@
 <p>The network data object stores the individual transit and street network node and edge components as well as the final integrated network in Pandas dataframes.</p>
 <dl class="data">
 <dt id="urbanaccess.network.ua_network">
-<code class="descclassname">urbanaccess.network.</code><code class="descname">ua_network</code><em class="property"> = &lt;urbanaccess.network.urbanaccess_network object&gt;</em><a class="headerlink" href="#urbanaccess.network.ua_network" title="Permalink to this definition">¶</a></dt>
-<dd><p>A urbanaccess object of dataframes representing the components of a graph network</p>
+<code class="descclassname">urbanaccess.network.</code><code class="descname">ua_network</code><em class="property"> = &lt;urbanaccess.network.urbanaccess_network object at 0x0000000009243E10&gt;</em><a class="headerlink" href="#urbanaccess.network.ua_network" title="Permalink to this definition">¶</a></dt>
+<dd><p>A urbanaccess object of dataframes representing
+the components of a graph network</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -173,7 +174,8 @@
 <dl class="class">
 <dt id="urbanaccess.network.urbanaccess_network">
 <em class="property">class </em><code class="descclassname">urbanaccess.network.</code><code class="descname">urbanaccess_network</code><span class="sig-paren">(</span><em>transit_nodes=Empty DataFrame Columns: [] Index: []</em>, <em>transit_edges=Empty DataFrame Columns: [] Index: []</em>, <em>net_connector_edges=Empty DataFrame Columns: [] Index: []</em>, <em>osm_nodes=Empty DataFrame Columns: [] Index: []</em>, <em>osm_edges=Empty DataFrame Columns: [] Index: []</em>, <em>net_nodes=Empty DataFrame Columns: [] Index: []</em>, <em>net_edges=Empty DataFrame Columns: [] Index: []</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.network.urbanaccess_network" title="Permalink to this definition">¶</a></dt>
-<dd><p>A urbanaccess object of dataframes representing the components of a graph network</p>
+<dd><p>A urbanaccess object of dataframes representing
+the components of a graph network</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -198,39 +200,48 @@
 <dl class="function">
 <dt id="urbanaccess.gtfs.network.create_transit_net">
 <code class="descclassname">urbanaccess.gtfs.network.</code><code class="descname">create_transit_net</code><span class="sig-paren">(</span><em>gtfsfeeds_df=None</em>, <em>day=None</em>, <em>timerange=None</em>, <em>overwrite_existing_stop_times_int=False</em>, <em>use_existing_stop_times_int=False</em>, <em>save_processed_gtfs=False</em>, <em>save_dir='data'</em>, <em>save_filename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.network.create_transit_net" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a travel time weight network graph in units of minutes from GTFS data</p>
+<dd><p>Create a travel time weight network graph in units of
+minutes from GTFS data</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>gtfsfeeds_df</strong> : object</p>
 <blockquote>
-<div><p>gtfsfeeds_df object with dataframes of stops, routes, trips, stop_times, calendar, and stop_times_int (optional)</p>
+<div><p>gtfsfeeds_df object with dataframes of stops, routes, trips,
+stop_times, calendar, and stop_times_int (optional)</p>
 </div></blockquote>
-<p><strong>day</strong> : {&#8216;friday&#8217;,&#8217;monday&#8217;,&#8217;saturday&#8217;,&#8217;sunday&#8217;,&#8217;thursday&#8217;,&#8217;tuesday&#8217;,&#8217;wednesday&#8217;}</p>
+<p><strong>day</strong> : {&#8216;friday&#8217;,&#8217;monday&#8217;,&#8217;saturday&#8217;, &#8216;sunday&#8217;,&#8217;thursday&#8217;,&#8217;tuesday&#8217;,&#8217;wednesday&#8217;}</p>
 <blockquote>
-<div><p>day of the week to extract transit schedule from that corresponds to the day in the GTFS calendar</p>
+<div><p>day of the week to extract transit schedule from that
+corresponds to the day in the GTFS calendar</p>
 </div></blockquote>
 <p><strong>timerange</strong> : list</p>
 <blockquote>
-<div><p>time range to extract transit schedule from in a list with time 1 and time 2. it is suggested the time range
-specified is large enough to allow for travel from one end of the transit network to the other but small enough
-to represent a relevant travel time period such as a 3 hour window for the AM Peak period. must follow format
+<div><p>time range to extract transit schedule from in a list with time
+1 and time 2. it is suggested the time range
+specified is large enough to allow for travel
+from one end of the transit network to the other but small enough
+to represent a relevant travel time period such as a 3 hour window
+for the AM Peak period. must follow format
 of a 24 hour clock for example: 08:00:00 or 17:00:00</p>
 </div></blockquote>
 <p><strong>overwrite_existing_stop_times_int</strong> : bool</p>
 <blockquote>
-<div><p>if true, and if there is an existing stop_times_int dataframe stored in the gtfsfeeds_df object it will be
+<div><p>if true, and if there is an existing stop_times_int
+dataframe stored in the gtfsfeeds_df object it will be
 overwritten</p>
 </div></blockquote>
 <p><strong>use_existing_stop_times_int</strong> : bool</p>
 <blockquote>
-<div><p>if true, and if there is an existing stop_times_int dataframe for the same time period stored in the
+<div><p>if true, and if there is an existing stop_times_int
+dataframe for the same time period stored in the
 gtfsfeeds_df object it will be used instead of re-calculated</p>
 </div></blockquote>
 <p><strong>save_processed_gtfs</strong> : bool</p>
 <blockquote>
-<div><p>if true, all processed gtfs dataframes will be stored to disk in a hdf5 file</p>
+<div><p>if true, all processed gtfs dataframes will
+be stored to disk in a hdf5 file</p>
 </div></blockquote>
 <p><strong>save_dir</strong> : str</p>
 <blockquote>
@@ -258,7 +269,8 @@ gtfsfeeds_df object it will be used instead of re-calculated</p>
 <dl class="function">
 <dt id="urbanaccess.osm.network.create_osm_net">
 <code class="descclassname">urbanaccess.osm.network.</code><code class="descname">create_osm_net</code><span class="sig-paren">(</span><em>osm_edges=None</em>, <em>osm_nodes=None</em>, <em>travel_speed_mph=3</em>, <em>network_type='walk'</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.osm.network.create_osm_net" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a travel time weight network graph in units of minutes from openstreetmap nodes and edges</p>
+<dd><p>Create a travel time weight network graph in units of minutes from
+openstreetmap nodes and edges</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -273,20 +285,24 @@ gtfsfeeds_df object it will be used instead of re-calculated</p>
 </div></blockquote>
 <p><strong>travel_speed_mph</strong> : int, optional</p>
 <blockquote>
-<div><p>travel speed to use to calculate travel time across a distance on a edge. units are in miles per hour (MPH)
+<div><p>travel speed to use to calculate travel time across a
+distance on a edge. units are in miles per hour (MPH)
 for pedestrian travel this is assumed to be 3 MPH</p>
 </div></blockquote>
 <p><strong>network_type</strong> : str, optional</p>
 <blockquote>
-<div><p>default is &#8216;walk&#8217; for the osm pedestrian network. this string is used to label the osm network once it is
+<div><p>default is &#8216;walk&#8217; for the osm pedestrian network.
+this string is used to label the osm network once it is
 integrated with the transit network</p>
 </div></blockquote>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>ua_network</strong> : object</p>
-<blockquote class="last">
+<blockquote>
 <div><p>urbanaccess_network object with osm_edges and osm_nodes dataframes</p>
 </div></blockquote>
+<p><strong>ua_network.osm_edges</strong> : pandas.DataFrame</p>
+<p class="last"><strong>ua_network.osm_nodes</strong> : pandas.DataFrame</p>
 </td>
 </tr>
 </tbody>
@@ -301,28 +317,34 @@ integrated with the transit network</p>
 <dl class="function">
 <dt id="urbanaccess.network.integrate_network">
 <code class="descclassname">urbanaccess.network.</code><code class="descname">integrate_network</code><span class="sig-paren">(</span><em>urbanaccess_network=None</em>, <em>headways=False</em>, <em>urbanaccess_gtfsfeeds_df=None</em>, <em>headway_statistic='mean'</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.network.integrate_network" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create an integrated network comprised of transit and OSM nodes and edges by connecting the
-transit network with the osm network. travel time is in units of minutes</p>
+<dd><p>Create an integrated network comprised of transit and OSM nodes and edges
+by connecting the transit network with the osm network.
+travel time is in units of minutes</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>urbanaccess_network</strong> : object</p>
 <blockquote>
-<div><p>ua_network object with transit_edges, transit_nodes, osm_edges, osm_nodes</p>
+<div><p>ua_network object with transit_edges, transit_nodes,
+osm_edges, osm_nodes</p>
 </div></blockquote>
 <p><strong>headways</strong> : bool, optional</p>
 <blockquote>
-<div><p>if true, route stop level headways calculated in a previous step will be applied to the osm to transit connector
-edge travel time weights as an approximate measure of average passenger transit stop waiting time.</p>
+<div><p>if true, route stop level headways calculated in a previous step
+will be applied to the osm to transit connector
+edge travel time weights as an approximate measure
+of average passenger transit stop waiting time.</p>
 </div></blockquote>
 <p><strong>urbanaccess_gtfsfeeds_df</strong> : object, optional</p>
 <blockquote>
-<div><p>required if headways is true; the gtfsfeeds_df object that holds the corresponding headways and stops dataframes</p>
+<div><p>required if headways is true; the gtfsfeeds_df object that holds
+the corresponding headways and stops dataframes</p>
 </div></blockquote>
 <p><strong>headway_statistic</strong> : {&#8216;mean&#8217;, &#8216;std&#8217;, &#8216;min&#8217;, &#8216;max&#8217;}, optional</p>
 <blockquote>
-<div><p>required if headways is true; route stop headway statistic to apply to the osm to transit connector edges:
+<div><p>required if headways is true; route stop headway
+statistic to apply to the osm to transit connector edges:
 mean, std, min, max. Default is mean.</p>
 </div></blockquote>
 </td>
@@ -347,7 +369,8 @@ mean, std, min, max. Default is mean.</p>
 <dl class="function">
 <dt id="urbanaccess.network.save_network">
 <code class="descclassname">urbanaccess.network.</code><code class="descname">save_network</code><span class="sig-paren">(</span><em>urbanaccess_network=None</em>, <em>dir='data'</em>, <em>filename=None</em>, <em>overwrite_key=False</em>, <em>overwrite_hdf5=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.network.save_network" title="Permalink to this definition">¶</a></dt>
-<dd><p>Write a urbanaccess_network integrated nodes and edges to a node and edge table in a hdf5 file</p>
+<dd><p>Write a urbanaccess_network integrated nodes and edges to a node and edge
+table in a hdf5 file</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -366,11 +389,13 @@ mean, std, min, max. Default is mean.</p>
 </div></blockquote>
 <p><strong>overwrite_key</strong> : bool, optional</p>
 <blockquote>
-<div><p>if true any existing table with the specified key name will be overwritten</p>
+<div><p>if true any existing table with the specified key name will be
+overwritten</p>
 </div></blockquote>
 <p><strong>overwrite_hdf5</strong> : bool, optional</p>
 <blockquote>
-<div><p>if true any existing hdf5 file with the specified name in the specified directory will be overwritten</p>
+<div><p>if true any existing hdf5 file with the specified name in the
+specified directory will be overwritten</p>
 </div></blockquote>
 </td>
 </tr>
@@ -387,25 +412,28 @@ mean, std, min, max. Default is mean.</p>
 <dl class="function">
 <dt id="urbanaccess.network.load_network">
 <code class="descclassname">urbanaccess.network.</code><code class="descname">load_network</code><span class="sig-paren">(</span><em>dir='data'</em>, <em>filename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.network.load_network" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read data from a hdf5 file to a urbanaccess_network object</p>
+<dd><p>Read an integrated network node and edge data from a hdf5 file to
+a urbanaccess_network object</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dir</strong> : string, optional</p>
 <blockquote>
-<div><p>directory to save hdf5 file</p>
+<div><p>directory to read hdf5 file</p>
 </div></blockquote>
 <p><strong>filename</strong> : string</p>
 <blockquote>
-<div><p>name of the hdf5 file to save with .h5 extension</p>
+<div><p>name of the hdf5 file to read with .h5 extension</p>
 </div></blockquote>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>ua_network</strong> : object</p>
-<blockquote class="last">
+<blockquote>
 <div><p>urbanaccess_network object with net_edges and net_nodes dataframes</p>
 </div></blockquote>
+<p><strong>ua_network.net_edges</strong> : object</p>
+<p class="last"><strong>ua_network.net_nodes</strong> : object</p>
 </td>
 </tr>
 </tbody>

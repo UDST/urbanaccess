@@ -142,7 +142,7 @@
 <p><strong>Plot the transit network</strong>
 <a class="reference internal" href="_images/transit_net.png"><img alt="transit_net" src="_images/transit_net.png" style="width: 1265.6px; height: 1361.6px;" /></a>
 <em>AC Transit and BART transit network for Oakland, CA</em></p>
-<p><strong>Plot the street network network</strong>
+<p><strong>Plot the street network</strong>
 <a class="reference internal" href="_images/ped_net.png"><img alt="ped_net" src="_images/ped_net.png" style="width: 1265.6px; height: 1361.6px;" /></a>
 <em>Pedestrian network for Oakland, CA</em></p>
 <p><strong>Plot the travel times on the integrated network</strong>
@@ -159,12 +159,20 @@
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>nodes</strong> : pandas.DataFrame</p>
 <p><strong>edges</strong> : pandas.DataFrame</p>
 <p><strong>x_col</strong> : str, optional</p>
+<blockquote>
+<div><p>x coordinate column in nodes dataframe</p>
+</div></blockquote>
 <p><strong>y_col</strong> : str, optional</p>
+<blockquote>
+<div><p>y coordinate column in nodes dataframe</p>
+</div></blockquote>
 <p><strong>bbox</strong> : tuple</p>
 <blockquote>
-<div><p>Bounding box formatted as a 4 element tuple: (lng_max, lat_min, lng_min, lat_max)
+<div><p>Bounding box formatted as a 4 element tuple:
+(lng_max, lat_min, lng_min, lat_max)
 example: (-122.304611,37.798933,-122.263412,37.822802)
-a bbox can be extracted for an area using: the CSV format bbox from <a class="reference external" href="http://boundingbox.klokantech.com/">http://boundingbox.klokantech.com/</a>
+a bbox can be extracted for an area using: the CSV format
+bbox from <a class="reference external" href="http://boundingbox.klokantech.com/">http://boundingbox.klokantech.com/</a>
 if None bbox will be calculated from spatial extents of data</p>
 </div></blockquote>
 <p><strong>fig_height</strong> : int</p>
@@ -177,36 +185,36 @@ if None bbox will be calculated from spatial extents of data</p>
 </div></blockquote>
 <p><strong>edge_color</strong> : string</p>
 <blockquote>
-<div><p>the color of the edge lines</p>
+<div><p>color of the edge lines</p>
 </div></blockquote>
 <p><strong>edge_linewidth</strong> : float</p>
 <blockquote>
-<div><p>the width of the edge lines</p>
+<div><p>width of the edge lines</p>
 </div></blockquote>
 <p><strong>edge_alpha</strong> : float</p>
 <blockquote>
-<div><p>the opacity of the edge lines</p>
+<div><p>opacity of the edge lines</p>
 </div></blockquote>
 <p><strong>node_color</strong> : string</p>
 <blockquote>
-<div><p>the color of the nodes</p>
+<div><p>node color</p>
 </div></blockquote>
 <p><strong>node_size</strong> : int</p>
 <blockquote>
-<div><p>the size of the nodes</p>
+<div><p>node size</p>
 </div></blockquote>
 <p><strong>node_alpha</strong> : float</p>
 <blockquote>
-<div><p>the opacity of the nodes</p>
+<div><p>node opacity</p>
 </div></blockquote>
 <p><strong>node_edgecolor</strong> : string</p>
 <blockquote>
-<div><p>the color of the node marker border</p>
+<div><p>the color of the node border</p>
 </div></blockquote>
 <p><strong>node_zorder</strong> : int</p>
 <blockquote>
-<div><p>zorder to plot nodes, edges are 2, so you can make node_zorder 1 to plot nodes under them or 3 to plot
-nodes on top</p>
+<div><p>zorder to plot nodes, edges are zorder 2. A node_zorder 1 will plot
+nodes under the edges, 3 will plot nodes on top</p>
 </div></blockquote>
 <p><strong>nodes_only</strong> : bool</p>
 <blockquote>
@@ -224,7 +232,8 @@ nodes on top</p>
 <dl class="function">
 <dt id="urbanaccess.plot.col_colors">
 <code class="descclassname">urbanaccess.plot.</code><code class="descname">col_colors</code><span class="sig-paren">(</span><em>df=None</em>, <em>col=None</em>, <em>num_bins=5</em>, <em>cmap='spectral'</em>, <em>start=0.1</em>, <em>stop=0.9</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.plot.col_colors" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get a list of colors by binning a continuous-variable column into quantiles</p>
+<dd><p>Get a list of colors by binning a continuous variable column
+into quantiles</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -232,7 +241,7 @@ nodes on top</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>df</strong> : pandas.DataFrame</p>
 <p><strong>col</strong> : string</p>
 <blockquote>
-<div><p>the name of the continuous-variable column in the dataframe</p>
+<div><p>the name of the column in the dataframe with the continuous variable</p>
 </div></blockquote>
 <p><strong>num_bins</strong> : int</p>
 <blockquote>
