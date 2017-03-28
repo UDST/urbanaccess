@@ -8,9 +8,10 @@ import time
 from urbanaccess.utils import log
 
 def plot_net(nodes=None,edges=None,x_col='x',y_col='y',bbox=None,
-               fig_height=6,margin=0.02,
-               edge_color='#999999',edge_linewidth=1,edge_alpha=1,
-               node_color='black',node_size=15,node_alpha=1,node_edgecolor='none',node_zorder=3,nodes_only=False):
+             fig_height=6,margin=0.02,
+             edge_color='#999999',edge_linewidth=1,edge_alpha=1,
+             node_color='black',node_size=15,node_alpha=1,
+             node_edgecolor='none',node_zorder=3,nodes_only=False):
     """
     plot urbanaccess network nodes and edges
 
@@ -19,33 +20,37 @@ def plot_net(nodes=None,edges=None,x_col='x',y_col='y',bbox=None,
     nodes : pandas.DataFrame
     edges : pandas.DataFrame
     x_col : str, optional
+        x coordinate column in nodes dataframe
     y_col : str, optional
+        y coordinate column in nodes dataframe
     bbox : tuple
-        Bounding box formatted as a 4 element tuple: (lng_max, lat_min, lng_min, lat_max)
+        Bounding box formatted as a 4 element tuple:
+        (lng_max, lat_min, lng_min, lat_max)
         example: (-122.304611,37.798933,-122.263412,37.822802)
-        a bbox can be extracted for an area using: the CSV format bbox from http://boundingbox.klokantech.com/
+        a bbox can be extracted for an area using: the CSV format
+        bbox from http://boundingbox.klokantech.com/
         if None bbox will be calculated from spatial extents of data
     fig_height : int
         matplotlib figure height in inches
     margin : float
         margin around the figure
     edge_color : string
-        the color of the edge lines
+        color of the edge lines
     edge_linewidth : float
-        the width of the edge lines
+        width of the edge lines
     edge_alpha : float
-        the opacity of the edge lines
+        opacity of the edge lines
     node_color : string
-        the color of the nodes
+        node color
     node_size : int
-        the size of the nodes
+        node size
     node_alpha : float
-        the opacity of the nodes
+        node opacity
     node_edgecolor : string
-        the color of the node marker border
+        the color of the node border
     node_zorder : int
-        zorder to plot nodes, edges are 2, so you can make node_zorder 1 to plot nodes under them or 3 to plot
-        nodes on top
+        zorder to plot nodes, edges are zorder 2. A node_zorder 1 will plot
+        nodes under the edges, 3 will plot nodes on top
     nodes_only : bool
         if true only the nodes will plot
 
@@ -70,7 +75,9 @@ def plot_net(nodes=None,edges=None,x_col='x',y_col='y',bbox=None,
                 or 'to_lon' not in edges.columns \
                 or 'from_lat' not in edges.columns \
                 or 'from_lon' not in edges.columns:
-            edges = prep_edges(edges=edges,nodes=nodes,from_col='from_int',to_col='to_int',x_col='x',y_col='y')
+            edges = prep_edges(edges=edges,nodes=nodes,
+                               from_col='from_int',to_col='to_int',
+                               x_col='x',y_col='y')
 
     if bbox is None:
         y_max = max(node_Ys)
@@ -80,16 +87,19 @@ def plot_net(nodes=None,edges=None,x_col='x',y_col='y',bbox=None,
     else:
         x_min, y_min, x_max, y_max = bbox
 
-    assert y_max-y_min >= 0 and x_max-x_min >= 0, 'difference between min and max x and y resulted in a negative value'
+    assert y_max-y_min >= 0 and x_max-x_min >= 0,\
+        'difference between min and max x and y resulted in a negative value'
     bbox_aspect_ratio = (y_max-y_min)/(x_max-x_min)
 
-    fig, ax = plt.subplots(figsize=(fig_height / bbox_aspect_ratio, fig_height))
+    fig, ax = plt.subplots(figsize=(fig_height / bbox_aspect_ratio,
+                                    fig_height))
 
     if nodes_only == False:
         #TODO: optimize for speed by calculating only for edges that are within the the bbox + buffer distance to speed up
         lines = []
         for index, node in edges.iterrows():
-            x1, y1, x2, y2 = node['from_lon'], node['from_lat'], node['to_lon'], node['to_lat']
+            x1, y1, x2, y2 = node['from_lon'], node['from_lat'], \
+                             node['to_lon'], node['to_lat']
             line = [(x1, y1), (x2, y2)]
             lines.append(line)
 
@@ -120,15 +130,17 @@ def plot_net(nodes=None,edges=None,x_col='x',y_col='y',bbox=None,
     return fig, ax
 
 
-def col_colors(df=None, col=None, num_bins=5, cmap='spectral', start=0.1, stop=0.9):
+def col_colors(df=None, col=None, num_bins=5, cmap='spectral',
+               start=0.1, stop=0.9):
     """
-    Get a list of colors by binning a continuous-variable column into quantiles
+    Get a list of colors by binning a continuous variable column
+    into quantiles
 
     Parameters
     ----------
     df : pandas.DataFrame
     col : string
-        the name of the continuous-variable column in the dataframe
+        the name of the column in the dataframe with the continuous variable
     num_bins : int
         how many quantiles
     cmap : string
@@ -145,12 +157,14 @@ def col_colors(df=None, col=None, num_bins=5, cmap='spectral', start=0.1, stop=0
     bin_labels = range(num_bins)
     col_values = df[col]
     categories = pd.qcut(x=col_values, q=num_bins, labels=bin_labels)
-    color_list = [cm.get_cmap(cmap)(x) for x in np.linspace(start, stop, num_bins)]
+    color_list = [cm.get_cmap(cmap)(x) for x in np.linspace(start,
+                                                            stop, num_bins)]
     colors = [color_list[cat] for cat in categories]
     return colors
 
 
-def prep_edges(edges=None,nodes=None,from_col='from_int',to_col='to_int',x_col='x',y_col='y'):
+def prep_edges(edges=None,nodes=None,from_col='from_int',to_col='to_int',
+               x_col='x',y_col='y'):
     """
     Prepare edges to display edges as lines on the plot
 
@@ -170,14 +184,21 @@ def prep_edges(edges=None,nodes=None,from_col='from_int',to_col='to_int',x_col='
     Returns
     -------
     edges_wline : pandas.DataFrame
-        the edge dataframe with from and to x y coordinates and ids to build lines
+        the edge dataframe with from and to x y coordinates and
+        ids to build lines
     """
-    assert x_col in nodes.columns and y_col in nodes.columns, 'x or y column was not found in node columns: {}'
-    assert from_col in edges.columns and to_col in edges.columns, 'from or to column was not found in edge columns: {}'
+    assert x_col in nodes.columns and y_col in nodes.columns, \
+        'x or y column was not found in node columns: {}'
+    assert from_col in edges.columns and to_col in edges.columns, \
+        'from or to column was not found in edge columns: {}'
 
-    edges_wline = edges.merge(nodes[[x_col,y_col]], left_on=from_col, right_index=True)
-    edges_wline.rename(columns={x_col: 'from_lon', y_col: 'from_lat'}, inplace=True)
-    edges_wline = edges_wline.merge(nodes[[x_col,y_col]], left_on=to_col, right_index=True)
-    edges_wline.rename(columns={x_col: 'to_lon', y_col: 'to_lat'}, inplace=True)
+    edges_wline = edges.merge(nodes[[x_col,y_col]], left_on=from_col,
+                              right_index=True)
+    edges_wline.rename(columns={x_col: 'from_lon', y_col: 'from_lat'},
+                       inplace=True)
+    edges_wline = edges_wline.merge(nodes[[x_col,y_col]], left_on=to_col,
+                                    right_index=True)
+    edges_wline.rename(columns={x_col: 'to_lon', y_col: 'to_lat'},
+                       inplace=True)
 
     return edges_wline

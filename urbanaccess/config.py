@@ -15,23 +15,23 @@ def format_check(settings):
     Nothing
     """
 
-    valid_keys = ['data_folder', 'logs_folder', 'log_file', 'log_console', 'log_name',
-                  'log_filename', 'gtfs_api', 'keep_osm_tags']
+    valid_keys = ['data_folder', 'logs_folder', 'log_file',
+                  'log_console', 'log_name', 'log_filename', 'gtfs_api']
 
     for key in settings.keys():
-        assert key in valid_keys, ('{} not found in list of valid configuation keys').format(key)
-        assert isinstance(key,str), ('{} must be a string').format(key)
-        if key == 'keep_osm_tags':
-            assert isinstance(settings[key],list), ('{} must be a list').format(key)
-            for value in settings[key]:
-                assert all(isinstance(element,str) for element in value), 'all elements must be a string'
+        assert key in valid_keys, \
+            ('{} not found in list of valid configuation keys').format(key)
+        assert isinstance(key,str), \
+            ('{} must be a string').format(key)
         if key == 'log_file' or key == 'log_console':
-            assert isinstance(settings[key],bool), ('{} must be boolean').format(key)
+            assert isinstance(settings[key],bool), \
+                ('{} must be boolean').format(key)
 
 
 class urbanaccess_config(object):
     """
-    A set of configuration variables to initiate the configuration settings for UrbanAccess.
+    A set of configuration variables to initiate the
+    configuration settings for UrbanAccess.
 
     Parameters
     ----------
@@ -70,7 +70,8 @@ class urbanaccess_config(object):
         self.gtfs_api = gtfs_api
 
     @classmethod
-    def from_yaml(cls, configdir='configs', yamlname='urbanaccess_config.yaml'):
+    def from_yaml(cls, configdir='configs',
+                  yamlname='urbanaccess_config.yaml'):
         """
         Create a urbanaccess_config instance from a saved YAML configuration.
 
@@ -86,8 +87,10 @@ class urbanaccess_config(object):
         """
 
         assert isinstance(configdir,str), 'configdir must be a string'
-        assert os.path.exists(configdir), ('{} does not exist or was not found').format(configdir)
-        assert isinstance(yamlname,str) and '.yaml' in yamlname, 'yaml must be a string and have file extension .yaml'
+        assert os.path.exists(configdir), \
+            ('{} does not exist or was not found').format(configdir)
+        assert isinstance(yamlname,str) and '.yaml' in yamlname,\
+            'yaml must be a string and have file extension .yaml'
 
         yaml_file = os.path.join(configdir, yamlname)
 
@@ -109,7 +112,7 @@ class urbanaccess_config(object):
 
     def to_dict(self):
         """
-        Return a dict representation of an UrbanAccess urbanaccess_config instance.
+        Return a dict representation of an urbanaccess_config instance.
         """
         return {'data_folder': self.data_folder,
                 'logs_folder': self.logs_folder,
@@ -120,7 +123,8 @@ class urbanaccess_config(object):
                 'gtfs_api': self.gtfs_api,
                 }
 
-    def to_yaml(self, configdir='configs', yamlname='urbanaccess_config.yaml', overwrite=False):
+    def to_yaml(self, configdir='configs', yamlname='urbanaccess_config.yaml',
+                overwrite=False):
         """
         Save a urbanaccess_config representation to a YAML file.
 
@@ -131,7 +135,8 @@ class urbanaccess_config(object):
         yamlname : str or file like, optional
             File name to which to save a YAML file.
         overwrite : bool
-            if true, overwrite an existing same name YAML file in specified directory
+            if true, overwrite an existing same name YAML
+            file in specified directory
         Returns
         -------
         Nothing
@@ -141,7 +146,8 @@ class urbanaccess_config(object):
         if not os.path.exists(configdir):
             print ('{} does not exist or was not found').format(configdir)
             os.makedirs(configdir)
-        assert isinstance(yamlname,str) and '.yaml' in yamlname, 'yaml must be a string and have file extension .yaml'
+        assert isinstance(yamlname,str) and '.yaml' in yamlname, \
+            'yaml must be a string and have file extension .yaml'
         yaml_file = os.path.join(configdir, yamlname)
         if overwrite == False and os.path.isfile(yaml_file) == True:
             raise ValueError(('{} already exists. Rename or turn overwrite to True').format(yamlname))

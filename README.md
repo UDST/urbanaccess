@@ -3,7 +3,7 @@
 
 A tool for computing GTFS transit and OSM pedestrian networks for accessibility analysis. 
 
-![Integrated AC Transit and BART transit and pedestrian network travel times for Oakland, CA](docs/images/travel_time_net.png) <!-- .element height="50%" width="50%" -->
+![Integrated AC Transit and BART transit and pedestrian network travel times for Oakland, CA](docs/source/_images/travel_time_net.png) <!-- .element height="50%" width="50%" -->
 *Integrated AC Transit and BART transit and pedestrian network travel times for Oakland, CA*
 
 # Overview
@@ -20,29 +20,39 @@ UrbanAccess offers the following tools:
 * Resulting networks are designed to be used to compute accessibility metrics using the open source network analysis tool [Pandana](https://github.com/UDST/pandana) 
 
 ## Current status
-UrbanAccess is currently in a alpha release. Further code refinements and speed optimizations are expected.
+UrbanAccess is currently in a alpha release. Further code refinements are expected.
 
 *Forthcoming improvements:*
-- Documentation
 - Tutorial/demo
 - Unit tests
-- Speed optimizations
 
-## Reporting Bugs
+## Reporting bugs
 Please report any bugs you encounter via [GitHub issues](https://github.com/UDST/urbanaccess/issues).
 
-## Installation
-pip and conda installations are forthcoming. To install UrbanAccess follow these steps:
+## Contributing to UrbanAccess
+If you have improvements or new features you would like to see in UrbanAccess:
+1. Open a feature request via [GitHub issues](https://github.com/UDST/urbanaccess/issues).
+2. Contribute your code from a fork or branch by using a Pull Request and request a review so it can be considered as an addition to the codebase.
 
-1. Git clone this repo
-2. in the cloned directory run:  
-```
-python setup.py install
-```
+## Installation
+pip and conda installations are forthcoming. UrbanAccess is currently in a alpha release and further code refinements are expected. As such, it is suggest to install using the ``develop`` command rather than ``install``. Make sure you are using the latest version of the code base by using git's ``git pull`` inside the cloned repository.
+
+To install UrbanAccess follow these steps:
+
+1. Git clone the [UrbanAccess repo](https://github.com/udst/urbanaccess)
+2. in the cloned directory run: ``python setup.py develop``
+
+To update to the latest version:
+
+Use ``git pull`` inside the cloned repository
 
 ## Documentation
 
-Documentation for UrbanAccess is currently under construction.
+Documentation for UrbanAccess can be found [here](https://udst.github.io/urbanaccess/index.html).
+
+## Minimum GTFS data requirements
+
+The minimum [GTFS data types](https://developers.google.com/transit/gtfs/) required to use UrbanAccess are: ``stop_times``, ``stops``, ``routes``, ``calendar``, and ``trips``
 
 ## Citation and academic literature
 To cite this tool and for a complete description of the UrbanAccess methodology see the paper below:  

@@ -12,31 +12,43 @@ from urbanaccess.gtfs.gtfsfeeds_dataframe import gtfsfeeds_df
 
 pd.options.mode.chained_assignment = None
 
-def create_transit_net(gtfsfeeds_df=None,day=None,timerange=None,overwrite_existing_stop_times_int=False,
+def create_transit_net(gtfsfeeds_df=None,day=None,timerange=None,
+                       overwrite_existing_stop_times_int=False,
                        use_existing_stop_times_int=False,
-                       save_processed_gtfs=False,save_dir=config.settings.data_folder,save_filename=None):
+                       save_processed_gtfs=False,
+                       save_dir=config.settings.data_folder,
+                       save_filename=None):
     """
-    Create a travel time weight network graph in units of minutes from GTFS data
+    Create a travel time weight network graph in units of
+    minutes from GTFS data
 
     Parameters
     ----------
     gtfsfeeds_df : object
-        gtfsfeeds_df object with dataframes of stops, routes, trips, stop_times, calendar, and stop_times_int (optional)
-    day : {'friday','monday','saturday','sunday','thursday','tuesday','wednesday'}
-        day of the week to extract transit schedule from that corresponds to the day in the GTFS calendar
+        gtfsfeeds_df object with dataframes of stops, routes, trips,
+        stop_times, calendar, and stop_times_int (optional)
+    day : {'friday','monday','saturday', 'sunday','thursday','tuesday','wednesday'}
+        day of the week to extract transit schedule from that
+        corresponds to the day in the GTFS calendar
     timerange : list
-        time range to extract transit schedule from in a list with time 1 and time 2. it is suggested the time range
-        specified is large enough to allow for travel from one end of the transit network to the other but small enough
-        to represent a relevant travel time period such as a 3 hour window for the AM Peak period. must follow format
+        time range to extract transit schedule from in a list with time
+        1 and time 2. it is suggested the time range
+        specified is large enough to allow for travel
+        from one end of the transit network to the other but small enough
+        to represent a relevant travel time period such as a 3 hour window
+        for the AM Peak period. must follow format
         of a 24 hour clock for example: 08:00:00 or 17:00:00
     overwrite_existing_stop_times_int : bool
-        if true, and if there is an existing stop_times_int dataframe stored in the gtfsfeeds_df object it will be
+        if true, and if there is an existing stop_times_int
+        dataframe stored in the gtfsfeeds_df object it will be
         overwritten
     use_existing_stop_times_int : bool
-        if true, and if there is an existing stop_times_int dataframe for the same time period stored in the
+        if true, and if there is an existing stop_times_int
+        dataframe for the same time period stored in the
         gtfsfeeds_df object it will be used instead of re-calculated
     save_processed_gtfs : bool
-        if true, all processed gtfs dataframes will be stored to disk in a hdf5 file
+        if true, all processed gtfs dataframes will
+        be stored to disk in a hdf5 file
     save_dir : str
         directory to save the hdf5 file
     save_filename : str
@@ -681,7 +693,9 @@ def edge_impedance_by_route_type(transit_edge_df=None,
 
     return ua_network
 
-def save_processed_gtfs_data(gtfsfeeds_df=None,dir=config.settings.data_folder,filename=None):
+def save_processed_gtfs_data(gtfsfeeds_df=None,
+                             dir=config.settings.data_folder,
+                             filename=None):
     """
     Write dataframes in a gtfsfeeds_df object to a hdf5 file
 
@@ -726,9 +740,9 @@ def load_processed_gtfs_data(dir=config.settings.data_folder,filename=None):
     Parameters
     ----------
     dir : string, optional
-        directory to save hdf5 file
+        directory to read hdf5 file
     filename : string
-        name of the hdf5 file to save with .h5 extension
+        name of the hdf5 file to read with .h5 extension
 
     Returns
     -------

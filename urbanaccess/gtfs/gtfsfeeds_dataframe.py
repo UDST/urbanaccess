@@ -2,7 +2,8 @@ import pandas as pd
 
 class urbanaccess_gtfs_df(object):
     """
-    A series of dataframes representing the standardized and merged metropolitan-wide transit network from multiple
+    A collection of dataframes representing the standardized and
+    merged metropolitan-wide transit network from multiple
     GTFS feeds.
 
     Parameters

@@ -10,14 +10,16 @@ from urbanaccess.gtfs.gtfsfeeds_dataframe import gtfsfeeds_df
 from urbanaccess.gtfs import utils_validation
 from urbanaccess.gtfs import utils_format
 
-def standardize_txt(csv_rootpath=os.path.join(config.settings.data_folder,'gtfsfeed_text')):
+def standardize_txt(csv_rootpath=os.path.join(config.settings.data_folder,
+                                              'gtfsfeed_text')):
     """
     Standardize all text files inside a GTFS feed for machine readability
 
     Parameters
     ----------
     csv_rootpath : str, optional
-        root path where all gtfs feeds that make up a contiguous metropolitan area are stored
+        root path where all gtfs feeds that make up a contiguous metropolitan
+        area are stored
 
     Returns
     -------
@@ -26,14 +28,16 @@ def standardize_txt(csv_rootpath=os.path.join(config.settings.data_folder,'gtfsf
     txt_encoder_check(csv_rootpath)
     txt_header_whitespace_check(csv_rootpath)
 
-def txt_encoder_check(csv_rootpath=os.path.join(config.settings.data_folder,'gtfsfeed_text')):
+def txt_encoder_check(csv_rootpath=os.path.join(config.settings.data_folder,
+                                                'gtfsfeed_text')):
     """
     Standardize all text files inside a GTFS feed for encoding problems
 
     Parameters
     ----------
     csv_rootpath : str, optional
-        root path where all gtfs feeds that make up a contiguous metropolitan area are stored
+        root path where all gtfs feeds that make up a contiguous metropolitan
+        area are stored
 
     Returns
     -------
@@ -60,14 +64,17 @@ def txt_encoder_check(csv_rootpath=os.path.join(config.settings.data_folder,'gtf
                 file_open.close()
     log('GTFS text file encoding check completed. Took {:,.2f} seconds'.format(time.time()-start_time))
 
-def txt_header_whitespace_check(csv_rootpath=os.path.join(config.settings.data_folder,'gtfsfeed_text')):
+def txt_header_whitespace_check(csv_rootpath=os.path.join(config.settings.data_folder,
+                                                          'gtfsfeed_text')):
     """
-    Standardize all text files inside a GTFS feed to remove whitespace in headers
+    Standardize all text files inside a GTFS feed to remove whitespace
+    in headers
 
     Parameters
     ----------
     csv_rootpath : str, optional
-        root path where all gtfs feeds that make up a contiguous metropolitan area are stored
+        root path where all gtfs feeds that make up a contiguous metropolitan
+        area are stored
 
     Returns
     -------
@@ -92,22 +99,29 @@ def txt_header_whitespace_check(csv_rootpath=os.path.join(config.settings.data_f
 
 def gtfsfeed_to_df(gtfsfeed_path=None,validation=False,verbose=True,bbox=None,remove_stops_outsidebbox=None,append_definitions=False):
     """
-    Read all GTFS feed components as a dataframe in a gtfsfeeds_df object and merge all individual GTFS feeds into a
-    regional metropolitan data table. Optionally, data can also be validated before its use.
+    Read all GTFS feed components as a dataframe in a gtfsfeeds_df object and
+    merge all individual GTFS feeds into a regional metropolitan data table.
+    Optionally, data can also be validated before its use.
 
     Parameters
     ----------
     gtfsfeed_path : str, optional
-        root path where all gtfs feeds that make up a contiguous metropolitan area are stored
+        root path where all gtfs feeds that make up a contiguous metropolitan
+        area are stored
     validation : bool
-        if true, the validation check on stops checking for stops outside of a bounding box and stop coordinate
-        hemisphere will be run. this required to remove stops outside of a bbox
+        if true, the validation check on stops checking for stops outside
+        of a bounding box and stop coordinate
+        hemisphere will be run. this is required to remove stops outside of
+        a bbox
     verbose : bool
-        if true and stops are found outside of the bbox, the stops that are outside will be printed for your reference
+        if true and stops are found outside of the bbox, the stops that are
+        outside will be printed for your reference
     bbox : tuple
-        Bounding box formatted as a 4 element tuple: (lng_max, lat_min, lng_min, lat_max)
+        Bounding box formatted as a 4 element tuple:
+        (lng_max, lat_min, lng_min, lat_max)
         example: (-122.304611,37.798933,-122.263412,37.822802)
-        a bbox can be extracted for an area using: the CSV format bbox from http://boundingbox.klokantech.com/
+        a bbox can be extracted for an area using: the CSV format bbox
+        from http://boundingbox.klokantech.com/
     remove_stops_outsidebbox : bool
         if true stops that are outside the bbox will be removed
     append_definitions : bool
