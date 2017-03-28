@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Acquire and Load Data &mdash; UrbanAccess 0.1a.0 documentation</title>
+  <title>Download and Load Data &mdash; UrbanAccess 0.1a.0 documentation</title>
   
 
   
@@ -129,7 +129,7 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li>Acquire and Load Data</li>
+    <li>Download and Load Data</li>
       <li class="wy-breadcrumbs-aside">
         
           
@@ -143,8 +143,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="acquire-and-load-data">
-<span id="dataloader-section"></span><h1>Acquire and Load Data<a class="headerlink" href="#acquire-and-load-data" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="download-and-load-data">
+<span id="dataloader-section"></span><h1>Download and Load Data<a class="headerlink" href="#download-and-load-data" title="Permalink to this headline">¶</a></h1>
 <p>UrbanAccess has data downloaders and data loaders that can be used to acquire and load transit and street network datasets:</p>
 <ol class="arabic simple">
 <li>Transit Network: General Transit Feed Specification (GTFS)</li>
@@ -164,8 +164,8 @@
 <p>The GTFS data object stores the processed and aggregated GTFS feed data in Pandas dataframes.</p>
 <dl class="data">
 <dt id="urbanaccess.gtfs.gtfsfeeds_dataframe.gtfsfeeds_df">
-<code class="descclassname">urbanaccess.gtfs.gtfsfeeds_dataframe.</code><code class="descname">gtfsfeeds_df</code><em class="property"> = &lt;urbanaccess.gtfs.gtfsfeeds_dataframe.urbanaccess_gtfs_df object at 0x0000000007A08588&gt;</em><a class="headerlink" href="#urbanaccess.gtfs.gtfsfeeds_dataframe.gtfsfeeds_df" title="Permalink to this definition">¶</a></dt>
-<dd><p>A series of dataframes representing the standardized and
+<code class="descclassname">urbanaccess.gtfs.gtfsfeeds_dataframe.</code><code class="descname">gtfsfeeds_df</code><a class="headerlink" href="#urbanaccess.gtfs.gtfsfeeds_dataframe.gtfsfeeds_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>A collection of dataframes representing the standardized and
 merged metropolitan-wide transit network from multiple
 GTFS feeds.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -196,7 +196,7 @@ GTFS feeds.</p>
 <p>Manage and download multiple feeds at once using the <code class="docutils literal"><span class="pre">feeds</span></code> object.</p>
 <dl class="data">
 <dt id="urbanaccess.gtfsfeeds.feeds">
-<code class="descclassname">urbanaccess.gtfsfeeds.</code><code class="descname">feeds</code><em class="property"> = &lt;urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds object at 0x000000000F49B240&gt;</em><a class="headerlink" href="#urbanaccess.gtfsfeeds.feeds" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.gtfsfeeds.</code><code class="descname">feeds</code><a class="headerlink" href="#urbanaccess.gtfsfeeds.feeds" title="Permalink to this definition">¶</a></dt>
 <dd><p>A dict of GTFS feeds as {name of GTFS feed or transit service/agency : URL of feed} to request and
 download in the gtfs downloader.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -218,6 +218,7 @@ the GTFS feed URL as the value to pass to the GTFS downloader as:
 </table>
 </dd></dl>
 
+<p>The <code class="docutils literal"><span class="pre">feeds</span></code> object is an instance of the <code class="docutils literal"><span class="pre">urbanaccess_gtfsfeeds</span></code> class with the following functions:</p>
 <dl class="class">
 <dt id="urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds">
 <em class="property">class </em><code class="descclassname">urbanaccess.gtfsfeeds.</code><code class="descname">urbanaccess_gtfsfeeds</code><span class="sig-paren">(</span><em>gtfs_feeds={}</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds" title="Permalink to this definition">¶</a></dt>
