@@ -1,6 +1,6 @@
 .. _dataloader-section:
 
-Acquire and Load Data
+Download and Load Data
 ========================
 
 UrbanAccess has data downloaders and data loaders that can be used to acquire and load transit and street network datasets:
@@ -22,6 +22,7 @@ The GTFS Data Object
 The GTFS data object stores the processed and aggregated GTFS feed data in Pandas dataframes.
 
 .. autodata:: urbanaccess.gtfs.gtfsfeeds_dataframe.gtfsfeeds_df
+    :annotation:
 
 .. _gtfs-download:
 
@@ -31,6 +32,9 @@ Downloading GTFS Data
 Manage and download multiple feeds at once using the ``feeds`` object.
 
 .. autodata:: urbanaccess.gtfsfeeds.feeds
+    :annotation:
+
+The ``feeds`` object is an instance of the ``urbanaccess_gtfsfeeds`` class with the following functions:
 
 .. autoclass:: urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds
     :members:
