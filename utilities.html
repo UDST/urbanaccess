@@ -136,10 +136,10 @@
             
   <div class="section" id="utilities">
 <span id="utilities-section"></span><h1>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h1>
-<p>Global configuration settings can be changed using the settings object. By default the global configuration settings are already set.</p>
+<p>Global configuration settings can be changed using the settings object.</p>
 <dl class="data">
 <dt id="urbanaccess.config.settings">
-<code class="descclassname">urbanaccess.config.</code><code class="descname">settings</code><em class="property"> = &lt;urbanaccess.config.urbanaccess_config object at 0x0000000009A73D30&gt;</em><a class="headerlink" href="#urbanaccess.config.settings" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.config.</code><code class="descname">settings</code><a class="headerlink" href="#urbanaccess.config.settings" title="Permalink to this definition">¶</a></dt>
 <dd><p>A set of configuration variables to initiate the
 configuration settings for UrbanAccess.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -181,6 +181,7 @@ the GTFS API server root URL as the value to pass to the GTFS loader</p>
 </table>
 </dd></dl>
 
+<p>By default the global configuration settings are already set, however they can be changed by using the functions in the <code class="docutils literal"><span class="pre">urbanaccess_config</span></code> class:</p>
 <dl class="class">
 <dt id="urbanaccess.config.urbanaccess_config">
 <em class="property">class </em><code class="descclassname">urbanaccess.config.</code><code class="descname">urbanaccess_config</code><span class="sig-paren">(</span><em>data_folder='data'</em>, <em>logs_folder='logs'</em>, <em>log_file=True</em>, <em>log_console=False</em>, <em>log_name='urbanaccess'</em>, <em>log_filename='urbanaccess'</em>, <em>gtfs_api={'gtfsdataexch': 'http://www.gtfs-data-exchange.com/api/agencies?format=csv'}</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.config.urbanaccess_config" title="Permalink to this definition">¶</a></dt>
