@@ -25,9 +25,9 @@ def ua_network_from_bbox(lat_min=None, lng_min=None, lat_max=None,
     lat_min : float
         southern latitude of bounding box
     lng_min : float
-        eastern latitude of bounding box
+        eastern longitude of bounding box
     lat_max : float
-        northern longitude of bounding box
+        northern latitude of bounding box
     lng_max : float
         western longitude of bounding box
     bbox : tuple
