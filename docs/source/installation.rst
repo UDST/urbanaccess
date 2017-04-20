@@ -19,12 +19,14 @@ Dependencies
 Current status
 ~~~~~~~~~~~~~~~~~~
 
-UrbanAccess is currently in a alpha release. Further code refinements are expected.
+UrbanAccess is currently in a alpha release and only compatible with Python 2.x. Further code refinements are expected.
 
 *Forthcoming improvements:*
 
 * Tutorial/demo
 * Unit tests
+* Python 3
+* pep8 compliance
 
 Installation
 ~~~~~~~~~~~~~~

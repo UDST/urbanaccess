@@ -20,11 +20,13 @@ UrbanAccess offers the following tools:
 * Resulting networks are designed to be used to compute accessibility metrics using the open source network analysis tool [Pandana](https://github.com/UDST/pandana) 
 
 ## Current status
-UrbanAccess is currently in a alpha release. Further code refinements are expected.
+UrbanAccess is currently in a alpha release and only compatible with Python 2.x. Further code refinements are expected.
 
 *Forthcoming improvements:*
 - Tutorial/demo
 - Unit tests
+- Python 3
+- pep8 compliance
 
 ## Reporting bugs
 Please report any bugs you encounter via [GitHub issues](https://github.com/UDST/urbanaccess/issues).
