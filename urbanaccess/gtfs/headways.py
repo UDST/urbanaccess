@@ -4,11 +4,11 @@ import time
 import logging as lg
 
 from urbanaccess.utils import log
-from urbanaccess.gtfs.network import timeselector
+from urbanaccess.gtfs.network import _timeselector
 
 warnings.simplefilter(action = "ignore", category = FutureWarning)
 
-def calc_headways_by_route_stop(df):
+def _calc_headways_by_route_stop(df):
     """
     Calculate headways by route stop
 
@@ -44,8 +44,8 @@ def calc_headways_by_route_stop(df):
 
     return pd.DataFrame(results).T
 
-def headway_handler(interpolated_stop_times_df,trips_df,
-                    routes_df,headway_timerange):
+def _headway_handler(interpolated_stop_times_df, trips_df,
+                     routes_df, headway_timerange):
     """
     route stop headway calculator handler
 
@@ -89,7 +89,7 @@ def headway_handler(interpolated_stop_times_df,trips_df,
     columns = ['unique_route_id','route_long_name','route_type','unique_agency_id']
     routes_df = routes_df[columns]
 
-    selected_interpolated_stop_times_df = timeselector(df=interpolated_stop_times_df,starttime=headway_timerange[0],endtime=headway_timerange[1])
+    selected_interpolated_stop_times_df = _timeselector(df=interpolated_stop_times_df, starttime=headway_timerange[0], endtime=headway_timerange[1])
 
     tmp1 = pd.merge(trips_df, routes_df, how='left', left_on='unique_route_id', right_on='unique_route_id', sort=False)
     merge_df = pd.merge(selected_interpolated_stop_times_df, tmp1, how='left',
@@ -97,7 +97,7 @@ def headway_handler(interpolated_stop_times_df,trips_df,
     cols_to_drop = ['unique_agency_id_y','unique_agency_id_x']
     merge_df.drop(cols_to_drop, axis=1, inplace=True)
 
-    headway_by_routestop_df = calc_headways_by_route_stop(df=merge_df)
+    headway_by_routestop_df = _calc_headways_by_route_stop(df=merge_df)
 
     #add unique route stop node_id
     headway_by_routestop_df = pd.merge(headway_by_routestop_df, merge_df[['unique_stop_route','unique_stop_id','unique_route_id']], how='left', left_index = True, right_on='unique_stop_route', sort=False)
@@ -115,7 +115,7 @@ def headways(gtfsfeeds_df,headway_timerange):
     Parameters
     ----------
     gtfsfeeds_df : object
-        gtfsfeeds_df object with all processed GTFS data tables
+        gtfsfeeds_dfs object with all processed GTFS data tables
     headway_timerange : list
         time range for which to calculate headways between as a list of
         time 1 and time 2
@@ -124,8 +124,8 @@ def headways(gtfsfeeds_df,headway_timerange):
 
     Returns
     -------
-    gtfsfeeds_df.headways : pandas.DataFrame
-        gtfsfeeds_df object for the headways dataframe with statistics of
+    gtfsfeeds_dfs.headways : pandas.DataFrame
+        gtfsfeeds_dfs object for the headways dataframe with statistics of
         route stop headways in units of minutes
         with relevant route and stop information
     """
@@ -143,12 +143,12 @@ def headways(gtfsfeeds_df,headway_timerange):
 
     assert gtfsfeeds_df is not None
     if gtfsfeeds_df.stop_times_int.empty or gtfsfeeds_df.trips.empty or gtfsfeeds_df.routes.empty:
-        raise ValueError('one of the gtfsfeeds_df objects: stop_times_int, trips, or routes were found to be empty.')
+        raise ValueError('one of the gtfsfeeds_dfs objects: stop_times_int, trips, or routes were found to be empty.')
 
-    headways_df = headway_handler(interpolated_stop_times_df=gtfsfeeds_df.stop_times_int,
-                                  trips_df=gtfsfeeds_df.trips,
-                                  routes_df=gtfsfeeds_df.routes,
-                                  headway_timerange=headway_timerange)
+    headways_df = _headway_handler(interpolated_stop_times_df=gtfsfeeds_df.stop_times_int,
+                                   trips_df=gtfsfeeds_df.trips,
+                                   routes_df=gtfsfeeds_df.routes,
+                                   headway_timerange=headway_timerange)
 
     gtfsfeeds_df.headways = headways_df
 

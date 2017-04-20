@@ -7,7 +7,7 @@ import logging as lg
 from urbanaccess.utils import log
 
 
-def read_gtfs_agency(textfile_path=None, textfile=None):
+def _read_gtfs_agency(textfile_path=None, textfile=None):
     """
     Read gtfs agency.txt as a pandas dataframe
 
@@ -30,7 +30,7 @@ def read_gtfs_agency(textfile_path=None, textfile=None):
     df.rename(columns=lambda x: x.strip(), inplace=True)
     return df
 
-def read_gtfs_stops(textfile_path=None, textfile=None):
+def _read_gtfs_stops(textfile_path=None, textfile=None):
     """
     Read gtfs stops.txt as a pandas dataframe
 
@@ -57,7 +57,7 @@ def read_gtfs_stops(textfile_path=None, textfile=None):
     df.rename(columns=lambda x: x.strip(), inplace=True)
     return df
 
-def read_gtfs_routes(textfile_path=None, textfile=None):
+def _read_gtfs_routes(textfile_path=None, textfile=None):
     """
     Read gtfs routes.txt as a pandas dataframe
 
@@ -81,7 +81,7 @@ def read_gtfs_routes(textfile_path=None, textfile=None):
     df.rename(columns=lambda x: x.strip(), inplace=True)
     return df
 
-def read_gtfs_trips(textfile_path=None, textfile=None):
+def _read_gtfs_trips(textfile_path=None, textfile=None):
     """
     Read gtfs trips.txt as a pandas dataframe
 
@@ -108,7 +108,7 @@ def read_gtfs_trips(textfile_path=None, textfile=None):
     df.rename(columns=lambda x: x.strip(), inplace=True)
     return df
 
-def read_gtfs_stop_times(textfile_path=None, textfile=None):
+def _read_gtfs_stop_times(textfile_path=None, textfile=None):
     """
     Read stop_times.txt as a pandas dataframe
 
@@ -135,7 +135,7 @@ def read_gtfs_stop_times(textfile_path=None, textfile=None):
     df.rename(columns=lambda x: x.strip(), inplace=True)
     return df
 
-def read_gtfs_calendar(textfile_path=None, textfile=None):
+def _read_gtfs_calendar(textfile_path=None, textfile=None):
     """
     Read gtfs calendar.txt as a pandas dataframe
 
@@ -162,7 +162,7 @@ def read_gtfs_calendar(textfile_path=None, textfile=None):
     df.rename(columns=lambda x: x.strip(), inplace=True)
     return df
 
-def read_gtfs_calendar_dates(textfile_path=None, textfile=None):
+def _read_gtfs_calendar_dates(textfile_path=None, textfile=None):
     """
     Read gtfs calendar_dates.txt as a pandas dataframe
 
@@ -186,7 +186,7 @@ def read_gtfs_calendar_dates(textfile_path=None, textfile=None):
     df.rename(columns=lambda x: x.strip(), inplace=True)
     return df
 
-def calendar_dates_agencyid(calendar_dates_df=None, routes_df=None,trips_df=None,agency_df=None):
+def _calendar_dates_agencyid(calendar_dates_df=None, routes_df=None, trips_df=None, agency_df=None):
     """
     Assign unique agency id to calendar dates dataframe
 
@@ -216,7 +216,7 @@ def calendar_dates_agencyid(calendar_dates_df=None, routes_df=None,trips_df=None
 
     return merged_df
 
-def calendar_agencyid(calendar_df=None,routes_df=None,trips_df=None,agency_df=None):
+def _calendar_agencyid(calendar_df=None, routes_df=None, trips_df=None, agency_df=None):
     """
     Assign unique agency id to calendar dataframe
 
@@ -246,7 +246,7 @@ def calendar_agencyid(calendar_df=None,routes_df=None,trips_df=None,agency_df=No
 
     return merged_df
 
-def trips_agencyid(trips_df=None,routes_df=None, agency_df=None):
+def _trips_agencyid(trips_df=None, routes_df=None, agency_df=None):
     """
     Assign unique agency id to trips dataframe
 
@@ -272,7 +272,7 @@ def trips_agencyid(trips_df=None,routes_df=None, agency_df=None):
                          sort=False, copy=False)
     return merged_df
 
-def stops_agencyid(stops_df=None, trips_df=None, routes_df=None,stop_times_df=None,agency_df=None):
+def _stops_agencyid(stops_df=None, trips_df=None, routes_df=None, stop_times_df=None, agency_df=None):
     """
     Assign unique agency id to stops dataframe
 
@@ -304,7 +304,7 @@ def stops_agencyid(stops_df=None, trips_df=None, routes_df=None,stop_times_df=No
                          sort=False, copy=False)
     return merged_df
 
-def routes_agencyid(routes_df=None, agency_df=None):
+def _routes_agencyid(routes_df=None, agency_df=None):
     """
     Assign unique agency id to routes dataframe
 
@@ -326,7 +326,7 @@ def routes_agencyid(routes_df=None, agency_df=None):
                                      sort=False, copy=False)
     return merged_df
 
-def stop_times_agencyid(stop_times_df=None, routes_df=None,trips_df=None, agency_df=None):
+def _stop_times_agencyid(stop_times_df=None, routes_df=None, trips_df=None, agency_df=None):
     """
     Assign unique agency id to stop times dataframe
 
@@ -355,8 +355,8 @@ def stop_times_agencyid(stop_times_df=None, routes_df=None,trips_df=None, agency
 
     return merged_df
 
-def add_unique_agencyid(agency_df=None,stops_df=None,routes_df=None,trips_df=None,stop_times_df=None,calendar_df=None,
-                        calendar_dates_df=None,nulls_as_folder=True,feed_folder=None):
+def _add_unique_agencyid(agency_df=None, stops_df=None, routes_df=None, trips_df=None, stop_times_df=None, calendar_df=None,
+                         calendar_dates_df=None, nulls_as_folder=True, feed_folder=None):
     """
     Create a unique agency id for all gtfs feed dataframes to enable unique relational table keys
 
@@ -414,32 +414,32 @@ def add_unique_agencyid(agency_df=None,stops_df=None,routes_df=None,trips_df=Non
         elif len(agency_df['agency_name']) > 1:
             assert agency_df[['agency_id','agency_name']].isnull().values.any() == False
 
-            calendar_dates_df = calendar_dates_agencyid(calendar_dates_df=calendar_dates_df,
-                                                        routes_df=routes_df[['route_id', 'agency_id']],
-                                                        trips_df=trips_df[['trip_id', 'route_id']],
-                                                        agency_df=agency_df[['agency_id','agency_name']])
+            calendar_dates_df = _calendar_dates_agencyid(calendar_dates_df=calendar_dates_df,
+                                                         routes_df=routes_df[['route_id', 'agency_id']],
+                                                         trips_df=trips_df[['trip_id', 'route_id']],
+                                                         agency_df=agency_df[['agency_id','agency_name']])
 
-            calendar_df = calendar_agencyid(calendar_df=calendar_df,
-                                            routes_df=routes_df[['route_id', 'agency_id']],
-                                            trips_df=trips_df[['trip_id', 'route_id']],
-                                            agency_df=agency_df[['agency_id','agency_name']])
-            trips_df = trips_agencyid(trips_df=trips_df,
-                                      routes_df=routes_df[['route_id', 'agency_id']],
-                                      agency_df=agency_df[['agency_id','agency_name']])
+            calendar_df = _calendar_agencyid(calendar_df=calendar_df,
+                                             routes_df=routes_df[['route_id', 'agency_id']],
+                                             trips_df=trips_df[['trip_id', 'route_id']],
+                                             agency_df=agency_df[['agency_id','agency_name']])
+            trips_df = _trips_agencyid(trips_df=trips_df,
+                                       routes_df=routes_df[['route_id', 'agency_id']],
+                                       agency_df=agency_df[['agency_id','agency_name']])
 
-            stops_df = stops_agencyid(stops_df=stops_df,
-                                      trips_df=trips_df[['trip_id', 'route_id']],
-                                      routes_df=routes_df[['route_id', 'agency_id']],
-                                      stop_times_df=stop_times_df[['trip_id', 'stop_id']],
-                                      agency_df=agency_df[['agency_id','agency_name']])
+            stops_df = _stops_agencyid(stops_df=stops_df,
+                                       trips_df=trips_df[['trip_id', 'route_id']],
+                                       routes_df=routes_df[['route_id', 'agency_id']],
+                                       stop_times_df=stop_times_df[['trip_id', 'stop_id']],
+                                       agency_df=agency_df[['agency_id','agency_name']])
 
-            routes_df = routes_agencyid(routes_df=routes_df,
-                                        agency_df=agency_df[['agency_id','agency_name']])
+            routes_df = _routes_agencyid(routes_df=routes_df,
+                                         agency_df=agency_df[['agency_id','agency_name']])
 
-            stop_times_df = stop_times_agencyid(stop_times_df=stop_times_df,
-                                                routes_df=routes_df[['route_id', 'agency_id']],
-                                                trips_df=trips_df[['trip_id', 'route_id']],
-                                                agency_df=agency_df[['agency_id','agency_name']])
+            stop_times_df = _stop_times_agencyid(stop_times_df=stop_times_df,
+                                                 routes_df=routes_df[['route_id', 'agency_id']],
+                                                 trips_df=trips_df[['trip_id', 'route_id']],
+                                                 agency_df=agency_df[['agency_id','agency_name']])
 
             log('agency.txt agency_name column has more than one agency name listed. Unique agency id was assigned using the agency id and associated agency name.')
 
@@ -454,7 +454,7 @@ def add_unique_agencyid(agency_df=None,stops_df=None,routes_df=None,trips_df=Non
     log('Unique agency id operation complete. Took {:,.2f} seconds'.format(time.time()-start_time))
     return stops_df,routes_df,trips_df,stop_times_df,calendar_df,calendar_dates_df
 
-def timetoseconds(df=None,time_cols=None):
+def _timetoseconds(df=None, time_cols=None):
     """
     Convert default GTFS stop time departure and arrival times from 24 hour clock to seconds past midnight
 
@@ -506,7 +506,7 @@ def timetoseconds(df=None,time_cols=None):
 
     return final_df
 
-def stops_definitions(df=None):
+def _stops_definitions(df=None):
     """
     Append GTFS definitions for stop columns to stop dataframe
 
@@ -530,7 +530,7 @@ def stops_definitions(df=None):
 
     return df
 
-def routes_definitions(df=None):
+def _routes_definitions(df=None):
     """
     Append GTFS definitions for route columns to route dataframe
 
@@ -556,7 +556,7 @@ def routes_definitions(df=None):
 
     return df
 
-def stop_times_definitions(df=None):
+def _stop_times_definitions(df=None):
     """
     Append GTFS definitions for stop time columns to stop time dataframe
 
@@ -591,7 +591,7 @@ def stop_times_definitions(df=None):
 
     return df
 
-def trips_definitions(df=None):
+def _trips_definitions(df=None):
     """
     Append GTFS definitions for trip columns to trip dataframe
 
@@ -616,7 +616,7 @@ def trips_definitions(df=None):
 
     return df
 
-def add_txt_definitions(stops_df=None,routes_df=None,stop_times_df=None,trips_df=None):
+def _add_txt_definitions(stops_df=None, routes_df=None, stop_times_df=None, trips_df=None):
     """
     Append GTFS definitions to stops, routes, stop times, and trips dataframes
 
@@ -635,16 +635,16 @@ def add_txt_definitions(stops_df=None,routes_df=None,stop_times_df=None,trips_df
     -------
     stops_df, routes_df, stop_times_df, trips_df : pandas.DataFrame
     """
-    stops_df = stops_definitions(df=stops_df)
-    routes_df = routes_definitions(df=routes_df)
-    stop_times_df = stop_times_definitions(df=stop_times_df)
-    trips_df = trips_definitions(df=trips_df)
+    stops_df = _stops_definitions(df=stops_df)
+    routes_df = _routes_definitions(df=routes_df)
+    stop_times_df = _stop_times_definitions(df=stop_times_df)
+    trips_df = _trips_definitions(df=trips_df)
 
     log('Added descriptive definitions to stops, routes, stop_times, and trips tables')
 
     return stops_df, routes_df, stop_times_df, trips_df
 
-def append_route_type(stops_df=None, stop_times_df=None,routes_df=None,trips_df=None,info_to_append=None):
+def _append_route_type(stops_df=None, stop_times_df=None, routes_df=None, trips_df=None, info_to_append=None):
     """
     Append GTFS route type definitions to stops and stop times dataframes
 

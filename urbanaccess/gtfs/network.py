@@ -1,7 +1,6 @@
 from __future__ import division
 import pandas as pd
 import time
-import numpy as np
 import logging as lg
 
 from urbanaccess.utils import log, df_to_hdf5, hdf5_to_df
@@ -89,19 +88,19 @@ def create_transit_net(gtfsfeeds_dfs=None,day=None,timerange=None,
                'unique_agency_id']
     if 'direction_id' not in gtfsfeeds_dfs.trips.columns:
         columns.remove('direction_id')
-    calendar_selected_trips_df = tripschedualselector(
+    calendar_selected_trips_df = _tripschedualselector(
         input_trips_df=gtfsfeeds_dfs.trips[columns],
         input_calendar_df=gtfsfeeds_dfs.calendar,
         day=day)
 
     if gtfsfeeds_dfs.stop_times_int.empty or \
             overwrite_existing_stop_times_int or use_existing_stop_times_int == False:
-        gtfsfeeds_dfs.stop_times_int = interpolatestoptimes(
+        gtfsfeeds_dfs.stop_times_int = _interpolatestoptimes(
             stop_times_df=gtfsfeeds_dfs.stop_times,
             calendar_selected_trips_df=calendar_selected_trips_df,
             day=day)
 
-        gtfsfeeds_dfs.stop_times_int = timedifference(
+        gtfsfeeds_dfs.stop_times_int = _timedifference(
             stop_times_df=gtfsfeeds_dfs.stop_times_int)
 
         if save_processed_gtfs:
@@ -113,33 +112,33 @@ def create_transit_net(gtfsfeeds_dfs=None,day=None,timerange=None,
                                                             'stop_times_int is empty. ' \
                                                            'set use_existing_stop_times_int to False to create it.'
 
-    selected_interpolated_stop_times_df = timeselector(
+    selected_interpolated_stop_times_df = _timeselector(
         starttime=timerange[0],
         endtime=timerange[1])
 
-    final_edge_table = format_transit_net_edge(stop_times_df=selected_interpolated_stop_times_df[['unique_trip_id',
+    final_edge_table = _format_transit_net_edge(stop_times_df=selected_interpolated_stop_times_df[['unique_trip_id',
                                                                                                   'stop_id',
                                                                                                   'unique_stop_id',
                                                                                                   'timediff',
-                                                                                                  'stop_sequence',
-                                                                                                  'unique_agency_id',
-                                                                                                  'trip_id']])
+                                                                                                   'stop_sequence',
+                                                                                                   'unique_agency_id',
+                                                                                                   'trip_id']])
 
-    ua_network.transit_edges = convert_imp_time_units(df=final_edge_table,
-                                                      time_col='weight',
-                                                      convert_to='minutes')
+    ua_network.transit_edges = _convert_imp_time_units(df=final_edge_table,
+                                                       time_col='weight',
+                                                       convert_to='minutes')
 
-    final_selected_stops = stops_in_edge_table_selector(
+    final_selected_stops = _stops_in_edge_table_selector(
         input_stops_df=gtfsfeeds_dfs.stops,
         input_stop_times_df=selected_interpolated_stop_times_df)
 
-    ua_network.transit_nodes = format_transit_net_nodes(df=final_selected_stops)
+    ua_network.transit_nodes = _format_transit_net_nodes(df=final_selected_stops)
 
-    ua_network.transit_edges = route_type_to_edge(transit_edge_df=ua_network.transit_edges,
-                                                  stop_time_df=gtfsfeeds_dfs.stop_times)
+    ua_network.transit_edges = _route_type_to_edge(transit_edge_df=ua_network.transit_edges,
+                                                   stop_time_df=gtfsfeeds_dfs.stop_times)
 
-    ua_network.transit_edges = route_id_to_edge(transit_edge_df=ua_network.transit_edges,
-                                                trips_df=gtfsfeeds_dfs.trips)
+    ua_network.transit_edges = _route_id_to_edge(transit_edge_df=ua_network.transit_edges,
+                                                 trips_df=gtfsfeeds_dfs.trips)
 
     # assign node and edge net type
     ua_network.transit_nodes['net_type'] = 'transit'
@@ -149,7 +148,7 @@ def create_transit_net(gtfsfeeds_dfs=None,day=None,timerange=None,
 
     return ua_network
 
-def tripschedualselector(input_trips_df=None,input_calendar_df=None,day=None):
+def _tripschedualselector(input_trips_df=None, input_calendar_df=None, day=None):
     """
     Select trips that run on a specific day
 
@@ -196,7 +195,7 @@ def tripschedualselector(input_trips_df=None,input_calendar_df=None,day=None):
 
     return calendar_selected_trips_df
 
-def interpolatestoptimes(stop_times_df, calendar_selected_trips_df, day):
+def _interpolatestoptimes(stop_times_df, calendar_selected_trips_df, day):
     """
     Interpolate missing stop times using a linear interpolator between known stop times
 
@@ -331,7 +330,7 @@ def interpolatestoptimes(stop_times_df, calendar_selected_trips_df, day):
 
     return final_stop_times_df
 
-def timedifference(stop_times_df=None):
+def _timedifference(stop_times_df=None):
     """
     Calculate the difference in departure_time between stops in stop times table to produce travel time
 
@@ -353,7 +352,7 @@ def timedifference(stop_times_df=None):
 
     return stop_times_df
 
-def timeselector(df=None,starttime=None,endtime=None):
+def _timeselector(df=None, starttime=None, endtime=None):
     """
     Select stop times that fall within a specified time range
 
@@ -395,7 +394,7 @@ def timeselector(df=None,starttime=None,endtime=None):
     return selected_stop_timesdf
 
 
-def format_transit_net_edge(stop_times_df=None):
+def _format_transit_net_edge(stop_times_df=None):
     """
     Format transit network data table to match the format required for edges
     in Pandana graph networks edges
@@ -451,7 +450,7 @@ def format_transit_net_edge(stop_times_df=None):
     return merged_edge_df
 
 
-def convert_imp_time_units(df=None,time_col='weight',convert_to='minutes'):
+def _convert_imp_time_units(df=None, time_col='weight', convert_to='minutes'):
     """
     Convert the travel time impedance units
 
@@ -484,7 +483,7 @@ def convert_imp_time_units(df=None,time_col='weight',convert_to='minutes'):
 
     return df
 
-def stops_in_edge_table_selector(input_stops_df=None,input_stop_times_df=None):
+def _stops_in_edge_table_selector(input_stops_df=None, input_stop_times_df=None):
     """
     Select stops that are active during the day and time period specified
 
@@ -512,7 +511,7 @@ def stops_in_edge_table_selector(input_stops_df=None,input_stop_times_df=None):
 
     return selected_stops_df
 
-def format_transit_net_nodes(df=None):
+def _format_transit_net_nodes(df=None):
     """
     Create transit node table from stops dataframe and perform final formatting
 
@@ -553,7 +552,7 @@ def format_transit_net_nodes(df=None):
 
     return final_node_df
 
-def route_type_to_edge(transit_edge_df=None,stop_time_df=None):
+def _route_type_to_edge(transit_edge_df=None, stop_time_df=None):
     """
     Append route type information to transit edge table
 
@@ -584,7 +583,7 @@ def route_type_to_edge(transit_edge_df=None,stop_time_df=None):
 
     return transit_edge_df_w_routetype
 
-def route_id_to_edge(transit_edge_df=None,trips_df=None):
+def _route_id_to_edge(transit_edge_df=None, trips_df=None):
     """
     Append route ids to transit edge table
 
@@ -706,7 +705,7 @@ def save_processed_gtfs_data(gtfsfeeds_dfs=None,
                              dir=config.settings.data_folder,
                              filename=None):
     """
-    Write dataframes in a gtfsfeeds_df object to a hdf5 file
+    Write dataframes in a gtfsfeeds_dfs object to a hdf5 file
 
     Parameters
     ----------

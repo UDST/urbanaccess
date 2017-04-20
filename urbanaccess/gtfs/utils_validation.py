@@ -4,7 +4,7 @@ import logging as lg
 
 from urbanaccess.utils import log
 
-def boundingbox_check(df=None,feed_folder=None,lat_min=None, lng_min=None, lat_max=None, lng_max=None, bbox=None,remove=None,verbose=None):
+def _boundingbox_check(df=None, feed_folder=None, lat_min=None, lng_min=None, lat_max=None, lng_max=None, bbox=None, remove=None, verbose=None):
     """
     Check for and optionally remove stops that are found to be outside of a specified bounding box
 
@@ -66,7 +66,7 @@ def boundingbox_check(df=None,feed_folder=None,lat_min=None, lng_min=None, lat_m
     else:
         return df
 
-def checkcoordinates(df=None,feed_folder=None):
+def _checkcoordinates(df=None, feed_folder=None):
     """
     Check and print the hemisphere that stop coordinates are in
 
@@ -98,7 +98,7 @@ def checkcoordinates(df=None,feed_folder=None):
         log('{} GTFS feed stops: coordinates are in southeast hemisphere. '
             'Latitude = South (-90); Longitude = East (90).'.format(os.path.split(feed_folder)[1]))
 
-def validate_gtfs(stop_times_df=None,stops_df=None,feed_folder=None,verbose=None,bbox=None,remove_stops_outsidebbox=None):
+def _validate_gtfs(stop_times_df=None, stops_df=None, feed_folder=None, verbose=None, bbox=None, remove_stops_outsidebbox=None):
     """
     Run validation checks on stops checking for stops outside of a bounding box and stop coordinate hemisphere
 
@@ -125,16 +125,16 @@ def validate_gtfs(stop_times_df=None,stops_df=None,feed_folder=None,verbose=None
     """
     assert (stop_times_df['arrival_time']< 0).values.any() == False or (stop_times_df['departure_time']< 0).values.any() == False, 'stop_times.txt file in {} GTFS feed has negative stop times. Time must be positive.'.format(os.path.split(feed_folder)[1])
 
-    stops_df = boundingbox_check(df=stops_df,
-                                 feed_folder=feed_folder,
-                                 lat_min=None,
-                                 lng_min=None,
-                                 lat_max=None,
-                                 lng_max=None,
-                                 bbox=bbox,
-                                 remove=remove_stops_outsidebbox,
-                                 verbose=verbose)
+    stops_df = _boundingbox_check(df=stops_df,
+                                  feed_folder=feed_folder,
+                                  lat_min=None,
+                                  lng_min=None,
+                                  lat_max=None,
+                                  lng_max=None,
+                                  bbox=bbox,
+                                  remove=remove_stops_outsidebbox,
+                                  verbose=verbose)
 
-    checkcoordinates(df=stops_df,feed_folder=feed_folder)
+    _checkcoordinates(df=stops_df, feed_folder=feed_folder)
 
     return stops_df
