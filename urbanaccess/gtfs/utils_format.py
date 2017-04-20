@@ -416,7 +416,7 @@ def add_unique_agencyid(agency_df=None,stops_df=None,routes_df=None,trips_df=Non
 
             calendar_dates_df = calendar_dates_agencyid(calendar_dates_df=calendar_dates_df,
                                                         routes_df=routes_df[['route_id', 'agency_id']],
-                                                        trips_df=trips_df[['trip_id', 'route_id']],
+                                                        trips_df=trips_df[['trip_id', 'route_id', 'service_id']],
                                                         agency_df=agency_df[['agency_id','agency_name']])
 
             calendar_df = calendar_agencyid(calendar_df=calendar_df,
