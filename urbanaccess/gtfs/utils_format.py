@@ -238,7 +238,7 @@ def calendar_agencyid(calendar_df=None,routes_df=None,trips_df=None,agency_df=No
     """
     tmp1 = pd.merge(routes_df, agency_df, how='left', on='agency_id', sort=False, copy=False)
     tmp2 = pd.merge(trips_df, tmp1, how='left', on='route_id', sort=False, copy=False)
-    merged_df = pd.merge(calendar_df['service_id'], tmp2, how='left', on='service_id', sort=False, copy=False)
+    merged_df = pd.merge(calendar_df[['service_id']], tmp2, how='left', on='service_id', sort=False, copy=False)
     merged_df['unique_agency_id'] = _generate_unique_agency_id(merged_df, 'agency_name')
     merged_df.drop_duplicates(subset='service_id', keep='first', inplace=True)
 
@@ -347,7 +347,7 @@ def stop_times_agencyid(stop_times_df=None, routes_df=None,trips_df=None, agency
     merged_df : pandas.DataFrame
     """
     tmp1 = pd.merge(routes_df, agency_df, how='left', on='agency_id', sort=False, copy=False)
-    tmp2 = pd.merge(trips_df['trip_id'], tmp1, how='left', on='route_id', sort=False, copy=False)
+    tmp2 = pd.merge(trips_df[['trip_id', 'route_id']], tmp1, how='left', on='route_id', sort=False, copy=False)
     merged_df = pd.merge(stop_times_df, tmp2, how='left', on='trip_id', sort=False, copy=False)
     merged_df['unique_agency_id'] = _generate_unique_agency_id(merged_df, 'agency_name')
     merged_df.drop_duplicates(subset='trip_id', keep='first',inplace=True)
@@ -389,12 +389,16 @@ def add_unique_agencyid(agency_df=None,stops_df=None,routes_df=None,trips_df=Non
 
     df_list = [stops_df,routes_df,trips_df,stop_times_df,calendar_df,calendar_dates_df]
 
-    if ((os.path.exists(os.path.join(feed_folder,'agency.txt')) == False or
-                 'agency_id' not in agency_df.columns) and
-                nulls_as_folder == True):
-        for df in df_list:
+    path_absent = os.path.exists(os.path.join(feed_folder,'agency.txt')) == False
+    agency_absent = 'agency_id' not in agency_df.columns
+    if ((path_absent or agency_absent) and nulls_as_folder == True):
+
+        for index, df in enumerate(df_list):
+            # TODO: We seem to be repeating this pattern in a number of places - either do it once or use a helper function
             unique_agency_id = sub(r'\s+', '_', os.path.split(feed_folder)[1]).replace('&','and').lower()
             df['unique_agency_id'] = unique_agency_id
+            df_list[index] = df
+
         log('The agency.txt or agency_id column was not found. The unique agency id: {} was generated using the name of the folder containing the GTFS feed text files.'.format(unique_agency_id))
 
     elif os.path.exists(os.path.join(feed_folder,'agency.txt')) == False and nulls_as_folder == False:
@@ -407,12 +411,19 @@ def add_unique_agencyid(agency_df=None,stops_df=None,routes_df=None,trips_df=Non
 
         if len(agency_df['agency_name']) == 1:
             assert agency_df['agency_name'].isnull().values == False
+
+            # TODO: Again, this need to be moved into a helper function
             unique_agency_id = sub(r'\s+', '_', agency_df['agency_name'][0]).replace('&','and').lower()
-            for df in df_list:
+
+            for index, df in enumerate(df_list):
                 df['unique_agency_id'] = unique_agency_id
+                df_list[index] = df
             log('The unique agency id: {} was generated using the name of the agency in the agency.txt file.'.format(unique_agency_id))
 
         elif len(agency_df['agency_name']) > 1:
+            # TODO: Assertions shouldn't be in runtime - validation should 
+            #       either be prior to model execution or handled gracefully
+            #       through caught errors/exceptions
             assert agency_df[['agency_id','agency_name']].isnull().values.any() == False
 
             # TODO: In each of the steps, the functions foo_agencyid ought be prepended with an underscore (e.g.
@@ -425,7 +436,7 @@ def add_unique_agencyid(agency_df=None,stops_df=None,routes_df=None,trips_df=Non
 
             calendar_df = calendar_agencyid(calendar_df=calendar_df,
                                             routes_df=routes_df[['route_id', 'agency_id']],
-                                            trips_df=trips_df[['trip_id', 'route_id']],
+                                            trips_df=trips_df[['trip_id', 'route_id', 'service_id']],
                                             agency_df=agency_df[['agency_id','agency_name']])
             
             trips_df = trips_agencyid(trips_df=trips_df,
@@ -446,15 +457,25 @@ def add_unique_agencyid(agency_df=None,stops_df=None,routes_df=None,trips_df=Non
                                                 trips_df=trips_df[['trip_id', 'route_id']],
                                                 agency_df=agency_df[['agency_id','agency_name']])
 
+            # TODO: It's obfuscatory to update the dataframe variables in such a deeply nested way.
+            #       Perhaps a more clear naming convention here before df_list is overridden
+            #       would make this steps intent more explicit.
+
+            # need to update the df_list object with these new variable overrides
+            df_list = [stops_df,routes_df,trips_df,stop_times_df,calendar_df,calendar_dates_df]
+            
             log('agency.txt agency_name column has more than one agency name listed. Unique agency id was assigned using the agency id and associated agency name.')
 
-    for df in df_list:
+    for index, df in enumerate(df_list):
         if df['unique_agency_id'].isnull().values.any():
+            # TODO: These string conversions seem to follow a pattern, could be part of the helper function?
             unique_agency_id = sub(r'\s+', '_', os.path.split(feed_folder)[1]).replace('&','and').lower()
+
             df['unique_agency_id'].fillna(''.join(['multiple_operators_', unique_agency_id]), inplace=True)
             log('There are {} null values ({}% of total) without a unique agency id. '
                 'These records will be labeled as multiple_operators_ with the GTFS file folder '
                 'name'.format(df['unique_agency_id'].isnull().sum(),len(df),round((float(df['unique_agency_id'].isnull().sum()) / float(len(df)) *100))))
+            df_list[index] = df
 
     log('Unique agency id operation complete. Took {:,.2f} seconds'.format(time.time()-start_time))
     return stops_df,routes_df,trips_df,stop_times_df,calendar_df,calendar_dates_df
