@@ -292,6 +292,7 @@ def interpolatestoptimes(stop_times_df, calendar_selected_trips_df, day):
 
     # Need to check if existing index in column names and drop if so (else
     # a ValueError where Pandas can't insert b/c col already exists will occur)
+    drop_bool = False
     if _check_if_index_name_in_cols(df_for_interpolation):
         # move the current index to own col named 'index'
         col_name_to_copy = df_for_interpolation.index.name
