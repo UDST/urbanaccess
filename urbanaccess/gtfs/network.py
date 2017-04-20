@@ -292,8 +292,11 @@ def interpolatestoptimes(stop_times_df, calendar_selected_trips_df, day):
 
     # Need to check if existing index in column names and drop if so (else
     # a ValueError where Pandas can't insert b/c col already exists will occur)
-    drop_bool = False
     if _check_if_index_name_in_cols(df_for_interpolation):
+        # move the current index to own col named 'index'
+        col_name_to_copy = df_for_interpolation.index.name
+        col_to_copy = df_for_interpolation[col_name_to_copy].copy()
+        df_for_interpolation['index'] = col_to_copy
         drop_bool = True
     df_for_interpolation.reset_index(inplace=True, drop=drop_bool)
 
@@ -303,9 +306,19 @@ def interpolatestoptimes(stop_times_df, calendar_selected_trips_df, day):
     interpolated_df.set_index('index', inplace=True)
     interpolated_times = interpolated_df[['departure_time_sec_interpolate']]
 
-    final_stop_times_df = pd.merge(stop_times_df, interpolated_times,
-                                   how='left', left_index=True,
-                                   right_index=True, sort=False, copy=False)
+    # default value for final_stop_times
+    final_stop_times_df = stop_times_df
+    
+    # if empty just duplicate departure_time_sec col
+    if interpolated_times.empty:
+        departures = final_stop_times_df['departure_time_sec'].copy()
+        final_stop_times_df['departure_time_sec_interpolate'] = departures
+    
+    # if df not empty, override the default final_stop_times with merge result
+    else:
+        final_stop_times_df = pd.merge(stop_times_df, interpolated_times,
+                                       how='left', left_index=True,
+                                       right_index=True, sort=False, copy=False)
 
     # fill in nulls in interpolated departure time column using trips that did not need interpolation in order to create
     # one column with both original and interpolated times
