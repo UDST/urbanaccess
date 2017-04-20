@@ -306,19 +306,9 @@ def interpolatestoptimes(stop_times_df, calendar_selected_trips_df, day):
     interpolated_df.set_index('index', inplace=True)
     interpolated_times = interpolated_df[['departure_time_sec_interpolate']]
 
-    # default value for final_stop_times
-    final_stop_times_df = stop_times_df
-    
-    # if empty just duplicate departure_time_sec col
-    if interpolated_times.empty:
-        departures = final_stop_times_df['departure_time_sec'].copy()
-        final_stop_times_df['departure_time_sec_interpolate'] = departures
-    
-    # if df not empty, override the default final_stop_times with merge result
-    else:
-        final_stop_times_df = pd.merge(stop_times_df, interpolated_times,
-                                       how='left', left_index=True,
-                                       right_index=True, sort=False, copy=False)
+    final_stop_times_df = pd.merge(stop_times_df, interpolated_times,
+                                   how='left', left_index=True,
+                                   right_index=True, sort=False, copy=False)
 
     # fill in nulls in interpolated departure time column using trips that did not need interpolation in order to create
     # one column with both original and interpolated times
