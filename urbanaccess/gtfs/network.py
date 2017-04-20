@@ -290,8 +290,14 @@ def interpolatestoptimes(stop_times_df, calendar_selected_trips_df, day):
     df_for_interpolation['stop_sequence_merge'] = (
         df_for_interpolation[~trailing]['stop_sequence'])
 
+    # Need to check if existing index in column names and drop if so (else
+    # a ValueError where Pandas can't insert b/c col already exists will occur)
+    drop_bool = False
+    if _check_if_index_name_in_cols(df_for_interpolation):
+        drop_bool = True
+    df_for_interpolation.reset_index(inplace=True, drop=drop_bool)
+
     # Merge back into original index
-    df_for_interpolation.reset_index(inplace=True)
     interpolated_df = pd.merge(df_for_interpolation, melted, 'left',
                                on=['stop_sequence_merge', 'unique_trip_id'])
     interpolated_df.set_index('index', inplace=True)
@@ -764,3 +770,9 @@ def load_processed_gtfs_data(dir=config.settings.data_folder,filename=None):
                 gtfsfeeds_df.calendar_dates = hdf5_to_df(dir=dir,filename=filename,key='calendar_dates')
 
     return gtfsfeeds_df
+
+# helper functions
+def _check_if_index_name_in_cols(df):
+    cols = df.columns.values
+    iname = df.index.name
+    return (iname in cols)
