@@ -426,43 +426,58 @@ def add_unique_agencyid(agency_df=None,stops_df=None,routes_df=None,trips_df=Non
             #       through caught errors/exceptions
             assert agency_df[['agency_id','agency_name']].isnull().values.any() == False
 
+            # only generate subset dataframes once, instead of for each keyword argument
+            # in the below helper function
+            subset_agency_df = agency_df[['agency_id','agency_name']]
+            subset_routes_df = routes_df[['route_id', 'agency_id']]
+            subset_stop_times_df = stop_times_df[['trip_id', 'stop_id']]
+            subset_trips_df = trips_df[['trip_id', 'route_id']]
+            subset_trips_df_w_sid = trips_df[['trip_id', 'route_id', 'service_id']]
+
             # TODO: In each of the steps, the functions foo_agencyid ought be prepended with an underscore (e.g.
             #       foo_agencyid() to _foo_agencyid()) in order to signify that these are helper functions for this
             #       step, and not exported out of this .py file
-            calendar_dates_df = calendar_dates_agencyid(calendar_dates_df=calendar_dates_df,
-                                                        routes_df=routes_df[['route_id', 'agency_id']],
-                                                        trips_df=trips_df[['trip_id', 'route_id', 'service_id']],
-                                                        agency_df=agency_df[['agency_id','agency_name']])
+            calendar_dates_replacement_df = calendar_dates_agencyid(
+                                            calendar_dates_df=calendar_dates_df,
+                                            routes_df=subset_routes_df,
+                                            trips_df=subset_trips_df_w_sid,
+                                            agency_df=subset_agency_df)
 
-            calendar_df = calendar_agencyid(calendar_df=calendar_df,
-                                            routes_df=routes_df[['route_id', 'agency_id']],
-                                            trips_df=trips_df[['trip_id', 'route_id', 'service_id']],
-                                            agency_df=agency_df[['agency_id','agency_name']])
+            calendar_replacement_df = calendar_agencyid(
+                                            calendar_df=calendar_df,
+                                            routes_df=subset_routes_df,
+                                            trips_df=subset_trips_df_w_sid,
+                                            agency_df=subset_agency_df)
             
-            trips_df = trips_agencyid(trips_df=trips_df,
-                                      routes_df=routes_df[['route_id', 'agency_id']],
-                                      agency_df=agency_df[['agency_id','agency_name']])
+            trips_replacement_df = trips_agencyid(
+                                            trips_df=trips_df,
+                                            routes_df=subset_routes_df,
+                                            agency_df=subset_agency_df)
 
-            stops_df = stops_agencyid(stops_df=stops_df,
-                                      trips_df=trips_df[['trip_id', 'route_id']],
-                                      routes_df=routes_df[['route_id', 'agency_id']],
-                                      stop_times_df=stop_times_df[['trip_id', 'stop_id']],
-                                      agency_df=agency_df[['agency_id','agency_name']])
+            stops_replacement_df = stops_agencyid(
+                                            stops_df=stops_df,
+                                            trips_df=subset_trips_df,
+                                            routes_df=subset_routes_df,
+                                            stop_times_df=subset_stop_times_df,
+                                            agency_df=subset_agency_df)
 
-            routes_df = routes_agencyid(routes_df=routes_df,
-                                        agency_df=agency_df[['agency_id','agency_name']])
+            routes_replacement_df = routes_agencyid(
+                                            routes_df=routes_df,
+                                            agency_df=subset_agency_df)
 
-            stop_times_df = stop_times_agencyid(stop_times_df=stop_times_df,
-                                                routes_df=routes_df[['route_id', 'agency_id']],
-                                                trips_df=trips_df[['trip_id', 'route_id']],
-                                                agency_df=agency_df[['agency_id','agency_name']])
-
-            # TODO: It's obfuscatory to update the dataframe variables in such a deeply nested way.
-            #       Perhaps a more clear naming convention here before df_list is overridden
-            #       would make this steps intent more explicit.
+            stop_times_replacement_df = stop_times_agencyid(
+                                            stop_times_df=stop_times_df,
+                                            routes_df=subset_routes_df,
+                                            trips_df=subset_trips_df,
+                                            agency_df=subset_agency_df)
 
             # need to update the df_list object with these new variable overrides
-            df_list = [stops_df,routes_df,trips_df,stop_times_df,calendar_df,calendar_dates_df]
+            df_list = [stops_replacement_df,
+                       routes_replacement_df,
+                       trips_replacement_df,
+                       stop_times_replacement_df,
+                       calendar_replacement_df,
+                       calendar_dates_replacement_df]
             
             log('agency.txt agency_name column has more than one agency name listed. Unique agency id was assigned using the agency id and associated agency name.')
 
@@ -478,7 +493,7 @@ def add_unique_agencyid(agency_df=None,stops_df=None,routes_df=None,trips_df=Non
             df_list[index] = df
 
     log('Unique agency id operation complete. Took {:,.2f} seconds'.format(time.time()-start_time))
-    return stops_df,routes_df,trips_df,stop_times_df,calendar_df,calendar_dates_df
+    return df_list
 
 def timetoseconds(df=None,time_cols=None):
     """
