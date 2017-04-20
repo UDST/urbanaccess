@@ -227,6 +227,9 @@ def gtfsfeed_to_df(gtfsfeed_path=None,validation=False,verbose=True,bbox=None,re
                                                        trips_df=trips_df[['trip_id','route_id']],
                                                        info_to_append='route_type_to_stop_times')
 
+        # TODO: Appending seems improper; given the initial dataframes are empty we should either override or 
+        #       otherwise replace. Appending leaves the opportunity open for accidental repeats runs of this function to
+        #       produce unintended side effects (double long dataframes, etc.).
         merged_stops_df = merged_stops_df.append(stops_df,ignore_index=True)
         merged_routes_df = merged_routes_df.append(routes_df,ignore_index=True)
         merged_trips_df = merged_trips_df.append(trips_df,ignore_index=True)
