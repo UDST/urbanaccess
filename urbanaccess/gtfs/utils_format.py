@@ -208,7 +208,8 @@ def calendar_dates_agencyid(calendar_dates_df=None, routes_df=None,trips_df=None
     tmp1 = pd.merge(routes_df, agency_df, how='left', on='agency_id', sort=False, copy=False)
     tmp2 = pd.merge(trips_df, tmp1, how='left', on='route_id', sort=False, copy=False)
     merged_df = pd.merge(calendar_dates_df, tmp2, how='left', on='service_id', sort=False, copy=False)
-    merged_df['unique_agency_id'] = sub(r'\s+', '_', merged_df['agency_name']).str.replace('&','and').lower()
+
+    merged_df['unique_agency_id'] = _generate_unique_agency_id(merged_df, 'agency_name')
     merged_df.drop_duplicates(subset='service_id', keep='first', inplace=True)
 
     merged_df = pd.merge(calendar_dates_df, merged_df[['unique_agency_id', 'service_id']], how='left',
@@ -414,6 +415,9 @@ def add_unique_agencyid(agency_df=None,stops_df=None,routes_df=None,trips_df=Non
         elif len(agency_df['agency_name']) > 1:
             assert agency_df[['agency_id','agency_name']].isnull().values.any() == False
 
+            # TODO: In each of the steps, the functions foo_agencyid ought be prepended with an underscore (e.g.
+            #       foo_agencyid() to _foo_agencyid()) in order to signify that these are helper functions for this
+            #       step, and not exported out of this .py file
             calendar_dates_df = calendar_dates_agencyid(calendar_dates_df=calendar_dates_df,
                                                         routes_df=routes_df[['route_id', 'agency_id']],
                                                         trips_df=trips_df[['trip_id', 'route_id', 'service_id']],
@@ -423,6 +427,7 @@ def add_unique_agencyid(agency_df=None,stops_df=None,routes_df=None,trips_df=Non
                                             routes_df=routes_df[['route_id', 'agency_id']],
                                             trips_df=trips_df[['trip_id', 'route_id']],
                                             agency_df=agency_df[['agency_id','agency_name']])
+            
             trips_df = trips_agencyid(trips_df=trips_df,
                                       routes_df=routes_df[['route_id', 'agency_id']],
                                       agency_df=agency_df[['agency_id','agency_name']])
@@ -690,4 +695,13 @@ def append_route_type(stops_df=None, stop_times_df=None,routes_df=None,trips_df=
         log('Appended route type to stop_times')
 
         return stop_times_df
+
+# helper/utility functions
+def _generate_unique_agency_id(df, col_name):
+    col = df[col_name].astype(str)
+    # replace all runs of spaces with a single underscore
+    col_snake_case = col.str.replace(r'\s+', '_')
+    # replace all ampersands
+    col_snake_no_amps = col_snake_case.str.replace('&','and')
+    return col_snake_no_amps.str.lower()
 
