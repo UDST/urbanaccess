@@ -129,10 +129,15 @@ def headways(gtfsfeeds_df,headway_timerange):
         route stop headways in units of minutes
         with relevant route and stop information
     """
+    
+    # TODO: Assertions in code during runtime should be handled in some other way.
+    #       For example, class descriptors may be appropriate
+    #       (http://stackoverflow.com/questions/944592/best-practice-for-python-assert)
     time_error_statement = ('{} starttime and endtime are not in the correct format. '
                        'Format should be 24 hour clock in following format: 08:00:00 or 17:00:00'.format(headway_timerange))
     assert isinstance(headway_timerange,list) and len(headway_timerange) == 2, time_error_statement
     assert headway_timerange[0] < headway_timerange[1], time_error_statement
+    
     for t in headway_timerange:
         assert isinstance(t,str), time_error_statement
         assert len(t) == 8, time_error_statement
