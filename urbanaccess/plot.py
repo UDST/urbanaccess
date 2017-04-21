@@ -155,11 +155,13 @@ def col_colors(df=None, col=None, num_bins=5, cmap='spectral',
     colors : list
     """
     bin_labels = range(num_bins)
-    col_values = df[col]
+    col_values = df[df[col].notnull()][col]
     categories = pd.qcut(x=col_values, q=num_bins, labels=bin_labels)
     color_list = [cm.get_cmap(cmap)(x) for x in np.linspace(start,
                                                             stop, num_bins)]
-    colors = [color_list[cat] for cat in categories]
+    
+    cleaned_categories = [str(int(cat)) for cat in categories]
+    colors = [color_list[cat] for cat in cleaned_categories]
     return colors
 
 
