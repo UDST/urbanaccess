@@ -113,6 +113,7 @@ def create_transit_net(gtfsfeeds_dfs=None,day=None,timerange=None,
                                                            'set use_existing_stop_times_int to False to create it.'
 
     selected_interpolated_stop_times_df = _timeselector(
+        df=gtfsfeeds_dfs.stop_times_int,
         starttime=timerange[0],
         endtime=timerange[1])
 
@@ -266,58 +267,71 @@ def _interpolatestoptimes(stop_times_df, calendar_selected_trips_df, day):
     df_for_interpolation = stop_times_df.loc[
         stop_times_df.unique_trip_id.isin(trips_with_more_than_one_null)]
 
-    # Pivot to DataFrame where each unique trip has its own column
-    # Index is stop_sequence
-    pivot = df_for_interpolation.pivot(index='stop_sequence',
-                                       columns='unique_trip_id',
-                                       values='departure_time_sec')
+    if len(df_for_interpolation) > 0:
 
-    # Interpolate on the whole DataFrame at once
-    interpolator = pivot.interpolate(method='linear', axis=0,
-                                     limit_direction='forward')
+        # Pivot to DataFrame where each unique trip has its own column
+        # Index is stop_sequence
+        pivot = df_for_interpolation.pivot(index='stop_sequence',
+                                           columns='unique_trip_id',
+                                           values='departure_time_sec')
 
-    # Melt back into stacked format
-    interpolator['stop_sequence_merge'] = interpolator.index
-    melted = pd.melt(interpolator, id_vars='stop_sequence_merge')
-    melted.rename(columns={'value': 'departure_time_sec_interpolate'},
-                  inplace=True)
+        # Interpolate on the whole DataFrame at once
+        interpolator = pivot.interpolate(method='linear', axis=0,
+                                         limit_direction='forward')
 
-    # Get the last valid stop for each unique trip, to filter out trailing NaNs
-    last_valid_stop_series = pivot.apply(
-        lambda col: col.last_valid_index(), axis=0)
-    last_valid_stop_df = last_valid_stop_series.to_frame('last_valid_stop')
+        # Melt back into stacked format
+        interpolator['stop_sequence_merge'] = interpolator.index
+        melted = pd.melt(interpolator, id_vars='stop_sequence_merge')
+        melted.rename(columns={'value': 'departure_time_sec_interpolate'},
+                      inplace=True)
 
-    df_for_interpolation = df_for_interpolation.merge(last_valid_stop_df,
-                                                      left_on='unique_trip_id',
-                                                      right_index=True)
-    trailing = (df_for_interpolation.stop_sequence >
-                df_for_interpolation.last_valid_stop)
+        # Get the last valid stop for each unique trip,
+        # to filter out trailing NaNs
+        last_valid_stop_series = pivot.apply(
+            lambda col: col.last_valid_index(), axis=0)
+        last_valid_stop_df = last_valid_stop_series.to_frame('last_valid_stop')
 
-    # Calculate a stop_sequence without trailing NaNs, to merge the correct
-    # interpolated times back in
-    df_for_interpolation['stop_sequence_merge'] = (
-        df_for_interpolation[~trailing]['stop_sequence'])
+        df_for_interpolation = (df_for_interpolation
+                                .merge(last_valid_stop_df,
+                                       left_on='unique_trip_id',
+                                       right_index=True))
+        trailing = (df_for_interpolation.stop_sequence >
+                    df_for_interpolation.last_valid_stop)
 
-    # Need to check if existing index in column names and drop if so (else
-    # a ValueError where Pandas can't insert b/c col already exists will occur)
-    drop_bool = False
-    if _check_if_index_name_in_cols(df_for_interpolation):
-        # move the current index to own col named 'index'
-        col_name_to_copy = df_for_interpolation.index.name
-        col_to_copy = df_for_interpolation[col_name_to_copy].copy()
-        df_for_interpolation['index'] = col_to_copy
-        drop_bool = True
-    df_for_interpolation.reset_index(inplace=True, drop=drop_bool)
+        # Calculate a stop_sequence without trailing NaNs, to merge the correct
+        # interpolated times back in
+        df_for_interpolation['stop_sequence_merge'] = (
+            df_for_interpolation[~trailing]['stop_sequence'])
 
-    # Merge back into original index
-    interpolated_df = pd.merge(df_for_interpolation, melted, 'left',
-                               on=['stop_sequence_merge', 'unique_trip_id'])
-    interpolated_df.set_index('index', inplace=True)
-    interpolated_times = interpolated_df[['departure_time_sec_interpolate']]
+        # Need to check if existing index in column names and drop if so (else
+        # a ValueError where Pandas can't insert
+        # b/c col already exists will occur)
+        drop_bool = False
+        if _check_if_index_name_in_cols(df_for_interpolation):
+            # move the current index to own col named 'index'
+            col_name_to_copy = df_for_interpolation.index.name
+            col_to_copy = df_for_interpolation[col_name_to_copy].copy()
+            df_for_interpolation['index'] = col_to_copy
+            drop_bool = True
+        df_for_interpolation.reset_index(inplace=True, drop=drop_bool)
 
-    final_stop_times_df = pd.merge(stop_times_df, interpolated_times,
-                                   how='left', left_index=True,
-                                   right_index=True, sort=False, copy=False)
+        # Merge back into original index
+        interpolated_df = pd.merge(df_for_interpolation, melted, 'left',
+                                   on=['stop_sequence_merge',
+                                       'unique_trip_id'])
+        interpolated_df.set_index('index', inplace=True)
+        interpolated_times = (
+            interpolated_df[['departure_time_sec_interpolate']])
+
+        final_stop_times_df = pd.merge(stop_times_df, interpolated_times,
+                                       how='left', left_index=True,
+                                       right_index=True, sort=False,
+                                       copy=False)
+
+    else:
+        final_stop_times_df = stop_times_df
+        final_stop_times_df['departure_time_sec_interpolate'] = (
+            final_stop_times_df['departure_time_sec'])
 
     # fill in nulls in interpolated departure time column using trips that did not need interpolation in order to create
     # one column with both original and interpolated times
