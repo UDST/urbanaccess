@@ -797,8 +797,19 @@ def load_processed_gtfs_data(dir=config.settings.data_folder,filename=None):
 
     return gtfsfeeds_dfs
 
-# helper functions
 def _check_if_index_name_in_cols(df):
+    """
+    Check if existing index is in the passed dataframe list of column names
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        interpolated stop_time dataframe
+
+    Returns
+    -------
+    iname : tuple
+    """
     cols = df.columns.values
     iname = df.index.name
     return (iname in cols)

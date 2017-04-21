@@ -394,7 +394,6 @@ def _add_unique_agencyid(agency_df=None, stops_df=None, routes_df=None, trips_df
     if ((path_absent or agency_absent) and nulls_as_folder == True):
 
         for index, df in enumerate(df_list):
-            # TODO: We seem to be repeating this pattern in a number of places - either do it once or use a helper function
             unique_agency_id = sub(r'\s+', '_', os.path.split(feed_folder)[1]).replace('&','and').lower()
             df['unique_agency_id'] = unique_agency_id
             df_list[index] = df
@@ -412,7 +411,7 @@ def _add_unique_agencyid(agency_df=None, stops_df=None, routes_df=None, trips_df
         if len(agency_df['agency_name']) == 1:
             assert agency_df['agency_name'].isnull().values == False
 
-            # TODO: Again, this need to be moved into a helper function
+            # could be added to helper function
             unique_agency_id = sub(r'\s+', '_', agency_df['agency_name'][0]).replace('&','and').lower()
 
             for index, df in enumerate(df_list):
@@ -421,22 +420,16 @@ def _add_unique_agencyid(agency_df=None, stops_df=None, routes_df=None, trips_df
             log('The unique agency id: {} was generated using the name of the agency in the agency.txt file.'.format(unique_agency_id))
 
         elif len(agency_df['agency_name']) > 1:
-            # TODO: Assertions shouldn't be in runtime - validation should
-            #       either be prior to model execution or handled gracefully
-            #       through caught errors/exceptions
+            # TODO: Change Assertion to errors/exceptions
             assert agency_df[['agency_id','agency_name']].isnull().values.any() == False
 
-            # only generate subset dataframes once, instead of for each keyword argument
-            # in the below helper function
+            # subset dataframes
             subset_agency_df = agency_df[['agency_id','agency_name']]
             subset_routes_df = routes_df[['route_id', 'agency_id']]
             subset_stop_times_df = stop_times_df[['trip_id', 'stop_id']]
             subset_trips_df = trips_df[['trip_id', 'route_id']]
             subset_trips_df_w_sid = trips_df[['trip_id', 'route_id', 'service_id']]
 
-            # TODO: In each of the steps, the functions foo_agencyid ought be prepended with an underscore (e.g.
-            #       foo_agencyid() to _foo_agencyid()) in order to signify that these are helper functions for this
-            #       step, and not exported out of this .py file
             calendar_dates_replacement_df = _calendar_dates_agencyid(
                                             calendar_dates_df=calendar_dates_df,
                                             routes_df=subset_routes_df,
@@ -471,7 +464,7 @@ def _add_unique_agencyid(agency_df=None, stops_df=None, routes_df=None, trips_df
                                             trips_df=subset_trips_df,
                                             agency_df=subset_agency_df)
 
-            # need to update the df_list object with these new variable overrides
+            # update the df_list object with these new variable overrides
             df_list = [stops_replacement_df,
                        routes_replacement_df,
                        trips_replacement_df,
@@ -483,7 +476,6 @@ def _add_unique_agencyid(agency_df=None, stops_df=None, routes_df=None, trips_df
 
     for index, df in enumerate(df_list):
         if df['unique_agency_id'].isnull().values.any():
-            # TODO: These string conversions seem to follow a pattern, could be part of the helper function?
             unique_agency_id = sub(r'\s+', '_', os.path.split(feed_folder)[1]).replace('&','and').lower()
 
             df['unique_agency_id'].fillna(''.join(['multiple_operators_', unique_agency_id]), inplace=True)
@@ -732,8 +724,21 @@ def _append_route_type(stops_df=None, stop_times_df=None, routes_df=None, trips_
 
         return stop_times_df
 
-# helper/utility functions
 def _generate_unique_agency_id(df, col_name):
+    """
+    Generate unique agency id
+
+    Parameters
+    ----------
+    df : pandas:DataFrame
+    col_name : str
+        typically will be 'agency_name'
+
+    Returns
+    -------
+    col_snake_no_amps : str
+    """
+
     col = df[col_name].astype(str)
     # replace all runs of spaces with a single underscore
     col_snake_case = col.str.replace(r'\s+', '_')
