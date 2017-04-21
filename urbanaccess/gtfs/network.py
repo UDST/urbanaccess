@@ -88,7 +88,7 @@ def create_transit_net(gtfsfeeds_dfs=None,day=None,timerange=None,
                'unique_agency_id']
     if 'direction_id' not in gtfsfeeds_dfs.trips.columns:
         columns.remove('direction_id')
-    calendar_selected_trips_df = _tripschedualselector(
+    calendar_selected_trips_df = _tripscheduleselector(
         input_trips_df=gtfsfeeds_dfs.trips[columns],
         input_calendar_df=gtfsfeeds_dfs.calendar,
         day=day)
@@ -148,7 +148,7 @@ def create_transit_net(gtfsfeeds_dfs=None,day=None,timerange=None,
 
     return ua_network
 
-def _tripschedualselector(input_trips_df=None, input_calendar_df=None, day=None):
+def _tripscheduleselector(input_trips_df=None, input_calendar_df=None, day=None):
     """
     Select trips that run on a specific day
 
