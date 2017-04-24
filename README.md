@@ -19,6 +19,8 @@ UrbanAccess offers the following tools:
 * Integrate pedestrian and transit networks to approximate pedestrian scale accessibility
 * Resulting networks are designed to be used to compute accessibility metrics using the open source network analysis tool [Pandana](https://github.com/UDST/pandana) 
 
+Let us know what you are working on or if you think you have a great use case by tweeting us at `@urbansim` or post on the UrbanSim [forum](http://discussion.urbansim.com/).  
+
 ## Current status
 UrbanAccess is currently in a alpha release and only compatible with Python 2.x. Further code refinements are expected.
 
