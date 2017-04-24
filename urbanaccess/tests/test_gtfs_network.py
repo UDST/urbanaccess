@@ -82,7 +82,7 @@ def stop_times_interpolated():
 
 
 def test_interpolator(stop_times, calendar):
-    df = network.interpolatestoptimes(stop_times, calendar, day='monday')
+    df = network._interpolatestoptimes(stop_times, calendar, day='monday')
 
     # unique_trip_id should be generated
     assert df.loc[1, 'unique_trip_id'] == 'a_citytrains'
@@ -110,8 +110,29 @@ def test_interpolator(stop_times, calendar):
                   'departure_time_sec_interpolate'].tolist() == [1, 2, 3, 4]
 
 
+def test_skip_interpolator(stop_times, calendar):
+    series = pd.Series(data=[1, 2, 3, 4, 5,
+                             1, 2, 3, 4, 5,
+                             1, 2, 3, 4, 5,
+                             1, 2, 3, 4, 5,
+                             1, 2, 3, 4, 5],
+                       index=range(25),
+                       name='departure_time_sec')
+
+    stop_times['departure_time_sec'] = series
+
+    df = network._interpolatestoptimes(stop_times, calendar, day='monday')
+
+    # everything should be the same,
+    # with one row dropped for calendar day filter
+    assert df.departure_time_sec_interpolate.tolist() == [1, 2, 3, 4, 5,
+                                                          1, 2, 3, 4, 5,
+                                                          1, 2, 3, 4, 5,
+                                                          1, 2, 3, 4, 5]
+
+
 def test_edge_reformatter(stop_times_interpolated):
-    df = network.format_transit_net_edge(stop_times_interpolated)
+    df = network._format_transit_net_edge(stop_times_interpolated)
 
     # length of edge df should be 16
     assert len(df) == 16

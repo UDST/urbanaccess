@@ -75,9 +75,9 @@ def plot_net(nodes=None,edges=None,x_col='x',y_col='y',bbox=None,
                 or 'to_lon' not in edges.columns \
                 or 'from_lat' not in edges.columns \
                 or 'from_lon' not in edges.columns:
-            edges = prep_edges(edges=edges,nodes=nodes,
-                               from_col='from_int',to_col='to_int',
-                               x_col='x',y_col='y')
+            edges = _prep_edges(edges=edges, nodes=nodes,
+                                from_col='from_int', to_col='to_int',
+                                x_col='x', y_col='y')
 
     if bbox is None:
         y_max = max(node_Ys)
@@ -163,8 +163,8 @@ def col_colors(df=None, col=None, num_bins=5, cmap='spectral',
     return colors
 
 
-def prep_edges(edges=None,nodes=None,from_col='from_int',to_col='to_int',
-               x_col='x',y_col='y'):
+def _prep_edges(edges=None, nodes=None, from_col='from_int', to_col='to_int',
+                x_col='x', y_col='y'):
     """
     Prepare edges to display edges as lines on the plot
 

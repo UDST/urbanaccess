@@ -423,9 +423,9 @@ def download(data_folder=os.path.join(config.settings.data_folder),
 
     log('GTFS feed download completed. Took {:,.2f} seconds'.format(time.time()-start_time1))
 
-    unzip(zip_rootpath=download_folder,delete_zips=delete_zips)
+    _unzip(zip_rootpath=download_folder, delete_zips=delete_zips)
 
-def unzip(zip_rootpath=None,delete_zips=True):
+def _unzip(zip_rootpath=None, delete_zips=True):
     """
     unzip all GTFS feed zipfiles in a root directory with resulting text files
     in the root folder: gtfsfeed_text

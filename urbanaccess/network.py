@@ -42,7 +42,7 @@ class urbanaccess_network(object):
 # instantiate the UrbanAccess network object
 ua_network = urbanaccess_network()
 
-def nearest_neighbor(df1=None, df2=None):
+def _nearest_neighbor(df1=None, df2=None):
     """
     For a dataframe of xy coordinates find the nearest xy
     coordinates in a subsequent dataframe
@@ -82,7 +82,7 @@ def integrate_network(urbanaccess_network=None,headways=False,
         edge travel time weights as an approximate measure
         of average passenger transit stop waiting time.
     urbanaccess_gtfsfeeds_df : object, optional
-        required if headways is true; the gtfsfeeds_df object that holds
+        required if headways is true; the gtfsfeeds_dfs object that holds
         the corresponding headways and stops dataframes
     headway_statistic : {'mean', 'std', 'min', 'max'}, optional
         required if headways is true; route stop headway
@@ -136,21 +136,21 @@ def integrate_network(urbanaccess_network=None,headways=False,
         urbanaccess_network.transit_edges['node_id_route_from'] = urbanaccess_network.transit_edges[['node_id_from','unique_route_id']].apply(lambda x : '{}_{}'.format(x[0],x[1]), axis=1)
         urbanaccess_network.transit_edges['node_id_route_to'] = urbanaccess_network.transit_edges[['node_id_to','unique_route_id']].apply(lambda x : '{}_{}'.format(x[0],x[1]), axis=1)
 
-        urbanaccess_network.transit_nodes = route_id_to_node(stops_df=urbanaccess_gtfsfeeds_df.stops,
-                                                    edges_w_routes=urbanaccess_network.transit_edges)
+        urbanaccess_network.transit_nodes = _route_id_to_node(stops_df=urbanaccess_gtfsfeeds_df.stops,
+                                                              edges_w_routes=urbanaccess_network.transit_edges)
 
-        net_connector_edges = connector_edges(osm_nodes=urbanaccess_network.osm_nodes,
-                                              transit_nodes=urbanaccess_network.transit_nodes,
-                                              travel_speed_mph=3)
+        net_connector_edges = _connector_edges(osm_nodes=urbanaccess_network.osm_nodes,
+                                               transit_nodes=urbanaccess_network.transit_nodes,
+                                               travel_speed_mph=3)
 
-        urbanaccess_network.net_connector_edges = add_headway_impedance(ped_to_transit_edges_df=net_connector_edges,
-                                                               headways_df=urbanaccess_gtfsfeeds_df.headways,
-                                                               headway_statistic=headway_statistic)
+        urbanaccess_network.net_connector_edges = _add_headway_impedance(ped_to_transit_edges_df=net_connector_edges,
+                                                                         headways_df=urbanaccess_gtfsfeeds_df.headways,
+                                                                         headway_statistic=headway_statistic)
 
     else:
-        urbanaccess_network.net_connector_edges = connector_edges(osm_nodes=urbanaccess_network.osm_nodes,
-                                                         transit_nodes=urbanaccess_network.transit_nodes,
-                                                         travel_speed_mph=3)
+        urbanaccess_network.net_connector_edges = _connector_edges(osm_nodes=urbanaccess_network.osm_nodes,
+                                                                   transit_nodes=urbanaccess_network.transit_nodes,
+                                                                   travel_speed_mph=3)
 
     # change cols in transit edges and nodes
     if headways:
@@ -171,8 +171,8 @@ def integrate_network(urbanaccess_network=None,headways=False,
     urbanaccess_network.net_nodes = pd.concat([urbanaccess_network.transit_nodes,
                                                urbanaccess_network.osm_nodes],axis=0)
 
-    urbanaccess_network.net_edges, urbanaccess_network.net_nodes = format_pandana_edges_nodes(edge_df=urbanaccess_network.net_edges,
-                                                                                              node_df=urbanaccess_network.net_nodes)
+    urbanaccess_network.net_edges, urbanaccess_network.net_nodes = _format_pandana_edges_nodes(edge_df=urbanaccess_network.net_edges,
+                                                                                               node_df=urbanaccess_network.net_nodes)
 
     log('Network edge and node network integration completed successfully resulting in a total of {:,} nodes and {:,} '
         'edges: Transit: {:,} nodes {:,} edges; OSM {:,} '
@@ -186,8 +186,8 @@ def integrate_network(urbanaccess_network=None,headways=False,
 
     return urbanaccess_network
 
-def add_headway_impedance(ped_to_transit_edges_df,headways_df,
-                          headway_statistic='mean'):
+def _add_headway_impedance(ped_to_transit_edges_df, headways_df,
+                           headway_statistic='mean'):
     """
     Add route stop level headways to the osm to transit connector
     travel time weight column
@@ -223,7 +223,7 @@ def add_headway_impedance(ped_to_transit_edges_df,headways_df,
 
     return osm_to_transit_wheadway
 
-def route_id_to_node(stops_df,edges_w_routes):
+def _route_id_to_node(stops_df, edges_w_routes):
     """
     Assign route ids to the transit nodes table
 
@@ -263,7 +263,7 @@ def route_id_to_node(stops_df,edges_w_routes):
 
     return transit_nodes_wroutes
 
-def connector_edges(osm_nodes,transit_nodes,travel_speed_mph=3):
+def _connector_edges(osm_nodes, transit_nodes, travel_speed_mph=3):
     """
     Generate the connector edges between the osm and transit edges and
     weight by travel time
@@ -286,8 +286,8 @@ def connector_edges(osm_nodes,transit_nodes,travel_speed_mph=3):
     """
     start_time = time.time()
 
-    transit_nodes['nearest_osm_node'] = nearest_neighbor(osm_nodes[['x', 'y']],
-                                                         transit_nodes[['x', 'y']])
+    transit_nodes['nearest_osm_node'] = _nearest_neighbor(osm_nodes[['x', 'y']],
+                                                          transit_nodes[['x', 'y']])
 
     net_connector_edges = []
 
@@ -321,7 +321,7 @@ def connector_edges(osm_nodes,transit_nodes,travel_speed_mph=3):
 
     return net_connector_edges
 
-def format_pandana_edges_nodes(edge_df,node_df):
+def _format_pandana_edges_nodes(edge_df, node_df):
     """
     Perform final formatting on nodes and edge dataframes to prepare them for use in Pandana.
     Formatting mainly consists of creating a unique node id and edge from and to id that is an integer
