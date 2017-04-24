@@ -163,8 +163,8 @@
 <span id="gtfs-data-object"></span><h2>The GTFS Data Object<a class="headerlink" href="#the-gtfs-data-object" title="Permalink to this headline">¶</a></h2>
 <p>The GTFS data object stores the processed and aggregated GTFS feed data in Pandas dataframes.</p>
 <dl class="data">
-<dt id="urbanaccess.gtfs.gtfsfeeds_dataframe.gtfsfeeds_df">
-<code class="descclassname">urbanaccess.gtfs.gtfsfeeds_dataframe.</code><code class="descname">gtfsfeeds_df</code><a class="headerlink" href="#urbanaccess.gtfs.gtfsfeeds_dataframe.gtfsfeeds_df" title="Permalink to this definition">¶</a></dt>
+<dt id="urbanaccess.gtfs.gtfsfeeds_dataframe.gtfsfeeds_dfs">
+<code class="descclassname">urbanaccess.gtfs.gtfsfeeds_dataframe.</code><code class="descname">gtfsfeeds_dfs</code><a class="headerlink" href="#urbanaccess.gtfs.gtfsfeeds_dataframe.gtfsfeeds_dfs" title="Permalink to this definition">¶</a></dt>
 <dd><p>A collection of dataframes representing the standardized and
 merged metropolitan-wide transit network from multiple
 GTFS feeds.</p>
@@ -172,18 +172,18 @@ GTFS feeds.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>gtfsfeeds_df</strong> : object</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>gtfsfeeds_dfs</strong> : object</p>
 <blockquote>
 <div><p>processed dataframes of corresponding GTFS feed text files</p>
 </div></blockquote>
-<p><strong>gtfsfeeds_df.stops</strong> : pandas.DataFrame</p>
-<p><strong>gtfsfeeds_df.routes</strong> : pandas.DataFrame</p>
-<p><strong>gtfsfeeds_df.trips</strong> : pandas.DataFrame</p>
-<p><strong>gtfsfeeds_df.stop_times</strong> : pandas.DataFrame</p>
-<p><strong>gtfsfeeds_df.calendar</strong> : pandas.DataFrame</p>
-<p><strong>gtfsfeeds_df.calendar_dates</strong> : pandas.DataFrame</p>
-<p><strong>gtfsfeeds_df.stop_times_int</strong> : pandas.DataFrame</p>
-<p class="last"><strong>gtfsfeeds_df.headways</strong> : pandas.DataFrame</p>
+<p><strong>gtfsfeeds_dfs.stops</strong> : pandas.DataFrame</p>
+<p><strong>gtfsfeeds_dfs.routes</strong> : pandas.DataFrame</p>
+<p><strong>gtfsfeeds_dfs.trips</strong> : pandas.DataFrame</p>
+<p><strong>gtfsfeeds_dfs.stop_times</strong> : pandas.DataFrame</p>
+<p><strong>gtfsfeeds_dfs.calendar</strong> : pandas.DataFrame</p>
+<p><strong>gtfsfeeds_dfs.calendar_dates</strong> : pandas.DataFrame</p>
+<p><strong>gtfsfeeds_dfs.stop_times_int</strong> : pandas.DataFrame</p>
+<p class="last"><strong>gtfsfeeds_dfs.headways</strong> : pandas.DataFrame</p>
 </td>
 </tr>
 </tbody>
@@ -463,7 +463,7 @@ agency GTFS feed as the key and the GTFS feed URL as the value:
 <dl class="function">
 <dt id="urbanaccess.gtfs.load.gtfsfeed_to_df">
 <code class="descclassname">urbanaccess.gtfs.load.</code><code class="descname">gtfsfeed_to_df</code><span class="sig-paren">(</span><em>gtfsfeed_path=None</em>, <em>validation=False</em>, <em>verbose=True</em>, <em>bbox=None</em>, <em>remove_stops_outsidebbox=None</em>, <em>append_definitions=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.load.gtfsfeed_to_df" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read all GTFS feed components as a dataframe in a gtfsfeeds_df object and
+<dd><p>Read all GTFS feed components as a dataframe in a gtfsfeeds_dfs object and
 merge all individual GTFS feeds into a regional metropolitan data table.
 Optionally, data can also be validated before its use.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -506,16 +506,16 @@ definition information of that code appended to the resulting dataframes for ref
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>gtfsfeeds_df</strong> : object</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>gtfsfeeds_dfs</strong> : object</p>
 <blockquote>
 <div><p>processed dataframes of corresponding GTFS feed text files</p>
 </div></blockquote>
-<p><strong>gtfsfeeds_df.stops</strong> : pandas.DataFrame</p>
-<p><strong>gtfsfeeds_df.routes</strong> : pandas.DataFrame</p>
-<p><strong>gtfsfeeds_df.trips</strong> : pandas.DataFrame</p>
-<p><strong>gtfsfeeds_df.stop_times</strong> : pandas.DataFrame</p>
-<p><strong>gtfsfeeds_df.calendar</strong> : pandas.DataFrame</p>
-<p class="last"><strong>gtfsfeeds_df.calendar_dates</strong> : pandas.DataFrame</p>
+<p><strong>gtfsfeeds_dfs.stops</strong> : pandas.DataFrame</p>
+<p><strong>gtfsfeeds_dfs.routes</strong> : pandas.DataFrame</p>
+<p><strong>gtfsfeeds_dfs.trips</strong> : pandas.DataFrame</p>
+<p><strong>gtfsfeeds_dfs.stop_times</strong> : pandas.DataFrame</p>
+<p><strong>gtfsfeeds_dfs.calendar</strong> : pandas.DataFrame</p>
+<p class="last"><strong>gtfsfeeds_dfs.calendar_dates</strong> : pandas.DataFrame</p>
 </td>
 </tr>
 </tbody>
@@ -533,7 +533,7 @@ definition information of that code appended to the resulting dataframes for ref
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>gtfsfeeds_df</strong> : object</p>
 <blockquote>
-<div><p>gtfsfeeds_df object with all processed GTFS data tables</p>
+<div><p>gtfsfeeds_dfs object with all processed GTFS data tables</p>
 </div></blockquote>
 <p><strong>headway_timerange</strong> : list</p>
 <blockquote>
@@ -544,9 +544,9 @@ where times are 24 hour clock strings such as:
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>gtfsfeeds_df.headways</strong> : pandas.DataFrame</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>gtfsfeeds_dfs.headways</strong> : pandas.DataFrame</p>
 <blockquote class="last">
-<div><p>gtfsfeeds_df object for the headways dataframe with statistics of
+<div><p>gtfsfeeds_dfs object for the headways dataframe with statistics of
 route stop headways in units of minutes
 with relevant route and stop information</p>
 </div></blockquote>
@@ -561,15 +561,15 @@ with relevant route and stop information</p>
 <span id="save-gtfs"></span><h2>Saving Processed GTFS data<a class="headerlink" href="#saving-processed-gtfs-data" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="urbanaccess.gtfs.network.save_processed_gtfs_data">
-<code class="descclassname">urbanaccess.gtfs.network.</code><code class="descname">save_processed_gtfs_data</code><span class="sig-paren">(</span><em>gtfsfeeds_df=None</em>, <em>dir='data'</em>, <em>filename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.network.save_processed_gtfs_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Write dataframes in a gtfsfeeds_df object to a hdf5 file</p>
+<code class="descclassname">urbanaccess.gtfs.network.</code><code class="descname">save_processed_gtfs_data</code><span class="sig-paren">(</span><em>gtfsfeeds_dfs=None</em>, <em>dir='data'</em>, <em>filename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.network.save_processed_gtfs_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write dataframes in a gtfsfeeds_dfs object to a hdf5 file</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>gtfsfeeds_df</strong> : object</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>gtfsfeeds_dfs</strong> : object</p>
 <blockquote>
-<div><p>gtfsfeeds_df object</p>
+<div><p>gtfsfeeds_dfs object</p>
 </div></blockquote>
 <p><strong>dir</strong> : string, optional</p>
 <blockquote>
@@ -594,7 +594,7 @@ with relevant route and stop information</p>
 <dl class="function">
 <dt id="urbanaccess.gtfs.network.load_processed_gtfs_data">
 <code class="descclassname">urbanaccess.gtfs.network.</code><code class="descname">load_processed_gtfs_data</code><span class="sig-paren">(</span><em>dir='data'</em>, <em>filename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.network.load_processed_gtfs_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read data from a hdf5 file to a gtfsfeeds_df object</p>
+<dd><p>Read data from a hdf5 file to a gtfsfeeds_dfs object</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -609,7 +609,7 @@ with relevant route and stop information</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>gtfsfeeds_df</strong> : object</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>gtfsfeeds_dfs</strong> : object</p>
 </td>
 </tr>
 </tbody>

@@ -21,7 +21,7 @@ The GTFS Data Object
 
 The GTFS data object stores the processed and aggregated GTFS feed data in Pandas dataframes.
 
-.. autodata:: urbanaccess.gtfs.gtfsfeeds_dataframe.gtfsfeeds_df
+.. autodata:: urbanaccess.gtfs.gtfsfeeds_dataframe.gtfsfeeds_dfs
     :annotation:
 
 .. _gtfs-download:

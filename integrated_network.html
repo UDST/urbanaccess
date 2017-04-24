@@ -177,16 +177,16 @@ the components of a graph network</p>
 <p>Create a transit network from the loaded GTFS feeds with travel time impedance.</p>
 <dl class="function">
 <dt id="urbanaccess.gtfs.network.create_transit_net">
-<code class="descclassname">urbanaccess.gtfs.network.</code><code class="descname">create_transit_net</code><span class="sig-paren">(</span><em>gtfsfeeds_df=None</em>, <em>day=None</em>, <em>timerange=None</em>, <em>overwrite_existing_stop_times_int=False</em>, <em>use_existing_stop_times_int=False</em>, <em>save_processed_gtfs=False</em>, <em>save_dir='data'</em>, <em>save_filename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.network.create_transit_net" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.gtfs.network.</code><code class="descname">create_transit_net</code><span class="sig-paren">(</span><em>gtfsfeeds_dfs=None</em>, <em>day=None</em>, <em>timerange=None</em>, <em>overwrite_existing_stop_times_int=False</em>, <em>use_existing_stop_times_int=False</em>, <em>save_processed_gtfs=False</em>, <em>save_dir='data'</em>, <em>save_filename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.network.create_transit_net" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a travel time weight network graph in units of
 minutes from GTFS data</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>gtfsfeeds_df</strong> : object</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>gtfsfeeds_dfs</strong> : object</p>
 <blockquote>
-<div><p>gtfsfeeds_df object with dataframes of stops, routes, trips,
+<div><p>gtfsfeeds_dfs object with dataframes of stops, routes, trips,
 stop_times, calendar, and stop_times_int (optional)</p>
 </div></blockquote>
 <p><strong>day</strong> : {&#8216;friday&#8217;,&#8217;monday&#8217;,&#8217;saturday&#8217;, &#8216;sunday&#8217;,&#8217;thursday&#8217;,&#8217;tuesday&#8217;,&#8217;wednesday&#8217;}</p>
@@ -207,14 +207,14 @@ of a 24 hour clock for example: 08:00:00 or 17:00:00</p>
 <p><strong>overwrite_existing_stop_times_int</strong> : bool</p>
 <blockquote>
 <div><p>if true, and if there is an existing stop_times_int
-dataframe stored in the gtfsfeeds_df object it will be
+dataframe stored in the gtfsfeeds_dfs object it will be
 overwritten</p>
 </div></blockquote>
 <p><strong>use_existing_stop_times_int</strong> : bool</p>
 <blockquote>
 <div><p>if true, and if there is an existing stop_times_int
 dataframe for the same time period stored in the
-gtfsfeeds_df object it will be used instead of re-calculated</p>
+gtfsfeeds_dfs object it will be used instead of re-calculated</p>
 </div></blockquote>
 <p><strong>save_processed_gtfs</strong> : bool</p>
 <blockquote>
@@ -316,7 +316,7 @@ of average passenger transit stop waiting time.</p>
 </div></blockquote>
 <p><strong>urbanaccess_gtfsfeeds_df</strong> : object, optional</p>
 <blockquote>
-<div><p>required if headways is true; the gtfsfeeds_df object that holds
+<div><p>required if headways is true; the gtfsfeeds_dfs object that holds
 the corresponding headways and stops dataframes</p>
 </div></blockquote>
 <p><strong>headway_statistic</strong> : {&#8216;mean&#8217;, &#8216;std&#8217;, &#8216;min&#8217;, &#8216;max&#8217;}, optional</p>
