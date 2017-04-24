@@ -125,10 +125,10 @@ def test_skip_interpolator(stop_times, calendar):
 
     # everything should be the same,
     # with one row dropped for calendar day filter
-    assert df.departure_time_sec.tolist() == [1, 2, 3, 4, 5,
-                                              1, 2, 3, 4, 5,
-                                              1, 2, 3, 4, 5,
-                                              1, 2, 3, 4, 5]
+    assert df.departure_time_sec_interpolate.tolist() == [1, 2, 3, 4, 5,
+                                                          1, 2, 3, 4, 5,
+                                                          1, 2, 3, 4, 5,
+                                                          1, 2, 3, 4, 5]
 
 
 def test_edge_reformatter(stop_times_interpolated):
