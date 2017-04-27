@@ -154,15 +154,37 @@ def col_colors(df=None, col=None, num_bins=5, cmap='spectral',
     -------
     colors : list
     """
-    bin_labels = range(num_bins)
-    col_values = df[df[col].notnull()][col]
-    categories = pd.qcut(x=col_values, q=num_bins, labels=bin_labels)
-    color_list = [cm.get_cmap(cmap)(x) for x in np.linspace(start,
-                                                            stop, num_bins)]
+    col = df[df[col].notnull()][col]
+    bins_used, categories = _recursive_color_list_gen(col, num_bins)
+
+    if not bins_used == num_bins:
+        log('Too many bins requested, using max bins possible. '
+            'To avoid duplicate edges, ' + str(bins_used) + ' bins used.')
     
-    cleaned_categories = [str(int(cat)) for cat in categories]
+    color_list = [cm.get_cmap(cmap)(x) for x in np.linspace(start,
+                                                            stop,
+                                                            bins_used)]
+    cleaned_categories = [int(cat) for cat in categories]
     colors = [color_list[cat] for cat in cleaned_categories]
     return colors
+
+
+def _recursive_color_list_gen(col, num_bins):
+    bin_labels = range(num_bins)
+
+    # base case catch
+    if num_bins == 0:
+        raise ValueError('Unable to perform qcut to 0 bins.')
+    
+    # we assume the num_bins count will work
+    try:
+        categories = pd.qcut(x=col, q=num_bins, labels=bin_labels)
+        return num_bins, categories
+    
+    # if it does not, then we need to go down 1 number of bins
+    except ValueError:
+        new_bin_count = num_bins - 1
+        return _recursive_color_list_gen(col, new_bin_count)
 
 
 def prep_edges(edges=None,nodes=None,from_col='from_int',to_col='to_int',
