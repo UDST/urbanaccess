@@ -155,7 +155,7 @@ def col_colors(df=None, col=None, num_bins=5, cmap='spectral',
     colors : list
     """
     col = df[df[col].notnull()][col]
-    bins_used, categories = _recursive_color_list_gen(col, num_bins)
+    bins_used, categories = _recursive_category_gen(col, num_bins)
 
     if not bins_used == num_bins:
         log('Too many bins requested, using max bins possible. '
@@ -169,7 +169,7 @@ def col_colors(df=None, col=None, num_bins=5, cmap='spectral',
     return colors
 
 
-def _recursive_color_list_gen(col, num_bins):
+def _recursive_category_gen(col, num_bins):
     bin_labels = range(num_bins)
 
     # base case catch
@@ -184,7 +184,7 @@ def _recursive_color_list_gen(col, num_bins):
     # if it does not, then we need to go down 1 number of bins
     except ValueError:
         new_bin_count = num_bins - 1
-        return _recursive_color_list_gen(col, new_bin_count)
+        return _recursive_category_gen(col, new_bin_count)
 
 
 def _prep_edges(edges=None, nodes=None, from_col='from_int', to_col='to_int',
