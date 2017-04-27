@@ -1,18 +1,17 @@
 from __future__ import division
 import pandas as pd
 import time
-import numpy as np
 import logging as lg
 
 from urbanaccess.utils import log, df_to_hdf5, hdf5_to_df
 from urbanaccess.network import ua_network
 from urbanaccess import config
-from urbanaccess.gtfs.gtfsfeeds_dataframe import gtfsfeeds_df
+from urbanaccess.gtfs.gtfsfeeds_dataframe import gtfsfeeds_dfs
 
 
 pd.options.mode.chained_assignment = None
 
-def create_transit_net(gtfsfeeds_df=None,day=None,timerange=None,
+def create_transit_net(gtfsfeeds_dfs=None,day=None,timerange=None,
                        overwrite_existing_stop_times_int=False,
                        use_existing_stop_times_int=False,
                        save_processed_gtfs=False,
@@ -24,8 +23,8 @@ def create_transit_net(gtfsfeeds_df=None,day=None,timerange=None,
 
     Parameters
     ----------
-    gtfsfeeds_df : object
-        gtfsfeeds_df object with dataframes of stops, routes, trips,
+    gtfsfeeds_dfs : object
+        gtfsfeeds_dfs object with dataframes of stops, routes, trips,
         stop_times, calendar, and stop_times_int (optional)
     day : {'friday','monday','saturday', 'sunday','thursday','tuesday','wednesday'}
         day of the week to extract transit schedule from that
@@ -40,12 +39,12 @@ def create_transit_net(gtfsfeeds_df=None,day=None,timerange=None,
         of a 24 hour clock for example: 08:00:00 or 17:00:00
     overwrite_existing_stop_times_int : bool
         if true, and if there is an existing stop_times_int
-        dataframe stored in the gtfsfeeds_df object it will be
+        dataframe stored in the gtfsfeeds_dfs object it will be
         overwritten
     use_existing_stop_times_int : bool
         if true, and if there is an existing stop_times_int
         dataframe for the same time period stored in the
-        gtfsfeeds_df object it will be used instead of re-calculated
+        gtfsfeeds_dfs object it will be used instead of re-calculated
     save_processed_gtfs : bool
         if true, all processed gtfs dataframes will
         be stored to disk in a hdf5 file
@@ -73,9 +72,11 @@ def create_transit_net(gtfsfeeds_df=None,day=None,timerange=None,
         log('WARNING: Time range passed: {} is a {} hour period. Long periods over 3 hours may take a '
             'significant amount of time to process.'.format(timerange,
                                                             int(str(timerange[1][0:2])) - int(str(timerange[0][0:2]))),level=lg.WARNING)
-    assert gtfsfeeds_df is not None
-    if gtfsfeeds_df.trips.empty or gtfsfeeds_df.calendar.empty or gtfsfeeds_df.stop_times.empty or gtfsfeeds_df.stops.empty:
-        raise ValueError('one of the gtfsfeeds_df object trips, calendar, stops, or stop_times were found to be empty.')
+    assert gtfsfeeds_dfs is not None
+    if gtfsfeeds_dfs.trips.empty or gtfsfeeds_dfs.calendar.empty or \
+            gtfsfeeds_dfs.stop_times.empty or gtfsfeeds_dfs.stops.empty:
+        raise ValueError('one of the gtfsfeeds_dfs object trips, calendar, '
+                         'stops, or stop_times were found to be empty.')
     assert isinstance(overwrite_existing_stop_times_int,bool)
     assert isinstance(use_existing_stop_times_int,bool)
     assert isinstance(save_processed_gtfs,bool)
@@ -85,52 +86,60 @@ def create_transit_net(gtfsfeeds_df=None,day=None,timerange=None,
                'trip_id',
                'service_id',
                'unique_agency_id']
-    if 'direction_id' not in gtfsfeeds_df.trips.columns:
+    if 'direction_id' not in gtfsfeeds_dfs.trips.columns:
         columns.remove('direction_id')
-    calendar_selected_trips_df = tripschedualselector(input_trips_df=gtfsfeeds_df.trips[columns],
-                                                      input_calendar_df=gtfsfeeds_df.calendar,
-                                                      day=day)
+    calendar_selected_trips_df = _tripscheduleselector(
+        input_trips_df=gtfsfeeds_dfs.trips[columns],
+        input_calendar_df=gtfsfeeds_dfs.calendar,
+        day=day)
 
-    if gtfsfeeds_df.stop_times_int.empty or overwrite_existing_stop_times_int or use_existing_stop_times_int == False:
-        gtfsfeeds_df.stop_times_int = interpolatestoptimes(stop_times_df=gtfsfeeds_df.stop_times,
-                                                           calendar_selected_trips_df=calendar_selected_trips_df,
-                                                           day=day)
+    if gtfsfeeds_dfs.stop_times_int.empty or \
+            overwrite_existing_stop_times_int or use_existing_stop_times_int == False:
+        gtfsfeeds_dfs.stop_times_int = _interpolatestoptimes(
+            stop_times_df=gtfsfeeds_dfs.stop_times,
+            calendar_selected_trips_df=calendar_selected_trips_df,
+            day=day)
 
-        gtfsfeeds_df.stop_times_int = timedifference(stop_times_df=gtfsfeeds_df.stop_times_int)
+        gtfsfeeds_dfs.stop_times_int = _timedifference(
+            stop_times_df=gtfsfeeds_dfs.stop_times_int)
 
         if save_processed_gtfs:
-            save_processed_gtfs_data(gtfsfeeds_df=gtfsfeeds_df,dir=save_dir,filename=save_filename)
+            save_processed_gtfs_data(gtfsfeeds_dfs=gtfsfeeds_dfs,
+                                     dir=save_dir,filename=save_filename)
 
     if use_existing_stop_times_int:
-        assert gtfsfeeds_df.stop_times_int.empty == False, 'existing stop_times_int is empty. ' \
+        assert gtfsfeeds_dfs.stop_times_int.empty == False, 'existing ' \
+                                                            'stop_times_int is empty. ' \
                                                            'set use_existing_stop_times_int to False to create it.'
 
-    selected_interpolated_stop_times_df = timeselector(df=gtfsfeeds_df.stop_times_int,
-                                                       starttime=timerange[0],
-                                                       endtime=timerange[1])
+    selected_interpolated_stop_times_df = _timeselector(
+        df=gtfsfeeds_dfs.stop_times_int,
+        starttime=timerange[0],
+        endtime=timerange[1])
 
-    final_edge_table = format_transit_net_edge(stop_times_df=selected_interpolated_stop_times_df[['unique_trip_id',
+    final_edge_table = _format_transit_net_edge(stop_times_df=selected_interpolated_stop_times_df[['unique_trip_id',
                                                                                                   'stop_id',
                                                                                                   'unique_stop_id',
                                                                                                   'timediff',
-                                                                                                  'stop_sequence',
-                                                                                                  'unique_agency_id',
-                                                                                                  'trip_id']])
+                                                                                                   'stop_sequence',
+                                                                                                   'unique_agency_id',
+                                                                                                   'trip_id']])
 
-    ua_network.transit_edges = convert_imp_time_units(df=final_edge_table,
-                                                      time_col='weight',
-                                                      convert_to='minutes')
+    ua_network.transit_edges = _convert_imp_time_units(df=final_edge_table,
+                                                       time_col='weight',
+                                                       convert_to='minutes')
 
-    final_selected_stops = stops_in_edge_table_selector(input_stops_df=gtfsfeeds_df.stops,
-                                                        input_stop_times_df=selected_interpolated_stop_times_df)
+    final_selected_stops = _stops_in_edge_table_selector(
+        input_stops_df=gtfsfeeds_dfs.stops,
+        input_stop_times_df=selected_interpolated_stop_times_df)
 
-    ua_network.transit_nodes = format_transit_net_nodes(df=final_selected_stops)
+    ua_network.transit_nodes = _format_transit_net_nodes(df=final_selected_stops)
 
-    ua_network.transit_edges = route_type_to_edge(transit_edge_df=ua_network.transit_edges,
-                                                  stop_time_df=gtfsfeeds_df.stop_times)
+    ua_network.transit_edges = _route_type_to_edge(transit_edge_df=ua_network.transit_edges,
+                                                   stop_time_df=gtfsfeeds_dfs.stop_times)
 
-    ua_network.transit_edges = route_id_to_edge(transit_edge_df=ua_network.transit_edges,
-                                                trips_df=gtfsfeeds_df.trips)
+    ua_network.transit_edges = _route_id_to_edge(transit_edge_df=ua_network.transit_edges,
+                                                 trips_df=gtfsfeeds_dfs.trips)
 
     # assign node and edge net type
     ua_network.transit_nodes['net_type'] = 'transit'
@@ -140,7 +149,7 @@ def create_transit_net(gtfsfeeds_df=None,day=None,timerange=None,
 
     return ua_network
 
-def tripschedualselector(input_trips_df=None,input_calendar_df=None,day=None):
+def _tripscheduleselector(input_trips_df=None, input_calendar_df=None, day=None):
     """
     Select trips that run on a specific day
 
@@ -187,7 +196,7 @@ def tripschedualselector(input_trips_df=None,input_calendar_df=None,day=None):
 
     return calendar_selected_trips_df
 
-def interpolatestoptimes(stop_times_df, calendar_selected_trips_df, day):
+def _interpolatestoptimes(stop_times_df, calendar_selected_trips_df, day):
     """
     Interpolate missing stop times using a linear interpolator between known stop times
 
@@ -258,58 +267,71 @@ def interpolatestoptimes(stop_times_df, calendar_selected_trips_df, day):
     df_for_interpolation = stop_times_df.loc[
         stop_times_df.unique_trip_id.isin(trips_with_more_than_one_null)]
 
-    # Pivot to DataFrame where each unique trip has its own column
-    # Index is stop_sequence
-    pivot = df_for_interpolation.pivot(index='stop_sequence',
-                                       columns='unique_trip_id',
-                                       values='departure_time_sec')
+    if len(df_for_interpolation) > 0:
 
-    # Interpolate on the whole DataFrame at once
-    interpolator = pivot.interpolate(method='linear', axis=0,
-                                     limit_direction='forward')
+        # Pivot to DataFrame where each unique trip has its own column
+        # Index is stop_sequence
+        pivot = df_for_interpolation.pivot(index='stop_sequence',
+                                           columns='unique_trip_id',
+                                           values='departure_time_sec')
 
-    # Melt back into stacked format
-    interpolator['stop_sequence_merge'] = interpolator.index
-    melted = pd.melt(interpolator, id_vars='stop_sequence_merge')
-    melted.rename(columns={'value': 'departure_time_sec_interpolate'},
-                  inplace=True)
+        # Interpolate on the whole DataFrame at once
+        interpolator = pivot.interpolate(method='linear', axis=0,
+                                         limit_direction='forward')
 
-    # Get the last valid stop for each unique trip, to filter out trailing NaNs
-    last_valid_stop_series = pivot.apply(
-        lambda col: col.last_valid_index(), axis=0)
-    last_valid_stop_df = last_valid_stop_series.to_frame('last_valid_stop')
+        # Melt back into stacked format
+        interpolator['stop_sequence_merge'] = interpolator.index
+        melted = pd.melt(interpolator, id_vars='stop_sequence_merge')
+        melted.rename(columns={'value': 'departure_time_sec_interpolate'},
+                      inplace=True)
 
-    df_for_interpolation = df_for_interpolation.merge(last_valid_stop_df,
-                                                      left_on='unique_trip_id',
-                                                      right_index=True)
-    trailing = (df_for_interpolation.stop_sequence >
-                df_for_interpolation.last_valid_stop)
+        # Get the last valid stop for each unique trip,
+        # to filter out trailing NaNs
+        last_valid_stop_series = pivot.apply(
+            lambda col: col.last_valid_index(), axis=0)
+        last_valid_stop_df = last_valid_stop_series.to_frame('last_valid_stop')
 
-    # Calculate a stop_sequence without trailing NaNs, to merge the correct
-    # interpolated times back in
-    df_for_interpolation['stop_sequence_merge'] = (
-        df_for_interpolation[~trailing]['stop_sequence'])
+        df_for_interpolation = (df_for_interpolation
+                                .merge(last_valid_stop_df,
+                                       left_on='unique_trip_id',
+                                       right_index=True))
+        trailing = (df_for_interpolation.stop_sequence >
+                    df_for_interpolation.last_valid_stop)
 
-    # Need to check if existing index in column names and drop if so (else
-    # a ValueError where Pandas can't insert b/c col already exists will occur)
-    drop_bool = False
-    if _check_if_index_name_in_cols(df_for_interpolation):
-        # move the current index to own col named 'index'
-        col_name_to_copy = df_for_interpolation.index.name
-        col_to_copy = df_for_interpolation[col_name_to_copy].copy()
-        df_for_interpolation['index'] = col_to_copy
-        drop_bool = True
-    df_for_interpolation.reset_index(inplace=True, drop=drop_bool)
+        # Calculate a stop_sequence without trailing NaNs, to merge the correct
+        # interpolated times back in
+        df_for_interpolation['stop_sequence_merge'] = (
+            df_for_interpolation[~trailing]['stop_sequence'])
 
-    # Merge back into original index
-    interpolated_df = pd.merge(df_for_interpolation, melted, 'left',
-                               on=['stop_sequence_merge', 'unique_trip_id'])
-    interpolated_df.set_index('index', inplace=True)
-    interpolated_times = interpolated_df[['departure_time_sec_interpolate']]
+        # Need to check if existing index in column names and drop if so (else
+        # a ValueError where Pandas can't insert
+        # b/c col already exists will occur)
+        drop_bool = False
+        if _check_if_index_name_in_cols(df_for_interpolation):
+            # move the current index to own col named 'index'
+            col_name_to_copy = df_for_interpolation.index.name
+            col_to_copy = df_for_interpolation[col_name_to_copy].copy()
+            df_for_interpolation['index'] = col_to_copy
+            drop_bool = True
+        df_for_interpolation.reset_index(inplace=True, drop=drop_bool)
 
-    final_stop_times_df = pd.merge(stop_times_df, interpolated_times,
-                                   how='left', left_index=True,
-                                   right_index=True, sort=False, copy=False)
+        # Merge back into original index
+        interpolated_df = pd.merge(df_for_interpolation, melted, 'left',
+                                   on=['stop_sequence_merge',
+                                       'unique_trip_id'])
+        interpolated_df.set_index('index', inplace=True)
+        interpolated_times = (
+            interpolated_df[['departure_time_sec_interpolate']])
+
+        final_stop_times_df = pd.merge(stop_times_df, interpolated_times,
+                                       how='left', left_index=True,
+                                       right_index=True, sort=False,
+                                       copy=False)
+
+    else:
+        final_stop_times_df = stop_times_df
+        final_stop_times_df['departure_time_sec_interpolate'] = (
+            final_stop_times_df['departure_time_sec'])
 
     # fill in nulls in interpolated departure time column using trips that did not need interpolation in order to create
     # one column with both original and interpolated times
@@ -332,7 +354,7 @@ def interpolatestoptimes(stop_times_df, calendar_selected_trips_df, day):
 
     return final_stop_times_df
 
-def timedifference(stop_times_df=None):
+def _timedifference(stop_times_df=None):
     """
     Calculate the difference in departure_time between stops in stop times table to produce travel time
 
@@ -354,7 +376,7 @@ def timedifference(stop_times_df=None):
 
     return stop_times_df
 
-def timeselector(df=None,starttime=None,endtime=None):
+def _timeselector(df=None, starttime=None, endtime=None):
     """
     Select stop times that fall within a specified time range
 
@@ -396,7 +418,7 @@ def timeselector(df=None,starttime=None,endtime=None):
     return selected_stop_timesdf
 
 
-def format_transit_net_edge(stop_times_df=None):
+def _format_transit_net_edge(stop_times_df=None):
     """
     Format transit network data table to match the format required for edges
     in Pandana graph networks edges
@@ -452,7 +474,7 @@ def format_transit_net_edge(stop_times_df=None):
     return merged_edge_df
 
 
-def convert_imp_time_units(df=None,time_col='weight',convert_to='minutes'):
+def _convert_imp_time_units(df=None, time_col='weight', convert_to='minutes'):
     """
     Convert the travel time impedance units
 
@@ -485,7 +507,7 @@ def convert_imp_time_units(df=None,time_col='weight',convert_to='minutes'):
 
     return df
 
-def stops_in_edge_table_selector(input_stops_df=None,input_stop_times_df=None):
+def _stops_in_edge_table_selector(input_stops_df=None, input_stop_times_df=None):
     """
     Select stops that are active during the day and time period specified
 
@@ -513,7 +535,7 @@ def stops_in_edge_table_selector(input_stops_df=None,input_stop_times_df=None):
 
     return selected_stops_df
 
-def format_transit_net_nodes(df=None):
+def _format_transit_net_nodes(df=None):
     """
     Create transit node table from stops dataframe and perform final formatting
 
@@ -554,7 +576,7 @@ def format_transit_net_nodes(df=None):
 
     return final_node_df
 
-def route_type_to_edge(transit_edge_df=None,stop_time_df=None):
+def _route_type_to_edge(transit_edge_df=None, stop_time_df=None):
     """
     Append route type information to transit edge table
 
@@ -585,7 +607,7 @@ def route_type_to_edge(transit_edge_df=None,stop_time_df=None):
 
     return transit_edge_df_w_routetype
 
-def route_id_to_edge(transit_edge_df=None,trips_df=None):
+def _route_id_to_edge(transit_edge_df=None, trips_df=None):
     """
     Append route ids to transit edge table
 
@@ -703,16 +725,16 @@ def edge_impedance_by_route_type(transit_edge_df=None,
 
     return ua_network
 
-def save_processed_gtfs_data(gtfsfeeds_df=None,
+def save_processed_gtfs_data(gtfsfeeds_dfs=None,
                              dir=config.settings.data_folder,
                              filename=None):
     """
-    Write dataframes in a gtfsfeeds_df object to a hdf5 file
+    Write dataframes in a gtfsfeeds_dfs object to a hdf5 file
 
     Parameters
     ----------
-    gtfsfeeds_df : object
-        gtfsfeeds_df object
+    gtfsfeeds_dfs : object
+        gtfsfeeds_dfs object
     dir : string, optional
         directory to save hdf5 file
     filename : string
@@ -722,30 +744,39 @@ def save_processed_gtfs_data(gtfsfeeds_df=None,
     -------
     None
     """
-    assert gtfsfeeds_df is not None \
-           or gtfsfeeds_df.stops.empty == False \
-           or gtfsfeeds_df.routes.empty == False \
-           or gtfsfeeds_df.trips.empty == False \
-           or gtfsfeeds_df.stop_times.empty == False \
-           or gtfsfeeds_df.calendar.empty == False \
-           or gtfsfeeds_df.stop_times_int.empty == False, 'gtfsfeeds_df is missing one of the required dataframes.'
+    assert gtfsfeeds_dfs is not None \
+           or gtfsfeeds_dfs.stops.empty == False \
+           or gtfsfeeds_dfs.routes.empty == False \
+           or gtfsfeeds_dfs.trips.empty == False \
+           or gtfsfeeds_dfs.stop_times.empty == False \
+           or gtfsfeeds_dfs.calendar.empty == False \
+           or gtfsfeeds_dfs.stop_times_int.empty == False, 'gtfsfeeds_dfs is ' \
+                                                           'missing one of the required dataframes.'
 
-    df_to_hdf5(data=gtfsfeeds_df.stops,key='stops',overwrite_key=False,dir=dir,filename=filename,overwrite_hdf5=False)
-    df_to_hdf5(data=gtfsfeeds_df.routes,key='routes',overwrite_key=False,dir=dir,filename=filename,overwrite_hdf5=False)
-    df_to_hdf5(data=gtfsfeeds_df.trips,key='trips',overwrite_key=False,dir=dir,filename=filename,overwrite_hdf5=False)
-    df_to_hdf5(data=gtfsfeeds_df.stop_times,key='stop_times',overwrite_key=False,dir=dir,filename=filename,overwrite_hdf5=False)
-    df_to_hdf5(data=gtfsfeeds_df.calendar,key='calendar',overwrite_key=False,dir=dir,filename=filename,overwrite_hdf5=False)
-    df_to_hdf5(data=gtfsfeeds_df.stop_times_int,key='stop_times_int',overwrite_key=False,dir=dir,filename=filename,overwrite_hdf5=False)
+    df_to_hdf5(data=gtfsfeeds_dfs.stops,key='stops',overwrite_key=False,
+               dir=dir,filename=filename,overwrite_hdf5=False)
+    df_to_hdf5(data=gtfsfeeds_dfs.routes,key='routes',overwrite_key=False,
+               dir=dir,filename=filename,overwrite_hdf5=False)
+    df_to_hdf5(data=gtfsfeeds_dfs.trips,key='trips',overwrite_key=False,
+               dir=dir,filename=filename,overwrite_hdf5=False)
+    df_to_hdf5(data=gtfsfeeds_dfs.stop_times,key='stop_times',
+               overwrite_key=False,dir=dir,filename=filename,overwrite_hdf5=False)
+    df_to_hdf5(data=gtfsfeeds_dfs.calendar,key='calendar',
+               overwrite_key=False,dir=dir,filename=filename,overwrite_hdf5=False)
+    df_to_hdf5(data=gtfsfeeds_dfs.stop_times_int,key='stop_times_int',
+               overwrite_key=False,dir=dir,filename=filename,overwrite_hdf5=False)
 
-    if gtfsfeeds_df.headways.empty == False:
-        df_to_hdf5(data=gtfsfeeds_df.headways,key='headways',overwrite_key=False,dir=dir,filename=filename,overwrite_hdf5=False)
+    if gtfsfeeds_dfs.headways.empty == False:
+        df_to_hdf5(data=gtfsfeeds_dfs.headways,key='headways',
+                   overwrite_key=False,dir=dir,filename=filename,overwrite_hdf5=False)
 
-    if gtfsfeeds_df.calendar_dates.empty == False:
-        df_to_hdf5(data=gtfsfeeds_df.calendar_dates,key='calendar_dates',overwrite_key=False,dir=dir,filename=filename,overwrite_hdf5=False)
+    if gtfsfeeds_dfs.calendar_dates.empty == False:
+        df_to_hdf5(data=gtfsfeeds_dfs.calendar_dates,key='calendar_dates',
+                   overwrite_key=False,dir=dir,filename=filename,overwrite_hdf5=False)
 
 def load_processed_gtfs_data(dir=config.settings.data_folder,filename=None):
     """
-    Read data from a hdf5 file to a gtfsfeeds_df object
+    Read data from a hdf5 file to a gtfsfeeds_dfs object
 
     Parameters
     ----------
@@ -756,27 +787,43 @@ def load_processed_gtfs_data(dir=config.settings.data_folder,filename=None):
 
     Returns
     -------
-    gtfsfeeds_df : object
+    gtfsfeeds_dfs : object
     """
-    gtfsfeeds_df.stops = hdf5_to_df(dir=dir,filename=filename,key='stops')
-    gtfsfeeds_df.routes = hdf5_to_df(dir=dir,filename=filename,key='routes')
-    gtfsfeeds_df.trips = hdf5_to_df(dir=dir,filename=filename,key='trips')
-    gtfsfeeds_df.stop_times = hdf5_to_df(dir=dir,filename=filename,key='stop_times')
-    gtfsfeeds_df.calendar = hdf5_to_df(dir=dir,filename=filename,key='calendar')
-    gtfsfeeds_df.stop_times_int = hdf5_to_df(dir=dir,filename=filename,key='stop_times_int')
+    gtfsfeeds_dfs.stops = hdf5_to_df(dir=dir,filename=filename,key='stops')
+    gtfsfeeds_dfs.routes = hdf5_to_df(dir=dir,filename=filename,key='routes')
+    gtfsfeeds_dfs.trips = hdf5_to_df(dir=dir,filename=filename,key='trips')
+    gtfsfeeds_dfs.stop_times = hdf5_to_df(dir=dir,filename=filename,
+                                          key='stop_times')
+    gtfsfeeds_dfs.calendar = hdf5_to_df(dir=dir,filename=filename,
+                                        key='calendar')
+    gtfsfeeds_dfs.stop_times_int = hdf5_to_df(dir=dir,filename=filename,
+                                              key='stop_times_int')
 
     hdf5_load_path = '{}/{}'.format(dir,filename)
     with pd.HDFStore(hdf5_load_path) as store:
 
             if 'headways' in store.keys():
-                gtfsfeeds_df.headways = hdf5_to_df(dir=dir,filename=filename,key='headways')
+                gtfsfeeds_dfs.headways = hdf5_to_df(dir=dir,
+                                                    filename=filename,key='headways')
             if 'calendar_dates' in store.keys():
-                gtfsfeeds_df.calendar_dates = hdf5_to_df(dir=dir,filename=filename,key='calendar_dates')
+                gtfsfeeds_dfs.calendar_dates = hdf5_to_df(dir=dir,
+                                                          filename=filename,key='calendar_dates')
 
-    return gtfsfeeds_df
+    return gtfsfeeds_dfs
 
-# helper functions
 def _check_if_index_name_in_cols(df):
+    """
+    Check if existing index is in the passed dataframe list of column names
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        interpolated stop_time dataframe
+
+    Returns
+    -------
+    iname : tuple
+    """
     cols = df.columns.values
     iname = df.index.name
     return (iname in cols)

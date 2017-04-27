@@ -8,16 +8,16 @@ class urbanaccess_gtfs_df(object):
 
     Parameters
     ----------
-    gtfsfeeds_df : object
+    gtfsfeeds_dfs : object
         processed dataframes of corresponding GTFS feed text files
-    gtfsfeeds_df.stops : pandas.DataFrame
-    gtfsfeeds_df.routes : pandas.DataFrame
-    gtfsfeeds_df.trips : pandas.DataFrame
-    gtfsfeeds_df.stop_times : pandas.DataFrame
-    gtfsfeeds_df.calendar : pandas.DataFrame
-    gtfsfeeds_df.calendar_dates : pandas.DataFrame
-    gtfsfeeds_df.stop_times_int : pandas.DataFrame
-    gtfsfeeds_df.headways : pandas.DataFrame
+    gtfsfeeds_dfs.stops : pandas.DataFrame
+    gtfsfeeds_dfs.routes : pandas.DataFrame
+    gtfsfeeds_dfs.trips : pandas.DataFrame
+    gtfsfeeds_dfs.stop_times : pandas.DataFrame
+    gtfsfeeds_dfs.calendar : pandas.DataFrame
+    gtfsfeeds_dfs.calendar_dates : pandas.DataFrame
+    gtfsfeeds_dfs.stop_times_int : pandas.DataFrame
+    gtfsfeeds_dfs.headways : pandas.DataFrame
     """
 
     def __init__(self,
@@ -40,4 +40,4 @@ class urbanaccess_gtfs_df(object):
         self.headways = headways
 
 # instantiate the UrbanAccess gtfs feed dataframe object
-gtfsfeeds_df = urbanaccess_gtfs_df()
+gtfsfeeds_dfs = urbanaccess_gtfs_df()

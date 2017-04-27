@@ -23,6 +23,8 @@ UrbanAccess offers the following tools:
 * Integrate pedestrian and transit networks to approximate pedestrian scale accessibility
 * Resulting networks are designed to be used to compute accessibility metrics using the open source network analysis tool `Pandana <https://github.com/UDST/pandana>`__
 
+Let us know what you are working on or if you think you have a great use case by tweeting us at ``@urbansim`` or post on the UrbanSim `forum`_.
+
 |travel_time_net|
 *Integrated AC Transit and BART transit and pedestrian network travel times for Oakland, CA*
 
@@ -84,3 +86,5 @@ General workflow
 
 .. |travel_time_net| image:: _images/travel_time_net.png
 	:scale: 80%
+
+.. _forum: http://discussion.urbansim.com/

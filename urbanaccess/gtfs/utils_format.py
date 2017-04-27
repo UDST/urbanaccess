@@ -7,7 +7,7 @@ import logging as lg
 from urbanaccess.utils import log
 
 
-def read_gtfs_agency(textfile_path=None, textfile=None):
+def _read_gtfs_agency(textfile_path=None, textfile=None):
     """
     Read gtfs agency.txt as a pandas dataframe
 
@@ -30,7 +30,7 @@ def read_gtfs_agency(textfile_path=None, textfile=None):
     df.rename(columns=lambda x: x.strip(), inplace=True)
     return df
 
-def read_gtfs_stops(textfile_path=None, textfile=None):
+def _read_gtfs_stops(textfile_path=None, textfile=None):
     """
     Read gtfs stops.txt as a pandas dataframe
 
@@ -57,7 +57,7 @@ def read_gtfs_stops(textfile_path=None, textfile=None):
     df.rename(columns=lambda x: x.strip(), inplace=True)
     return df
 
-def read_gtfs_routes(textfile_path=None, textfile=None):
+def _read_gtfs_routes(textfile_path=None, textfile=None):
     """
     Read gtfs routes.txt as a pandas dataframe
 
@@ -81,7 +81,7 @@ def read_gtfs_routes(textfile_path=None, textfile=None):
     df.rename(columns=lambda x: x.strip(), inplace=True)
     return df
 
-def read_gtfs_trips(textfile_path=None, textfile=None):
+def _read_gtfs_trips(textfile_path=None, textfile=None):
     """
     Read gtfs trips.txt as a pandas dataframe
 
@@ -108,7 +108,7 @@ def read_gtfs_trips(textfile_path=None, textfile=None):
     df.rename(columns=lambda x: x.strip(), inplace=True)
     return df
 
-def read_gtfs_stop_times(textfile_path=None, textfile=None):
+def _read_gtfs_stop_times(textfile_path=None, textfile=None):
     """
     Read stop_times.txt as a pandas dataframe
 
@@ -135,7 +135,7 @@ def read_gtfs_stop_times(textfile_path=None, textfile=None):
     df.rename(columns=lambda x: x.strip(), inplace=True)
     return df
 
-def read_gtfs_calendar(textfile_path=None, textfile=None):
+def _read_gtfs_calendar(textfile_path=None, textfile=None):
     """
     Read gtfs calendar.txt as a pandas dataframe
 
@@ -162,7 +162,7 @@ def read_gtfs_calendar(textfile_path=None, textfile=None):
     df.rename(columns=lambda x: x.strip(), inplace=True)
     return df
 
-def read_gtfs_calendar_dates(textfile_path=None, textfile=None):
+def _read_gtfs_calendar_dates(textfile_path=None, textfile=None):
     """
     Read gtfs calendar_dates.txt as a pandas dataframe
 
@@ -186,7 +186,7 @@ def read_gtfs_calendar_dates(textfile_path=None, textfile=None):
     df.rename(columns=lambda x: x.strip(), inplace=True)
     return df
 
-def calendar_dates_agencyid(calendar_dates_df=None, routes_df=None,trips_df=None,agency_df=None):
+def _calendar_dates_agencyid(calendar_dates_df=None, routes_df=None, trips_df=None, agency_df=None):
     """
     Assign unique agency id to calendar dates dataframe
 
@@ -217,7 +217,7 @@ def calendar_dates_agencyid(calendar_dates_df=None, routes_df=None,trips_df=None
 
     return merged_df
 
-def calendar_agencyid(calendar_df=None,routes_df=None,trips_df=None,agency_df=None):
+def _calendar_agencyid(calendar_df=None, routes_df=None, trips_df=None, agency_df=None):
     """
     Assign unique agency id to calendar dataframe
 
@@ -247,7 +247,7 @@ def calendar_agencyid(calendar_df=None,routes_df=None,trips_df=None,agency_df=No
 
     return merged_df
 
-def trips_agencyid(trips_df=None,routes_df=None, agency_df=None):
+def _trips_agencyid(trips_df=None, routes_df=None, agency_df=None):
     """
     Assign unique agency id to trips dataframe
 
@@ -273,7 +273,7 @@ def trips_agencyid(trips_df=None,routes_df=None, agency_df=None):
                          sort=False, copy=False)
     return merged_df
 
-def stops_agencyid(stops_df=None, trips_df=None, routes_df=None,stop_times_df=None,agency_df=None):
+def _stops_agencyid(stops_df=None, trips_df=None, routes_df=None, stop_times_df=None, agency_df=None):
     """
     Assign unique agency id to stops dataframe
 
@@ -305,7 +305,7 @@ def stops_agencyid(stops_df=None, trips_df=None, routes_df=None,stop_times_df=No
                          sort=False, copy=False)
     return merged_df
 
-def routes_agencyid(routes_df=None, agency_df=None):
+def _routes_agencyid(routes_df=None, agency_df=None):
     """
     Assign unique agency id to routes dataframe
 
@@ -327,7 +327,7 @@ def routes_agencyid(routes_df=None, agency_df=None):
                                      sort=False, copy=False)
     return merged_df
 
-def stop_times_agencyid(stop_times_df=None, routes_df=None,trips_df=None, agency_df=None):
+def _stop_times_agencyid(stop_times_df=None, routes_df=None, trips_df=None, agency_df=None):
     """
     Assign unique agency id to stop times dataframe
 
@@ -356,8 +356,8 @@ def stop_times_agencyid(stop_times_df=None, routes_df=None,trips_df=None, agency
 
     return merged_df
 
-def add_unique_agencyid(agency_df=None,stops_df=None,routes_df=None,trips_df=None,stop_times_df=None,calendar_df=None,
-                        calendar_dates_df=None,nulls_as_folder=True,feed_folder=None):
+def _add_unique_agencyid(agency_df=None, stops_df=None, routes_df=None, trips_df=None, stop_times_df=None, calendar_df=None,
+                         calendar_dates_df=None, nulls_as_folder=True, feed_folder=None):
     """
     Create a unique agency id for all gtfs feed dataframes to enable unique relational table keys
 
@@ -394,7 +394,6 @@ def add_unique_agencyid(agency_df=None,stops_df=None,routes_df=None,trips_df=Non
     if ((path_absent or agency_absent) and nulls_as_folder == True):
 
         for index, df in enumerate(df_list):
-            # TODO: We seem to be repeating this pattern in a number of places - either do it once or use a helper function
             unique_agency_id = sub(r'\s+', '_', os.path.split(feed_folder)[1]).replace('&','and').lower()
             df['unique_agency_id'] = unique_agency_id
             df_list[index] = df
@@ -412,7 +411,7 @@ def add_unique_agencyid(agency_df=None,stops_df=None,routes_df=None,trips_df=Non
         if len(agency_df['agency_name']) == 1:
             assert agency_df['agency_name'].isnull().values == False
 
-            # TODO: Again, this need to be moved into a helper function
+            # could be added to helper function
             unique_agency_id = sub(r'\s+', '_', agency_df['agency_name'][0]).replace('&','and').lower()
 
             for index, df in enumerate(df_list):
@@ -421,69 +420,62 @@ def add_unique_agencyid(agency_df=None,stops_df=None,routes_df=None,trips_df=Non
             log('The unique agency id: {} was generated using the name of the agency in the agency.txt file.'.format(unique_agency_id))
 
         elif len(agency_df['agency_name']) > 1:
-            # TODO: Assertions shouldn't be in runtime - validation should 
-            #       either be prior to model execution or handled gracefully
-            #       through caught errors/exceptions
+            # TODO: Change Assertion to errors/exceptions
             assert agency_df[['agency_id','agency_name']].isnull().values.any() == False
 
-            # only generate subset dataframes once, instead of for each keyword argument
-            # in the below helper function
+            # subset dataframes
             subset_agency_df = agency_df[['agency_id','agency_name']]
             subset_routes_df = routes_df[['route_id', 'agency_id']]
             subset_stop_times_df = stop_times_df[['trip_id', 'stop_id']]
             subset_trips_df = trips_df[['trip_id', 'route_id']]
             subset_trips_df_w_sid = trips_df[['trip_id', 'route_id', 'service_id']]
 
-            # TODO: In each of the steps, the functions foo_agencyid ought be prepended with an underscore (e.g.
-            #       foo_agencyid() to _foo_agencyid()) in order to signify that these are helper functions for this
-            #       step, and not exported out of this .py file
-            calendar_dates_replacement_df = calendar_dates_agencyid(
+            calendar_dates_replacement_df = _calendar_dates_agencyid(
                                             calendar_dates_df=calendar_dates_df,
                                             routes_df=subset_routes_df,
                                             trips_df=subset_trips_df_w_sid,
                                             agency_df=subset_agency_df)
 
-            calendar_replacement_df = calendar_agencyid(
+            calendar_replacement_df = _calendar_agencyid(
                                             calendar_df=calendar_df,
                                             routes_df=subset_routes_df,
                                             trips_df=subset_trips_df_w_sid,
                                             agency_df=subset_agency_df)
-            
-            trips_replacement_df = trips_agencyid(
+
+            trips_replacement_df = _trips_agencyid(
                                             trips_df=trips_df,
                                             routes_df=subset_routes_df,
                                             agency_df=subset_agency_df)
 
-            stops_replacement_df = stops_agencyid(
+            stops_replacement_df = _stops_agencyid(
                                             stops_df=stops_df,
                                             trips_df=subset_trips_df,
                                             routes_df=subset_routes_df,
                                             stop_times_df=subset_stop_times_df,
                                             agency_df=subset_agency_df)
 
-            routes_replacement_df = routes_agencyid(
+            routes_replacement_df = _routes_agencyid(
                                             routes_df=routes_df,
                                             agency_df=subset_agency_df)
 
-            stop_times_replacement_df = stop_times_agencyid(
+            stop_times_replacement_df = _stop_times_agencyid(
                                             stop_times_df=stop_times_df,
                                             routes_df=subset_routes_df,
                                             trips_df=subset_trips_df,
                                             agency_df=subset_agency_df)
 
-            # need to update the df_list object with these new variable overrides
+            # update the df_list object with these new variable overrides
             df_list = [stops_replacement_df,
                        routes_replacement_df,
                        trips_replacement_df,
                        stop_times_replacement_df,
                        calendar_replacement_df,
                        calendar_dates_replacement_df]
-            
+
             log('agency.txt agency_name column has more than one agency name listed. Unique agency id was assigned using the agency id and associated agency name.')
 
     for index, df in enumerate(df_list):
         if df['unique_agency_id'].isnull().values.any():
-            # TODO: These string conversions seem to follow a pattern, could be part of the helper function?
             unique_agency_id = sub(r'\s+', '_', os.path.split(feed_folder)[1]).replace('&','and').lower()
 
             df['unique_agency_id'].fillna(''.join(['multiple_operators_', unique_agency_id]), inplace=True)
@@ -495,7 +487,7 @@ def add_unique_agencyid(agency_df=None,stops_df=None,routes_df=None,trips_df=Non
     log('Unique agency id operation complete. Took {:,.2f} seconds'.format(time.time()-start_time))
     return df_list
 
-def timetoseconds(df=None,time_cols=None):
+def _timetoseconds(df=None, time_cols=None):
     """
     Convert default GTFS stop time departure and arrival times from 24 hour clock to seconds past midnight
 
@@ -547,7 +539,7 @@ def timetoseconds(df=None,time_cols=None):
 
     return final_df
 
-def stops_definitions(df=None):
+def _stops_definitions(df=None):
     """
     Append GTFS definitions for stop columns to stop dataframe
 
@@ -571,7 +563,7 @@ def stops_definitions(df=None):
 
     return df
 
-def routes_definitions(df=None):
+def _routes_definitions(df=None):
     """
     Append GTFS definitions for route columns to route dataframe
 
@@ -597,7 +589,7 @@ def routes_definitions(df=None):
 
     return df
 
-def stop_times_definitions(df=None):
+def _stop_times_definitions(df=None):
     """
     Append GTFS definitions for stop time columns to stop time dataframe
 
@@ -632,7 +624,7 @@ def stop_times_definitions(df=None):
 
     return df
 
-def trips_definitions(df=None):
+def _trips_definitions(df=None):
     """
     Append GTFS definitions for trip columns to trip dataframe
 
@@ -657,7 +649,7 @@ def trips_definitions(df=None):
 
     return df
 
-def add_txt_definitions(stops_df=None,routes_df=None,stop_times_df=None,trips_df=None):
+def _add_txt_definitions(stops_df=None, routes_df=None, stop_times_df=None, trips_df=None):
     """
     Append GTFS definitions to stops, routes, stop times, and trips dataframes
 
@@ -676,16 +668,16 @@ def add_txt_definitions(stops_df=None,routes_df=None,stop_times_df=None,trips_df
     -------
     stops_df, routes_df, stop_times_df, trips_df : pandas.DataFrame
     """
-    stops_df = stops_definitions(df=stops_df)
-    routes_df = routes_definitions(df=routes_df)
-    stop_times_df = stop_times_definitions(df=stop_times_df)
-    trips_df = trips_definitions(df=trips_df)
+    stops_df = _stops_definitions(df=stops_df)
+    routes_df = _routes_definitions(df=routes_df)
+    stop_times_df = _stop_times_definitions(df=stop_times_df)
+    trips_df = _trips_definitions(df=trips_df)
 
     log('Added descriptive definitions to stops, routes, stop_times, and trips tables')
 
     return stops_df, routes_df, stop_times_df, trips_df
 
-def append_route_type(stops_df=None, stop_times_df=None,routes_df=None,trips_df=None,info_to_append=None):
+def _append_route_type(stops_df=None, stop_times_df=None, routes_df=None, trips_df=None, info_to_append=None):
     """
     Append GTFS route type definitions to stops and stop times dataframes
 
@@ -732,8 +724,21 @@ def append_route_type(stops_df=None, stop_times_df=None,routes_df=None,trips_df=
 
         return stop_times_df
 
-# helper/utility functions
 def _generate_unique_agency_id(df, col_name):
+    """
+    Generate unique agency id
+
+    Parameters
+    ----------
+    df : pandas:DataFrame
+    col_name : str
+        typically will be 'agency_name'
+
+    Returns
+    -------
+    col_snake_no_amps : str
+    """
+
     col = df[col_name].astype(str)
     # replace all runs of spaces with a single underscore
     col_snake_case = col.str.replace(r'\s+', '_')

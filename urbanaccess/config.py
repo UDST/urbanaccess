@@ -2,7 +2,7 @@ import os
 import yaml
 
 
-def format_check(settings):
+def _format_check(settings):
     """
     Check the format of a urbanaccess_config object.
 
@@ -157,5 +157,5 @@ class urbanaccess_config(object):
 
 # instantiate the UrbanAccess configuration object and check format
 settings = urbanaccess_config()
-format_check(settings.to_dict())
+_format_check(settings.to_dict())
 
