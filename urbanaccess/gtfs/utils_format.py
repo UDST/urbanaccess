@@ -594,9 +594,9 @@ def _add_unique_agencyid(agency_df=None, stops_df=None, routes_df=None, trips_df
     for index, df in enumerate(df_list):
         if df['unique_agency_id'].isnull().values.any():
             unique_agency_id = _generate_unique_from_folder(feed_folder)
-            mult_ops_id = ''.join(['multiple_operators_', unique_agency_id]
-            df['unique_agency_id'].fillna(mult_ops_id), inplace=True)
-            
+            mult_ops_id = ''.join(['multiple_operators_', unique_agency_id])
+            df['unique_agency_id'].fillna(mult_ops_id, inplace=True)
+
             # again, update the position object in the top level list
             df_list[index] = df
 
@@ -622,7 +622,8 @@ def _add_unique_agencyid(agency_df=None, stops_df=None, routes_df=None, trips_df
 
     return df_list
 
-def _timetoseconds(df=None, time_cols=None):
+
+def timetoseconds(df=None, time_cols=None):
     """
     Convert default GTFS stop time departure and arrival times from 24 hour clock to seconds past midnight
 
@@ -702,7 +703,17 @@ def _timetoseconds(df=None, time_cols=None):
         series_arr = [concat_series_df, series_df]
         concat_series_df = pd.concat(series_arr, axis=1)
 
-    final_df = pd.merge(df, concat_series_df, how='left', left_index=True, right_index=True, sort=False, copy=False)
+    final_df = pd.merge(df,
+                        concat_series_df,
+                        how='left',
+                        left_index=True,
+                        right_index=True,
+                        sort=False,
+                        copy=False)
+
+    # cast the final dataframe with correct types for the time cols
+    for col in time_cols:
+        final_df[col] = final_df[col].astype(int)
 
     # final message about performance of this function to user
     end_func_time_diff = time_cols,time.time()-start_time

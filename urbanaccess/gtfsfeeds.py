@@ -4,14 +4,18 @@ import os
 import pandas as pd
 import time
 import traceback
-import urllib
-from urllib2 import urlopen
 import yaml
 import zipfile
 
 # Note: The above imported logging funcs were modified from the OSMnx library
 #       & used with permission from the author Geoff Boeing: log, get_logger
 #       OSMnx repo: https://github.com/gboeing/osmnx/blob/master/osmnx/utils.py
+
+# Note: Because urllib and urlopen are Python 2 only, we need to create a shim
+#       via http://python-future.org/compatible_idioms.html#urllib-module
+from future.standard_library import install_aliases
+install_aliases()
+from urllib.request import urlopen
 
 from urbanaccess.utils import log
 from urbanaccess import config
@@ -32,9 +36,7 @@ class urbanaccess_gtfsfeeds(object):
         {unique name of GTFS feed or transit service/agency : URL of feed}
     """
 
-    def __init__(self,
-                 gtfs_feeds={}):
-
+    def __init__(self, gtfs_feeds={}):
         self.gtfs_feeds = gtfs_feeds
 
     @classmethod
@@ -389,12 +391,21 @@ def download(data_folder=os.path.join(config.settings.data_folder),
         err_text = 'Passed parameters were incorrect or not specified.'
         raise_with_traceback(ValueError(err_text))
 
+    # TODO: Let's make this long function more readable and
+    #       put these in helper functions
+    # where we will be saving the gtfs feeds and unpacking them
     download_folder = os.path.join(data_folder,'gtfsfeed_zips')
-
+    # if we don't have a folder already, make one and notify user
     if not os.path.exists(download_folder):
         os.makedirs(download_folder)
-        log('{} does not exist. Directory was created'.format(download_folder))
-    log('{} GTFS feeds will be downloaded here: {}'.format(len(feeds.gtfs_feeds),download_folder))
+        made_new_msg = ('{} does not exist. Directory was '
+                       'created').format(download_folder)
+        log(made_new_msg)
+    
+    # let user know download is starting
+    info_msg = ('{} GTFS feeds will be downloaded '
+                'here: {}').format(len(feeds.gtfs_feeds), download_folder)
+    log(info_msg)
 
     start_time1 = time.time()
     for feed_name_key, feed_url_value in list(feeds.gtfs_feeds.items()):
@@ -402,29 +413,74 @@ def download(data_folder=os.path.join(config.settings.data_folder),
         zipfile_path = ''.join([download_folder,'/',feed_name_key,'.zip'])
 
         if 'http' in feed_url_value:
-            status_code = urllib.urlopen(feed_url_value).getcode()
+            status_code = urlopen(feed_url_value).getcode()
+            
             if status_code == 200:
                 file = urlopen(feed_url_value)
-                assert 'zip' in file.info().dict['content-type'] or 'octet' in file.info().dict['content-type'], 'data requested at {} is not a zipfile. data must be a zipfile'.format(feed_url_value)
+
+                # ensure that the package has needed contents, type
+                has_zip = 'zip' in file.info()['content-type']
+                has_oct = 'octet' in file.info()['content-type']
+                err_msg = ('data requested at {} is not a zipfile. '
+                           'data must be a zipfile').format(feed_url_value)
+                assert has_zip or has_oct, err_msg
+
+                # open, unzip and read the file, write as unpacked version
                 with open(zipfile_path, "wb") as local_file:
                     local_file.write(file.read())
-                log('{} GTFS feed downloaded successfully. Took {:,.2f} seconds for {:,.1f}KB'.format(feed_name_key,time.time()-start_time2, os.path.getsize(zipfile_path)))
-            elif status_code in [429,504]:
-                log('URL at {} returned status code {} and no data. Re-trying request in {:.2f} seconds.'.format(feed_url_value, status_code, error_pause_duration), level=lg.WARNING)
+
+                # let the user know we've unpacked the download
+                time_diff = time.time() - start_time2
+                file_size = os.path.getsize(zipfile_path)
+                success_msg = ('{} GTFS feed downloaded successfully. '
+                               'Took {:,.2f} seconds for '
+                               '{:,.1f}KB').format(feed_name_key,
+                                                   time_diff,
+                                                   file_size)
+                log(success_msg)
+            
+            # TODO: time out and retries should be made recursive
+            elif status_code in [429, 504]:
+                retry_msg = ('URL at {} returned status code {} and no '
+                             'data. Re-trying request in {:.2f} '
+                             'seconds.').format(feed_url_value,
+                                                status_code,
+                                                error_pause_duration)
+                log(retry_msg, level=lg.WARNING)
                 time.sleep(error_pause_duration)
+                
                 try:
+                    # TODO: repeat of above, need to abstract to single func
                     file = urlopen(feed_url_value)
-                    assert 'zip' in file.info().dict['content-type'] or 'octet' in file.info().dict['content-type'], 'data requested at {} is not a zipfile. data must be a zipfile'.format(feed_url_value)
+                    
+                    # ensure that the package has needed contents, type
+                    has_zip = 'zip' in file.info()['content-type']
+                    has_oct = 'octet' in file.info()['content-type']
+                    err_msg = ('data requested at {} is not a zipfile. '
+                               'data must be a zipfile').format(feed_url_value)
+                    assert has_zip or has_oct, err_msg
+                    
+                    # open, unzip and read the file, write as unpacked version
                     with open(zipfile_path, "wb") as local_file:
                         local_file.write(file.read())
+
                 except:
-                    log('Unable to connect. URL at {} returned status code {} and no data'.format(feed_url_value, status_code), level=lg.ERROR)
+                    fallback_err_msg = ('Unable to connect. URL at {} '
+                                        'returned status code {} and no '
+                                        'data').format(feed_url_value,
+                                                       status_code)
+                    log(fallback_err_msg, level=lg.ERROR)
             else:
-                log('Unable to connect. URL at {} returned status code {} and no data'.format(feed_url_value, status_code), level=lg.ERROR)
+                # TODO: This is a complete repeat of above statement, make DRY
+                err_msg = ('Unable to connect. URL at {} '
+                           'returned status code {} and no '
+                           'data').format(feed_url_value, status_code)
+                log(err_msg, level=lg.ERROR)
+        
         else:
             try:
                 file = urlopen(feed_url_value)
-                assert 'zip' in file.info().dict['content-type'] or 'octet' in file.info().dict['content-type'], 'data requested at {} is not a zipfile. data must be a zipfile'.format(feed_url_value)
+                assert 'zip' in file.info()['content-type'] or 'octet' in file.info()['content-type'], 'data requested at {} is not a zipfile. data must be a zipfile'.format(feed_url_value)
                 with open(''.join([download_folder,'/',feed_name_key,'.zip']), "wb") as local_file:
                     local_file.write(file.read())
                 log('{} GTFS feed downloaded successfully. Took {:,.2f} seconds for {:,.1f}KB'.format(feed_name_key,time.time()-start_time2, os.path.getsize(zipfile_path)))

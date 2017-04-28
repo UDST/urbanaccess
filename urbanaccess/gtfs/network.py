@@ -90,7 +90,7 @@ def create_transit_net(gtfsfeeds_dfs=None,day=None,timerange=None,
     # boolean parameter related checks
     for ea in [overwrite_existing_stop_times_int,
                use_existing_stop_times_int,
-               save_processed_gtfs]
+               save_processed_gtfs]:
         assert isinstance(ea, bool)
 
     # no gtfs dataframes can be empty for this function to work

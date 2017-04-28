@@ -126,7 +126,20 @@ def _validate_gtfs(stop_times_df=None, stops_df=None, feed_folder=None, verbose=
     -------
     stops_df : pandas.DataFrame
     """
-    assert (stop_times_df['arrival_time']< 0).values.any() == False or (stop_times_df['departure_time']< 0).values.any() == False, 'stop_times.txt file in {} GTFS feed has negative stop times. Time must be positive.'.format(os.path.split(feed_folder)[1])
+
+    print('===================')
+    print(stop_times_df.head())
+    print('===================')
+
+    # ensure we have both arrival and departure dataframes that aren't empty
+    no_arrivals = (stop_times_df['arrival_time'] < 0).values.any() == False
+    no_departures = (stop_times_df['departure_time'] < 0).values.any() == False
+
+    feed_folder_loc = os.path.split(feed_folder)[1]
+    err_msg = ('stop_times.txt file in {} GTFS feed has negative stop '
+               'times. Time must be positive.').format(feed_folder_loc)
+    
+    assert no_arrivals or no_departures, err_msg
 
     stops_df = _boundingbox_check(df=stops_df,
                                   feed_folder=feed_folder,
