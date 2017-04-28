@@ -241,12 +241,14 @@ def gtfsfeed_to_df(gtfsfeed_path=None,validation=False,verbose=True,bbox=None,re
                                                                                                                          feed_folder=os.path.join(gtfsfeed_path, folder))
 
         if validation:
-            stops_df = utils_validation._validate_gtfs(stop_times_df=stop_times_df,
-                                                       stops_df=stops_df,
-                                                       feed_folder=os.path.join(gtfsfeed_path, folder),
-                                                       verbose=verbose,
-                                                       bbox=bbox,
-                                                       remove_stops_outsidebbox=remove_stops_outsidebbox)
+            stops_df = utils_validation.validate_gtfs(
+                            stop_times_df=stop_times_df,
+                            stops_df=stops_df,
+                            feed_folder=os.path.join(gtfsfeed_path, folder),
+                            verbose=verbose,
+                            bbox=bbox,
+                            remove_stops_outsidebbox=remove_stops_outsidebbox)
+
             if remove_stops_outsidebbox:
                 stops_inside_bbox = list(stops_df['stop_id'])
                 stop_times_df = stop_times_df[stop_times_df['stop_id'].isin(stops_inside_bbox)]

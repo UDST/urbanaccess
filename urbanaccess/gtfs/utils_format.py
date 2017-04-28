@@ -711,15 +711,11 @@ def timetoseconds(df=None, time_cols=None):
                         sort=False,
                         copy=False)
 
-    # cast the final dataframe with correct types for the time cols
-    for col in time_cols:
-        final_df[col] = final_df[col].astype(int)
-
     # final message about performance of this function to user
-    end_func_time_diff = time_cols,time.time()-start_time
+    end_func_time_diff = time.time() - start_time
     end_func_msg = ('Successfully converted {} to seconds past midnight '
                     'and appended new columns to stop_times. Took {:,.2f} '
-                    'seconds').format(end_func_time_diff)
+                    'seconds').format(time_cols, end_func_time_diff)
     log(end_func_msg)
 
     return final_df
