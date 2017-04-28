@@ -128,7 +128,7 @@ class urbanaccess_gtfsfeeds(object):
                     assert isinstance(value,str), \
                         ('{} must be a string').format(value)
 
-            for key, value in add_dict.items():
+            for key, value in list(add_dict.items()):
                 assert value not in self.gtfs_feeds.values(), \
                     ('duplicate values were found when the '
                      'passed add_dict dictionary was added to '
@@ -374,7 +374,7 @@ def download(data_folder=os.path.join(config.settings.data_folder),
             for value in feed_dict[key]:
                 assert isinstance(value,str), ('{} must be a string').format(value)
 
-        for key, value in feed_dict.items():
+        for key, value in list(feed_dict.items()):
             err_text = ('duplicate values were found when the '
                         'passed add_dict dictionary was added to '
                         'the existing dictionary. Feed URL values '
@@ -397,7 +397,7 @@ def download(data_folder=os.path.join(config.settings.data_folder),
     log('{} GTFS feeds will be downloaded here: {}'.format(len(feeds.gtfs_feeds),download_folder))
 
     start_time1 = time.time()
-    for feed_name_key, feed_url_value in feeds.gtfs_feeds.items():
+    for feed_name_key, feed_url_value in list(feeds.gtfs_feeds.items()):
         start_time2 = time.time()
         zipfile_path = ''.join([download_folder,'/',feed_name_key,'.zip'])
 
