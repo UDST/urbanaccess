@@ -1,8 +1,13 @@
-import os
-import time
-import pandas as pd
-from re import sub
 import logging as lg
+import os
+import pandas as pd
+from future.utils import raise_with_traceback
+from re import sub
+import time
+
+# Note: The above imported logging funcs were modified from the OSMnx library
+#       & used with permission from the author Geoff Boeing: log, get_logger
+#       OSMnx repo: https://github.com/gboeing/osmnx/blob/master/osmnx/utils.py
 
 from urbanaccess.utils import log
 
@@ -26,6 +31,8 @@ def _read_gtfs_agency(textfile_path=None, textfile=None):
 
     df = pd.read_csv(os.path.join(textfile_path, textfile))
     assert len(df) != 0, '{} has no records'.format(os.path.join(textfile_path, textfile))
+    
+    # TODO: Make these done in a helper function
     # remove any extra whitespace in column names
     df.rename(columns=lambda x: x.strip(), inplace=True)
     return df
@@ -53,6 +60,8 @@ def _read_gtfs_stops(textfile_path=None, textfile=None):
     df['stop_lat'] = pd.to_numeric(df['stop_lat'])
     df['stop_lon'] = pd.to_numeric(df['stop_lon'])
     assert len(df) != 0, '{} has no records'.format(os.path.join(textfile_path, textfile))
+    
+    # TODO: Make these done in a helper function
     # remove any extra whitespace in column names
     df.rename(columns=lambda x: x.strip(), inplace=True)
     return df
@@ -77,6 +86,8 @@ def _read_gtfs_routes(textfile_path=None, textfile=None):
     df = pd.read_csv(os.path.join(textfile_path, textfile),
                      dtype={'route_id': object})
     assert len(df) != 0, '{} has no records'.format(os.path.join(textfile_path, textfile))
+    
+    # TODO: Make these done in a helper function
     # remove any extra whitespace in column names
     df.rename(columns=lambda x: x.strip(), inplace=True)
     return df
@@ -104,6 +115,8 @@ def _read_gtfs_trips(textfile_path=None, textfile=None):
                             'route_id': object,
                             7: object})  # 7 is placeholder for shape id which may not exist in some txt files
     assert len(df) != 0, '{} has no records'.format(os.path.join(textfile_path, textfile))
+    
+    # TODO: Make these done in a helper function
     # remove any extra whitespace in column names
     df.rename(columns=lambda x: x.strip(), inplace=True)
     return df
@@ -123,16 +136,23 @@ def _read_gtfs_stop_times(textfile_path=None, textfile=None):
     -------
     df : pandas.DataFrame
     """
+    # TODO: If this textfile must be this name, then why have it as an arg?
     assert textfile == 'stop_times.txt'
 
-    df = pd.read_csv(os.path.join(textfile_path, textfile),
-                     dtype={'trip_id': object,
-                            'stop_id': object,
-                            'departure_time': object,
-                            'arrival_time': object})
-    assert len(df) != 0, '{} has no records'.format(os.path.join(textfile_path, textfile))
+    dtype_dict = {'trip_id': object,
+                  'stop_id': object,
+                  'departure_time': object,
+                  'arrival_time': object}
+
+    joined_filename = os.path.join(textfile_path, textfile)
+    df = pd.read_csv(joined_filename, dtype=dtype_dict)
+    assert len(df) != 0, '{} has no records'.format(joined_filename)
+    
+    
+    # TODO: Make these done in a helper function
     # remove any extra whitespace in column names
     df.rename(columns=lambda x: x.strip(), inplace=True)
+    
     return df
 
 def _read_gtfs_calendar(textfile_path=None, textfile=None):
@@ -150,16 +170,30 @@ def _read_gtfs_calendar(textfile_path=None, textfile=None):
     -------
     df : pandas.DataFrame
     """
+    # TODO: If this textfile must be this name, then why have it as an arg?
     assert textfile == 'calendar.txt'
 
-    df = pd.read_csv(os.path.join(textfile_path, textfile),
-                     dtype={'service_id': object})
-    columnlist = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday']
+    joined_filename = os.path.join(textfile_path, textfile)
+    df = pd.read_csv(joined_filename, dtype={'service_id': object})
+    
+    columnlist = ['monday',
+                  'tuesday',
+                  'wednesday',
+                  'thursday',
+                  'friday',
+                  'saturday',
+                  'sunday']
     for col in columnlist:
         df[col] = pd.to_numeric(df[col])
-    assert len(df) != 0, '{} has no records'.format(os.path.join(textfile_path, textfile))
+    
+    # make sure we didn't end up with an empty dataframe    
+    assert len(df) != 0, '{} has no records'.format(joined_filename)
+    
+    
+    # TODO: Make these done in a helper function
     # remove any extra whitespace in column names
     df.rename(columns=lambda x: x.strip(), inplace=True)
+    
     return df
 
 def _read_gtfs_calendar_dates(textfile_path=None, textfile=None):
@@ -177,13 +211,20 @@ def _read_gtfs_calendar_dates(textfile_path=None, textfile=None):
     -------
     df : pandas.DataFrame
     """
+    # TODO: If this textfile must be this name, then why have it as an arg?
     assert textfile == 'calendar_dates.txt'
 
-    df = pd.read_csv(os.path.join(textfile_path, textfile),
-                     dtype={'service_id': object})
-    assert len(df) != 0, '{} has no records'.format(os.path.join(textfile_path, textfile))
+    joined_filename = os.path.join(textfile_path, textfile)
+    df = pd.read_csv(joined_filename, dtype={'service_id': object})
+
+    # make sure we didn't end up with an empty dataframe
+    assert len(df) != 0, '{} has no records'.format(joined_filename)
+    
+    
+    # TODO: Make these done in a helper function
     # remove any extra whitespace in column names
     df.rename(columns=lambda x: x.strip(), inplace=True)
+    
     return df
 
 def _calendar_dates_agencyid(calendar_dates_df=None, routes_df=None, trips_df=None, agency_df=None):
@@ -205,15 +246,45 @@ def _calendar_dates_agencyid(calendar_dates_df=None, routes_df=None, trips_df=No
     -------
     merged_df : pandas.DataFrame
     """
-    tmp1 = pd.merge(routes_df, agency_df, how='left', on='agency_id', sort=False, copy=False)
-    tmp2 = pd.merge(trips_df, tmp1, how='left', on='route_id', sort=False, copy=False)
-    merged_df = pd.merge(calendar_dates_df, tmp2, how='left', on='service_id', sort=False, copy=False)
+    
+    # create two temporary dataframes by merging two common df args
+    tmp1 = pd.merge(routes_df,
+                    agency_df,
+                    how='left',
+                    on='agency_id',
+                    sort=False,
+                    copy=False)
+    tmp2 = pd.merge(trips_df,
+                    tmp1,
+                    how='left',
+                    on='route_id',
+                    sort=False,
+                    copy=False)
 
-    merged_df['unique_agency_id'] = _generate_unique_agency_id(merged_df, 'agency_name')
-    merged_df.drop_duplicates(subset='service_id', keep='first', inplace=True)
+    # now merge each of those two based on common cols
+    merged_df = pd.merge(calendar_dates_df,
+                         tmp2,
+                         how='left',
+                         on='service_id',
+                         sort=False,
+                         copy=False)
 
-    merged_df = pd.merge(calendar_dates_df, merged_df[['unique_agency_id', 'service_id']], how='left',
-                         on='service_id', sort=False, copy=False)
+    # create the unique agency id for each and populate the new column
+    merged_df['unique_agency_id'] = _generate_unique_agency_id(merged_df,
+                                                               'agency_name')
+    
+    # remove any columns that might be repeated
+    merged_df.drop_duplicates(subset='service_id',
+                              keep='first',
+                              inplace=True)
+
+    # take resulting merged df and put back into the calendar df
+    merged_df = pd.merge(calendar_dates_df,
+                         merged_df[['unique_agency_id', 'service_id']],
+                         how='left',
+                         on='service_id',
+                         sort=False,
+                         copy=False)
 
     return merged_df
 
@@ -389,102 +460,166 @@ def _add_unique_agencyid(agency_df=None, stops_df=None, routes_df=None, trips_df
 
     df_list = [stops_df,routes_df,trips_df,stop_times_df,calendar_df,calendar_dates_df]
 
-    path_absent = os.path.exists(os.path.join(feed_folder,'agency.txt')) == False
-    agency_absent = 'agency_id' not in agency_df.columns
-    if ((path_absent or agency_absent) and nulls_as_folder == True):
+    # used for a number of checks
+    path_to_check = os.path.join(feed_folder,'agency.txt')
+    agency_path_exists = os.path.exists(path_to_check)
+    agency_path_miss = agency_path_exists == False
 
+    # checks for first if
+    agency_absent = 'agency_id' not in agency_df.columns
+    one_attr_absent = agency_path_miss or agency_absent
+    absent_and_folder_nulls = one_attr_absent and nulls_as_folder == True
+
+    # checks for second elif
+    miss_file_and_folder_nulls = agency_path_miss and nulls_as_folder == False
+
+    if absent_and_folder_nulls:
+        # iterate through and add agency ids based on folder paths
         for index, df in enumerate(df_list):
-            unique_agency_id = sub(r'\s+', '_', os.path.split(feed_folder)[1]).replace('&','and').lower()
+            unique_agency_id = _generate_unique_from_folder(feed_folder)
             df['unique_agency_id'] = unique_agency_id
+            # update positional dfs in top level list
             df_list[index] = df
 
-        log('The agency.txt or agency_id column was not found. The unique agency id: {} was generated using the name of the folder containing the GTFS feed text files.'.format(unique_agency_id))
+        intro_msg = ('The agency.txt or agency_id column was not found. '
+                     'The unique agency id: {} was generated using the '
+                     'name of the folder containing the GTFS feed text '
+                     'files.').format(unique_agency_id)
+        log(intro_msg)
 
-    elif os.path.exists(os.path.join(feed_folder,'agency.txt')) == False and nulls_as_folder == False:
-        raise ValueError('No agency.txt file was found in {}. Add the missing file to folder or set nulls_as_folder to True'.format(feed_folder))
+    elif miss_file_and_folder_nulls:
+        err_text = ('No agency.txt file was found in {}. Add the '
+                    'missing file to folder or set nulls_as_folder '
+                    'to True').format(feed_folder)
+        raise_with_traceback(ValueError(err_text))
 
     else:
-        assert os.path.exists(os.path.join(feed_folder,'agency.txt'))
-        assert 'agency_name' in agency_df.columns and 'agency_id' in agency_df.columns
+        # start off by ensuring breaking cases are accounted for
+        assert agency_path_exists == True
+        assert 'agency_name' in agency_df.columns
+        assert 'agency_id' in agency_df.columns
         assert len(agency_df[['agency_id','agency_name']]) != 0
 
+        # TODO: Shouldn't a dataframe return a series regardless
+        #       of the num of rows? If so, then whether len of result
+        #       is 1 or more should not matter...
+
+        # different paths, depending on how many agencies
         if len(agency_df['agency_name']) == 1:
+            # make sure that the one agency named is not a null name
             assert agency_df['agency_name'].isnull().values == False
 
-            # could be added to helper function
-            unique_agency_id = sub(r'\s+', '_', agency_df['agency_name'][0]).replace('&','and').lower()
+            a_name = agency_df['agency_name'][0]
+            a_subbed = sub(r'\s+', '_', a_name)
+            unique_agency_id = a_subbed.replace('&','and').lower()
 
             for index, df in enumerate(df_list):
                 df['unique_agency_id'] = unique_agency_id
                 df_list[index] = df
-            log('The unique agency id: {} was generated using the name of the agency in the agency.txt file.'.format(unique_agency_id))
+
+            stat_msg = ('The unique agency id: {} was generated using the '
+                        'name of the agency in the agency.txt '
+                        'file.').format(unique_agency_id)
+            log(stat_msg)
 
         elif len(agency_df['agency_name']) > 1:
-            # TODO: Change Assertion to errors/exceptions
-            assert agency_df[['agency_id','agency_name']].isnull().values.any() == False
+            # TODO: Assertions shouldn't be so deeply nested 
+            #       in runtime - validation should 
+            #       either be prior to model execution or handled
+            #       gracefully through caught errors/exceptions
+            a_cols = ['agency_id','agency_name']
+            assert agency_df[a_cols].isnull().values.any() == False
 
-            # subset dataframes
-            subset_agency_df = agency_df[['agency_id','agency_name']]
-            subset_routes_df = routes_df[['route_id', 'agency_id']]
-            subset_stop_times_df = stop_times_df[['trip_id', 'stop_id']]
-            subset_trips_df = trips_df[['trip_id', 'route_id']]
-            subset_trips_df_w_sid = trips_df[['trip_id', 'route_id', 'service_id']]
+            # Only generate subset dataframes once, 
+            # instead of for each keyword argument
+            # in the below helper function
+            sub_agency_df = agency_df[['agency_id','agency_name']]
+            sub_routes_df = routes_df[['route_id', 'agency_id']]
+            sub_stop_times_df = stop_times_df[['trip_id', 'stop_id']]
+            sub_trips_df = trips_df[['trip_id', 'route_id']]
+            sub_trips_df_w_sid = trips_df[['trip_id', 'route_id', 'service_id']]
 
-            calendar_dates_replacement_df = _calendar_dates_agencyid(
+            # TODO: In each of the steps, the functions foo_agencyid 
+            #       ought be prepended with an underscore (e.g.
+            #       foo_agencyid() to _foo_agencyid()) in order 
+            #       to signify that these are helper functions for this
+            #       step, and not exported out of this .py file
+            calendar_dates_replacement_df = calendar_dates_agencyid(
                                             calendar_dates_df=calendar_dates_df,
-                                            routes_df=subset_routes_df,
-                                            trips_df=subset_trips_df_w_sid,
-                                            agency_df=subset_agency_df)
+                                            routes_df=sub_routes_df,
+                                            trips_df=sub_trips_df_w_sid,
+                                            agency_df=sub_agency_df)
 
             calendar_replacement_df = _calendar_agencyid(
                                             calendar_df=calendar_df,
-                                            routes_df=subset_routes_df,
-                                            trips_df=subset_trips_df_w_sid,
-                                            agency_df=subset_agency_df)
-
-            trips_replacement_df = _trips_agencyid(
+                                            routes_df=sub_routes_df,
+                                            trips_df=sub_trips_df_w_sid,
+                                            agency_df=sub_agency_df)
+            
+            trips_replacement_df = trips_agencyid(
                                             trips_df=trips_df,
-                                            routes_df=subset_routes_df,
-                                            agency_df=subset_agency_df)
+                                            routes_df=sub_routes_df,
+                                            agency_df=sub_agency_df)
 
             stops_replacement_df = _stops_agencyid(
                                             stops_df=stops_df,
-                                            trips_df=subset_trips_df,
-                                            routes_df=subset_routes_df,
-                                            stop_times_df=subset_stop_times_df,
-                                            agency_df=subset_agency_df)
+                                            trips_df=sub_trips_df,
+                                            routes_df=sub_routes_df,
+                                            stop_times_df=sub_stop_times_df,
+                                            agency_df=sub_agency_df)
 
             routes_replacement_df = _routes_agencyid(
                                             routes_df=routes_df,
-                                            agency_df=subset_agency_df)
+                                            agency_df=sub_agency_df)
 
             stop_times_replacement_df = _stop_times_agencyid(
                                             stop_times_df=stop_times_df,
-                                            routes_df=subset_routes_df,
-                                            trips_df=subset_trips_df,
-                                            agency_df=subset_agency_df)
+                                            routes_df=sub_routes_df,
+                                            trips_df=sub_trips_df,
+                                            agency_df=sub_agency_df)
 
-            # update the df_list object with these new variable overrides
             df_list = [stops_replacement_df,
                        routes_replacement_df,
                        trips_replacement_df,
                        stop_times_replacement_df,
                        calendar_replacement_df,
                        calendar_dates_replacement_df]
-
-            log('agency.txt agency_name column has more than one agency name listed. Unique agency id was assigned using the agency id and associated agency name.')
+            
+            agency_file_msg = ('The agency.txt agency_name column has more '
+                               'than one agency name listed. Unique agency '
+                               'id was assigned using the agency id and '
+                               'associated agency name.')
+            log(agency_file_msg)
 
     for index, df in enumerate(df_list):
         if df['unique_agency_id'].isnull().values.any():
-            unique_agency_id = sub(r'\s+', '_', os.path.split(feed_folder)[1]).replace('&','and').lower()
-
-            df['unique_agency_id'].fillna(''.join(['multiple_operators_', unique_agency_id]), inplace=True)
-            log('There are {} null values ({}% of total) without a unique agency id. '
-                'These records will be labeled as multiple_operators_ with the GTFS file folder '
-                'name'.format(df['unique_agency_id'].isnull().sum(),len(df),round((float(df['unique_agency_id'].isnull().sum()) / float(len(df)) *100))))
+            unique_agency_id = _generate_unique_from_folder(feed_folder)
+            mult_ops_id = ''.join(['multiple_operators_', unique_agency_id]
+            df['unique_agency_id'].fillna(mult_ops_id), inplace=True)
+            
+            # again, update the position object in the top level list
             df_list[index] = df
 
-    log('Unique agency id operation complete. Took {:,.2f} seconds'.format(time.time()-start_time))
+            # TODO: Appears that there are 3 args being supplied but only
+            #       2 points for insertion in the string
+            agency_sum = df['unique_agency_id'].isnull().sum()
+            u_a_id_sum = float(df['unique_agency_id'].isnull().sum())
+            rounded = round((u_a_id_sum / float(len(df)) * 100))
+            mult_ops_msg = ('There are {} null values ({}% of total) '
+                            'without a unique agency id. '
+                            'These records will be labeled as '
+                            'multiple_operators_ with the GTFS file folder '
+                            'name').format(agency_sum,
+                                           len(df),
+                                           rounded)
+            log(mult_ops_msg)
+
+    # final message to user at end of the function
+    final_time_diff = time.time() - start_time
+    final_msg = ('Unique agency id operation complete. Took '
+                 '{:,.2f} seconds').format(final_time_diff)
+    log(final_msg)
+
     return df_list
 
 def _timetoseconds(df=None, time_cols=None):
@@ -504,38 +639,77 @@ def _timetoseconds(df=None, time_cols=None):
     """
     start_time = time.time()
 
+    # time frame needs to be a list
+    assert isinstance(time_cols, list)
+
+    # start with an empty dataframe as base case
     concat_series_df = pd.DataFrame()
-    assert isinstance(time_cols,list)
 
+    # TODO: There are time libraries that handle these conversions far better
+    #       than any hand rolled solution, suggest replacing this with one of
+    #       those at some point to avoid unknown edge cases
     for col in time_cols:
-
+        # convert series to a list to iterate through
         time_list = df[col].fillna('').tolist()
-        for n,i in enumerate(time_list):
-            if len(i) == 7:
-                time_list[n] = '0' + i
-            if (len(i) != 8) & (len(i) != 0) & (len(i) != 7):
-                raise ValueError('Check formating of value: {} as it is in the incorrect format and should be 8 character string 00:00:00.'.format(i))
-        df_fixed = pd.DataFrame(time_list, columns=[col])
+        
+        for n, i in enumerate(time_list):
+            len_i = len(i)
+            
+            # handle if the time is missing a prended zero
+            if len_i == 7:
+                time_list[n] = str('0') + str(i)
+            
+            not_passable_len = (len_i != 8) & (len_i != 0) & (len_i != 7)
+            if not_passable_len:
+                err_msg = ('Check formating of value: {} as it is in the '
+                           'incorrect format and should be 8 character '
+                           'string 00:00:00.').format(i)
+                raise_with_traceback(ValueError(err_msg))
 
+        # update the dataframe with checked/passing times
+        df_fixed = pd.DataFrame(time_list, columns=[col])
         df[col] = df_fixed[col]
 
+        # hours
         h = pd.to_numeric(df[col].str[0:2])
         if h.any() > 48:
-            log('Warning: {} hour value is large and may be incorrect, please check this.'.format(df[col].str[0:2].max()),level=lg.WARNING)
+            warn_msg = ('Warning: {} hour value is large and may be '
+                        'incorrect, please check '
+                        'this.').format(df[col].str[0:2].max())
+            log(warn_msg, level=lg.WARNING)
+        
+        # minutes
         m = pd.to_numeric(df[col].str[3:5])
         if m.any() > 60:
-            log('Warning: {} minute value is large and may be incorrect, please check this.'.format(df[col].str[3:5].max()),level=lg.WARNING)
+            warn_msg = ('Warning: {} minute value is large and may be '
+                        'incorrect, please check '
+                        'this.').format(df[col].str[3:5].max())
+            log(warn_msg, level=lg.WARNING)
+        
+        # seconds
         s = pd.to_numeric(df[col].str[6:8])
         if s.any() > 60:
-            log('Warning: {} second value is large and may be incorrect, please check this.'.format(df[col].str[6:8].max()),level=lg.WARNING)
-        col_series = (h * 60 * 60) + (m * 60) + s
-        series_df = col_series.to_frame(name=''.join([col,'_sec']))
+            warn_msg = ('Warning: {} second value is large and may be '
+                        'incorrect, please check '
+                        'this.').format(df[col].str[6:8].max())
+            log(warn_msg, level=lg.WARNING)
 
-        concat_series_df = pd.concat([concat_series_df,series_df],axis=1)
+        # convert down to seconds in total
+        col_series = (h * 60 * 60) + (m * 60) + s
+        sec_name = ''.join([col, '_sec'])
+        series_df = col_series.to_frame(name=sec_name)
+
+        series_arr = [concat_series_df, series_df]
+        concat_series_df = pd.concat(series_arr, axis=1)
 
     final_df = pd.merge(df, concat_series_df, how='left', left_index=True, right_index=True, sort=False, copy=False)
 
-    log('Successfully converted {} to seconds past midnight and appended new columns to stop_times. Took {:,.2f} seconds'.format(time_cols,time.time()-start_time))
+    # final message about performance of this function to user
+    end_func_time_diff = time_cols,time.time()-start_time
+    end_func_msg = ('Successfully converted {} to seconds past midnight '
+                    'and appended new columns to stop_times. Took {:,.2f} '
+                    'seconds').format(end_func_time_diff)
+    log(end_func_msg)
 
     return final_df
 
@@ -745,4 +919,11 @@ def _generate_unique_agency_id(df, col_name):
     # replace all ampersands
     col_snake_no_amps = col_snake_case.str.replace('&','and')
     return col_snake_no_amps.str.lower()
+
+def _generate_unique_from_folder(feed_folder):
+    path = os.path.split(feed_folder)[1]
+    subbed = sub(r'\s+', '_', path)
+    no_amps = subbed.replace('&','and')
+    lowered = no_amps.lower()
+    return lowered
 

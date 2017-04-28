@@ -1,12 +1,17 @@
-import yaml
+from future.utils import raise_with_traceback
+import logging as lg
+import os
 import pandas as pd
+import time
+import traceback
 import urllib
 from urllib2 import urlopen
-import traceback
+import yaml
 import zipfile
-import os
-import logging as lg
-import time
+
+# Note: The above imported logging funcs were modified from the OSMnx library
+#       & used with permission from the author Geoff Boeing: log, get_logger
+#       OSMnx repo: https://github.com/gboeing/osmnx/blob/master/osmnx/utils.py
 
 from urbanaccess.utils import log
 from urbanaccess import config
@@ -208,7 +213,9 @@ class urbanaccess_gtfsfeeds(object):
         assert isinstance(yamlname,str) and '.yaml' in yamlname, 'yaml must be a string and have file extension .yaml'
         yaml_file = os.path.join(gtfsfeeddir, yamlname)
         if overwrite == False and os.path.isfile(yaml_file) == True:
-            raise ValueError(('{} already exists. Rename or turn overwrite to True').format(yamlname))
+            err_text = ('{} already exists. Rename or turn '
+                        'overwrite to True').format(yamlname)
+            raise_with_traceback(ValueError(err_text))
         else:
             with open(yaml_file, 'w') as f:
                 yaml.dump(self.to_dict(), f, default_flow_style=False)
@@ -351,7 +358,8 @@ def download(data_folder=os.path.join(config.settings.data_folder),
     """
 
     if (feed_name is not None and feed_url is None) or (feed_url is not None and feed_name is None):
-        raise ValueError('Both feed_name and feed_url parameters are required.')
+        err_text = 'Both feed_name and feed_url parameters are required.'
+        raise_with_traceback(ValueError(err_text))
 
     if feed_name is not None and feed_url is not None:
         assert feed_dict is None
@@ -367,17 +375,19 @@ def download(data_folder=os.path.join(config.settings.data_folder),
                 assert isinstance(value,str), ('{} must be a string').format(value)
 
         for key, value in feed_dict.items():
-            assert value not in feed_dict.gtfs_feeds.values(), ('duplicate values were found when the '
-                                                           'passed add_dict dictionary was added to '
-                                                           'the existing dictionary. Feed URL values '
-                                                           'must be unique.')
+            err_text = ('duplicate values were found when the '
+                        'passed add_dict dictionary was added to '
+                        'the existing dictionary. Feed URL values '
+                        'must be unique.')
+            assert value not in feed_dict.gtfs_feeds.values(), err_text
 
         feeds.gtfs_feeds = feed_dict
     elif feed_name is None and feed_url is None and feed_dict is None:
         assert len(feeds.gtfs_feeds) != 0, 'No records were found in passed feed_dict'
         feeds.gtfs_feeds
     else:
-        raise ValueError('Passed parameters were incorrect or not specified.')
+        err_text = 'Passed parameters were incorrect or not specified.'
+        raise_with_traceback(ValueError(err_text))
 
     download_folder = os.path.join(data_folder,'gtfsfeed_zips')
 

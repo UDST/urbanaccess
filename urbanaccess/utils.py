@@ -1,12 +1,14 @@
-# The following logging functions were modified from the osmnx library and used with permission from the author Geoff Boeing:
-# log, _get_logger: https://github.com/gboeing/osmnx/blob/master/osmnx/utils.py
-
-import logging as lg
-import unicodedata
-import sys
 import datetime as dt
+from future.utils import raise_with_traceback
+import logging as lg
 import os
 import pandas as pd
+import sys
+import unicodedata
+
+# Note: The above imported logging funcs were modified from the OSMnx library
+#       & used with permission from the author Geoff Boeing: log, get_logger
+#       OSMnx repo: https://github.com/gboeing/osmnx/blob/master/osmnx/utils.py
 
 from urbanaccess import config
 
@@ -136,7 +138,8 @@ def create_hdf5(dir=None,filename=None,overwrite_hdf5=False):
         if not os.path.exists(dir):
             os.makedirs(dir)
     except:
-        raise ValueError('Unable to make directory {}'.format(dir))
+        err_text = 'Unable to make directory {}'.format(dir)
+        raise_with_traceback(ValueError(err_text))
 
     if filename is None:
         filename = 'urbanaccess.h5'
@@ -239,6 +242,8 @@ def hdf5_to_df(dir=None,filename=None,key=None):
             df = store[key]
             ('Returned {} as dataframe'.format(key))
         except:
-            raise ValueError('Unable to find key: {}. Keys found: {}'.format(key,store.keys()))
+            err_text = ('Unable to find key: {}. '
+                        'Keys found: {}').format(key,store.keys())
+            raise_with_traceback(ValueError(err_text))
 
         return df

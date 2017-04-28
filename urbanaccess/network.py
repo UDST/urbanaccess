@@ -1,7 +1,8 @@
-import time
-from sklearn.neighbors import KDTree
-import pandas as pd
+from future.utils import raise_with_traceback
 from geopy.distance import vincenty
+import pandas as pd
+from sklearn.neighbors import KDTree
+import time
 
 from urbanaccess.utils import log, df_to_hdf5, hdf5_to_df
 from urbanaccess import config
@@ -106,7 +107,10 @@ def integrate_network(urbanaccess_network=None,headways=False,
             or urbanaccess_network.transit_nodes.empty\
             or urbanaccess_network.osm_edges.empty\
             or urbanaccess_network.osm_nodes.empty:
-        raise ValueError('one of the network objects: transit_edges, transit_nodes, osm_edges, or osm_nodes were found to be empty.')
+        err_text = ('One of the network objects: transit_edges, '
+                    'transit_nodes, osm_edges, or osm_nodes were '
+                    'found to be empty.')
+        raise_with_traceback(ValueError(err_text))
 
     log('Loaded UrbanAccess network components comprised of: {:,} '
         'transit nodes and {:,} edges; {:,} OSM nodes and {:,} edges.'.format(len(urbanaccess_network.transit_nodes),
