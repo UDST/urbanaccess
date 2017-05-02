@@ -11,7 +11,9 @@ from urbanaccess.gtfs.gtfsfeeds_dataframe import gtfsfeeds_dfs
 
 pd.options.mode.chained_assignment = None
 
-def create_transit_net(gtfsfeeds_dfs=None,day=None,timerange=None,
+def create_transit_net(gtfsfeeds_dfs, day,
+                       calendar_dates_lookup=None,
+                       timerange=None,
                        overwrite_existing_stop_times_int=False,
                        use_existing_stop_times_int=False,
                        save_processed_gtfs=False,
@@ -26,9 +28,17 @@ def create_transit_net(gtfsfeeds_dfs=None,day=None,timerange=None,
     gtfsfeeds_dfs : object
         gtfsfeeds_dfs object with dataframes of stops, routes, trips,
         stop_times, calendar, and stop_times_int (optional)
-    day : {'friday','monday','saturday', 'sunday','thursday','tuesday','wednesday'}
+    day : {'friday','monday','saturday', 'sunday',
+        'thursday','tuesday','wednesday'}
         day of the week to extract transit schedule from that
         corresponds to the day in the GTFS calendar
+    calendar_dates_lookup : dict, optional
+        dictionary of the lookup column (key) and corresponding string (
+        value) to use to subset trips using the calendar_dates dataframe.
+        search will be exact. If none, then the calendar_dates dataframe
+        will not be used to select trips that are not in the calendar
+        dataframe but that are in the calendar_dates dataframe.
+        example: {'schedule_type' : 'WD'}
     timerange : list
         time range to extract transit schedule from in a list with time
         1 and time 2. it is suggested the time range
@@ -91,10 +101,13 @@ def create_transit_net(gtfsfeeds_dfs=None,day=None,timerange=None,
     calendar_selected_trips_df = _tripscheduleselector(
         input_trips_df=gtfsfeeds_dfs.trips[columns],
         input_calendar_df=gtfsfeeds_dfs.calendar,
-        day=day)
+        input_calendar_dates_df=gtfsfeeds_dfs.calendar_dates,
+        day=day,
+        calendar_dates_lookup=calendar_dates_lookup)
 
     if gtfsfeeds_dfs.stop_times_int.empty or \
-            overwrite_existing_stop_times_int or use_existing_stop_times_int == False:
+            overwrite_existing_stop_times_int or \
+                    use_existing_stop_times_int == False:
         gtfsfeeds_dfs.stop_times_int = _interpolatestoptimes(
             stop_times_df=gtfsfeeds_dfs.stop_times,
             calendar_selected_trips_df=calendar_selected_trips_df,
@@ -149,7 +162,9 @@ def create_transit_net(gtfsfeeds_dfs=None,day=None,timerange=None,
 
     return ua_network
 
-def _tripscheduleselector(input_trips_df=None, input_calendar_df=None, day=None):
+def _tripscheduleselector(input_trips_df, input_calendar_df,
+                          input_calendar_dates_df, day,
+                          calendar_dates_lookup=None):
     """
     Select trips that run on a specific day
 
@@ -159,8 +174,19 @@ def _tripscheduleselector(input_trips_df=None, input_calendar_df=None, day=None)
         trips dataframe
     input_calendar_df : pandas.DataFrame
         calendar dataframe
-    day : {'friday','monday','saturday','sunday','thursday','tuesday','wednesday'}
-        day of the week to extract transit schedule from that corresponds to the day in the GTFS calendar
+    input_calendar_dates_df : pandas.DataFrame
+        calendar_dates dataframe
+    day : {'friday','monday','saturday','sunday',
+        'thursday','tuesday','wednesday'}
+        day of the week to extract transit schedule that corresponds to the
+        day in the GTFS calendar
+    calendar_dates_lookup : dict, optional
+        dictionary of the lookup column (key) and corresponding string (
+        value) to use to subset trips using the calendar_dates dataframe.
+        search will be exact. If none, then the calendar_dates dataframe
+        will not be used to select trips that are not in the calendar
+        dataframe but that are in the calendar_dates dataframe.
+        example: {'schedule_type' : 'WD'}
 
     Returns
     -------
@@ -169,20 +195,95 @@ def _tripscheduleselector(input_trips_df=None, input_calendar_df=None, day=None)
     """
     start_time = time.time()
 
-    valid_days = ['friday','monday','saturday','sunday','thursday','tuesday','wednesday']
+    valid_days = ['friday','monday','saturday','sunday',
+                  'thursday','tuesday','wednesday']
     assert day in valid_days and isinstance(day, str),'Incorrect day specified. Must be lowercase string: ' \
                                                       'friday, monday, saturday, sunday, thursday, tuesday, wednesday.'
+
+    if calendar_dates_lookup is not None:
+        assert isinstance(calendar_dates_lookup,dict)
+        for key in calendar_dates_lookup.keys():
+            assert isinstance(key,str), ('{} must be a string').format(key)
+            for value in calendar_dates_lookup[key]:
+                assert isinstance(value,str), ('{} must be a string').format(value)
 
     # create unique service ids
     input_trips_df['unique_service_id'] = input_trips_df[['service_id','unique_agency_id']].apply(lambda x : '{}_{}'.format(x[0],x[1]), axis=1)
     input_calendar_df['unique_service_id'] = input_calendar_df[['service_id','unique_agency_id']].apply(lambda x : '{}_{}'.format(x[0],x[1]), axis=1)
+    input_calendar_dates_df['unique_service_id'] = input_calendar_dates_df[['service_id','unique_agency_id']].apply(lambda x : '{}_{}'.format(x[0],x[1]), axis=1)
 
-    # select service ids where day specified in function has a 1 = service runs on that day
-    input_calendar_df = input_calendar_df[(input_calendar_df[day] == 1)] # subset calendar by the specified day
+    # select service ids where day specified has a 1 = service runs on that day
+    log('Using calendar to extract service_ids to select trips.')
+    input_calendar_df = input_calendar_df[(input_calendar_df[day] == 1)]
     input_calendar_df = input_calendar_df[['unique_service_id']]
+    log('{:,} service_ids were extracted from calendar'.format(len(
+        input_calendar_df)))
 
-    # select and create df of trips that match the service ids for the day of the week specified in function
-    # merge calendar df that has service ids for specified day with trips df
+    # generate information needed to tell user the status of their trips in
+    # terms of service_ids in calendar and calendar_dates tables
+    trips_in_calendar = input_trips_df.loc[input_trips_df[
+        'unique_service_id'].isin(
+            input_calendar_df['unique_service_id'])]
+    trips_notin_calendar = input_trips_df.loc[~input_trips_df[
+        'unique_service_id'].isin(input_calendar_df['unique_service_id'])]
+
+    pct_trips_in_calendar = round(len(trips_in_calendar) / len(
+        input_trips_df) * 100, 3)
+    pct_trips_notin_calendar = round(len(trips_notin_calendar) / len(
+        input_trips_df) * 100, 3)
+
+    log('{:,} trip(s) {:.3f} percent of {:,} total trip records were ' \
+            'found in calendar'.format(len(trips_in_calendar),
+                                       pct_trips_in_calendar,len(
+            input_trips_df)))
+
+    if len(trips_notin_calendar) > 0 and calendar_dates_lookup is None:
+        log('NOTE: {:,} trip(s) {:.3f} percent of {:,} total trip records '
+            'were found to be in calendar_dates and not calendar. The '
+            'calendar_dates_lookup parameter ' \
+            'is None. In order to use the trips inside the calendar_dates ' \
+            'dataframe it is suggested you specify a search parameter in the '
+            'calendar_dates_lookup dict. This should only be done if '
+            'you know the corresponding GTFS feed is using '
+            'calendar_dates instead of calendar to specify the '
+            'service_ids. When in doubt do not use this parameter.'.format(len(
+            trips_notin_calendar),pct_trips_notin_calendar,len(input_trips_df)),
+            level=lg.WARNING)
+
+    # look for service_ids inside of calendar_dates if calendar does not
+    # supply enough service_ids to select trips by
+    if len(trips_notin_calendar) > 0 and calendar_dates_lookup is not None:
+
+        log('Using calendar_dates to supplement service_ids extracted from '
+            'calendar to select trips.')
+
+        subset_result_df = pd.DataFrame()
+
+        for col_name_key, string_value in calendar_dates_lookup.items():
+           assert col_name_key in input_calendar_dates_df.columns, '{} column ' \
+                                                                   'not found in' \
+                                                                   ' ' \
+                                                                   'calendar_dates ' \
+                                                                   'dataframe'.format(col_name_key)
+
+           if col_name_key in input_calendar_dates_df.select_dtypes(include=[object]).columns:
+               subset_result = input_calendar_dates_df[input_calendar_dates_df[col_name_key].str.match(string_value,case=False,na=False)]
+               log('Found {:,} records that matched query: column: {} and '
+                   'string: {}'.format(len(subset_result),
+                                       col_name_key,
+                                       string_value))
+           subset_result_df = subset_result_df.append(subset_result)
+           subset_result_df.drop_duplicates(inplace=True)
+           subset_result_df = subset_result_df[['unique_service_id']]
+
+        log('{:,} service_ids were extracted from calendar_dates'.format(len(
+            subset_result_df)))
+        input_calendar_df = input_calendar_df.append(subset_result_df)
+        input_calendar_df.drop_duplicates(inplace=True)
+
+    # select and create df of trips that match the service ids for the day of
+    # the week specified merge calendar df that has service ids for
+    # specified day with trips df
     calendar_selected_trips_df = input_trips_df.loc[input_trips_df['unique_service_id'].isin(input_calendar_df['unique_service_id'])]
 
     sort_columns = ['route_id', 'trip_id', 'direction_id']
@@ -192,13 +293,24 @@ def _tripscheduleselector(input_trips_df=None, input_calendar_df=None, day=None)
     calendar_selected_trips_df.reset_index(drop=True,inplace=True)
     calendar_selected_trips_df.drop('unique_service_id', axis=1, inplace=True)
 
-    log('{:,} of {:,} total trips were extracted representing calendar day: {}. Took {:,.2f} seconds'.format(len(calendar_selected_trips_df),len(input_trips_df),day,time.time()-start_time))
+    if calendar_dates_lookup is None:
+        log('{:,} of {:,} total trips were extracted representing calendar '
+            'day: {}. Took {:,.2f} seconds'.format(len(
+            calendar_selected_trips_df),len(input_trips_df),
+            day,time.time()-start_time))
+    else:
+        log('{:,} of {:,} total trips were extracted representing calendar '
+            'day: {} and calendar_dates search parameters: {}. Took {:,'
+            '.2f} seconds'.format(len(
+            calendar_selected_trips_df),len(input_trips_df),
+            day,calendar_dates_lookup, time.time()-start_time))
 
     return calendar_selected_trips_df
 
 def _interpolatestoptimes(stop_times_df, calendar_selected_trips_df, day):
     """
-    Interpolate missing stop times using a linear interpolator between known stop times
+    Interpolate missing stop times using a linear
+    interpolator between known stop times
 
     Parameters
     ----------
@@ -206,8 +318,10 @@ def _interpolatestoptimes(stop_times_df, calendar_selected_trips_df, day):
         stop times dataframe
     calendar_selected_trips_df : pandas.DataFrame
         dataframe of trips that run on specific day
-    day : {'friday','monday','saturday','sunday','thursday','tuesday','wednesday'}
-        day of the week to extract transit schedule from that corresponds to the day in the GTFS calendar
+    day : {'friday','monday','saturday','sunday','thursday',
+        'tuesday','wednesday'}
+        day of the week to extract transit schedule from that corresponds
+        to the day in the GTFS calendar
 
     Returns
     -------
@@ -228,7 +342,9 @@ def _interpolatestoptimes(stop_times_df, calendar_selected_trips_df, day):
             stop_times_df.unique_agency_id.astype('str'),
             sep='_'))
 
-    # sort stop times inplace based on first to last stop in sequence -- required as the linear interpolator runs from first value to last value
+    # sort stop times inplace based on first to last stop in
+    # sequence -- required as the linear interpolator runs
+    # from first value to last value
     if stop_times_df['stop_sequence'].isnull().sum() > 1:
         log('WARNING: There are {:,} '
             'stop_sequence records missing in the stop_times dataframe. '
@@ -239,7 +355,9 @@ def _interpolatestoptimes(stop_times_df, calendar_selected_trips_df, day):
     stop_times_df.sort_values(by=['unique_trip_id', 'stop_sequence'], inplace=True)
     # make list of unique trip ids from the calendar_selected_trips_df
     uniquetriplist = calendar_selected_trips_df['unique_trip_id'].unique().tolist()
-    # select trip ids that match the trips in the calendar_selected_trips_df -- resulting df will be stop times only for trips that run on the service day of interest
+    # select trip ids that match the trips in the
+    # calendar_selected_trips_df -- resulting df will be stop times
+    # only for trips that run on the service day of interest
     stop_times_df = stop_times_df[stop_times_df['unique_trip_id'].isin(uniquetriplist)]
 
     log('Note: Processing may take a long time depending'
@@ -531,7 +649,7 @@ def _stops_in_edge_table_selector(input_stops_df=None, input_stop_times_df=None)
     #Select stop ids that match stop ids in the subset stop time data that match day and time selection
     selected_stops_df = input_stops_df.loc[input_stops_df['unique_stop_id'].isin(input_stop_times_df['unique_stop_id'])]
 
-    log('{} of {} records selected from stops. Took {:,.2f} seconds'.format(len(selected_stops_df),len(input_stops_df),time.time()-start_time))
+    log('{:,} of {:,} records selected from stops. Took {:,.2f} seconds'.format(len(selected_stops_df),len(input_stops_df),time.time()-start_time))
 
     return selected_stops_df
 
