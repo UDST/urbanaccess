@@ -37,8 +37,7 @@ def create_transit_net(gtfsfeeds_dfs, day,
         string (value) a s string or list of strings to use to subset trips
         using the calendar_dates dataframe. Search will be exact. If none,
         then the calendar_dates dataframe will not be used to select trips
-        that are not in the calendar dataframe but that are in the
-        calendar_dates dataframe.
+        that are not in the calendar dataframe.
         Example: {'schedule_type' : 'WD'} or {'schedule_type' : ['WD','SU']}
     timerange : list
         time range to extract transit schedule from in a list with time
@@ -201,8 +200,7 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
         string (value) a s string or list of strings to use to subset trips
         using the calendar_dates dataframe. Search will be exact. If none,
         then the calendar_dates dataframe will not be used to select trips
-        that are not in the calendar dataframe but that are in the
-        calendar_dates dataframe.
+        that are not in the calendar dataframe.
         Example: {'schedule_type' : 'WD'} or {'schedule_type' : ['WD','SU']}
 
     Returns
