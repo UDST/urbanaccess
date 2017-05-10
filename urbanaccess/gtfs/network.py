@@ -224,7 +224,7 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
             raise ValueError('calendar_dates_lookup parameter is not a dict')
         for key in calendar_dates_lookup.keys():
             if not isinstance(key, str):
-                raise ValueError('{} calendar_dates_lookup key must be a '
+                raise ValueError('calendar_dates_lookup key {} must be a '
                                  'string'.format(key))
 
             if isinstance(calendar_dates_lookup[key], str):
@@ -232,7 +232,7 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
             else:
                 if not isinstance(calendar_dates_lookup[key], list):
                     raise ValueError(
-                        '{} calendar_dates_lookup value must be a string or a '
+                        'calendar_dates_lookup value {} must be a string or a '
                         'list of strings'.format(
                             calendar_dates_lookup[key]))
                 else:
@@ -245,11 +245,10 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
     # create unique service ids
     df_list = [input_trips_df, input_calendar_df, input_calendar_dates_df]
 
-    for index, df in enumerate(df_list):
+    for df in df_list:
         df['unique_service_id'] = (df['service_id'].str.cat(
                 df['unique_agency_id'].astype('str'),
                 sep='_'))
-        df_list[index] = df
 
     # select service ids where day specified has a 1 = service runs on that day
     log('Using calendar to extract service_ids to select trips.')
@@ -390,11 +389,10 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df, day):
     # create unique trip ids
     df_list = [calendar_selected_trips_df, stop_times_df]
 
-    for index, df in enumerate(df_list):
+    for df in df_list:
         df['unique_trip_id'] = (df['trip_id'].str.cat(
                 df['unique_agency_id'].astype('str'),
                 sep='_'))
-        df_list[index] = df
 
     # sort stop times inplace based on first to last stop in
     # sequence -- required as the linear interpolator runs
