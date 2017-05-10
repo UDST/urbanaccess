@@ -4,7 +4,7 @@ import time
 import logging as lg
 
 from urbanaccess.utils import log
-from urbanaccess.gtfs.network import _timeselector
+from urbanaccess.gtfs.network import _time_selector
 
 warnings.simplefilter(action = "ignore", category = FutureWarning)
 
@@ -89,7 +89,7 @@ def _headway_handler(interpolated_stop_times_df, trips_df,
     columns = ['unique_route_id','route_long_name','route_type','unique_agency_id']
     routes_df = routes_df[columns]
 
-    selected_interpolated_stop_times_df = _timeselector(df=interpolated_stop_times_df, starttime=headway_timerange[0], endtime=headway_timerange[1])
+    selected_interpolated_stop_times_df = _time_selector(df=interpolated_stop_times_df, starttime=headway_timerange[0], endtime=headway_timerange[1])
 
     tmp1 = pd.merge(trips_df, routes_df, how='left', left_on='unique_route_id', right_on='unique_route_id', sort=False)
     merge_df = pd.merge(selected_interpolated_stop_times_df, tmp1, how='left',

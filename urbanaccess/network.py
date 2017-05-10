@@ -356,7 +356,13 @@ def _format_pandana_edges_nodes(edge_df, node_df):
     # turn mixed dtype cols into all same format
     col_list = edge_df_wnumericid.select_dtypes(include=['object']).columns
     for col in col_list:
-        edge_df_wnumericid[col] = edge_df_wnumericid[col].astype(str)
+        try:
+            edge_df_wnumericid[col] = edge_df_wnumericid[col].astype(str)
+        # deal with edge cases where typically the name of a street is not
+        # in a uniform string encoding such as names with accents
+        except UnicodeEncodeError:
+            log('Fixed unicode error in {} column'.format(col))
+            edge_df_wnumericid[col] = edge_df_wnumericid[col].str.encode('utf-8')
 
     node_df.set_index('id_int',drop=True,inplace=True)
     # turn mixed dtype col into all same format
