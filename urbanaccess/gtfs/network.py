@@ -213,7 +213,7 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
     valid_days = ['friday', 'monday', 'saturday', 'sunday',
                   'thursday', 'tuesday', 'wednesday']
 
-    if day not in valid_days and isinstance(day, str):
+    if day not in valid_days:
         raise ValueError('Incorrect day specified. Must be one of lowercase '
                          'strings: friday, monday, saturday, sunday, '
                          'thursday, tuesday, wednesday.')
@@ -224,13 +224,17 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
             raise ValueError('calendar_dates_lookup parameter is not a dict')
         for key in calendar_dates_lookup.keys():
             if not isinstance(key, str):
-                raise ValueError('{} must be a string'.format(key))
+                raise ValueError('{} calendar_dates_lookup key must be a '
+                                 'string'.format(key))
 
             if isinstance(calendar_dates_lookup[key], str):
                 value = [calendar_dates_lookup[key]]
             else:
                 if not isinstance(calendar_dates_lookup[key], list):
-                    raise ValueError('{} must be a string or a list of strings'.format(calendar_dates_lookup[key]))
+                    raise ValueError(
+                        '{} calendar_dates_lookup value must be a string or a '
+                        'list of strings'.format(
+                            calendar_dates_lookup[key]))
                 else:
                     value = calendar_dates_lookup[key]
 
@@ -239,19 +243,13 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
                     raise ValueError('{} must be a string'.format(value))
 
     # create unique service ids
-    #TODO: these dfs can be wrapped in a list
-    input_trips_df['unique_service_id'] = (
-        input_trips_df.service_id.str.cat(
-            input_trips_df.unique_agency_id.astype('str'),
-            sep='_'))
-    input_calendar_df['unique_service_id'] = (
-        input_calendar_df.service_id.str.cat(
-            input_calendar_df.unique_agency_id.astype('str'),
-            sep='_'))
-    input_calendar_dates_df['unique_service_id'] = (
-        input_calendar_dates_df.service_id.str.cat(
-            input_calendar_dates_df.unique_agency_id.astype('str'),
-            sep='_'))
+    df_list = [input_trips_df, input_calendar_df, input_calendar_dates_df]
+
+    for index, df in enumerate(df_list):
+        df['unique_service_id'] = (df['service_id'].str.cat(
+                df['unique_agency_id'].astype('str'),
+                sep='_'))
+        df_list[index] = df
 
     # select service ids where day specified has a 1 = service runs on that day
     log('Using calendar to extract service_ids to select trips.')
@@ -389,16 +387,14 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df, day):
 
     start_time = time.time()
 
-    # create unique trip id
-    calendar_selected_trips_df['unique_trip_id'] = (
-        calendar_selected_trips_df.trip_id.str.cat(
-            calendar_selected_trips_df.unique_agency_id.astype('str'),
-            sep='_'))
+    # create unique trip ids
+    df_list = [calendar_selected_trips_df, stop_times_df]
 
-    stop_times_df['unique_trip_id'] = (
-        stop_times_df.trip_id.str.cat(
-            stop_times_df.unique_agency_id.astype('str'),
-            sep='_'))
+    for index, df in enumerate(df_list):
+        df['unique_trip_id'] = (df['trip_id'].str.cat(
+                df['unique_agency_id'].astype('str'),
+                sep='_'))
+        df_list[index] = df
 
     # sort stop times inplace based on first to last stop in
     # sequence -- required as the linear interpolator runs

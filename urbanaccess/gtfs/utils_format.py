@@ -238,6 +238,9 @@ def _calendar_agencyid(calendar_df=None, routes_df=None, trips_df=None, agency_d
     """
     tmp1 = pd.merge(routes_df, agency_df, how='left', on='agency_id', sort=False, copy=False)
     tmp2 = pd.merge(trips_df, tmp1, how='left', on='route_id', sort=False, copy=False)
+    # do another merge to account for service ids that may not be utilized
+    # across all GTFS files for accounting purposes so we keep those that
+    # dont show up after merge
     merged_df = pd.merge(calendar_df[['service_id']], tmp2, how='left', on='service_id', sort=False, copy=False)
     merged_df['unique_agency_id'] = _generate_unique_agency_id(merged_df, 'agency_name')
     merged_df.drop_duplicates(subset='service_id', keep='first', inplace=True)
@@ -297,6 +300,9 @@ def _stops_agencyid(stops_df=None, trips_df=None, routes_df=None, stop_times_df=
     tmp1 = pd.merge(routes_df, agency_df, how='left', on='agency_id', sort=False, copy=False)
     tmp2 = pd.merge(trips_df, tmp1, how='left', on='route_id', sort=False, copy=False)
     tmp3 = pd.merge(stop_times_df, tmp2, how='left', on='trip_id', sort=False, copy=False)
+    # do another merge to account for stops that may not be utilized across all
+    # GTFS files for accounting purposes so we keep those that dont show up
+    # after merge
     merged_df = pd.merge(stops_df[['stop_id']], tmp3, how='left', on='stop_id', sort=False, copy=False)
     merged_df['unique_agency_id'] = _generate_unique_agency_id(merged_df, 'agency_name')
     merged_df.drop_duplicates(subset='stop_id', keep='first', inplace=True)
