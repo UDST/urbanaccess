@@ -1,55 +1,82 @@
-FROM python:2.7
+FROM python:3.5
 
-ENV HOME /root
-
-# first steps intended to enable HDF5 installation, operation
-RUN apt-get update
-RUN apt-get -yq install gcc build-essential zlib1g-dev wget
-
-# build HDF5
-RUN cd ; wget https://support.hdfgroup.org/ftp/HDF5/prev-releases/hdf5-1.8.17/src/hdf5-1.8.17.tar.gz
-RUN cd ; tar zxf hdf5-1.8.17.tar.gz
-RUN cd ; mv hdf5-1.8.17 hdf5-setup
-RUN cd ; cd hdf5-setup ; ./configure --prefix=/usr/local/
-RUN cd ; cd hdf5-setup ; make && make install
-
-# cleanup
-RUN cd ; rm -rf hdf5*
-RUN apt-get -yq autoremove
-RUN apt-get clean
-RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-RUN pip install --upgrade numpy
-RUN pip install pandas
-RUN pip install bottleneck
-RUN pip install tables
-
-# now free to prepare environment for installation of UrbanAccess
 RUN mkdir -p /provisioning
 WORKDIR /provisioning
 
-# also need libgeos for Python Shapely package
-RUN apt-get update
-RUN apt-get -yq install libgeos-dev
-RUN echo "Installing GEOS libraries..." && \
+# Install build dependencies
+RUN apt-get update && \
+    apt-get -yq install \
+        build-essential \
+        gcc \
+        libgeos-dev \
+        zlib1g-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+# build HDF5
+RUN echo "Installing HDF5..." && \
+    mkdir -p /provisioning/hdf5 && \
+    cd /provisioning/hdf5 && \
+    curl -# -O https://support.hdfgroup.org/ftp/HDF5/prev-releases/hdf5-1.8.17/src/hdf5-1.8.17.tar.gz && \
+    tar -xzf hdf5-1.8.17.tar.gz && \
+    cd hdf5-1.8.17 && \
+    ./configure --prefix=/usr/local/ && \
+    make -j$(python -c 'import multiprocessing; print(multiprocessing.cpu_count())') && \
+    make install && \
+    ldconfig && \
+    rm -rf /provisioning/hdf5
+
+# also need libgeos for Shapely, Pandana
+RUN echo "Installing Spatial Index library..." && \
     mkdir -p /provisioning/spatialindex && \
     cd /provisioning/spatialindex && \
     curl -# -O http://download.osgeo.org/libspatialindex/spatialindex-src-1.8.5.tar.gz && \
-    tar -xf spatialindex-src-1.8.5.tar.gz && \
+    tar -xzf spatialindex-src-1.8.5.tar.gz && \
     cd spatialindex-src-1.8.5 && \
     ./configure --prefix=/usr/local && \
-    make && \
+    make -j$(python -c 'import multiprocessing; print(multiprocessing.cpu_count())') && \
     make install && \
     ldconfig && \
-    rm -rf /provisioning/spatialindex
+    rm -rf /provisioning/spatialindex*
 
-# return to main directory after installing libgeos
-RUN cd /provisioning
-COPY ./urbanaccess.egg-info/requires.txt /provisioning/requires.txt
+RUN echo "Installing GEOS library..." && \
+    mkdir -p /provisioning/geos && \
+    cd /provisioning/geos && \
+    curl -# -O http://download.osgeo.org/geos/geos-3.5.1.tar.bz2 && \
+    tar -xjf geos-3.5.1.tar.bz2 && \
+    cd geos-3.5.1 && \
+    ./configure && \
+    make -j$(python -c 'import multiprocessing; print(multiprocessing.cpu_count())') && \
+    make install && \
+    ldconfig -v && \
+    rm -rf /provisioning/geos*
 
-RUN pip install -r ./requires.txt
+RUN echo "Installing Proj4 library..." && \
+    mkdir -p /provisioning/proj4 && \
+    cd /provisioning/proj4 && \
+    curl -# -O http://download.osgeo.org/proj/proj-4.9.3.tar.gz && \
+    tar -xzf proj-4.9.3.tar.gz && \
+    cd proj-4.9.3 && \
+    ./configure && \
+    make -j$(python -c 'import multiprocessing; print(multiprocessing.cpu_count())') && \
+    make install && \
+    ldconfig -v && \
+    rm -rf /provisioning/proj4
 
-COPY . /provisioning
+# basemap (incorrectly) requires numpy to be installed *before* installing it
+RUN pip install --upgrade numpy
+
+RUN echo "Installing Basemap plotting library..." && \
+    mkdir -p /provisioning/matplotlib-basemap && \
+    cd /provisioning/matplotlib-basemap && \
+    curl -# -o basemap-1.0.7rel.tar.gz https://codeload.github.com/matplotlib/basemap/tar.gz/v1.0.7rel && \
+    tar -xzf basemap-1.0.7rel.tar.gz && \
+    cd basemap-1.0.7rel && \
+    python setup.py install && \
+    rm -rf /provisioning/matplotlib-basemap
+
+RUN mkdir -p /provisioning/urbanaccess
+COPY . /provisioning/urbanaccess
 
 # can now install Urban Access via repo
-RUN python ./setup.py develop
+RUN cd /provisioning/urbanaccess && \
+    pip install .
