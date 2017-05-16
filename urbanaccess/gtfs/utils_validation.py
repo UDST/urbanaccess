@@ -67,6 +67,7 @@ def _boundingbox_check(df=None, feed_folder=None, lat_min=None, lng_min=None, la
             log('Removed identified stops that are outside of bounding box.')
             return df_subset
     else:
+        log('No GTFS feed stops were found to be outside the bounding box coordinates')
         return df
 
 def _checkcoordinates(df=None, feed_folder=None):

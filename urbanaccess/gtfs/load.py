@@ -132,7 +132,9 @@ def _txt_header_whitespace_check(csv_rootpath=os.path.join(config.settings.data_
                   'Took {:,.2f} seconds').format(time_diff)
     log(status_msg)
 
-def gtfsfeed_to_df(gtfsfeed_path=None,validation=False,verbose=True,bbox=None,remove_stops_outsidebbox=None,append_definitions=False):
+def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
+                   bbox=None, remove_stops_outsidebbox=None,
+                   append_definitions=False):
     """
     Read all GTFS feed components as a dataframe in a gtfsfeeds_dfs object and
     merge all individual GTFS feeds into a regional metropolitan data table.
@@ -160,8 +162,9 @@ def gtfsfeed_to_df(gtfsfeed_path=None,validation=False,verbose=True,bbox=None,re
     remove_stops_outsidebbox : bool
         if true stops that are outside the bbox will be removed
     append_definitions : bool
-        if true, columns that use the GTFS data schema for their attribute codes will have the corresponding GTFS
-        definition information of that code appended to the resulting dataframes for reference
+        if true, columns that use the GTFS data schema for their attribute
+        codes will have the corresponding GTFS definition information of
+        that code appended to the resulting dataframes for reference
 
     Returns
     -------
