@@ -10,8 +10,9 @@ from urbanaccess.gtfs.gtfsfeeds_dataframe import gtfsfeeds_dfs
 from urbanaccess.gtfs import utils_validation
 from urbanaccess.gtfs import utils_format
 
+
 def _standardize_txt(csv_rootpath=os.path.join(config.settings.data_folder,
-                                              'gtfsfeed_text')):
+                                               'gtfsfeed_text')):
     """
     Standardize all text files inside a GTFS feed for machine readability
 
@@ -28,8 +29,9 @@ def _standardize_txt(csv_rootpath=os.path.join(config.settings.data_folder,
     _txt_encoder_check(csv_rootpath)
     _txt_header_whitespace_check(csv_rootpath)
 
+
 def _txt_encoder_check(csv_rootpath=os.path.join(config.settings.data_folder,
-                                                'gtfsfeed_text')):
+                                                 'gtfsfeed_text')):
     """
     Standardize all text files inside a GTFS feed for encoding problems
 
@@ -43,29 +45,35 @@ def _txt_encoder_check(csv_rootpath=os.path.join(config.settings.data_folder,
     -------
     None
     """
-    #UnicodeDecodeError
+    # UnicodeDecodeError
     start_time = time.time()
     folderlist = [foldername for foldername in os.listdir(csv_rootpath) if
                   os.path.isdir(os.path.join(csv_rootpath, foldername))]
     if not folderlist:
         folderlist = [csv_rootpath]
     for folder in folderlist:
-        textfilelist = [textfilename for textfilename in os.listdir(os.path.join(csv_rootpath,folder)) if textfilename.endswith(".txt")]
+        textfilelist = [textfilename for textfilename in
+                        os.listdir(os.path.join(csv_rootpath, folder)) if
+                        textfilename.endswith(".txt")]
         for textfile in textfilelist:
             # Read from file
-            file_open = open(os.path.join(csv_rootpath,folder,textfile))
+            file_open = open(os.path.join(csv_rootpath, folder, textfile))
             raw = file_open.read()
             file_open.close()
             if raw.startswith(codecs.BOM_UTF8):
                 raw = raw.replace(codecs.BOM_UTF8, '', 1)
                 # Write to file
-                file_open = open(os.path.join(csv_rootpath,folder,textfile), 'w')
+                file_open = open(os.path.join(csv_rootpath, folder, textfile),
+                                 'w')
                 file_open.write(raw)
                 file_open.close()
-    log('GTFS text file encoding check completed. Took {:,.2f} seconds'.format(time.time()-start_time))
+    log('GTFS text file encoding check completed. Took {:,.2f} seconds'.format(
+        time.time() - start_time))
 
-def _txt_header_whitespace_check(csv_rootpath=os.path.join(config.settings.data_folder,
-                                                          'gtfsfeed_text')):
+
+def _txt_header_whitespace_check(
+        csv_rootpath=os.path.join(config.settings.data_folder,
+                                  'gtfsfeed_text')):
     """
     Standardize all text files inside a GTFS feed to remove whitespace
     in headers
@@ -86,16 +94,22 @@ def _txt_header_whitespace_check(csv_rootpath=os.path.join(config.settings.data_
     if not folderlist:
         folderlist = [csv_rootpath]
     for folder in folderlist:
-        textfilelist = [textfilename for textfilename in os.listdir(os.path.join(csv_rootpath,folder)) if textfilename.endswith(".txt")]
+        textfilelist = [textfilename for textfilename in
+                        os.listdir(os.path.join(csv_rootpath, folder)) if
+                        textfilename.endswith(".txt")]
         for textfile in textfilelist:
             # Read from file
-            with open(os.path.join(csv_rootpath,folder,textfile)) as f:
+            with open(os.path.join(csv_rootpath, folder, textfile)) as f:
                 lines = f.readlines()
             lines[0] = re.sub(r'\s+', '', lines[0]) + '\n'
             # Write to file
-            with open(os.path.join(csv_rootpath,folder,textfile), 'w') as f:
+            with open(os.path.join(csv_rootpath, folder, textfile), 'w') as f:
                 f.writelines(lines)
-    log('GTFS text file header whitespace check completed. Took {:,.2f} seconds'.format(time.time()-start_time))
+    log(
+        'GTFS text file header whitespace check completed. Took {:,'
+        '.2f} seconds'.format(
+            time.time() - start_time))
+
 
 def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
                    bbox=None, remove_stops_outsidebbox=None,
@@ -153,14 +167,23 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
     start_time = time.time()
 
     if gtfsfeed_path is None:
-        gtfsfeed_path=os.path.join(config.settings.data_folder,'gtfsfeed_text')
-        assert os.path.exists(gtfsfeed_path), '{} does not exist'.format(gtfsfeed_path)
+        gtfsfeed_path = os.path.join(config.settings.data_folder,
+                                     'gtfsfeed_text')
+        if not os.path.exists(gtfsfeed_path):
+            raise ValueError('{} does not exist'.format(gtfsfeed_path))
     else:
-        assert os.path.exists(gtfsfeed_path), '{} does not exist'.format(gtfsfeed_path)
-    assert isinstance(gtfsfeed_path,str)
+        if not os.path.exists(gtfsfeed_path):
+            raise ValueError('{} does not exist'.format(gtfsfeed_path))
+    if not isinstance(gtfsfeed_path, str):
+        raise ValueError('gtfsfeed_path must be a string')
 
     if validation:
-        assert bbox is not None and remove_stops_outsidebbox is not None and verbose is not None, 'Attempted to run validation but bbox, verbose, and or remove_stops_outsidebbox were set to None. These paramters must be specified for validation.'
+        if bbox is None and remove_stops_outsidebbox is None and verbose is \
+                None:
+            raise ValueError(
+                'Attempted to run validation but bbox, verbose, and or '
+                'remove_stops_outsidebbox were set to None. These parameters '
+                'must be specified for validation.')
 
     _standardize_txt(csv_rootpath=gtfsfeed_path)
 
@@ -169,84 +192,118 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
     if not folderlist:
         folderlist = [gtfsfeed_path]
     for folder in folderlist:
-        textfilelist = [textfilename for textfilename in os.listdir(os.path.join(gtfsfeed_path,folder)) if textfilename.endswith(".txt")]
-        required_gtfsfiles = ['stops.txt','routes.txt','trips.txt','stop_times.txt','calendar.txt','calendar_dates.txt']
+        textfilelist = [textfilename for textfilename in
+                        os.listdir(os.path.join(gtfsfeed_path, folder)) if
+                        textfilename.endswith(".txt")]
+        required_gtfsfiles = ['stops.txt', 'routes.txt', 'trips.txt',
+                              'stop_times.txt', 'calendar.txt',
+                              'calendar_dates.txt']
         for required_file in required_gtfsfiles:
-            assert required_file in textfilelist, '{} is a required GTFS text file and ' \
-                                                  'was not found in folder {}'.format(required_file,
-                                                                                      os.path.join(gtfsfeed_path,folder))
+            if required_file not in textfilelist:
+                raise ValueError(
+                    '{} is a required GTFS text file and was not found in '
+                    'folder {}'.format(
+                    required_file,
+                    os.path.join(gtfsfeed_path, folder)))
+
         for textfile in textfilelist:
             if textfile == 'agency.txt':
-                agency_df = utils_format._read_gtfs_agency(textfile_path=os.path.join(gtfsfeed_path, folder),
-                                                           textfile=textfile)
+                agency_df = utils_format._read_gtfs_agency(
+                    textfile_path=os.path.join(gtfsfeed_path, folder),
+                    textfile=textfile)
             if textfile == 'stops.txt':
-                stops_df = utils_format._read_gtfs_stops(textfile_path=os.path.join(gtfsfeed_path, folder),
-                                                         textfile=textfile)
+                stops_df = utils_format._read_gtfs_stops(
+                    textfile_path=os.path.join(gtfsfeed_path, folder),
+                    textfile=textfile)
             if textfile == 'routes.txt':
-                routes_df = utils_format._read_gtfs_routes(textfile_path=os.path.join(gtfsfeed_path, folder),
-                                                           textfile=textfile)
+                routes_df = utils_format._read_gtfs_routes(
+                    textfile_path=os.path.join(gtfsfeed_path, folder),
+                    textfile=textfile)
             if textfile == 'trips.txt':
-                trips_df = utils_format._read_gtfs_trips(textfile_path=os.path.join(gtfsfeed_path, folder),
-                                                         textfile=textfile)
+                trips_df = utils_format._read_gtfs_trips(
+                    textfile_path=os.path.join(gtfsfeed_path, folder),
+                    textfile=textfile)
             if textfile == 'stop_times.txt':
-                stop_times_df = utils_format._read_gtfs_stop_times(textfile_path=os.path.join(gtfsfeed_path, folder),
-                                                                   textfile=textfile)
+                stop_times_df = utils_format._read_gtfs_stop_times(
+                    textfile_path=os.path.join(gtfsfeed_path, folder),
+                    textfile=textfile)
             if textfile == 'calendar.txt':
-                calendar_df = utils_format._read_gtfs_calendar(textfile_path=os.path.join(gtfsfeed_path, folder),
-                                                               textfile=textfile)
+                calendar_df = utils_format._read_gtfs_calendar(
+                    textfile_path=os.path.join(gtfsfeed_path, folder),
+                    textfile=textfile)
             if textfile == 'calendar_dates.txt':
-                calendar_dates_df = utils_format._read_gtfs_calendar_dates(textfile_path=os.path.join(gtfsfeed_path, folder),
-                                                                           textfile=textfile)
+                calendar_dates_df = utils_format._read_gtfs_calendar_dates(
+                    textfile_path=os.path.join(gtfsfeed_path, folder),
+                    textfile=textfile)
 
-        stops_df, routes_df, trips_df, stop_times_df, calendar_df, calendar_dates_df = utils_format._add_unique_agencyid(agency_df=agency_df,
-                                                                                                                         stops_df=stops_df,
-                                                                                                                         routes_df=routes_df,
-                                                                                                                         trips_df=trips_df,
-                                                                                                                         stop_times_df=stop_times_df,
-                                                                                                                         calendar_df=calendar_df,
-                                                                                                                         calendar_dates_df=calendar_dates_df,
-                                                                                                                         nulls_as_folder=True,
-                                                                                                                         feed_folder=os.path.join(gtfsfeed_path, folder))
+        stops_df, routes_df, trips_df, stop_times_df, calendar_df, \
+        calendar_dates_df = utils_format._add_unique_agencyid(
+            agency_df=agency_df,
+            stops_df=stops_df,
+            routes_df=routes_df,
+            trips_df=trips_df,
+            stop_times_df=stop_times_df,
+            calendar_df=calendar_df,
+            calendar_dates_df=calendar_dates_df,
+            nulls_as_folder=True,
+            feed_folder=os.path.join(gtfsfeed_path, folder))
 
         if validation:
-            stops_df = utils_validation._validate_gtfs(stop_times_df=stop_times_df,
-                                                       stops_df=stops_df,
-                                                       feed_folder=os.path.join(gtfsfeed_path, folder),
-                                                       verbose=verbose,
-                                                       bbox=bbox,
-                                                       remove_stops_outsidebbox=remove_stops_outsidebbox)
+            stops_df = utils_validation._validate_gtfs(
+                stop_times_df=stop_times_df,
+                stops_df=stops_df,
+                feed_folder=os.path.join(gtfsfeed_path, folder),
+                verbose=verbose,
+                bbox=bbox,
+                remove_stops_outsidebbox=remove_stops_outsidebbox)
             if remove_stops_outsidebbox:
                 stops_inside_bbox = list(stops_df['stop_id'])
-                stop_times_df = stop_times_df[stop_times_df['stop_id'].isin(stops_inside_bbox)]
+                stop_times_df = stop_times_df[stop_times_df['stop_id'].isin(
+                    stops_inside_bbox)]
 
         stops_df = utils_format._append_route_type(stops_df=stops_df,
                                                    stop_times_df=stop_times_df,
-                                                   routes_df=routes_df[['route_id','route_type']],
-                                                   trips_df=trips_df[['trip_id','route_id']],
+                                                   routes_df=routes_df[
+                                                       ['route_id',
+                                                        'route_type']],
+                                                   trips_df=trips_df[
+                                                       ['trip_id',
+                                                        'route_id']],
                                                    info_to_append='route_type_to_stops')
         stop_times_df = utils_format._append_route_type(stops_df=stops_df,
                                                         stop_times_df=stop_times_df,
-                                                        routes_df=routes_df[['route_id','route_type']],
-                                                        trips_df=trips_df[['trip_id','route_id']],
+                                                        routes_df=routes_df[
+                                                            ['route_id',
+                                                             'route_type']],
+                                                        trips_df=trips_df[
+                                                            ['trip_id',
+                                                             'route_id']],
                                                         info_to_append='route_type_to_stop_times')
 
-        merged_stops_df = merged_stops_df.append(stops_df,ignore_index=True)
-        merged_routes_df = merged_routes_df.append(routes_df,ignore_index=True)
-        merged_trips_df = merged_trips_df.append(trips_df,ignore_index=True)
-        merged_stop_times_df = merged_stop_times_df.append(stop_times_df,ignore_index=True)
-        merged_calendar_df = merged_calendar_df.append(calendar_df,ignore_index=True)
-        merged_calendar_dates_df = merged_calendar_dates_df.append(calendar_dates_df,ignore_index=True)
+        merged_stops_df = merged_stops_df.append(stops_df, ignore_index=True)
+        merged_routes_df = merged_routes_df.append(routes_df,
+                                                   ignore_index=True)
+        merged_trips_df = merged_trips_df.append(trips_df, ignore_index=True)
+        merged_stop_times_df = merged_stop_times_df.append(stop_times_df,
+                                                           ignore_index=True)
+        merged_calendar_df = merged_calendar_df.append(calendar_df,
+                                                       ignore_index=True)
+        merged_calendar_dates_df = merged_calendar_dates_df.append(
+            calendar_dates_df, ignore_index=True)
 
         # print break to visually separate each gtfs feed log
         log('--------------------------------')
 
     if append_definitions:
-        merged_stops_df, merged_routes_df, merged_stop_times_df, merged_trips_df = utils_format._add_txt_definitions(stops_df=merged_stops_df,
-                                                                                                                     routes_df=merged_routes_df,
-                                                                                                                     stop_times_df=merged_stop_times_df,
-                                                                                                                     trips_df=merged_trips_df)
+        merged_stops_df, merged_routes_df, merged_stop_times_df, \
+        merged_trips_df = utils_format._add_txt_definitions(
+            stops_df=merged_stops_df,
+            routes_df=merged_routes_df,
+            stop_times_df=merged_stop_times_df,
+            trips_df=merged_trips_df)
 
-    merged_stop_times_df = utils_format._timetoseconds(df=merged_stop_times_df, time_cols=['departure_time', 'arrival_time'])
+    merged_stop_times_df = utils_format._timetoseconds(
+        df=merged_stop_times_df, time_cols=['departure_time', 'arrival_time'])
 
     # set gtfsfeeds_dfs object to merged GTFS dfs
     gtfsfeeds_dfs.stops = merged_stops_df
@@ -256,6 +313,9 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
     gtfsfeeds_dfs.calendar = merged_calendar_df
     gtfsfeeds_dfs.calendar_dates = merged_calendar_dates_df
 
-    log('{} GTFS feed files successfully read as dataframes: {}. Took {:,.2f} seconds'.format(len(folderlist),folderlist,time.time()-start_time))
+    log(
+        '{} GTFS feed files successfully read as dataframes: {}. Took {:,'
+        '.2f} seconds'.format(
+            len(folderlist), folderlist, time.time() - start_time))
 
     return gtfsfeeds_dfs
