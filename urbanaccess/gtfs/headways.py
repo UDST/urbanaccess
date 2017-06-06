@@ -28,8 +28,10 @@ def _calc_headways_by_route_stop(df):
 
     start_time = time.time()
 
-    delimiter = ','
-    df['unique_stop_route'] = df[['unique_stop_id','unique_route_id']].apply(lambda x : '{}{}{}'.format(x[0],delimiter,x[1]), axis=1)
+    df['unique_stop_route'] = (
+        df['unique_stop_id'].str.cat(
+            df['unique_route_id'].astype('str'), sep=','))
+
     stop_route_groups = df.groupby('unique_stop_route')
     log('Starting route stop headway calculation for {:,} route stops...'.format(len(stop_route_groups)))
     results = {}
@@ -72,8 +74,12 @@ def _headway_handler(interpolated_stop_times_df, trips_df,
     start_time = time.time()
 
     # add unique trip and route id
-    trips_df['unique_trip_id'] = trips_df[['trip_id','unique_agency_id']].apply(lambda x : '{}_{}'.format(x[0],x[1]), axis=1)
-    trips_df['unique_route_id'] = trips_df[['route_id','unique_agency_id']].apply(lambda x : '{}_{}'.format(x[0],x[1]), axis=1)
+    trips_df['unique_trip_id'] = (
+        trips_df['trip_id'].str.cat(
+            trips_df['unique_agency_id'].astype('str'), sep='_'))
+    trips_df['unique_route_id'] = (
+        trips_df['route_id'].str.cat(
+            trips_df['unique_agency_id'].astype('str'), sep='_'))
 
     columns = ['unique_route_id','service_id','unique_trip_id','unique_agency_id']
     # if these optional cols exist then keep those that do
@@ -85,7 +91,10 @@ def _headway_handler(interpolated_stop_times_df, trips_df,
     trips_df = trips_df[columns]
 
     # add unique route id
-    routes_df['unique_route_id'] = routes_df[['route_id','unique_agency_id']].apply(lambda x : '{}_{}'.format(x[0],x[1]), axis=1)
+    routes_df['unique_route_id'] = (
+        routes_df['route_id'].str.cat(
+            routes_df['unique_agency_id'].astype('str'), sep='_'))
+
     columns = ['unique_route_id','route_long_name','route_type','unique_agency_id']
     routes_df = routes_df[columns]
 
@@ -102,7 +111,9 @@ def _headway_handler(interpolated_stop_times_df, trips_df,
     #add unique route stop node_id
     headway_by_routestop_df = pd.merge(headway_by_routestop_df, merge_df[['unique_stop_route','unique_stop_id','unique_route_id']], how='left', left_index = True, right_on='unique_stop_route', sort=False)
     headway_by_routestop_df.drop('unique_stop_route', axis=1, inplace=True)
-    headway_by_routestop_df['node_id_route'] = headway_by_routestop_df[['unique_stop_id','unique_route_id']].apply(lambda x : '{}_{}'.format(x[0],x[1]), axis=1)
+    headway_by_routestop_df['node_id_route'] = (
+        headway_by_routestop_df['unique_stop_id'].str.cat(
+            headway_by_routestop_df['unique_route_id'].astype('str'), sep='_'))
 
     log('headway calculation complete. Took {:,.2f} seconds'.format(time.time()-start_time))
 

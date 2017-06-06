@@ -133,8 +133,14 @@ def integrate_network(urbanaccess_network=None,headways=False,
         if 'node_id_to' not in urbanaccess_network.transit_edges.columns and 'to' in urbanaccess_network.transit_edges.columns:
             urbanaccess_network.transit_edges.rename(columns={'to': 'node_id_to'},inplace=True)
 
-        urbanaccess_network.transit_edges['node_id_route_from'] = urbanaccess_network.transit_edges[['node_id_from','unique_route_id']].apply(lambda x : '{}_{}'.format(x[0],x[1]), axis=1)
-        urbanaccess_network.transit_edges['node_id_route_to'] = urbanaccess_network.transit_edges[['node_id_to','unique_route_id']].apply(lambda x : '{}_{}'.format(x[0],x[1]), axis=1)
+        urbanaccess_network.transit_edges['node_id_route_from'] = (
+            urbanaccess_network.transit_edges['node_id_from'].str.cat(
+                urbanaccess_network.transit_edges['unique_route_id'].astype(
+                    'str'), sep='_'))
+        urbanaccess_network.transit_edges['node_id_route_to'] = (
+            urbanaccess_network.transit_edges['node_id_to'].str.cat(
+                urbanaccess_network.transit_edges['unique_route_id'].astype(
+                    'str'), sep='_'))
 
         urbanaccess_network.transit_nodes = _route_id_to_node(stops_df=urbanaccess_gtfsfeeds_df.stops,
                                                               edges_w_routes=urbanaccess_network.transit_edges)
@@ -242,7 +248,9 @@ def _route_id_to_node(stops_df, edges_w_routes):
     start_time = time.time()
 
     # create unique stop ids
-    stops_df['unique_stop_id'] = stops_df[['stop_id','unique_agency_id']].apply(lambda x : '{}_{}'.format(x[0],x[1]), axis=1)
+    stops_df['unique_stop_id'] = (
+        stops_df['stop_id'].str.cat(
+            stops_df['unique_agency_id'].astype('str'), sep='_'))
 
     tmp1 = pd.merge(edges_w_routes[['node_id_from','node_id_route_from']],
                     stops_df[['unique_stop_id','stop_lat','stop_lon']],

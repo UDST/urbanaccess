@@ -191,7 +191,9 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
                   os.path.isdir(os.path.join(gtfsfeed_path, foldername))]
     if not folderlist:
         folderlist = [gtfsfeed_path]
-    for folder in folderlist:
+
+    for index, folder in enumerate(folderlist):
+
         textfilelist = [textfilename for textfilename in
                         os.listdir(os.path.join(gtfsfeed_path, folder)) if
                         textfilename.endswith(".txt")]
@@ -248,6 +250,18 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
             nulls_as_folder=True,
             feed_folder=os.path.join(gtfsfeed_path, folder))
 
+        stops_df, routes_df, trips_df, stop_times_df, calendar_df, \
+        calendar_dates_df = utils_format._add_unique_gtfsfeedid(
+            agency_df=agency_df,
+            stops_df=stops_df,
+            routes_df=routes_df,
+            trips_df=trips_df,
+            stop_times_df=stop_times_df,
+            calendar_df=calendar_df,
+            calendar_dates_df=calendar_dates_df,
+            feed_folder=folder,
+            feed_number=index)
+
         if validation:
             stops_df = utils_validation._validate_gtfs(
                 stop_times_df=stop_times_df,
@@ -303,7 +317,7 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
             trips_df=merged_trips_df)
 
     merged_stop_times_df = utils_format._timetoseconds(
-        df=merged_stop_times_df, time_cols=['departure_time', 'arrival_time'])
+        df=merged_stop_times_df, time_cols=['departure_time'])
 
     # set gtfsfeeds_dfs object to merged GTFS dfs
     gtfsfeeds_dfs.stops = merged_stops_df
@@ -314,7 +328,7 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
     gtfsfeeds_dfs.calendar_dates = merged_calendar_dates_df
 
     log(
-        '{} GTFS feed files successfully read as dataframes: {}. Took {:,'
+        '{:,} GTFS feed files successfully read as dataframes: {}. Took {:,'
         '.2f} seconds'.format(
             len(folderlist), folderlist, time.time() - start_time))
 

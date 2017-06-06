@@ -7,7 +7,7 @@ import logging as lg
 from urbanaccess.utils import log
 
 
-def _read_gtfs_agency(textfile_path=None, textfile=None):
+def _read_gtfs_agency(textfile_path, textfile):
     """
     Read gtfs agency.txt as a pandas dataframe
 
@@ -34,7 +34,7 @@ def _read_gtfs_agency(textfile_path=None, textfile=None):
     return df
 
 
-def _read_gtfs_stops(textfile_path=None, textfile=None):
+def _read_gtfs_stops(textfile_path, textfile):
     """
     Read gtfs stops.txt as a pandas dataframe
 
@@ -65,7 +65,7 @@ def _read_gtfs_stops(textfile_path=None, textfile=None):
     return df
 
 
-def _read_gtfs_routes(textfile_path=None, textfile=None):
+def _read_gtfs_routes(textfile_path, textfile):
     """
     Read gtfs routes.txt as a pandas dataframe
 
@@ -93,7 +93,7 @@ def _read_gtfs_routes(textfile_path=None, textfile=None):
     return df
 
 
-def _read_gtfs_trips(textfile_path=None, textfile=None):
+def _read_gtfs_trips(textfile_path, textfile):
     """
     Read gtfs trips.txt as a pandas dataframe
 
@@ -125,7 +125,7 @@ def _read_gtfs_trips(textfile_path=None, textfile=None):
     return df
 
 
-def _read_gtfs_stop_times(textfile_path=None, textfile=None):
+def _read_gtfs_stop_times(textfile_path, textfile):
     """
     Read stop_times.txt as a pandas dataframe
 
@@ -156,7 +156,7 @@ def _read_gtfs_stop_times(textfile_path=None, textfile=None):
     return df
 
 
-def _read_gtfs_calendar(textfile_path=None, textfile=None):
+def _read_gtfs_calendar(textfile_path, textfile):
     """
     Read gtfs calendar.txt as a pandas dataframe
 
@@ -188,7 +188,7 @@ def _read_gtfs_calendar(textfile_path=None, textfile=None):
     return df
 
 
-def _read_gtfs_calendar_dates(textfile_path=None, textfile=None):
+def _read_gtfs_calendar_dates(textfile_path, textfile):
     """
     Read gtfs calendar_dates.txt as a pandas dataframe
 
@@ -216,8 +216,8 @@ def _read_gtfs_calendar_dates(textfile_path=None, textfile=None):
     return df
 
 
-def _calendar_dates_agencyid(calendar_dates_df=None, routes_df=None,
-                             trips_df=None, agency_df=None):
+def _calendar_dates_agencyid(calendar_dates_df, routes_df,
+                             trips_df, agency_df):
     """
     Assign unique agency id to calendar dates dataframe
 
@@ -255,8 +255,8 @@ def _calendar_dates_agencyid(calendar_dates_df=None, routes_df=None,
     return merged_df
 
 
-def _calendar_agencyid(calendar_df=None, routes_df=None, trips_df=None,
-                       agency_df=None):
+def _calendar_agencyid(calendar_df, routes_df, trips_df,
+                       agency_df):
     """
     Assign unique agency id to calendar dataframe
 
@@ -296,7 +296,7 @@ def _calendar_agencyid(calendar_df=None, routes_df=None, trips_df=None,
     return merged_df
 
 
-def _trips_agencyid(trips_df=None, routes_df=None, agency_df=None):
+def _trips_agencyid(trips_df, routes_df, agency_df):
     """
     Assign unique agency id to trips dataframe
 
@@ -327,8 +327,8 @@ def _trips_agencyid(trips_df=None, routes_df=None, agency_df=None):
     return merged_df
 
 
-def _stops_agencyid(stops_df=None, trips_df=None, routes_df=None,
-                    stop_times_df=None, agency_df=None):
+def _stops_agencyid(stops_df, trips_df, routes_df,
+                    stop_times_df, agency_df):
     """
     Assign unique agency id to stops dataframe
 
@@ -370,7 +370,7 @@ def _stops_agencyid(stops_df=None, trips_df=None, routes_df=None,
     return merged_df
 
 
-def _routes_agencyid(routes_df=None, agency_df=None):
+def _routes_agencyid(routes_df, agency_df):
     """
     Assign unique agency id to routes dataframe
 
@@ -397,8 +397,8 @@ def _routes_agencyid(routes_df=None, agency_df=None):
     return merged_df
 
 
-def _stop_times_agencyid(stop_times_df=None, routes_df=None, trips_df=None,
-                         agency_df=None):
+def _stop_times_agencyid(stop_times_df, routes_df, trips_df,
+                         agency_df):
     """
     Assign unique agency id to stop times dataframe
 
@@ -434,10 +434,9 @@ def _stop_times_agencyid(stop_times_df=None, routes_df=None, trips_df=None,
     return merged_df
 
 
-def _add_unique_agencyid(agency_df=None, stops_df=None, routes_df=None,
-                         trips_df=None, stop_times_df=None, calendar_df=None,
-                         calendar_dates_df=None, nulls_as_folder=True,
-                         feed_folder=None):
+def _add_unique_agencyid(agency_df, stops_df, routes_df,
+                         trips_df, stop_times_df, calendar_df, feed_folder,
+                         calendar_dates_df=None, nulls_as_folder=True):
     """
     Create a unique agency id for all gtfs feed dataframes to enable unique
     relational table keys
@@ -456,17 +455,17 @@ def _add_unique_agencyid(agency_df=None, stops_df=None, routes_df=None,
         stop times dataframe
     calendar_df : pandas:DataFrame
         calendar dataframe
-    calendar_dates_df : pandas:DataFrame
+    feed_folder : str
+        name of gtfs feed folder
+    calendar_dates_df : pandas:DataFrame, optional
         calendar dates dataframe
     nulls_as_folder : bool, optional
         if true, gtfs feeds where the agency id is null, the gtfs folder
         name will be used as the unique agency id
-    feed_folder : str
-        name of gtfs feed folder
     Returns
     -------
-    stops_df,routes_df,trips_df,stop_times_df,calendar_df,calendar_dates_df
-    : pandas.DataFrame
+    stops_df, routes_df, trips_df, stop_times_df, calendar_df,
+    calendar_dates_df : pandas.DataFrame
     """
     start_time = time.time()
 
@@ -612,7 +611,62 @@ def _add_unique_agencyid(agency_df=None, stops_df=None, routes_df=None,
     return df_list
 
 
-def _timetoseconds(df=None, time_cols=None):
+def _add_unique_gtfsfeed_id(agency_df, stops_df, routes_df, trips_df,
+                            stop_times_df, calendar_df, calendar_dates_df,
+                            feed_folder, feed_number):
+    """
+    Create a unique GTFS feed specific id for all gtfs feed dataframes to
+    enable tracking of specific feeds
+
+    Parameters
+    ----------
+    agency_df : pandas:DataFrame
+        agency dataframe
+    stops_df : pandas:DataFrame
+        stops dataframe
+    routes_df : pandas:DataFrame
+        routes dataframe
+    trips_df : pandas:DataFrame
+        trips dataframe
+    stop_times_df : pandas:DataFrame
+        stop times dataframe
+    calendar_df : pandas:DataFrame
+        calendar dataframe
+    calendar_dates_df : pandas:DataFrame
+        calendar dates dataframe
+    feed_folder : str
+        name of gtfs feed folder
+    feed_number : int
+        current number iteration of gtfs feed being read in root directory
+    Returns
+    -------
+    stops_df, routes_df, trips_df, stop_times_df, calendar_df,
+    calendar_dates_df : pandas.DataFrame
+    """
+    start_time = time.time()
+
+    df_list = [agency_df,
+               stops_df,
+               routes_df,
+               trips_df,
+               stop_times_df,
+               calendar_df,
+               calendar_dates_df]
+
+    # standardize feed_folder name
+    feed_folder = sub(r'\s+', '_', feed_folder).replace('&', 'and').lower()
+
+    for index, df in enumerate(df_list):
+        # create new unique_feed_id column based on the name of the feed folder
+        df['unique_feed_id'] = str.join(feed_folder, '_', str(feed_number))
+        df_list[index] = df
+
+    log('Unique GTFS feed id operation complete. Took {:,.2f} seconds'.format(
+        time.time() - start_time))
+    return df_list
+
+
+def _timetoseconds(df, time_cols):
     """
     Convert default GTFS stop time departure and arrival times from 24 hour
     clock to seconds past midnight
@@ -622,7 +676,8 @@ def _timetoseconds(df=None, time_cols=None):
     df : pandas:DataFrame
         stop time dataframe
     time_cols : list
-        list of columns to convert from 24 hour clock to seconds past midnight
+        list of columns to convert from 24 hour clock to seconds past
+        midnight. Default column is 'departure_time'.
 
     Returns
     -------
@@ -683,7 +738,7 @@ def _timetoseconds(df=None, time_cols=None):
     return final_df
 
 
-def _stops_definitions(df=None):
+def _stops_definitions(df):
     """
     Append GTFS definitions for stop columns to stop dataframe
 
@@ -712,7 +767,7 @@ def _stops_definitions(df=None):
     return df
 
 
-def _routes_definitions(df=None):
+def _routes_definitions(df):
     """
     Append GTFS definitions for route columns to route dataframe
 
@@ -739,7 +794,7 @@ def _routes_definitions(df=None):
     return df
 
 
-def _stop_times_definitions(df=None):
+def _stop_times_definitions(df):
     """
     Append GTFS definitions for stop time columns to stop time dataframe
 
@@ -777,7 +832,7 @@ def _stop_times_definitions(df=None):
     return df
 
 
-def _trips_definitions(df=None):
+def _trips_definitions(df):
     """
     Append GTFS definitions for trip columns to trip dataframe
 
@@ -806,8 +861,8 @@ def _trips_definitions(df=None):
     return df
 
 
-def _add_txt_definitions(stops_df=None, routes_df=None, stop_times_df=None,
-                         trips_df=None):
+def _add_txt_definitions(stops_df, routes_df, stop_times_df,
+                         trips_df):
     """
     Append GTFS definitions to stops, routes, stop times, and trips dataframes
 
@@ -838,8 +893,8 @@ def _add_txt_definitions(stops_df=None, routes_df=None, stop_times_df=None,
     return stops_df, routes_df, stop_times_df, trips_df
 
 
-def _append_route_type(stops_df=None, stop_times_df=None, routes_df=None,
-                       trips_df=None, info_to_append=None):
+def _append_route_type(stops_df, stop_times_df, routes_df,
+                       trips_df, info_to_append):
     """
     Append GTFS route type definitions to stops and stop times dataframes
 

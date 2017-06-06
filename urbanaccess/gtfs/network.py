@@ -12,8 +12,8 @@ pd.options.mode.chained_assignment = None
 
 
 def create_transit_net(gtfsfeeds_dfs, day,
+                       timerange,
                        calendar_dates_lookup=None,
-                       timerange=None,
                        overwrite_existing_stop_times_int=False,
                        use_existing_stop_times_int=False,
                        save_processed_gtfs=False,
@@ -27,18 +27,12 @@ def create_transit_net(gtfsfeeds_dfs, day,
     ----------
     gtfsfeeds_dfs : object
         gtfsfeeds_dfs object with dataframes of stops, routes, trips,
-        stop_times, calendar, and stop_times_int (optional)
-    day : {'friday','monday','saturday', 'sunday','thursday','tuesday',
+        stop_times, calendar, calendar_dates (optional) and
+        stop_times_int (optional)
+    day : {'friday', 'monday', 'saturday', 'sunday', 'thursday', 'tuesday',
     'wednesday'}
         day of the week to extract transit schedule from that
         corresponds to the day in the GTFS calendar
-    calendar_dates_lookup : dict, optional
-        dictionary of the lookup column (key) as a string and corresponding
-        string (value) a s string or list of strings to use to subset trips
-        using the calendar_dates dataframe. Search will be exact. If none,
-        then the calendar_dates dataframe will not be used to select trips
-        that are not in the calendar dataframe.
-        Example: {'schedule_type' : 'WD'} or {'schedule_type' : ['WD','SU']}
     timerange : list
         time range to extract transit schedule from in a list with time
         1 and time 2. it is suggested the time range
@@ -47,20 +41,27 @@ def create_transit_net(gtfsfeeds_dfs, day,
         to represent a relevant travel time period such as a 3 hour window
         for the AM Peak period. must follow format
         of a 24 hour clock for example: 08:00:00 or 17:00:00
-    overwrite_existing_stop_times_int : bool
+    calendar_dates_lookup : dict, optional
+        dictionary of the lookup column (key) as a string and corresponding
+        string (value) as string or list of strings to use to subset trips
+        using the calendar_dates dataframe. Search will be exact. If none,
+        then the calendar_dates dataframe will not be used to select trips
+        that are not in the calendar dataframe.
+        Example: {'schedule_type' : 'WD'} or {'schedule_type' : ['WD','SU']}
+    overwrite_existing_stop_times_int : bool, optional
         if true, and if there is an existing stop_times_int
         dataframe stored in the gtfsfeeds_dfs object it will be
         overwritten
-    use_existing_stop_times_int : bool
+    use_existing_stop_times_int : bool, optional
         if true, and if there is an existing stop_times_int
         dataframe for the same time period stored in the
         gtfsfeeds_dfs object it will be used instead of re-calculated
-    save_processed_gtfs : bool
+    save_processed_gtfs : bool, optional
         if true, all processed gtfs dataframes will
         be stored to disk in a hdf5 file
-    save_dir : str
+    save_dir : str, optional
         directory to save the hdf5 file
-    save_filename : str
+    save_filename : str, optional
         name to save the hdf5 file as
 
     Returns
@@ -548,9 +549,9 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df, day):
     final_stop_times_df['departure_time_sec_interpolate'].astype(int)
 
     # add unique stop id
-    final_stop_times_df['unique_stop_id'] = final_stop_times_df[
-        ['stop_id', 'unique_agency_id']].apply(
-        lambda x: '{}_{}'.format(x[0], x[1]), axis=1)
+    final_stop_times_df['unique_stop_id'] = (
+    final_stop_times_df['stop_id'].str.cat(
+        final_stop_times_df['unique_agency_id'].astype('str'), sep='_'))
 
     if missing_stop_times_count > 0:
         log(
@@ -689,9 +690,9 @@ def _format_transit_net_edge(stop_times_df=None):
     merged_edge_df = pd.concat(merged_edge, ignore_index=True)
     merged_edge_df['sequence'] = merged_edge_df['sequence'].astype(int,
                                                                    copy=False)
-    merged_edge_df['id'] = merged_edge_df[
-        ['unique_trip_id', 'sequence']].apply(
-        lambda x: '{}_{}'.format(x[0], x[1]), axis=1)
+    merged_edge_df['id'] = (
+    merged_edge_df['unique_trip_id'].str.cat(
+        merged_edge_df['sequence'].astype('str'), sep='_'))
 
     log('stop time table transformation to '
         'Pandana format edge table completed. '
@@ -754,9 +755,9 @@ def _stops_in_edge_table_selector(input_stops_df=None,
     start_time = time.time()
 
     # add unique stop id
-    input_stops_df['unique_stop_id'] = input_stops_df[
-        ['stop_id', 'unique_agency_id']].apply(
-        lambda x: '{}_{}'.format(x[0], x[1]), axis=1)
+    input_stops_df['unique_stop_id'] = (
+    input_stops_df['stop_id'].str.cat(
+        input_stops_df['unique_agency_id'].astype('str'), sep='_'))
 
     # Select stop ids that match stop ids in the subset stop time data that
     # match day and time selection
@@ -791,8 +792,9 @@ def _format_transit_net_nodes(df=None):
 
     # add unique stop id
     if 'unique_stop_id' not in df.columns:
-        df['unique_stop_id'] = df[['stop_id', 'unique_agency_id']].apply(
-            lambda x: '{}_{}'.format(x[0], x[1]), axis=1)
+        df['unique_stop_id'] = (
+            df['stop_id'].str.cat(
+                df['unique_agency_id'].astype('str'), sep='_'))
 
     final_node_df = pd.DataFrame()
     final_node_df['node_id'] = df['unique_stop_id']
@@ -839,9 +841,9 @@ def _route_type_to_edge(transit_edge_df=None, stop_time_df=None):
     start_time = time.time()
 
     # create unique trip ids
-    stop_time_df['unique_trip_id'] = stop_time_df[
-        ['trip_id', 'unique_agency_id']].apply(
-        lambda x: '{}_{}'.format(x[0], x[1]), axis=1)
+    stop_time_df['unique_trip_id'] = (
+        stop_time_df['trip_id'].str.cat(
+            stop_time_df['unique_agency_id'].astype('str'), sep='_'))
 
     # join route_id to the edge table
     merged_df = pd.merge(transit_edge_df,
@@ -884,12 +886,12 @@ def _route_id_to_edge(transit_edge_df=None, trips_df=None):
 
     if 'unique_route_id' not in transit_edge_df.columns:
         # create unique trip and route ids
-        trips_df['unique_trip_id'] = trips_df[
-            ['trip_id', 'unique_agency_id']].apply(
-            lambda x: '{}_{}'.format(x[0], x[1]), axis=1)
-        trips_df['unique_route_id'] = trips_df[
-            ['route_id', 'unique_agency_id']].apply(
-            lambda x: '{}_{}'.format(x[0], x[1]), axis=1)
+        trips_df['unique_trip_id'] = (
+            trips_df['trip_id'].str.cat(
+                trips_df['unique_agency_id'].astype('str'), sep='_'))
+        trips_df['unique_route_id'] = (
+            trips_df['route_id'].str.cat(
+                trips_df['unique_agency_id'].astype('str'), sep='_'))
 
         transit_edge_df_with_routes = pd.merge(transit_edge_df, trips_df[
             ['unique_trip_id', 'unique_route_id']],
