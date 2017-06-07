@@ -7,7 +7,8 @@ import time
 
 from urbanaccess.utils import log
 
-def plot_net(nodes=None,edges=None,x_col='x',y_col='y',bbox=None,
+def plot_net(nodes=None,edges=None,x_col='x',y_col='y', from_col='from_int',
+             to_col='to_int', bbox=None,
              fig_height=6,margin=0.02,
              edge_color='#999999',edge_linewidth=1,edge_alpha=1,
              node_color='black',node_size=15,node_alpha=1,
@@ -23,7 +24,11 @@ def plot_net(nodes=None,edges=None,x_col='x',y_col='y',bbox=None,
         x coordinate column in nodes dataframe
     y_col : str, optional
         y coordinate column in nodes dataframe
-    bbox : tuple
+    from_col : str, optional
+        name of column to use for 'from' node id
+    to_col : str, optional
+        name of column to use for 'to' node id
+    bbox : tuple, optional
         Bounding box formatted as a 4 element tuple:
         (lng_max, lat_min, lng_min, lat_max)
         example: (-122.304611,37.798933,-122.263412,37.822802)
@@ -62,8 +67,8 @@ def plot_net(nodes=None,edges=None,x_col='x',y_col='y',bbox=None,
     start_time = time.time()
 
     # if edge df is subset make sure nodes are also subset to match
-    from_ids = nodes[nodes.index.isin(list(edges['from_int']))]
-    to_id = nodes[nodes.index.isin(list(edges['to_int']))]
+    from_ids = nodes[nodes.index.isin(list(edges[from_col]))]
+    to_id = nodes[nodes.index.isin(list(edges[to_col]))]
     node_ids = pd.concat([from_ids,to_id],ignore_index=False)
     nodes = nodes[nodes.index.isin(list(node_ids.index))]
 
@@ -76,8 +81,8 @@ def plot_net(nodes=None,edges=None,x_col='x',y_col='y',bbox=None,
                 or 'from_lat' not in edges.columns \
                 or 'from_lon' not in edges.columns:
             edges = _prep_edges(edges=edges, nodes=nodes,
-                                from_col='from_int', to_col='to_int',
-                                x_col='x', y_col='y')
+                                from_col=from_col, to_col=to_col,
+                                x_col=x_col, y_col=y_col)
 
     if bbox is None:
         y_max = max(node_Ys)
@@ -187,8 +192,8 @@ def _recursive_category_gen(col, num_bins):
         return _recursive_category_gen(col, new_bin_count)
 
 
-def _prep_edges(edges=None, nodes=None, from_col='from_int', to_col='to_int',
-                x_col='x', y_col='y'):
+def _prep_edges(edges, nodes, from_col, to_col,
+                x_col, y_col):
     """
     Prepare edges to display edges as lines on the plot
 

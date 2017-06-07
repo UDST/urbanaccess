@@ -194,6 +194,8 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
 
     for index, folder in enumerate(folderlist):
 
+        log('Processing GTFS feed: {!s}'.format(os.path.split(folder)[1]))
+
         textfilelist = [textfilename for textfilename in
                         os.listdir(os.path.join(gtfsfeed_path, folder)) if
                         textfilename.endswith(".txt")]
@@ -251,8 +253,7 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
             feed_folder=os.path.join(gtfsfeed_path, folder))
 
         stops_df, routes_df, trips_df, stop_times_df, calendar_df, \
-        calendar_dates_df = utils_format._add_unique_gtfsfeedid(
-            agency_df=agency_df,
+        calendar_dates_df = utils_format._add_unique_gtfsfeed_id(
             stops_df=stops_df,
             routes_df=routes_df,
             trips_df=trips_df,
@@ -260,7 +261,7 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
             calendar_df=calendar_df,
             calendar_dates_df=calendar_dates_df,
             feed_folder=folder,
-            feed_number=index)
+            feed_number=index+1)
 
         if validation:
             stops_df = utils_validation._validate_gtfs(
@@ -327,9 +328,10 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
     gtfsfeeds_dfs.calendar = merged_calendar_df
     gtfsfeeds_dfs.calendar_dates = merged_calendar_dates_df
 
-    log(
-        '{:,} GTFS feed files successfully read as dataframes: {}. Took {:,'
-        '.2f} seconds'.format(
-            len(folderlist), folderlist, time.time() - start_time))
+    log('{:,} GTFS feed file(s) successfully read as dataframes:'.format(
+        len(folderlist)))
+    for folder in folderlist:
+        log('     {}'.format(os.path.split(folder)[1]))
+    log('     Took {:,.2f} seconds'.format(time.time() - start_time))
 
     return gtfsfeeds_dfs
