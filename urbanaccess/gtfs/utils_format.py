@@ -218,7 +218,7 @@ def _read_gtfs_calendar_dates(textfile_path, textfile):
 
 
 def _calendar_dates_agencyid(calendar_dates_df, routes_df,
-                             trips_df, agency_df):
+                             trips_df, agency_df, feed_folder):
     """
     Assign unique agency id to calendar dates dataframe
 
@@ -232,6 +232,8 @@ def _calendar_dates_agencyid(calendar_dates_df, routes_df,
         trips dataframe
     agency_df : pandas:DataFrame
         agency dataframe
+    feed_folder : str
+        name of gtfs feed folder
 
     Returns
     -------
@@ -246,18 +248,39 @@ def _calendar_dates_agencyid(calendar_dates_df, routes_df,
 
     merged_df['unique_agency_id'] = _generate_unique_agency_id(merged_df,
                                                                'agency_name')
-    merged_df.drop_duplicates(subset='service_id', keep='first', inplace=True)
 
-    merged_df = pd.merge(calendar_dates_df,
-                         merged_df[['unique_agency_id', 'service_id']],
-                         how='left',
-                         on='service_id', sort=False, copy=False)
+    group = merged_df[['service_id', 'unique_agency_id']].groupby([
+        'service_id', 'unique_agency_id']).size()
+    group_counts = group.reset_index(level=1)
+    # check if service_ids are associated with more than one agency
+    if any(group_counts.index.value_counts().values > 1):
+        log('GTFS feed: {!s}, calendar_dates uses the same service_id across '
+            'multiple agency_ids. This feed calendar_dates table will be '
+            'modified from its original format to provide service_ids for '
+            'each agency using a one to many join'.format(os.path.split(
+            feed_folder)[1]))
 
-    return merged_df
+        tmp = merged_df[
+            ['service_id', 'unique_agency_id']].drop_duplicates(
+            ['service_id', 'unique_agency_id'], inplace=False)
+        merged_df = tmp.merge(calendar_dates_df, 'left',
+                              on='service_id')
+
+        return merged_df
+
+    else:
+
+        merged_df.drop_duplicates(subset='service_id', keep='first', inplace=True)
+        merged_df = pd.merge(calendar_dates_df,
+                             merged_df[['unique_agency_id', 'service_id']],
+                             how='left',
+                             on='service_id', sort=False, copy=False)
+
+        return merged_df
 
 
 def _calendar_agencyid(calendar_df, routes_df, trips_df,
-                       agency_df):
+                       agency_df, feed_folder):
     """
     Assign unique agency id to calendar dataframe
 
@@ -271,6 +294,8 @@ def _calendar_agencyid(calendar_df, routes_df, trips_df,
         trips dataframe
     agency_df : pandas:DataFrame
         agency dataframe
+    feed_folder : str
+        name of gtfs feed folder
 
     Returns
     -------
@@ -287,14 +312,35 @@ def _calendar_agencyid(calendar_df, routes_df, trips_df,
                          on='service_id', sort=False, copy=False)
     merged_df['unique_agency_id'] = _generate_unique_agency_id(merged_df,
                                                                'agency_name')
-    merged_df.drop_duplicates(subset='service_id', keep='first', inplace=True)
 
-    merged_df = pd.merge(calendar_df,
-                         merged_df[['unique_agency_id', 'service_id']],
-                         how='left',
-                         on='service_id', sort=False, copy=False)
+    group = merged_df[['service_id', 'unique_agency_id']].groupby([
+        'service_id', 'unique_agency_id']).size()
+    group_counts = group.reset_index(level=1)
+    # check if service_ids are associated with more than one agency
+    if any(group_counts.index.value_counts().values > 1):
+        log('GTFS feed: {!s}, calendar uses the same service_id across '
+            'multiple agency_ids. This feed calendar table will be '
+            'modified from its original format to provide service_ids for '
+            'each agency using a one to many join'.format(os.path.split(
+            feed_folder)[1]))
 
-    return merged_df
+        tmp = merged_df[
+            ['service_id', 'unique_agency_id']].drop_duplicates(
+            ['service_id', 'unique_agency_id'], inplace=False)
+        merged_df = tmp.merge(calendar_df, 'left',
+                              on='service_id')
+
+        return merged_df
+
+    else:
+
+        merged_df.drop_duplicates(subset='service_id', keep='first', inplace=True)
+        merged_df = pd.merge(calendar_df,
+                             merged_df[['unique_agency_id', 'service_id']],
+                             how='left',
+                             on='service_id', sort=False, copy=False)
+
+        return merged_df
 
 
 def _trips_agencyid(trips_df, routes_df, agency_df):
@@ -329,7 +375,7 @@ def _trips_agencyid(trips_df, routes_df, agency_df):
 
 
 def _stops_agencyid(stops_df, trips_df, routes_df,
-                    stop_times_df, agency_df):
+                    stop_times_df, agency_df, feed_folder):
     """
     Assign unique agency id to stops dataframe
 
@@ -345,6 +391,8 @@ def _stops_agencyid(stops_df, trips_df, routes_df,
         stop times dataframe
     agency_df : pandas:DataFrame
         agency dataframe
+    feed_folder : str
+        name of gtfs feed folder
 
     Returns
     -------
@@ -363,12 +411,34 @@ def _stops_agencyid(stops_df, trips_df, routes_df,
                          sort=False, copy=False)
     merged_df['unique_agency_id'] = _generate_unique_agency_id(merged_df,
                                                                'agency_name')
-    merged_df.drop_duplicates(subset='stop_id', keep='first', inplace=True)
 
-    merged_df = pd.merge(stops_df, merged_df[['unique_agency_id', 'stop_id']],
-                         how='left', on='stop_id',
-                         sort=False, copy=False)
-    return merged_df
+    group = merged_df[['stop_id', 'unique_agency_id']].groupby([
+        'stop_id', 'unique_agency_id']).size()
+    group_counts = group.reset_index(level=1)
+    # check if stop_ids are associated with more than one agency
+    if any(group_counts.index.value_counts().values > 1):
+        log('GTFS feed: {!s}, stops uses the same stop_id across '
+            'multiple agency_ids. This feed stops table will be '
+            'modified from its original format to provide stop_ids for '
+            'each agency using a one to many join'.format(os.path.split(
+            feed_folder)[1]))
+
+        tmp = merged_df[
+            ['stop_id', 'unique_agency_id']].drop_duplicates(
+            ['stop_id', 'unique_agency_id'], inplace=False)
+        merged_df = tmp.merge(stops_df, 'left',
+                              on='stop_id')
+
+        return merged_df
+
+    else:
+
+        merged_df.drop_duplicates(subset='stop_id', keep='first', inplace=True)
+        merged_df = pd.merge(stops_df,
+                             merged_df[['unique_agency_id', 'stop_id']],
+                             how='left', on='stop_id',
+                             sort=False, copy=False)
+        return merged_df
 
 
 def _routes_agencyid(routes_df, agency_df):
@@ -437,7 +507,7 @@ def _stop_times_agencyid(stop_times_df, routes_df, trips_df,
 
 def _add_unique_agencyid(agency_df, stops_df, routes_df,
                          trips_df, stop_times_df, calendar_df, feed_folder,
-                         calendar_dates_df=None, nulls_as_folder=True):
+                         calendar_dates_df, nulls_as_folder=True):
     """
     Create a unique agency id for all gtfs feed dataframes to enable unique
     relational table keys
@@ -458,7 +528,7 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
         calendar dataframe
     feed_folder : str
         name of gtfs feed folder
-    calendar_dates_df : pandas:DataFrame, optional
+    calendar_dates_df : pandas:DataFrame
         calendar dates dataframe
     nulls_as_folder : bool, optional
         if true, gtfs feeds where the agency id is null, the gtfs folder
@@ -470,8 +540,10 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
     """
     start_time = time.time()
 
-    df_list = [stops_df, routes_df, trips_df, stop_times_df, calendar_df,
-               calendar_dates_df]
+    df_list = [stops_df, routes_df, trips_df, stop_times_df, calendar_df]
+    # if calendar_dates_df is not empty then add it to the processing list
+    if calendar_dates_df.empty == False:
+        df_list.extend([calendar_dates_df])
 
     path_absent = os.path.exists(
         os.path.join(feed_folder, 'agency.txt')) == False
@@ -542,17 +614,21 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
             subset_trips_df_w_sid = trips_df[
                 ['trip_id', 'route_id', 'service_id']]
 
-            calendar_dates_replacement_df = _calendar_dates_agencyid(
-                calendar_dates_df=calendar_dates_df,
-                routes_df=subset_routes_df,
-                trips_df=subset_trips_df_w_sid,
-                agency_df=subset_agency_df)
+            # if calendar_dates_df is not empty then process it
+            if calendar_dates_df.empty == False:
+                calendar_dates_replacement_df = _calendar_dates_agencyid(
+                    calendar_dates_df=calendar_dates_df,
+                    routes_df=subset_routes_df,
+                    trips_df=subset_trips_df_w_sid,
+                    agency_df=subset_agency_df,
+                    feed_folder=feed_folder)
 
             calendar_replacement_df = _calendar_agencyid(
                 calendar_df=calendar_df,
                 routes_df=subset_routes_df,
                 trips_df=subset_trips_df_w_sid,
-                agency_df=subset_agency_df)
+                agency_df=subset_agency_df,
+                feed_folder=feed_folder)
 
             trips_replacement_df = _trips_agencyid(
                 trips_df=trips_df,
@@ -564,7 +640,8 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
                 trips_df=subset_trips_df,
                 routes_df=subset_routes_df,
                 stop_times_df=subset_stop_times_df,
-                agency_df=subset_agency_df)
+                agency_df=subset_agency_df,
+                feed_folder=feed_folder)
 
             routes_replacement_df = _routes_agencyid(
                 routes_df=routes_df,
@@ -581,8 +658,11 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
                        routes_replacement_df,
                        trips_replacement_df,
                        stop_times_replacement_df,
-                       calendar_replacement_df,
-                       calendar_dates_replacement_df]
+                       calendar_replacement_df]
+            # if calendar_dates_df is not empty then add it to the
+            # processing list
+            if calendar_dates_df.empty == False:
+                df_list.extend([calendar_dates_replacement_df])
 
             log(
                 'agency.txt agency_name column has more than one agency name '
@@ -599,13 +679,16 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
                 ''.join(['multiple_operators_', unique_agency_id]),
                 inplace=True)
             log('There are {:,} null values ({:,.2f}% of total) without a '
-                'unique agency id. '
-                'These records will be labeled as multiple_operators_ with '
-                'the GTFS file folder '
+                'unique agency id. These records will be labeled as '
+                'multiple_operators_ with the GTFS file folder '
                 'name'.format(df['unique_agency_id'].isnull().sum(), len(df),
                               round((float(df['unique_agency_id'].isnull(
                               ).sum()) / float(len(df)) * 100))))
             df_list[index] = df
+
+    # if calendar_dates_df is empty then return the original empty df
+    if calendar_dates_df.empty == True:
+        df_list.extend([calendar_dates_df])
 
     log('Unique agency id operation complete. Took {:,.2f} seconds'.format(
         time.time() - start_time))
@@ -648,8 +731,10 @@ def _add_unique_gtfsfeed_id(stops_df, routes_df, trips_df,
                routes_df,
                trips_df,
                stop_times_df,
-               calendar_df,
-               calendar_dates_df]
+               calendar_df]
+    # if calendar_dates_df is not empty then add it to the processing list
+    if calendar_dates_df.empty == False:
+        df_list.extend([calendar_dates_df])
 
     # standardize feed_folder name,
     feed_folder = sub(r'\s+', '_', os.path.split(feed_folder)[1]).replace('&',
@@ -659,6 +744,10 @@ def _add_unique_gtfsfeed_id(stops_df, routes_df, trips_df,
         # create new unique_feed_id column based on the name of the feed folder
         df['unique_feed_id'] = '_'.join([feed_folder, str(feed_number)])
         df_list[index] = df
+
+    # if calendar_dates_df is empty then return the original empty df
+    if calendar_dates_df.empty == True:
+        df_list.extend([calendar_dates_df])
 
     log('Unique GTFS feed id operation complete. Took {:,.2f} seconds'.format(
         time.time() - start_time))
@@ -754,6 +843,7 @@ def _stops_definitions(df):
         stops_location_type = {0: 'stop', 1: 'station', 2: 'station entrance'}
         df['location_type_desc'] = df['location_type'].map(
             stops_location_type.get)
+
     if 'wheelchair_boarding' in df.columns:
         stops_wheelchair_boardings = {
             0: 'No accessibility information available for the stop',
