@@ -104,9 +104,14 @@ def create_transit_net(gtfsfeeds_dfs, day,
                'direction_id',
                'trip_id',
                'service_id',
-               'unique_agency_id']
+               'unique_agency_id',
+               'unique_feed_id']
     if 'direction_id' not in gtfsfeeds_dfs.trips.columns:
         columns.remove('direction_id')
+
+    _calendar_unique_service_id(input_trips_df=gtfsfeeds_dfs.trips,
+                                input_calendar_df=gtfsfeeds_dfs.calendar)
+
     calendar_selected_trips_df = _trip_schedule_selector(
         input_trips_df=gtfsfeeds_dfs.trips[columns],
         input_calendar_df=gtfsfeeds_dfs.calendar,
@@ -178,6 +183,74 @@ def create_transit_net(gtfsfeeds_dfs, day,
     return ua_network
 
 
+def _calendar_unique_service_id(input_trips_df, input_calendar_df):
+    """
+    For each GTFS feed calendar, check if it does not have unique service_ids
+    for each agency. If service_ids are used across agencies then create
+    unique service_ids that are unique to each agency as the
+    unique_service_id column.
+
+    Parameters
+    ----------
+    input_trips_df : pandas.DataFrame
+        trips dataframe
+    input_calendar_df : pandas.DataFrame
+        calendar dataframe
+
+    Returns
+    -------
+    gtfsfeeds_dfs.calendar : pandas.DataFrame
+
+    """
+
+    # loop through sets of calendar records from each GTFS feed
+    for feed_id in input_trips_df['unique_feed_id'].unique():
+
+        # generate counts of unique agencies that use the same service_id
+        calendar_subset = input_calendar_df.loc[input_calendar_df[
+                                                    'unique_feed_id'] ==
+                                                feed_id]
+        trips_subset = input_trips_df.loc[input_trips_df[
+                                              'unique_feed_id'] == feed_id]
+        group = trips_subset[['service_id', 'unique_agency_id']].groupby([
+            'service_id', 'unique_agency_id']).size()
+        group_counts = group.reset_index(level=1)
+
+        # check if service_ids are associated with more than one agency
+        if any(group_counts.index.value_counts().values > 1):
+            log('GTFS feed, {!s}, calendar uses the same service_id across '
+                'multiple agency_ids. This feed calendar table will be '
+                'modified to provide a unique_service_id for each '
+                'agency'.format(feed_id.split('_')[:-1][0]))
+
+            trips_subset['unique_service_id'] = (
+            trips_subset['service_id'].str.cat(
+                trips_subset['unique_agency_id'].astype('str'),
+                sep='_'))
+
+            tmp = trips_subset[
+                ['service_id', 'unique_service_id']].drop_duplicates(
+                'unique_service_id', inplace=False)
+            new_calendar_subset = tmp.merge(calendar_subset, 'left',
+                                            on='service_id')
+
+            # update global calendar with new reformatted calendar
+            # drop records from feed_id that we want to replace with the new
+            #  records and replace records
+            gtfsfeeds_dfs.calendar = gtfsfeeds_dfs.calendar[
+                gtfsfeeds_dfs.calendar['unique_feed_id'] != feed_id]
+            gtfsfeeds_dfs.calendar = gtfsfeeds_dfs.calendar.append(
+                new_calendar_subset,
+                ignore_index=True)
+            log('{!s} calendar has been updated.'.format(
+                feed_id.split('_')[:-1][0]))
+
+        else:
+            log('GTFS feed, {!s}, calendar uses unique service_ids across '
+                'multiple agency_ids. No modification is necessary.'.format(
+                feed_id.split('_')[:-1][0]))
+
+
 def _trip_schedule_selector(input_trips_df, input_calendar_df,
                             input_calendar_dates_df, day,
                             calendar_dates_lookup=None):
@@ -247,9 +320,10 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
     df_list = [input_trips_df, input_calendar_df, input_calendar_dates_df]
 
     for df in df_list:
-        df['unique_service_id'] = (df['service_id'].str.cat(
-                df['unique_agency_id'].astype('str'),
-                sep='_'))
+        if 'unique_service_id' not in df.columns:
+            df['unique_service_id'] = (df['service_id'].str.cat(
+                    df['unique_agency_id'].astype('str'),
+                    sep='_'))
 
     # select service ids where day specified has a 1 = service runs on that day
     log('Using calendar to extract service_ids to select trips.')
@@ -329,7 +403,8 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
         subset_result_df.drop_duplicates(inplace=True)
         subset_result_df = subset_result_df[['unique_service_id']]
 
-        log('{:,} service_ids were extracted from calendar_dates'.format(len(
+        log('An additional {:,} service_ids were extracted from '
+            'calendar_dates'.format(len(
             subset_result_df)))
         input_calendar_df = input_calendar_df.append(subset_result_df)
         input_calendar_df.drop_duplicates(inplace=True)
