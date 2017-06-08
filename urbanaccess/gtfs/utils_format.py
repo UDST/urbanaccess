@@ -25,7 +25,7 @@ def _read_gtfs_agency(textfile_path, textfile):
     if textfile != 'agency.txt':
         raise ValueError('{} is not a proper GTFS file name'.format(textfile))
 
-    df = pd.read_csv(os.path.join(textfile_path, textfile))
+    df = pd.read_csv(os.path.join(textfile_path, textfile), low_memory=False)
     if len(df) == 0:
         raise ValueError('{} has no records'.format(os.path.join(
             textfile_path, textfile)))
@@ -53,7 +53,7 @@ def _read_gtfs_stops(textfile_path, textfile):
         raise ValueError('{} is not a proper GTFS file name'.format(textfile))
 
     df = pd.read_csv(os.path.join(textfile_path, textfile),
-                     dtype={'stop_id': object})
+                     dtype={'stop_id': object}, low_memory=False)
 
     df['stop_lat'] = pd.to_numeric(df['stop_lat'])
     df['stop_lon'] = pd.to_numeric(df['stop_lon'])
@@ -84,7 +84,7 @@ def _read_gtfs_routes(textfile_path, textfile):
         raise ValueError('{} is not a proper GTFS file name'.format(textfile))
 
     df = pd.read_csv(os.path.join(textfile_path, textfile),
-                     dtype={'route_id': object})
+                     dtype={'route_id': object}, low_memory=False)
     if len(df) == 0:
         raise ValueError('{} has no records'.format(os.path.join(
             textfile_path, textfile)))
@@ -115,7 +115,8 @@ def _read_gtfs_trips(textfile_path, textfile):
                      dtype={'trip_id': object,
                             'service_id': object,
                             'route_id': object,
-                            7: object})  # 7 is placeholder for shape id
+                            7: object}, low_memory=False)
+    # 7 is placeholder for shape id
     # which may not exist in some txt files
     if len(df) == 0:
         raise ValueError('{} has no records'.format(os.path.join(
@@ -147,7 +148,7 @@ def _read_gtfs_stop_times(textfile_path, textfile):
                      dtype={'trip_id': object,
                             'stop_id': object,
                             'departure_time': object,
-                            'arrival_time': object})
+                            'arrival_time': object}, low_memory=False)
     if len(df) == 0:
         raise ValueError('{} has no records'.format(os.path.join(
             textfile_path, textfile)))
@@ -175,7 +176,7 @@ def _read_gtfs_calendar(textfile_path, textfile):
         raise ValueError('{} is not a proper GTFS file name'.format(textfile))
 
     df = pd.read_csv(os.path.join(textfile_path, textfile),
-                     dtype={'service_id': object})
+                     dtype={'service_id': object}, low_memory=False)
     columnlist = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday',
                   'saturday', 'sunday']
     for col in columnlist:
@@ -207,7 +208,7 @@ def _read_gtfs_calendar_dates(textfile_path, textfile):
         raise ValueError('{} is not a proper GTFS file name'.format(textfile))
 
     df = pd.read_csv(os.path.join(textfile_path, textfile),
-                     dtype={'service_id': object})
+                     dtype={'service_id': object}, low_memory=False)
     if len(df) == 0:
         raise ValueError('{} has no records'.format(os.path.join(
             textfile_path, textfile)))
@@ -611,7 +612,7 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
     return df_list
 
 
-def _add_unique_gtfsfeed_id(agency_df, stops_df, routes_df, trips_df,
+def _add_unique_gtfsfeed_id(stops_df, routes_df, trips_df,
                             stop_times_df, calendar_df, calendar_dates_df,
                             feed_folder, feed_number):
     """
@@ -620,8 +621,6 @@ def _add_unique_gtfsfeed_id(agency_df, stops_df, routes_df, trips_df,
 
     Parameters
     ----------
-    agency_df : pandas:DataFrame
-        agency dataframe
     stops_df : pandas:DataFrame
         stops dataframe
     routes_df : pandas:DataFrame
@@ -645,20 +644,20 @@ def _add_unique_gtfsfeed_id(agency_df, stops_df, routes_df, trips_df,
     """
     start_time = time.time()
 
-    df_list = [agency_df,
-               stops_df,
+    df_list = [stops_df,
                routes_df,
                trips_df,
                stop_times_df,
                calendar_df,
                calendar_dates_df]
 
-    # standardize feed_folder name
-    feed_folder = sub(r'\s+', '_', feed_folder).replace('&', 'and').lower()
+    # standardize feed_folder name,
+    feed_folder = sub(r'\s+', '_', os.path.split(feed_folder)[1]).replace('&',
+                                                                          'and').lower()
 
     for index, df in enumerate(df_list):
         # create new unique_feed_id column based on the name of the feed folder
-        df['unique_feed_id'] = str.join(feed_folder, '_', str(feed_number))
+        df['unique_feed_id'] = '_'.join([feed_folder, str(feed_number)])
         df_list[index] = df
 
     log('Unique GTFS feed id operation complete. Took {:,.2f} seconds'.format(
