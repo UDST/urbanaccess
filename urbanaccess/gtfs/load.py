@@ -194,14 +194,16 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
 
     for index, folder in enumerate(folderlist):
 
+        # print break to visually separate each gtfs feed log
+        log('--------------------------------')
         log('Processing GTFS feed: {!s}'.format(os.path.split(folder)[1]))
 
         textfilelist = [textfilename for textfilename in
                         os.listdir(os.path.join(gtfsfeed_path, folder)) if
                         textfilename.endswith(".txt")]
         required_gtfsfiles = ['stops.txt', 'routes.txt', 'trips.txt',
-                              'stop_times.txt', 'calendar.txt',
-                              'calendar_dates.txt']
+                              'stop_times.txt', 'calendar.txt']
+        optional_gtfsfiles = ['agency.txt', 'calendar_dates.txt']
         for required_file in required_gtfsfiles:
             if required_file not in textfilelist:
                 raise ValueError(
@@ -210,11 +212,7 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
                     required_file,
                     os.path.join(gtfsfeed_path, folder)))
 
-        for textfile in textfilelist:
-            if textfile == 'agency.txt':
-                agency_df = utils_format._read_gtfs_agency(
-                    textfile_path=os.path.join(gtfsfeed_path, folder),
-                    textfile=textfile)
+        for textfile in required_gtfsfiles:
             if textfile == 'stops.txt':
                 stops_df = utils_format._read_gtfs_stops(
                     textfile_path=os.path.join(gtfsfeed_path, folder),
@@ -235,10 +233,22 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
                 calendar_df = utils_format._read_gtfs_calendar(
                     textfile_path=os.path.join(gtfsfeed_path, folder),
                     textfile=textfile)
+
+        for textfile in optional_gtfsfiles:
+            if textfile == 'agency.txt':
+                if textfile in textfilelist:
+                    agency_df = utils_format._read_gtfs_agency(
+                        textfile_path=os.path.join(gtfsfeed_path, folder),
+                        textfile=textfile)
+                else:
+                    agency_df = pd.DataFrame()
             if textfile == 'calendar_dates.txt':
-                calendar_dates_df = utils_format._read_gtfs_calendar_dates(
-                    textfile_path=os.path.join(gtfsfeed_path, folder),
-                    textfile=textfile)
+                if textfile in textfilelist:
+                    calendar_dates_df = utils_format._read_gtfs_calendar_dates(
+                        textfile_path=os.path.join(gtfsfeed_path, folder),
+                        textfile=textfile)
+                else:
+                    calendar_dates_df = pd.DataFrame()
 
         stops_df, routes_df, trips_df, stop_times_df, calendar_df, \
         calendar_dates_df = utils_format._add_unique_agencyid(
