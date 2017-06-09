@@ -175,8 +175,8 @@ def create_transit_net(gtfsfeeds_dfs, day,
     ua_network.transit_edges = transit_edges
     ua_network.transit_nodes = transit_nodes
 
-    log(('Successfully created transit network. Took {:,'
-         '.2f} seconds').format(time.time() - start_time))
+    log('Successfully created transit network. Took {:,.2f} seconds'.format(
+        time.time() - start_time))
 
     return ua_network
 
@@ -354,14 +354,14 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
     calendar_selected_trips_df.drop('unique_service_id', axis=1, inplace=True)
 
     if calendar_dates_lookup is None:
-        log(('{:,} of {:,} total trips were extracted representing calendar '
-             'day: {}. Took {:,.2f} seconds').format(len(
+        log('{:,} of {:,} total trips were extracted representing calendar '
+            'day: {}. Took {:,.2f} seconds'.format(len(
             calendar_selected_trips_df), len(input_trips_df),
             day, time.time() - start_time))
     else:
-        log(('{:,} of {:,} total trips were extracted representing calendar '
-             'day: {} and calendar_dates search parameters: {}. Took {:,'
-             '.2f} seconds').format(len(
+        log('{:,} of {:,} total trips were extracted representing calendar '
+            'day: {} and calendar_dates search parameters: {}. Took {:,'
+            '.2f} seconds'.format(len(
             calendar_selected_trips_df), len(input_trips_df),
             day, calendar_dates_lookup, time.time() - start_time))
 
@@ -434,13 +434,13 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df, day):
             'Total unique trips to assess: {:,}'.format(
             len(stop_times_df['unique_trip_id'].unique())), level=lg.WARNING)
         log('Starting departure stop time interpolation...')
-        log((
-                'Departure time records missing from trips following {} '
-                'schedule: {:,} ({:.2f} percent of {:,} total '
-                'records)').format(
-            day, missing_stop_times_count,
-            (missing_stop_times_count / len(stop_times_df)) * 100,
-            len(stop_times_df['departure_time_sec'])))
+        log(
+            'Departure time records missing from trips following {} '
+            'schedule: {:,} ({:.2f} percent of {:,} total '
+            'records)'.format(
+                day, missing_stop_times_count,
+                (missing_stop_times_count / len(stop_times_df)) * 100,
+                len(stop_times_df['departure_time_sec'])))
 
         log('Interpolating...')
 

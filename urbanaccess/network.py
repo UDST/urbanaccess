@@ -334,8 +334,10 @@ def _route_id_to_node(stops_df, edges_w_routes):
     # set node index to be unique stop id
     transit_nodes_wroutes = transit_nodes_wroutes.set_index('node_id_route')
 
-    log(('routes successfully joined to transit nodes. Took {:,'
-         '.2f} seconds').format(time.time() - start_time))
+    log(
+        'routes successfully joined to transit nodes. Took {:,'
+        '.2f} seconds'.format(
+            time.time() - start_time))
 
     return transit_nodes_wroutes
 

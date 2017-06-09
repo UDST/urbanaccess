@@ -498,8 +498,8 @@ def download(data_folder=os.path.join(config.settings.data_folder),
                     with open(zipfile_path, "wb") as local_file:
                         local_file.write(file.read())
                 except:
-                    log(('Unable to connect. URL at {} returned status code '
-                         '{} and no data').format(feed_url_value, status_code),
+                    log('Unable to connect. URL at {} returned status code '
+                        '{} and no data'.format(feed_url_value, status_code),
                         level=lg.ERROR)
             else:
                 log(
