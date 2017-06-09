@@ -77,12 +77,15 @@ def create_transit_net(gtfsfeeds_dfs, day,
         'Format should be 24 hour clock in following format: 08:00:00 or '
         '17:00:00'.format(
             timerange))
-    assert isinstance(timerange, list) and len(
-        timerange) == 2, time_error_statement
-    assert timerange[0] < timerange[1], time_error_statement
+    if not isinstance(timerange, list) and len(timerange) != 2:
+        raise ValueError(time_error_statement)
+    if timerange[0] > timerange[1]:
+        raise ValueError(time_error_statement)
     for t in timerange:
-        assert isinstance(t, str), time_error_statement
-        assert len(t) == 8, time_error_statement
+        if not isinstance(t, str):
+            raise ValueError(time_error_statement)
+        if len(t) != 8:
+            raise ValueError(time_error_statement)
     if int(str(timerange[1][0:2])) - int(str(timerange[0][0:2])) > 3:
         log(
             'WARNING: Time range passed: {} is a {} hour period. Long '
@@ -91,14 +94,18 @@ def create_transit_net(gtfsfeeds_dfs, day,
             timerange,
             int(str(timerange[1][0:2])) - int(str(timerange[0][0:2]))),
             level=lg.WARNING)
-    assert gtfsfeeds_dfs is not None
+    if gtfsfeeds_dfs is None:
+        raise ValueError('gtfsfeeds_dfs is None')
     if gtfsfeeds_dfs.trips.empty or gtfsfeeds_dfs.calendar.empty or \
             gtfsfeeds_dfs.stop_times.empty or gtfsfeeds_dfs.stops.empty:
         raise ValueError('one of the gtfsfeeds_dfs object trips, calendar, '
                          'stops, or stop_times were found to be empty.')
-    assert isinstance(overwrite_existing_stop_times_int, bool)
-    assert isinstance(use_existing_stop_times_int, bool)
-    assert isinstance(save_processed_gtfs, bool)
+    if not isinstance(overwrite_existing_stop_times_int, bool):
+        raise ValueError('overwrite_existing_stop_times_int must be bool')
+    if not isinstance(use_existing_stop_times_int, bool):
+        raise ValueError('use_existing_stop_times_int must be bool')
+    if not isinstance(save_processed_gtfs, bool):
+        raise ValueError('save_processed_gtfs must be bool')
 
     columns = ['route_id',
                'direction_id',
@@ -132,10 +139,10 @@ def create_transit_net(gtfsfeeds_dfs, day,
                                      dir=save_dir, filename=save_filename)
 
     if use_existing_stop_times_int:
-        assert gtfsfeeds_dfs.stop_times_int.empty == False, ('existing '
-                                                             'stop_times_int '
-                                                             'is empty. set '
-                                                             'use_existing_stop_times_int to False to create it.')
+        if gtfsfeeds_dfs.stop_times_int.empty:
+            raise ValueError('existing stop_times_int is empty. Set '
+                             'use_existing_stop_times_int to False to create '
+                             'it.')
 
     selected_interpolated_stop_times_df = _time_selector(
         df=gtfsfeeds_dfs.stop_times_int,
@@ -726,7 +733,9 @@ def _convert_imp_time_units(df, time_col='weight', convert_to='minutes'):
 
     """
     valid_convert_to = ['seconds', 'minutes']
-    assert convert_to in valid_convert_to and isinstance(convert_to, str)
+    if convert_to not in valid_convert_to and not isinstance(convert_to, str):
+        raise ValueError('{} not a valid value or not a string'.format(
+            convert_to))
 
     if convert_to == 'seconds':
         df[time_col] = df[time_col].astype('float')
@@ -950,8 +959,8 @@ def edge_impedance_by_route_type(transit_edge_df,
     ua_network.transit_edges : pandas.DataFrame
 
     """
-    assert 'route_type' in transit_edge_df.columns, 'No route_type column ' \
-                                                    'was found in dataframe'
+    if 'route_type' not in transit_edge_df.columns:
+        raise ValueError('No route_type column was found in dataframe')
 
     # check count of records for each route type
     route_type_desc = {0: 'Street Level Rail: Tram Streetcar Light rail',
@@ -970,8 +979,8 @@ def edge_impedance_by_route_type(transit_edge_df,
 
     for var in var_list:
         if var is not None:
-            assert isinstance(var,
-                              float), 'One or more variables are not float'
+            if not isinstance(var, float):
+                raise ValueError('One or more variables are not float')
 
     travel_time_col_name = 'weight'
     travel_time_col = transit_edge_df[travel_time_col_name]
@@ -1075,17 +1084,13 @@ def save_processed_gtfs_data(gtfsfeeds_dfs,
     -------
     None
     """
-    assert gtfsfeeds_dfs is not None \
-           or gtfsfeeds_dfs.stops.empty == False \
-           or gtfsfeeds_dfs.routes.empty == False \
-           or gtfsfeeds_dfs.trips.empty == False \
-           or gtfsfeeds_dfs.stop_times.empty == False \
-           or gtfsfeeds_dfs.calendar.empty == False \
-           or gtfsfeeds_dfs.stop_times_int.empty == False, 'gtfsfeeds_dfs is ' \
-                                                           '' \
-                                                           'missing one of ' \
-                                                           'the required ' \
-                                                           'dataframes.'
+    if gtfsfeeds_dfs is None or gtfsfeeds_dfs.stops.empty or \
+            gtfsfeeds_dfs.routes.empty or gtfsfeeds_dfs.trips.empty \
+            or gtfsfeeds_dfs.stop_times.empty or \
+            gtfsfeeds_dfs.calendar.empty or \
+            gtfsfeeds_dfs.stop_times_int.empty:
+        raise ValueError('gtfsfeeds_dfs is missing one of the required '
+                         'dataframes.')
 
     df_to_hdf5(data=gtfsfeeds_dfs.stops, key='stops', overwrite_key=False,
                dir=dir, filename=filename, overwrite_hdf5=False)
