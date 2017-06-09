@@ -105,12 +105,12 @@ def create_transit_net(gtfsfeeds_dfs, day,
         assert isinstance(ea, bool)
 
     # no gtfs dataframes can be empty for this function to work
-    any_gtfs_empty = (gtfsfeeds_df.trips.empty or 
-                      gtfsfeeds_df.calendar.empty or 
-                      gtfsfeeds_df.stop_times.empty or 
-                      gtfsfeeds_df.stops.empty)
+    any_gtfs_empty = (gtfsfeeds_dfs.trips.empty or 
+                      gtfsfeeds_dfs.calendar.empty or 
+                      gtfsfeeds_dfs.stop_times.empty or 
+                      gtfsfeeds_dfs.stops.empty)
     if any_gtfs_empty:
-        err_text = ('One of the gtfsfeeds_df object trips, calendar, '
+        err_text = ('One of the gtfsfeeds_dfs object trips, calendar, '
                     'stops, or stop_times were found to be empty.')
         raise_with_traceback(ValueError(err_text))
 
@@ -142,32 +142,33 @@ def create_transit_net(gtfsfeeds_dfs, day,
             stop_times_df=gtfsfeeds_dfs.stop_times_int)
 
     # direction_id is conditional, though
-    if 'direction_id' not in gtfsfeeds_df.trips.columns:
+    if 'direction_id' not in gtfsfeeds_dfs.trips.columns:
         columns.remove('direction_id')
     
-    trips_subgdf = gtfsfeeds_df.trips[columns]
-    calendar_selected_trips_df = tripschedualselector(
+    trips_subgdf = gtfsfeeds_dfs.trips[columns]
+    calendar_selected_trips_df = _trip_schedule_selector(
                                     input_trips_df=trips_subgdf,
-                                    input_calendar_df=gtfsfeeds_df.calendar,
+                                    input_calendar_df=gtfsfeeds_dfs.calendar,
+                                    input_calendar_dates_df=gtfsfeeds_dfs.calendar_dates,
                                     day=day)
 
     # confirm if need to interpolate stop times and, if yes, then do so
-    interpolate_trigger = (gtfsfeeds_df.stop_times_int.empty or 
+    interpolate_trigger = (gtfsfeeds_dfs.stop_times_int.empty or 
                            overwrite_existing_stop_times_int or 
                            use_existing_stop_times_int == False)
     if interpolate_trigger:
-        interp_stops = interpolatestoptimes(
-                        stop_times_df=gtfsfeeds_df.stop_times,
+        interp_stops = _interpolate_stop_times(
+                        stop_times_df=gtfsfeeds_dfs.stop_times,
                         calendar_selected_trips_df=calendar_selected_trips_df,
                         day=day)
 
-        time_diff_interp_stops = timedifference(stop_times_df=interp_stops)
-        gtfsfeeds_df.stop_times_int = time_diff_interp_stops
+        time_diff_interp_stops = _time_difference(stop_times_df=interp_stops)
+        gtfsfeeds_dfs.stop_times_int = time_diff_interp_stops
 
         # check if we want to save this output to hdf5 file
         if save_processed_gtfs:
             save_processed_gtfs_data(
-                                gtfsfeeds_df=gtfsfeeds_df,
+                                gtfsfeeds_dfs=gtfsfeeds_dfs,
                                 dir=save_dir,
                                 filename=save_filename)
 
@@ -176,8 +177,8 @@ def create_transit_net(gtfsfeeds_dfs, day,
                     'set use_existing_stop_times_int to False to create it.')
         assert gtfsfeeds_df.stop_times_int.empty == False, err_text
 
-    selected_interpolated_stop_times_df = timeselector(
-                                                df=gtfsfeeds_df.stop_times_int,
+    selected_interpolated_stop_times_df = _time_selector(
+                                                df=gtfsfeeds_dfs.stop_times_int,
                                                 starttime=timerange[0],
                                                 endtime=timerange[1])
 
@@ -190,29 +191,29 @@ def create_transit_net(gtfsfeeds_dfs, day,
                               'unique_agency_id',
                               'trip_id']
     sub_stops_int = selected_interpolated_stop_times_df[desired_stops_int_cols]
-    final_edge_table = format_transit_net_edge(stop_times_df=sub_stops_int)
+    final_edge_table = _format_transit_net_edge(stop_times_df=sub_stops_int)
 
     # now convert to desired time format and apply to global network value
-    ua_network.transit_edges = convert_imp_time_units(
+    ua_network.transit_edges = _convert_imp_time_units(
                                                 df=final_edge_table,
                                                 time_col='weight',
                                                 convert_to='minutes')
 
     # similarly, finalize select transit network nodes and apply to network
-    fin_sel_stops = stops_in_edge_table_selector(
-                        input_stops_df=gtfsfeeds_df.stops,
+    fin_sel_stops = _stops_in_edge_table_selector(
+                        input_stops_df=gtfsfeeds_dfs.stops,
                         input_stop_times_df=selected_interpolated_stop_times_df)
-    ua_network.transit_nodes = format_transit_net_nodes(df=fin_sel_stops)
+    ua_network.transit_nodes = _format_transit_net_nodes(df=fin_sel_stops)
 
     # TODO: Undesirable to continually update networks.transit_edges
     #       Should reach a "final" state before updating (so fix above)
-    ua_network.transit_edges = route_type_to_edge(
+    ua_network.transit_edges = _route_type_to_edge(
                                     transit_edge_df=ua_network.transit_edges,
-                                    stop_time_df=gtfsfeeds_df.stop_times)
+                                    stop_time_df=gtfsfeeds_dfs.stop_times)
 
-    ua_network.transit_edges = route_id_to_edge(
+    ua_network.transit_edges = _route_id_to_edge(
                                     transit_edge_df=ua_network.transit_edges,
-                                    trips_df=gtfsfeeds_df.trips)
+                                    trips_df=gtfsfeeds_dfs.trips)
 
 
     # assign node and edge net type

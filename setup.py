@@ -36,6 +36,7 @@ setup(
         'matplotlib>=2.0',
         'geopy>=1.11.0',
         'pyyaml>=3.11',
-        'scikit-learn>=0.17.1'
+        'scikit-learn>=0.17.1',
+        'future >= 0.16.0'
     ]
 )
