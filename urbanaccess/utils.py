@@ -261,7 +261,7 @@ def hdf5_to_df(dir=None, filename=None, key=None):
 
     if '.h5' not in filename and filename.split('.')[-1] != 'h5':
         raise ValueError('hdf5 filename extension must be "h5"')
-    if os.path.exists(hdf5_load_path) == False:
+    if not os.path.exists(hdf5_load_path):
         raise ValueError('Unable to find directory or file: {}'.format(
             hdf5_load_path))
 
