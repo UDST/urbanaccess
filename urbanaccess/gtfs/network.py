@@ -151,28 +151,29 @@ def create_transit_net(gtfsfeeds_dfs, day,
                                                            'unique_agency_id',
                                                            'trip_id']])
 
-    ua_network.transit_edges = _convert_imp_time_units(df=final_edge_table,
-                                                       time_col='weight',
-                                                       convert_to='minutes')
+    transit_edges = _convert_imp_time_units(df=final_edge_table,
+                                            time_col='weight',
+                                            convert_to='minutes')
 
     final_selected_stops = _stops_in_edge_table_selector(
         input_stops_df=gtfsfeeds_dfs.stops,
         input_stop_times_df=selected_interpolated_stop_times_df)
 
-    ua_network.transit_nodes = _format_transit_net_nodes(
-        df=final_selected_stops)
+    transit_nodes = _format_transit_net_nodes(df=final_selected_stops)
 
-    ua_network.transit_edges = _route_type_to_edge(
-        transit_edge_df=ua_network.transit_edges,
-        stop_time_df=gtfsfeeds_dfs.stop_times)
+    transit_edges = _route_type_to_edge(transit_edge_df=transit_edges,
+                                        stop_time_df=gtfsfeeds_dfs.stop_times)
 
-    ua_network.transit_edges = _route_id_to_edge(
-        transit_edge_df=ua_network.transit_edges,
-        trips_df=gtfsfeeds_dfs.trips)
+    transit_edges = _route_id_to_edge(transit_edge_df=transit_edges,
+                                      trips_df=gtfsfeeds_dfs.trips)
 
     # assign node and edge net type
-    ua_network.transit_nodes['net_type'] = 'transit'
-    ua_network.transit_edges['net_type'] = 'transit'
+    transit_nodes['net_type'] = 'transit'
+    transit_edges['net_type'] = 'transit'
+
+    # set global ua_network edges and nodes
+    ua_network.transit_edges = transit_edges
+    ua_network.transit_nodes = transit_nodes
 
     log(('Successfully created transit network. Took {:,'
          '.2f} seconds').format(time.time() - start_time))

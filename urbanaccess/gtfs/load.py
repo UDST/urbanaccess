@@ -275,7 +275,6 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
 
         if validation:
             stops_df = utils_validation._validate_gtfs(
-                stop_times_df=stop_times_df,
                 stops_df=stops_df,
                 feed_folder=os.path.join(gtfsfeed_path, folder),
                 verbose=verbose,

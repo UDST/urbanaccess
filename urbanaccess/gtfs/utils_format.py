@@ -678,10 +678,12 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
             df['unique_agency_id'].fillna(
                 ''.join(['multiple_operators_', unique_agency_id]),
                 inplace=True)
-            log('There are {:,} null values ({:,.2f}% of total) without a '
-                'unique agency id. These records will be labeled as '
+            log(
+                'There are {:,} null values ({:,.2f}% of {:,} total) without '
+                'a unique agency id. These records will be labeled as '
                 'multiple_operators_ with the GTFS file folder '
-                'name'.format(df['unique_agency_id'].isnull().sum(), len(df),
+                'name'.format(df['unique_agency_id'].isnull().sum(),
+                              len(df),
                               round((float(df['unique_agency_id'].isnull(
                               ).sum()) / float(len(df)) * 100))))
             df_list[index] = df
@@ -812,6 +814,13 @@ def _timetoseconds(df, time_cols):
                     df[col].str[6:8].max()), level=lg.WARNING)
         col_series = (h * 60 * 60) + (m * 60) + s
         series_df = col_series.to_frame(name=''.join([col, '_sec']))
+
+        # check if times are negative if so display warning
+        if series_df.values.any() < 0:
+            log('Warning: Some stop times in {} column are negative. '
+                'Time should be positive. Suggest checking original '
+                'GTFS feed stop_time file before proceeding'.format(col),
+                level=lg.WARNING)
 
         concat_series_df = pd.concat([concat_series_df, series_df], axis=1)
 
