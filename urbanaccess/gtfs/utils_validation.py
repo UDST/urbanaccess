@@ -29,7 +29,7 @@ def _boundingbox_check(df, feed_folder, lat_min=None, lng_min=None,
     bbox : tuple
         Bounding box formatted as a 4 element tuple: (lng_max, lat_min,
         lng_min, lat_max)
-        example: (-122.304611,37.798933,-122.263412,37.822802)
+        example: (-122.304611, 37.798933, -122.263412, 37.822802)
         a bbox can be extracted for an area using: the CSV format bbox from
         http://boundingbox.klokantech.com/
     remove : bool
@@ -43,30 +43,33 @@ def _boundingbox_check(df, feed_folder, lat_min=None, lng_min=None,
     df : pandas.DataFrame
 
     """
-    assert isinstance(verbose, bool)
-    assert isinstance(remove, bool)
+    if not isinstance(verbose, bool):
+        raise ValueError('verbose must be bool')
+    if not isinstance(remove, bool):
+        raise ValueError('remove must be bool')
 
     if bbox is not None:
-        assert isinstance(bbox, tuple) and len(
-            bbox) == 4, 'bbox must be a 4 element tuple'
-        assert (lat_min is None) and (lng_min is None) and (
-        lat_max is None) and \
-               (
-               lng_max is None), 'lat_min, lng_min, lat_max and lng_max must ' \
-                                 'be None if you are using bbox'
+        if not isinstance(bbox, tuple) and len(bbox) != 4:
+            raise ValueError('bbox must be a 4 element tuple')
+        if (lat_min is not None) and (lng_min is not None) and (
+                    lat_max is not None) and (lng_max is not None):
+            raise ValueError('lat_min, lng_min, lat_max and lng_max must be '
+                             'None if you are using bbox')
 
         lng_max, lat_min, lng_min, lat_max = bbox
 
-    assert lat_min is not None, 'lat_min cannot be None'
-    assert lng_min is not None, 'lng_min cannot be None'
-    assert lat_max is not None, 'lat_max cannot be None'
-    assert lng_max is not None, 'lng_max cannot be None'
-    assert isinstance(lat_min, float) and isinstance(lng_min,
-                                                     float) and isinstance(
-        lat_max, float) and \
-           isinstance(lng_max,
-                      float), 'lat_min, lng_min, lat_max, and lng_max must ' \
-                              'be floats'
+    if lat_min is None:
+        raise ValueError('lat_min cannot be None')
+    if lng_min is None:
+        raise ValueError('lng_min cannot be None')
+    if lat_max is None:
+        raise ValueError('lat_max cannot be None')
+    if lng_max is None:
+        raise ValueError('lng_max cannot be None')
+    if not isinstance(lat_min, float) and not isinstance(lng_min, float) and\
+            not isinstance(lat_max, float) and not isinstance(lng_max, float):
+        raise ValueError('lng_min, lat_min, lng_min, lat_max, and lng_max '
+                         'must be floats')
 
     outside_boundingbox = df.loc[~(
     ((lng_max < df["stop_lon"]) & (df["stop_lon"] < lng_min)) & (
@@ -147,7 +150,7 @@ def _validate_gtfs(stops_df, feed_folder,
     bbox : tuple
         Bounding box formatted as a 4 element tuple: (lng_max, lat_min,
         lng_min, lat_max)
-        example: (-122.304611,37.798933,-122.263412,37.822802)
+        example: (-122.304611, 37.798933, -122.263412, 37.822802)
         a bbox can be extracted for an area using: the CSV format bbox from
         http://boundingbox.klokantech.com/
     remove_stops_outsidebbox : bool

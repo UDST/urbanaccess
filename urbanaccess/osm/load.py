@@ -15,7 +15,8 @@ reserve_num_graphs(40)
 def ua_network_from_bbox(lat_min=None, lng_min=None, lat_max=None,
                          lng_max=None, bbox=None, network_type='walk',
                          timeout=180, memory=None,
-                         max_query_area_size=50*1000*50*1000, remove_lcn=True):
+                         max_query_area_size=50 * 1000 * 50 * 1000,
+                         remove_lcn=True):
     """
     Make a graph network (nodes and edges) from a bounding lat/lon box that
     is compatible with the network analysis tool Pandana
@@ -67,7 +68,7 @@ def ua_network_from_bbox(lat_min=None, lng_min=None, lat_max=None,
 
     # returned osm data allows travel in both directions
     # so that all edges in integrated network are all one way edges
-    two_way=False
+    two_way = False
 
     nodes, edges = network_from_bbox(lat_min=lat_min, lng_min=lng_min,
                                      lat_max=lat_max, lng_max=lng_max,
@@ -83,25 +84,29 @@ def ua_network_from_bbox(lat_min=None, lng_min=None, lat_max=None,
                               edges['from'], edges['to'], edges[['distance']])
         lcn = pandana_net.low_connectivity_nodes(impedance=10000, count=10,
                                                  imp_name='distance')
-        log('{:,} out of {:,} nodes ({:.2f} percent of total) were identified as having low connectivity and have '
-            'been removed.'.format(len(lcn),len(nodes),(len(lcn)/len(nodes))*100))
+        log(
+            '{:,} out of {:,} nodes ({:.2f} percent of total) were '
+            'identified as having low connectivity and have '
+            'been removed.'.format(len(lcn), len(nodes),
+                                   (len(lcn) / len(nodes)) * 100))
 
         rm_nodes = set(lcn)
 
         nodes_to_keep = ~nodes.index.isin(rm_nodes)
-        edges_to_keep = ~(edges['from'].isin(rm_nodes) | edges['to'].isin(rm_nodes))
+        edges_to_keep = ~(
+        edges['from'].isin(rm_nodes) | edges['to'].isin(rm_nodes))
 
         nodes = nodes.loc[nodes_to_keep]
         edges = edges.loc[edges_to_keep]
 
         log('Completed OSM data download and graph node and edge table '
-            'creation in {:,.2f} seconds'.format(time.time()-start_time))
+            'creation in {:,.2f} seconds'.format(time.time() - start_time))
 
         return nodes, edges
 
     else:
 
         log('Completed OSM data download and graph node and edge table '
-            'creation in {:,.2f} seconds'.format(time.time()-start_time))
+            'creation in {:,.2f} seconds'.format(time.time() - start_time))
 
         return nodes, edges
