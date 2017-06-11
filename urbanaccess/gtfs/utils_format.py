@@ -55,11 +55,13 @@ def _read_gtfs_stops(textfile_path, textfile):
     df = pd.read_csv(os.path.join(textfile_path, textfile),
                      dtype={'stop_id': object}, low_memory=False)
 
-    df['stop_lat'] = pd.to_numeric(df['stop_lat'])
-    df['stop_lon'] = pd.to_numeric(df['stop_lon'])
     if len(df) == 0:
         raise ValueError('{} has no records'.format(os.path.join(
             textfile_path, textfile)))
+
+    df['stop_lat'] = pd.to_numeric(df['stop_lat'])
+    df['stop_lon'] = pd.to_numeric(df['stop_lon'])
+
     # remove any extra whitespace in column names
     df.rename(columns=lambda x: x.strip(), inplace=True)
     return df
@@ -177,13 +179,18 @@ def _read_gtfs_calendar(textfile_path, textfile):
 
     df = pd.read_csv(os.path.join(textfile_path, textfile),
                      dtype={'service_id': object}, low_memory=False)
+
+    if len(df) == 0:
+        error_msg = ('{} has no records. This could indicate that this feed '
+                     'is using calendar_dates.txt for service_ids. If so, '
+                     'make a dummy row in calendar.txt to proceed.')
+        raise ValueError(error_msg.format(os.path.join(textfile_path,
+                                                       textfile)))
+
     columnlist = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday',
                   'saturday', 'sunday']
     for col in columnlist:
         df[col] = pd.to_numeric(df[col])
-    if len(df) == 0:
-        raise ValueError('{} has no records'.format(os.path.join(
-            textfile_path, textfile)))
     # remove any extra whitespace in column names
     df.rename(columns=lambda x: x.strip(), inplace=True)
     return df
@@ -564,7 +571,7 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
                 unique_agency_id))
 
     elif os.path.exists(os.path.join(feed_folder,
-                                     'agency.txt')) == False and \
+                                     'agency.txt')) == False or \
                     nulls_as_folder == False:
         raise ValueError(
             'No agency.txt file was found in {}. Add the missing file to '
@@ -575,7 +582,7 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
         if not os.path.exists(os.path.join(feed_folder, 'agency.txt')):
             raise ValueError('{} not found.'.format(os.path.join(feed_folder,
                                                      'agency.txt')))
-        if 'agency_name' not in agency_df.columns and 'agency_id' not in \
+        if 'agency_name' not in agency_df.columns or 'agency_id' not in \
                                                       agency_df.columns:
             raise ValueError('both agency_name and agency_id columns were not '
                              'found in agency.txt')

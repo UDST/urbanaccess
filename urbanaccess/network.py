@@ -126,8 +126,8 @@ def integrate_network(urbanaccess_network, headways=False,
 
     if headways:
 
-        if urbanaccess_gtfsfeeds_df is None and \
-                urbanaccess_gtfsfeeds_df.headways.empty and \
+        if urbanaccess_gtfsfeeds_df is None or \
+                urbanaccess_gtfsfeeds_df.headways.empty or \
                 urbanaccess_gtfsfeeds_df.stops.empty:
             raise ValueError(
                 'stops and headway dataframes were not found in the '
@@ -135,7 +135,7 @@ def integrate_network(urbanaccess_network, headways=False,
                 'dataframes in order to use headways.')
 
         valid_stats = ['mean', 'std', 'min', 'max']
-        if headway_statistic not in valid_stats and not isinstance(
+        if headway_statistic not in valid_stats or not isinstance(
                 headway_statistic, str):
             raise ValueError('{} is not a supported statistic or is not a '
                              'string'.format(headway_statistic))

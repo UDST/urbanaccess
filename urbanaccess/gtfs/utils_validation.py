@@ -49,10 +49,10 @@ def _boundingbox_check(df, feed_folder, lat_min=None, lng_min=None,
         raise ValueError('remove must be bool')
 
     if bbox is not None:
-        if not isinstance(bbox, tuple) and len(bbox) != 4:
+        if not isinstance(bbox, tuple) or len(bbox) != 4:
             raise ValueError('bbox must be a 4 element tuple')
-        if (lat_min is not None) and (lng_min is not None) and (
-                    lat_max is not None) and (lng_max is not None):
+        if (lat_min is not None) or (lng_min is not None) or (
+                    lat_max is not None) or (lng_max is not None):
             raise ValueError('lat_min, lng_min, lat_max and lng_max must be '
                              'None if you are using bbox')
 
@@ -66,8 +66,8 @@ def _boundingbox_check(df, feed_folder, lat_min=None, lng_min=None,
         raise ValueError('lat_max cannot be None')
     if lng_max is None:
         raise ValueError('lng_max cannot be None')
-    if not isinstance(lat_min, float) and not isinstance(lng_min, float) and\
-            not isinstance(lat_max, float) and not isinstance(lng_max, float):
+    if not isinstance(lat_min, float) or not isinstance(lng_min, float) or\
+            not isinstance(lat_max, float) or not isinstance(lng_max, float):
         raise ValueError('lng_min, lat_min, lng_min, lat_max, and lng_max '
                          'must be floats')
 

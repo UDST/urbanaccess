@@ -40,8 +40,8 @@ def _calc_headways_by_route_stop(df):
             len(stop_route_groups)))
     results = {}
     for unique_stop_route, stop_route_group in stop_route_groups:
-        stop_route_group.sort_value(['departure_time_sec_interpolate'],
-                                    ascending=True, inplace=True)
+        stop_route_group.sort_values(['departure_time_sec_interpolate'],
+                                     ascending=True, inplace=True)
         next_bus_time = stop_route_group[
                             'departure_time_sec_interpolate'].iloc[1:].values
         prev_bus_time = stop_route_group[
@@ -71,9 +71,9 @@ def _headway_handler(interpolated_stop_times_df, trips_df,
         routes dataframe
     headway_timerange : list
         time range for which to calculate headways between as a
-        list of time 1 and time 2
-        where times are a 24 hour clock strings such as:
-        ['07:00:00','10:00:00']
+        list of time 1 and time 2 where times are 24 hour clock strings
+        such as:
+        ['07:00:00', '10:00:00']
 
     Returns
     -------
@@ -151,9 +151,8 @@ def headways(gtfsfeeds_df, headway_timerange):
         gtfsfeeds_dfs object with all processed GTFS data tables
     headway_timerange : list
         time range for which to calculate headways between as a list of
-        time 1 and time 2
-        where times are 24 hour clock strings such as:
-        ['07:00:00','10:00:00']
+        time 1 and time 2 where times are 24 hour clock strings such as:
+        ['07:00:00', '10:00:00']
 
     Returns
     -------
@@ -165,9 +164,9 @@ def headways(gtfsfeeds_df, headway_timerange):
 
     time_error_statement = (
         '{} starttime and endtime are not in the correct format. '
-        'Format should be 24 hour clock in following format: 08:00:00 or '
-        '17:00:00'.format(headway_timerange))
-    if not isinstance(headway_timerange, list) and len(headway_timerange) != 2:
+        'Format should be a 24 hour clock in following format: 08:00:00 '
+        'or 17:00:00'.format(headway_timerange))
+    if not isinstance(headway_timerange, list) or len(headway_timerange) != 2:
         raise ValueError(time_error_statement)
     if headway_timerange[0] > headway_timerange[1]:
         raise ValueError(time_error_statement)

@@ -160,7 +160,7 @@ def create_hdf5(dir=None, filename=None, overwrite_hdf5=False):
             raise ValueError('Filename must be a string')
 
     hdf5_save_path = '{}/{}'.format(dir, filename)
-    if '.h5' not in filename and filename.split('.')[-1] != 'h5':
+    if '.h5' not in filename or filename.split('.')[-1] != 'h5':
         raise ValueError('hdf5 filename extension must be "h5"')
 
     if not os.path.exists(hdf5_save_path):
@@ -259,7 +259,7 @@ def hdf5_to_df(dir=None, filename=None, key=None):
 
     hdf5_load_path = '{}/{}'.format(dir, filename)
 
-    if '.h5' not in filename and filename.split('.')[-1] != 'h5':
+    if '.h5' not in filename or filename.split('.')[-1] != 'h5':
         raise ValueError('hdf5 filename extension must be "h5"')
     if not os.path.exists(hdf5_load_path):
         raise ValueError('Unable to find directory or file: {}'.format(

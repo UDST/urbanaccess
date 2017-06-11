@@ -92,7 +92,7 @@ class urbanaccess_config(object):
         if not os.path.exists(configdir):
             raise ValueError('{} does not exist or was not found'.format(
                 configdir))
-        if not isinstance(yamlname, str) and '.yaml' not in yamlname:
+        if not isinstance(yamlname, str) or '.yaml' not in yamlname:
             raise ValueError('yaml must be a string and have file extension '
                              '.yaml')
 
@@ -153,7 +153,7 @@ class urbanaccess_config(object):
             raise ValueError('{} does not exist or was not found'.format(
                 configdir))
             os.makedirs(configdir)
-        if not isinstance(yamlname, str) and '.yaml' not in yamlname:
+        if not isinstance(yamlname, str) or '.yaml' not in yamlname:
             raise ValueError('yaml must be a string and have file extension '
                              '.yaml')
         yaml_file = os.path.join(configdir, yamlname)

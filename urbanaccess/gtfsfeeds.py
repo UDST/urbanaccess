@@ -57,7 +57,7 @@ class urbanaccess_gtfsfeeds(object):
         if not os.path.exists(gtfsfeeddir):
             raise ValueError('{} does not exist or was not found'.format(
                 gtfsfeeddir))
-        if not isinstance(yamlname, str) and '.yaml' not in yamlname:
+        if not isinstance(yamlname, str) or '.yaml' not in yamlname:
             raise ValueError('yaml must be a string and have file extension '
                              '.yaml')
 
@@ -291,11 +291,11 @@ def search(api='gtfsdataexch', search_text=None, search_field=None,
         raise ValueError('{} must be a string'.format(api))
     if api not in config.settings.gtfs_api.keys():
         raise ValueError('{} is not currently a supported API'.format(api))
-    if config.settings.gtfs_api[api] is None and not isinstance(
+    if config.settings.gtfs_api[api] is None or not isinstance(
             config.settings.gtfs_api[api], str):
         raise ValueError('{} is not defined or defined incorrectly'.format(
             api))
-    if not isinstance(match, str) and match not in ['contains', 'exact']:
+    if not isinstance(match, str) or match not in ['contains', 'exact']:
         raise ValueError('match must be either: contains or exact')
     if not isinstance(add_feed, bool):
         raise ValueError('add_feed must be bool')
@@ -423,12 +423,12 @@ def download(data_folder=os.path.join(config.settings.data_folder),
     if feed_name is not None and feed_url is not None:
         if feed_dict is not None:
             raise ValueError('feed_dict is not specified')
-        if not isinstance(feed_name, str) and not isinstance(feed_url, str):
+        if not isinstance(feed_name, str) or not isinstance(feed_url, str):
             raise ValueError('either feed_name and or feed_url are not string')
         feeds.gtfs_feeds = {feed_name: feed_url}
 
     elif feed_dict is not None:
-        if feed_name is not None and feed_url is not None:
+        if feed_name is not None or feed_url is not None:
             raise ValueError('either feed_name and or feed_url are not None')
         if not isinstance(feed_dict, dict):
             raise ValueError('feed_dict is not dict')
@@ -463,6 +463,7 @@ def download(data_folder=os.path.join(config.settings.data_folder),
         len(feeds.gtfs_feeds), download_folder))
 
     start_time1 = time.time()
+    # TODO: add file counter and print number to user
     for feed_name_key, feed_url_value in feeds.gtfs_feeds.items():
         start_time2 = time.time()
         zipfile_path = ''.join([download_folder, '/', feed_name_key, '.zip'])
@@ -472,8 +473,8 @@ def download(data_folder=os.path.join(config.settings.data_folder),
             if status_code == 200:
                 file = urlopen(feed_url_value)
 
-                _zipfile_error_check(file=file,
-                                     feed_url_value=feed_url_value)
+                _zipfile_type_check(file=file,
+                                    feed_url_value=feed_url_value)
 
                 with open(zipfile_path, "wb") as local_file:
                     local_file.write(file.read())
@@ -492,8 +493,8 @@ def download(data_folder=os.path.join(config.settings.data_folder),
                 try:
                     file = urlopen(feed_url_value)
 
-                    _zipfile_error_check(file=file,
-                                         feed_url_value=feed_url_value)
+                    _zipfile_type_check(file=file,
+                                        feed_url_value=feed_url_value)
 
                     with open(zipfile_path, "wb") as local_file:
                         local_file.write(file.read())
@@ -509,8 +510,8 @@ def download(data_folder=os.path.join(config.settings.data_folder),
         else:
             try:
                 file = urlopen(feed_url_value)
-                _zipfile_error_check(file=file,
-                                     feed_url_value=feed_url_value)
+                _zipfile_type_check(file=file,
+                                    feed_url_value=feed_url_value)
                 with open(
                         ''.join([download_folder, '/', feed_name_key, '.zip']),
                         "wb") as local_file:
@@ -591,14 +592,14 @@ def _unzip(zip_rootpath, delete_zips=True):
         'files'.format(
             time.time() - start_time, len(zipfilelist)))
 
-def _zipfile_error_check(file, feed_url_value):
+def _zipfile_type_check(file, feed_url_value):
     """
     zipfile format checker helper
 
     Parameters
     ----------
-    file : urlopen object
-        loaded zipfile in memory
+    file : addinfourl
+        loaded zipfile object in memory
     feed_url_value : str
         URL to download GTFS feed zipfile
 
@@ -607,9 +608,8 @@ def _zipfile_error_check(file, feed_url_value):
     nothing
     """
     if 'zip' not in file.info().dict[
-        'content-type'] or 'octet' not in file.info().dict[
-        'content-type']:
+        'content-type'] == True or 'octet' not in file.info().dict[ \
+            'content-type'] == True:
         raise ValueError(
             'data requested at {} is not a zipfile. data must be '
-            'a zipfile'.format(
-                feed_url_value))
+            'a zipfile'.format(feed_url_value))

@@ -39,15 +39,16 @@ def create_transit_net(gtfsfeeds_dfs, day,
         specified is large enough to allow for travel
         from one end of the transit network to the other but small enough
         to represent a relevant travel time period such as a 3 hour window
-        for the AM Peak period. must follow format
+        for the AM Peak period. Must follow format
         of a 24 hour clock for example: 08:00:00 or 17:00:00
     calendar_dates_lookup : dict, optional
         dictionary of the lookup column (key) as a string and corresponding
         string (value) as string or list of strings to use to subset trips
         using the calendar_dates dataframe. Search will be exact. If none,
         then the calendar_dates dataframe will not be used to select trips
-        that are not in the calendar dataframe.
-        Example: {'schedule_type' : 'WD'} or {'schedule_type' : ['WD','SU']}
+        that are not in the calendar dataframe. Note search will select all
+        records that meet each key value pair criteria.
+        Example: {'schedule_type' : 'WD'} or {'schedule_type' : ['WD', 'SU']}
     overwrite_existing_stop_times_int : bool, optional
         if true, and if there is an existing stop_times_int
         dataframe stored in the gtfsfeeds_dfs object it will be
@@ -74,10 +75,10 @@ def create_transit_net(gtfsfeeds_dfs, day,
 
     time_error_statement = (
         '{} starttime and endtime are not in the correct format. '
-        'Format should be 24 hour clock in following format: 08:00:00 or '
-        '17:00:00'.format(
+        'Format should be a 24 hour clock in the following format: 08:00:00 '
+        'or 17:00:00'.format(
             timerange))
-    if not isinstance(timerange, list) and len(timerange) != 2:
+    if not isinstance(timerange, list) or len(timerange) != 2:
         raise ValueError(time_error_statement)
     if timerange[0] > timerange[1]:
         raise ValueError(time_error_statement)
@@ -211,7 +212,8 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
         string (value) a s string or list of strings to use to subset trips
         using the calendar_dates dataframe. Search will be exact. If none,
         then the calendar_dates dataframe will not be used to select trips
-        that are not in the calendar dataframe.
+        that are not in the calendar dataframe. Note search will select all
+        records that meet each key value pair criteria.
         Example: {'schedule_type' : 'WD'} or {'schedule_type' : ['WD','SU']}
 
     Returns
@@ -282,10 +284,16 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
     pct_trips_in_calendar = round(len(trips_in_calendar) / len(
         input_trips_df) * 100, 2)
 
-    log('{:,} trip(s) {:.2f} percent of {:,} total trip records were found '
-         'in calendar'.format(len(trips_in_calendar),
-                               pct_trips_in_calendar,
-                               len(input_trips_df)))
+    feeds_wtrips_in_cal = trips_in_calendar['unique_feed_id'].unique()
+    feeds_wotrips_in_cal = trips_notin_calendar['unique_feed_id'].unique()
+    for feed_id in feeds_wtrips_in_cal:
+        log(
+            '{:,} trip(s) {:.2f} percent of {:,} total trip records were '
+            'found in calendar for GTFS feed: {}'.format(
+                len(trips_in_calendar),
+                pct_trips_in_calendar,
+                len(input_trips_df),
+                ' '.join(feed_id.split('_')[:-1])))
 
     if len(trips_notin_calendar) > 0 and calendar_dates_lookup is None:
         warning_msg = (
@@ -297,6 +305,23 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
         'calendar_dates instead of calendar to specify service_ids. When in '
         'doubt do not use the calendar_dates_lookup parameter.')
         log(warning_msg, level=lg.WARNING)
+
+    if len(feeds_wtrips_in_cal) != len(
+            feeds_wotrips_in_cal) and calendar_dates_lookup is None:
+        for feed_id in feeds_wotrips_in_cal:
+            log(
+                '{:,} trip(s) {:.2f} percent of {:,} total trip records were '
+                'not found in calendar for GTFS feed: {}'.format(
+                    len(trips_in_calendar),
+                    pct_trips_in_calendar,
+                    len(input_trips_df),
+                    ' '.join(feed_id.split('_')[:-1])))
+            if feed_id not in feeds_wtrips_in_cal:
+                log('Warning: GTFS feed: {} no trips were selected using '
+                    'calendar. It is suggested you use the '
+                    'calendar_dates_lookup parameter to utilize this feeds '
+                    'calendar_dates file.'.format(
+                    ' '.join(feed_id.split('_')[:-1])), level=lg.WARNING)
 
     # look for service_ids inside of calendar_dates if calendar does not
     # supply enough service_ids to select trips by
@@ -326,7 +351,8 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
                 string_value = [string_value]
 
             for text in string_value:
-
+                # TODO: modify this in order to allow subset based on gtfs
+                # feed name or a or/and condition
                 subset_result = input_calendar_dates_df[
                     input_calendar_dates_df[col_name_key].str.match(
                         text, case=False, na=False)]
@@ -733,7 +759,7 @@ def _convert_imp_time_units(df, time_col='weight', convert_to='minutes'):
 
     """
     valid_convert_to = ['seconds', 'minutes']
-    if convert_to not in valid_convert_to and not isinstance(convert_to, str):
+    if convert_to not in valid_convert_to or not isinstance(convert_to, str):
         raise ValueError('{} not a valid value or not a string'.format(
             convert_to))
 

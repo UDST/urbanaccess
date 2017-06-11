@@ -113,8 +113,8 @@ def plot_net(nodes, edges, x_col=None, y_col=None, from_col=None,
     else:
         x_min, y_min, x_max, y_max = bbox
 
-    if y_max - y_min <= 0 and x_max - x_min <= 0:
-        raise ValueError(('difference between min and max x and y resulted '
+    if y_max - y_min <= 0 or x_max - x_min <= 0:
+        raise ValueError(('difference between min and max x and or y resulted '
                           'in a negative value or 0'))
     bbox_aspect_ratio = (y_max - y_min) / (x_max - x_min)
 
@@ -257,12 +257,12 @@ def _prep_edges(edges, nodes, from_col, to_col,
         ids to build lines
     """
 
-    if x_col not in nodes.columns and y_col not in nodes.columns:
+    if x_col not in nodes.columns or y_col not in nodes.columns:
         raise ValueError(
             '{} or {} columns were not found in nodes columns'.format(x_col,
                                                                       y_col))
 
-    if from_col not in nodes.columns and to_col not in edges.columns:
+    if from_col not in nodes.columns or to_col not in edges.columns:
         raise ValueError(
             '{} or {} columns were not found in edges columns'.format(from_col,
                                                                       to_col))

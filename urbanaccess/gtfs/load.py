@@ -47,26 +47,36 @@ def _txt_encoder_check(csv_rootpath=os.path.join(config.settings.data_folder,
     """
     # UnicodeDecodeError
     start_time = time.time()
+
+    gtfsfiles_to_use = ['stops.txt', 'routes.txt', 'trips.txt',
+                          'stop_times.txt', 'calendar.txt',
+                        'agency.txt', 'calendar_dates.txt']
+
     folderlist = [foldername for foldername in os.listdir(csv_rootpath) if
                   os.path.isdir(os.path.join(csv_rootpath, foldername))]
+
     if not folderlist:
         folderlist = [csv_rootpath]
+
     for folder in folderlist:
         textfilelist = [textfilename for textfilename in
                         os.listdir(os.path.join(csv_rootpath, folder)) if
                         textfilename.endswith(".txt")]
+
         for textfile in textfilelist:
-            # Read from file
-            file_open = open(os.path.join(csv_rootpath, folder, textfile))
-            raw = file_open.read()
-            file_open.close()
-            if raw.startswith(codecs.BOM_UTF8):
-                raw = raw.replace(codecs.BOM_UTF8, '', 1)
-                # Write to file
-                file_open = open(os.path.join(csv_rootpath, folder, textfile),
-                                 'w')
-                file_open.write(raw)
+            if textfile in gtfsfiles_to_use:
+                # Read from file
+                file_open = open(os.path.join(csv_rootpath, folder, textfile))
+                raw = file_open.read()
                 file_open.close()
+                if raw.startswith(codecs.BOM_UTF8):
+                    raw = raw.replace(codecs.BOM_UTF8, '', 1)
+                    # Write to file
+                    file_open = open(os.path.join(csv_rootpath, folder, textfile),
+                                     'w')
+                    file_open.write(raw)
+                    file_open.close()
+
     log('GTFS text file encoding check completed. Took {:,.2f} seconds'.format(
         time.time() - start_time))
 
@@ -89,22 +99,31 @@ def _txt_header_whitespace_check(
     None
     """
     start_time = time.time()
+
+    gtfsfiles_to_use = ['stops.txt', 'routes.txt', 'trips.txt',
+                          'stop_times.txt', 'calendar.txt',
+                        'agency.txt', 'calendar_dates.txt']
+
     folderlist = [foldername for foldername in os.listdir(csv_rootpath) if
                   os.path.isdir(os.path.join(csv_rootpath, foldername))]
+
     if not folderlist:
         folderlist = [csv_rootpath]
+
     for folder in folderlist:
         textfilelist = [textfilename for textfilename in
                         os.listdir(os.path.join(csv_rootpath, folder)) if
                         textfilename.endswith(".txt")]
+
         for textfile in textfilelist:
-            # Read from file
-            with open(os.path.join(csv_rootpath, folder, textfile)) as f:
-                lines = f.readlines()
-            lines[0] = re.sub(r'\s+', '', lines[0]) + '\n'
-            # Write to file
-            with open(os.path.join(csv_rootpath, folder, textfile), 'w') as f:
-                f.writelines(lines)
+            if textfile in gtfsfiles_to_use:
+                # Read from file
+                with open(os.path.join(csv_rootpath, folder, textfile)) as f:
+                    lines = f.readlines()
+                lines[0] = re.sub(r'\s+', '', lines[0]) + '\n'
+                # Write to file
+                with open(os.path.join(csv_rootpath, folder, textfile), 'w') as f:
+                    f.writelines(lines)
     log(
         'GTFS text file header whitespace check completed. Took {:,'
         '.2f} seconds'.format(
@@ -178,7 +197,7 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
         raise ValueError('gtfsfeed_path must be a string')
 
     if validation:
-        if bbox is None and remove_stops_outsidebbox is None and verbose is \
+        if bbox is None or remove_stops_outsidebbox is None or verbose is \
                 None:
             raise ValueError(
                 'Attempted to run validation but bbox, verbose, and or '
