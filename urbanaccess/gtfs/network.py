@@ -261,10 +261,11 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
     if input_calendar_dates_df.empty == False:
         df_list.extend([input_calendar_dates_df])
 
-    for df in df_list:
+    for index, df in enumerate(df_list):
         df['unique_service_id'] = (df['service_id'].str.cat(
                 df['unique_agency_id'].astype('str'),
                 sep='_'))
+        df_list[index] = df
 
     # select service ids where day specified has a 1 = service runs on that day
     log('Using calendar to extract service_ids to select trips.')
@@ -428,10 +429,11 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df, day):
     # create unique trip ids
     df_list = [calendar_selected_trips_df, stop_times_df]
 
-    for df in df_list:
+    for index, df in enumerate(df_list):
         df['unique_trip_id'] = (df['trip_id'].str.cat(
-                df['unique_agency_id'].astype('str'),
-                sep='_'))
+            df['unique_agency_id'].astype('str'),
+            sep='_'))
+        df_list[index] = df
 
     # sort stop times inplace based on first to last stop in
     # sequence -- required as the linear interpolator runs
@@ -584,12 +586,12 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df, day):
         final_stop_times_df['departure_time_sec_interpolate'].notnull()]
     # convert float to int
     final_stop_times_df['departure_time_sec_interpolate'] = \
-    final_stop_times_df['departure_time_sec_interpolate'].astype(int)
+        final_stop_times_df['departure_time_sec_interpolate'].astype(int)
 
     # add unique stop id
     final_stop_times_df['unique_stop_id'] = (
-    final_stop_times_df['stop_id'].str.cat(
-        final_stop_times_df['unique_agency_id'].astype('str'), sep='_'))
+        final_stop_times_df['stop_id'].str.cat(
+            final_stop_times_df['unique_agency_id'].astype('str'), sep='_'))
 
     if missing_stop_times_count > 0:
         log(

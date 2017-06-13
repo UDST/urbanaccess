@@ -277,7 +277,8 @@ def _calendar_dates_agencyid(calendar_dates_df, routes_df,
 
     else:
 
-        merged_df.drop_duplicates(subset='service_id', keep='first', inplace=True)
+        merged_df.drop_duplicates(subset='service_id', keep='first',
+                                  inplace=True)
         merged_df = pd.merge(calendar_dates_df,
                              merged_df[['unique_agency_id', 'service_id']],
                              how='left',

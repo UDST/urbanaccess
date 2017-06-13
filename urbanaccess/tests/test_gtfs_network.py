@@ -13,7 +13,7 @@ def stop_times():
                     'c', 'c', 'c', 'c', 'c',
                     'd', 'd', 'd', 'd', 'd',
                     'e', 'e', 'e', 'e', 'e'],
-        'stop_id': range(25),
+        'stop_id': str(range(25)),
         'departure_time_sec': [1, 2, np.nan, np.nan, 5,
                                1, 2, 3, 4, np.nan,
                                np.nan, np.nan, 3, 4, np.nan,
@@ -71,7 +71,7 @@ def stop_times_interpolated():
                            '12_citybuses', '13_citybuses', '14_citybuses',
                            '10_citybuses', '11_citybuses', '12_citybuses',
                            '13_citybuses', '14_citybuses'],
-        'stop_id': [10, 11, 12, 13, 14] * 4,
+        'stop_id': ['10', '11', '12', '13', '14'] * 4,
         'stop_sequence': [1, 2, 3, 4, 5] * 4
     }
 
@@ -148,8 +148,8 @@ def test_edge_reformatter(stop_times_interpolated):
     for i, row in df.groupby('unique_trip_id').size().iteritems():
         assert row == 4
 
-    # check if the values in edge df were obtained form the correct
-    # positions in the orginal stop times df
+    # check if the values in edge df were obtained from the correct
+    # positions in the original stop times df
     assert df['node_id_from'][0] == stop_times_interpolated[
         'unique_stop_id'][0] and \
            df['node_id_to'][0] == stop_times_interpolated[
