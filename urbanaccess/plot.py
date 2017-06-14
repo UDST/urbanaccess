@@ -74,14 +74,14 @@ def plot_net(nodes, edges, x_col=None, y_col=None, from_col=None,
         y_col = 'y'
 
     # set default from_col and to_col cols if none specified
-    if 'from_int' in edges.columns or 'to_int' in edges.columns or \
-                    from_col is None or to_col is None:
+    if ('from_int' in edges.columns or 'to_int' in edges.columns) and \
+            (from_col is None or to_col is None):
         from_col = 'from_int'
         to_col = 'to_int'
 
     # set default from_col and to_col cols if none specified
-    if 'node_id_from' in edges.columns or 'node_id_to' in edges.columns or\
-                    from_col is None or to_col is None:
+    if ('node_id_from' in edges.columns or 'node_id_to' in edges.columns) and \
+            (from_col is None or to_col is None):
         from_col = 'node_id_from'
         to_col = 'node_id_to'
 
