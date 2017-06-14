@@ -210,18 +210,19 @@ def integrate_network(urbanaccess_network, headways=False,
         edge_df=urbanaccess_network.net_edges,
         node_df=urbanaccess_network.net_nodes)
 
-    success_msg = (
-    'Network edge and node network integration completed successfully '
-    'resulting in a total of {:,} nodes and {:,} '
-    'edges: Transit: {:,} nodes {:,} edges; OSM {:,} '
-    'nodes {:,} edges; and {:,} connector edges.')
-    log(success_msg.format(len(urbanaccess_network.net_nodes),
-                           len(urbanaccess_network.net_edges),
-                           len(urbanaccess_network.transit_nodes),
-                           len(urbanaccess_network.transit_edges),
-                           len(urbanaccess_network.osm_nodes),
-                           len(urbanaccess_network.osm_edges),
-                           len(urbanaccess_network.net_connector_edges)))
+    success_msg_1 = ('Network edge and node network integration completed '
+                     'successfully resulting in a total of {:,} nodes '
+                     'and {:,} edges:')
+    success_msg_2 = '     Transit: {:,} nodes {:,} edges;'
+    success_msg_3 = '     OSM {:,} nodes {:,} edges; and'
+    success_msg_4 = '     {:,} connector edges.'
+    log(success_msg_1.format(len(urbanaccess_network.net_nodes),
+                             len(urbanaccess_network.net_edges)))
+    log(success_msg_2.format(len(urbanaccess_network.transit_nodes),
+                             len(urbanaccess_network.transit_edges)))
+    log(success_msg_3.format(len(urbanaccess_network.osm_nodes),
+                             len(urbanaccess_network.osm_edges)))
+    log(success_msg_4.format(len(urbanaccess_network.net_connector_edges)))
 
     return urbanaccess_network
 
