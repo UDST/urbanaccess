@@ -140,9 +140,9 @@ def test_edge_reformatter(stop_times_interpolated):
     # sequence id should be numeric starting at 1 and end at 4 for each trip
     assert df['sequence'][0] == 1 and df['sequence'][3] == 4
 
-    # edge df should have these columns and will no null values
+    # edge df should have these columns and no null values
     for col in ['node_id_from', 'node_id_to', 'weight']:
-        assert col in df.columns and df[col].isnull().values.any() is False
+        assert col in df.columns and df[col].isnull().values.any() == False
 
     # there should be 4 edges per trip id
     for i, row in df.groupby('unique_trip_id').size().iteritems():
