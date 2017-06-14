@@ -47,9 +47,11 @@ def _calc_headways_by_route_stop(df):
             stop_route_group.sort_values(['departure_time_sec_interpolate'],
                                          ascending=True, inplace=True)
             next_bus_time = stop_route_group[
-                                'departure_time_sec_interpolate'].iloc[1:].values
+                                'departure_time_sec_interpolate'].iloc[
+                            1:].values
             prev_bus_time = stop_route_group[
-                                'departure_time_sec_interpolate'].iloc[:-1].values
+                                'departure_time_sec_interpolate'].iloc[
+                            :-1].values
             stop_route_group_headways = (next_bus_time - prev_bus_time) / 60
             results[unique_stop_route] = pd.Series(
                 stop_route_group_headways).describe()
@@ -183,8 +185,8 @@ def headways(gtfsfeeds_df, headway_timerange):
     if int(str(headway_timerange[1][0:2])) - int(
             str(headway_timerange[0][0:2])) > 3:
         long_time_range_msg = (
-        'WARNING: Time range passed: {} is a {} hour period. Long periods '
-        'over 3 hours may take a significant amount of time to process.')
+            'WARNING: Time range passed: {} is a {} hour period. Long periods '
+            'over 3 hours may take a significant amount of time to process.')
         log(long_time_range_msg.format(headway_timerange,
                                        int(str(
                                            headway_timerange[1][0:2])) - int(

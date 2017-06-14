@@ -150,7 +150,7 @@ def create_hdf5(dir=None, filename=None, overwrite_hdf5=False):
     try:
         if not os.path.exists(dir):
             os.makedirs(dir)
-    except:
+    except Exception:
         raise ValueError('Unable to make directory {}'.format(dir))
 
     if filename is None:
@@ -272,7 +272,7 @@ def hdf5_to_df(dir=None, filename=None, key=None):
         try:
             df = store[key]
             ('Returned {} as dataframe'.format(key))
-        except:
+        except Exception:
             raise ValueError(
                 'Unable to find key: {}. Keys found: {}'.format(key,
                                                                 store.keys()))

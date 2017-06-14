@@ -94,7 +94,7 @@ def ua_network_from_bbox(lat_min=None, lng_min=None, lat_max=None,
 
         nodes_to_keep = ~nodes.index.isin(rm_nodes)
         edges_to_keep = ~(
-        edges['from'].isin(rm_nodes) | edges['to'].isin(rm_nodes))
+            edges['from'].isin(rm_nodes) | edges['to'].isin(rm_nodes))
 
         nodes = nodes.loc[nodes_to_keep]
         edges = edges.loc[edges_to_keep]

@@ -92,8 +92,8 @@ def create_transit_net(gtfsfeeds_dfs, day,
             'WARNING: Time range passed: {} is a {} hour period. Long '
             'periods over 3 hours may take a significant amount of time to '
             'process.'.format(
-            timerange,
-            int(str(timerange[1][0:2])) - int(str(timerange[0][0:2]))),
+                timerange,
+                int(str(timerange[1][0:2])) - int(str(timerange[0][0:2]))),
             level=lg.WARNING)
     if gtfsfeeds_dfs is None:
         raise ValueError('gtfsfeeds_dfs is None')
@@ -125,8 +125,8 @@ def create_transit_net(gtfsfeeds_dfs, day,
         calendar_dates_lookup=calendar_dates_lookup)
 
     if gtfsfeeds_dfs.stop_times_int.empty or \
-            overwrite_existing_stop_times_int or \
-                    use_existing_stop_times_int == False:
+            overwrite_existing_stop_times_int or use_existing_stop_times_int\
+            is False:
         gtfsfeeds_dfs.stop_times_int = _interpolate_stop_times(
             stop_times_df=gtfsfeeds_dfs.stop_times,
             calendar_selected_trips_df=calendar_selected_trips_df,
@@ -258,7 +258,7 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
     # create unique service ids
     df_list = [input_trips_df, input_calendar_df]
     # if input_calendar_dates_df is not empty then add it to processing
-    if input_calendar_dates_df.empty == False:
+    if input_calendar_dates_df.empty is False:
         df_list.extend([input_calendar_dates_df])
 
     for index, df in enumerate(df_list):
@@ -271,8 +271,9 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
     log('Using calendar to extract service_ids to select trips.')
     input_calendar_df = input_calendar_df[(input_calendar_df[day] == 1)]
     input_calendar_df = input_calendar_df[['unique_service_id']]
-    log('{:,} service_ids were extracted from calendar'.format(len(
-        input_calendar_df)))
+    num_cal_service_ids_extracted = len(input_calendar_df)
+    log('{:,} service_ids were extracted from calendar'.format(
+        num_cal_service_ids_extracted))
 
     # generate information needed to tell user the status of their trips in
     # terms of service_ids in calendar and calendar_dates tables
@@ -296,15 +297,24 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
                 len(input_trips_df),
                 ' '.join(feed_id.split('_')[:-1])))
 
+    feed_id_not_in_cal = [x for x in feeds_wotrips_in_cal if x not in \
+                          feeds_wtrips_in_cal]
+    for feed_id in feed_id_not_in_cal:
+        log(
+            '0 trip(s) 0 percent of {:,} total trip records were '
+            'found in calendar for GTFS feed: {}'.format(
+                len(input_trips_df),
+                ' '.join(feed_id.split('_')[:-1])))
+
     if len(trips_notin_calendar) > 0 and calendar_dates_lookup is None:
         warning_msg = (
-        'NOTE: If you expected more trips to have been extracted and your '
-        'GTFS feed(s) have a calendar_dates file, consider utilizing the '
-        'calendar_dates_lookup parameter in order to add additional trips '
-        'based on information inside of calendar_dates. This should only '
-        'be done if you know the corresponding GTFS feed is using '
-        'calendar_dates instead of calendar to specify service_ids. When in '
-        'doubt do not use the calendar_dates_lookup parameter.')
+            'NOTE: If you expected more trips to have been extracted and your '
+            'GTFS feed(s) have a calendar_dates file, consider utilizing the '
+            'calendar_dates_lookup parameter in order to add additional trips '
+            'based on information inside of calendar_dates. This should only '
+            'be done if you know the corresponding GTFS feed is using '
+            'calendar_dates instead of calendar to specify service_ids. When '
+            'in doubt do not use the calendar_dates_lookup parameter.')
         log(warning_msg, level=lg.WARNING)
 
     if len(feeds_wtrips_in_cal) != len(
@@ -322,7 +332,8 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
                     'calendar. It is suggested you use the '
                     'calendar_dates_lookup parameter to utilize this feeds '
                     'calendar_dates file.'.format(
-                    ' '.join(feed_id.split('_')[:-1])), level=lg.WARNING)
+                        ' '.join(feed_id.split('_')[:-1])),
+                    level=lg.WARNING)
 
     # look for service_ids inside of calendar_dates if calendar does not
     # supply enough service_ids to select trips by
@@ -341,7 +352,7 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
         for col_name_key, string_value in calendar_dates_lookup.items():
             if col_name_key not in input_calendar_dates_df.columns:
                 raise ValueError('{} column not found in calendar_dates '
-                                  'dataframe'.format(col_name_key))
+                                 'dataframe'.format(col_name_key))
 
             if col_name_key not in input_calendar_dates_df.select_dtypes(
                     include=[object]).columns:
@@ -357,19 +368,28 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
                 subset_result = input_calendar_dates_df[
                     input_calendar_dates_df[col_name_key].str.match(
                         text, case=False, na=False)]
+                feed_id_list = subset_result['unique_feed_id'].unique()
+                for index, id in enumerate(feed_id_list):
+                    feed_id_list[index] = ' '.join(id.split('_')[:-1])
+
                 log('Found {:,} records that matched query: column: {} and '
-                     'string: {}'.format(len(subset_result),
-                                          col_name_key,
-                                          text))
+                    'string: {} for GTFS feed(s): {}'.format(len(
+                        subset_result),
+                        col_name_key,
+                        text,
+                        feed_id_list))
 
                 subset_result_df = subset_result_df.append(subset_result)
 
         subset_result_df.drop_duplicates(inplace=True)
         subset_result_df = subset_result_df[['unique_service_id']]
 
+        num_caldates_service_ids_extracted = len(subset_result_df)
         log('An additional {:,} service_ids were extracted from '
-            'calendar_dates'.format(len(
-            subset_result_df)))
+            'calendar_dates. Total service_id extracted: {:,}'.format(
+                num_caldates_service_ids_extracted,
+                num_caldates_service_ids_extracted +
+                num_cal_service_ids_extracted))
         input_calendar_df = input_calendar_df.append(subset_result_df)
         input_calendar_df.drop_duplicates(inplace=True)
 
@@ -390,14 +410,19 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
     if calendar_dates_lookup is None:
         log('{:,} of {:,} total trips were extracted representing calendar '
             'day: {}. Took {:,.2f} seconds'.format(len(
-            calendar_selected_trips_df), len(input_trips_df),
-            day, time.time() - start_time))
+                calendar_selected_trips_df),
+                len(input_trips_df),
+                day,
+                time.time() - start_time))
     else:
         log('{:,} of {:,} total trips were extracted representing calendar '
             'day: {} and calendar_dates search parameters: {}. Took {:,'
             '.2f} seconds'.format(len(
-            calendar_selected_trips_df), len(input_trips_df),
-            day, calendar_dates_lookup, time.time() - start_time))
+                calendar_selected_trips_df),
+                len(input_trips_df),
+                day,
+                calendar_dates_lookup,
+                time.time() - start_time))
 
     return calendar_selected_trips_df
 
@@ -444,7 +469,8 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df, day):
             'Please check these missing values. In order for interpolation '
             'to proceed correctly, '
             'all records must have a stop_sequence value.'.format(
-            stop_times_df['stop_sequence'].isnull().sum()), level=lg.WARNING)
+                stop_times_df['stop_sequence'].isnull().sum()),
+            level=lg.WARNING)
 
     stop_times_df.sort_values(by=['unique_trip_id', 'stop_sequence'],
                               inplace=True)
@@ -467,7 +493,8 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df, day):
         log('Note: Processing may take a long time depending'
             ' on the number of records. '
             'Total unique trips to assess: {:,}'.format(
-            len(stop_times_df['unique_trip_id'].unique())), level=lg.WARNING)
+                len(stop_times_df['unique_trip_id'].unique())),
+            level=lg.WARNING)
         log('Starting departure stop time interpolation...')
         log(
             'Departure time records missing from trips following {} '
@@ -572,8 +599,8 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df, day):
     if final_stop_times_df[
         'departure_time_sec_interpolate'].isnull().sum() > 0:
         log(
-            'WARNING: Number of records unable to interpolate: {:,}. These '
-            'records have been removed.'.format(
+            'WARNING: Number of records unable to interpolate: {:,}. '
+            'These records have been removed.'.format(
                 final_stop_times_df[
                     'departure_time_sec_interpolate'].isnull().sum()),
             level=lg.WARNING)
@@ -669,8 +696,8 @@ def _time_selector(df, starttime, endtime):
 
     # create df of stops times that are within the requested range
     selected_stop_timesdf = df[(
-    (starttime_sec < df["departure_time_sec_interpolate"]) & (
-    df["departure_time_sec_interpolate"] < endtime_sec))]
+        (starttime_sec < df["departure_time_sec_interpolate"]) & (
+            df["departure_time_sec_interpolate"] < endtime_sec))]
 
     log(
         'Stop times from {} to {} successfully selected {:,} records out of '
@@ -732,8 +759,8 @@ def _format_transit_net_edge(stop_times_df):
     merged_edge_df['sequence'] = merged_edge_df['sequence'].astype(int,
                                                                    copy=False)
     merged_edge_df['id'] = (
-    merged_edge_df['unique_trip_id'].str.cat(
-        merged_edge_df['sequence'].astype('str'), sep='_'))
+        merged_edge_df['unique_trip_id'].str.cat(
+            merged_edge_df['sequence'].astype('str'), sep='_'))
 
     log('stop time table transformation to '
         'Pandana format edge table completed. '
@@ -799,8 +826,8 @@ def _stops_in_edge_table_selector(input_stops_df,
 
     # add unique stop id
     input_stops_df['unique_stop_id'] = (
-    input_stops_df['stop_id'].str.cat(
-        input_stops_df['unique_agency_id'].astype('str'), sep='_'))
+        input_stops_df['stop_id'].str.cat(
+            input_stops_df['unique_agency_id'].astype('str'), sep='_'))
 
     # Select stop ids that match stop ids in the subset stop time data that
     # match day and time selection
@@ -893,8 +920,10 @@ def _route_type_to_edge(transit_edge_df, stop_time_df):
                          stop_time_df[['unique_trip_id', 'route_type']],
                          how='left', on='unique_trip_id', sort=False,
                          copy=False)
-    merged_df.drop_duplicates(subset='unique_trip_id', keep='first', inplace
-    =True)  # need to get unique records here to have a one to one join -
+    merged_df.drop_duplicates(subset='unique_trip_id',
+                              keep='first',
+                              inplace=True)
+    # need to get unique records here to have a one to one join -
     # this serves as the look up table
     # join the look up table created above to the table of interest
     transit_edge_df_w_routetype = pd.merge(transit_edge_df, merged_df[
@@ -997,8 +1026,7 @@ def edge_impedance_by_route_type(transit_edge_df,
                        4: 'Ferry', 5: 'Cable Car',
                        6: 'Gondola or Suspended cable car',
                        7: 'Steep incline: Funicular'}
-    log('Route type distribution as percentage of '
-        'transit mode: {:.2f}'.format(
+    log('Route type distribution as percentage of transit mode: {:.2f}'.format(
         transit_edge_df['route_type'].map(route_type_desc.get).value_counts(
             normalize=True, dropna=False) * 100))
 
@@ -1017,7 +1045,7 @@ def edge_impedance_by_route_type(transit_edge_df,
             transit_edge_df[transit_edge_df['route_type'] == 0]) > 0:
         transit_edge_df[travel_time_col_name][
             transit_edge_df['route_type'] == 0] = travel_time_col + (
-        travel_time_col * street_level_rail)
+            travel_time_col * street_level_rail)
         log(
             'Adjusted Street Level Rail transit edge impedance based on mode'
             ' type penalty coefficient: {}'.format(
@@ -1026,7 +1054,7 @@ def edge_impedance_by_route_type(transit_edge_df,
             transit_edge_df[transit_edge_df['route_type'] == 1]) > 0:
         transit_edge_df[travel_time_col_name][
             transit_edge_df['route_type'] == 1] = travel_time_col + (
-        travel_time_col * underground_rail)
+            travel_time_col * underground_rail)
         log(
             'Adjusted Underground rail transit edge impedance based on mode '
             'type penalty coefficient: {}'.format(
@@ -1035,7 +1063,7 @@ def edge_impedance_by_route_type(transit_edge_df,
             transit_edge_df[transit_edge_df['route_type'] == 2]) > 0:
         transit_edge_df[travel_time_col_name][
             transit_edge_df['route_type'] == 2] = travel_time_col + (
-        travel_time_col * intercity_rail)
+            travel_time_col * intercity_rail)
         log(
             'Adjusted Rail transit edge impedance based on mode type penalty '
             'coefficient: {}'.format(
@@ -1044,7 +1072,7 @@ def edge_impedance_by_route_type(transit_edge_df,
             transit_edge_df[transit_edge_df['route_type'] == 3]) > 0:
         transit_edge_df[travel_time_col_name][
             transit_edge_df['route_type'] == 3] = travel_time_col + (
-        travel_time_col * bus)
+            travel_time_col * bus)
         log(
             'Adjusted Bus transit edge impedance based on mode type penalty '
             'coefficient: {}'.format(
@@ -1053,7 +1081,7 @@ def edge_impedance_by_route_type(transit_edge_df,
             transit_edge_df[transit_edge_df['route_type'] == 4]) > 0:
         transit_edge_df[travel_time_col_name][
             transit_edge_df['route_type'] == 4] = travel_time_col + (
-        travel_time_col * ferry)
+            travel_time_col * ferry)
         log(
             'Adjusted Ferry transit edge impedance based on mode type '
             'penalty coefficient: {}'.format(
@@ -1062,7 +1090,7 @@ def edge_impedance_by_route_type(transit_edge_df,
             transit_edge_df[transit_edge_df['route_type'] == 5]) > 0:
         transit_edge_df[travel_time_col_name][
             transit_edge_df['route_type'] == 5] = travel_time_col + (
-        travel_time_col * cable_car)
+            travel_time_col * cable_car)
         log(
             'Adjusted Cable Car transit edge impedance based on mode type '
             'penalty coefficient: {}'.format(
@@ -1071,7 +1099,7 @@ def edge_impedance_by_route_type(transit_edge_df,
             transit_edge_df[transit_edge_df['route_type'] == 6]) > 0:
         transit_edge_df[travel_time_col_name][
             transit_edge_df['route_type'] == 6] = travel_time_col + (
-        travel_time_col * gondola)
+            travel_time_col * gondola)
         log(
             'Adjusted Gondola or Suspended cable car transit edge impedance '
             'based on mode type penalty coefficient: {}'.format(
@@ -1080,7 +1108,7 @@ def edge_impedance_by_route_type(transit_edge_df,
             transit_edge_df[transit_edge_df['route_type'] == 7]) > 0:
         transit_edge_df[travel_time_col_name][
             transit_edge_df['route_type'] == 7] = travel_time_col + (
-        travel_time_col * funicular)
+            travel_time_col * funicular)
         log(
             'Adjusted Funicular transit edge impedance based on mode type '
             'penalty coefficient: {}'.format(
@@ -1136,12 +1164,12 @@ def save_processed_gtfs_data(gtfsfeeds_dfs,
                overwrite_key=False, dir=dir, filename=filename,
                overwrite_hdf5=False)
 
-    if gtfsfeeds_dfs.headways.empty == False:
+    if gtfsfeeds_dfs.headways.empty is False:
         df_to_hdf5(data=gtfsfeeds_dfs.headways, key='headways',
                    overwrite_key=False, dir=dir, filename=filename,
                    overwrite_hdf5=False)
 
-    if gtfsfeeds_dfs.calendar_dates.empty == False:
+    if gtfsfeeds_dfs.calendar_dates.empty is False:
         df_to_hdf5(data=gtfsfeeds_dfs.calendar_dates, key='calendar_dates',
                    overwrite_key=False, dir=dir, filename=filename,
                    overwrite_hdf5=False)
