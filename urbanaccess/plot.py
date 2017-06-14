@@ -74,7 +74,7 @@ def plot_net(nodes, edges, x_col=None, y_col=None, from_col=None,
         y_col = 'y'
 
     # set default from_col and to_col cols if none specified
-    if 'from_int' in edges.columns or 'to_int' in edges.columns or\
+    if 'from_int' in edges.columns or 'to_int' in edges.columns or \
                     from_col is None or to_col is None:
         from_col = 'from_int'
         to_col = 'to_int'
@@ -85,7 +85,6 @@ def plot_net(nodes, edges, x_col=None, y_col=None, from_col=None,
         from_col = 'node_id_from'
         to_col = 'node_id_to'
 
-
     # if edge df is subset make sure nodes are also subset to match
     from_ids = nodes[nodes.index.isin(list(edges[from_col]))]
     to_id = nodes[nodes.index.isin(list(edges[to_col]))]
@@ -95,7 +94,7 @@ def plot_net(nodes, edges, x_col=None, y_col=None, from_col=None,
     node_Xs = nodes[x_col].tolist()
     node_Ys = nodes[y_col].tolist()
 
-    if nodes_only == False:
+    if nodes_only is False:
         if 'from_lon' not in edges.columns \
                 or 'to_lon' not in edges.columns \
                 or 'from_lat' not in edges.columns \
@@ -121,7 +120,7 @@ def plot_net(nodes, edges, x_col=None, y_col=None, from_col=None,
     fig, ax = plt.subplots(figsize=(fig_height / bbox_aspect_ratio,
                                     fig_height))
 
-    if nodes_only == False:
+    if nodes_only is False:
         # TODO: optimize for speed by calculating only for edges that are
         # within the the bbox + buffer distance to speed up
         lines = []

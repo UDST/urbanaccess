@@ -72,18 +72,19 @@ def _boundingbox_check(df, feed_folder, lat_min=None, lng_min=None,
                          'must be floats')
 
     outside_boundingbox = df.loc[~(
-    ((lng_max < df["stop_lon"]) & (df["stop_lon"] < lng_min)) & (
-    (lat_min < df["stop_lat"]) & (df["stop_lat"] < lat_max)))]
+        ((lng_max < df["stop_lon"]) & (df["stop_lon"] < lng_min)) & (
+            (lat_min < df["stop_lat"]) & (df["stop_lat"] < lat_max)))]
 
     if len(outside_boundingbox) > 0:
         log(
-            '{} GTFS feed stops: {:,} of {:,} ({:.2f} percent of total) '
-            'record(s) are outside the bounding box coordinates'.format(
+            'WARNING: {} GTFS feed stops: {:,} of {:,} ({:.2f} percent of '
+            'total) record(s) are outside the bounding box coordinates'.format(
                 os.path.split(feed_folder)[1], len(outside_boundingbox),
                 len(df), (len(outside_boundingbox) / len(df)) * 100),
             level=lg.WARNING)
         if verbose:
-            log('Records: {}'.format(outside_boundingbox))
+            log('Records: {}')
+            log('{}'.format(outside_boundingbox))
         if remove:
             df_subset = df.drop(outside_boundingbox.index)
             log('Removed identified stops that are outside of bounding box.')
@@ -114,22 +115,22 @@ def _checkcoordinates(df, feed_folder):
     if (df['stop_lat'] > 0).values.any() & (df['stop_lon'] < 0).values.any():
         log('{} GTFS feed stops: coordinates are in northwest hemisphere. '
             'Latitude = North (90); Longitude = West (-90).'.format(
-            os.path.split(feed_folder)[1]))
+                os.path.split(feed_folder)[1]))
 
     if (df['stop_lat'] < 0).values.any() & (df['stop_lon'] < 0).values.any():
         log('{} GTFS feed stops: coordinates are in southwest hemisphere. '
             'Latitude = South (-90); Longitude = West (-90).'.format(
-            os.path.split(feed_folder)[1]))
+                os.path.split(feed_folder)[1]))
 
     if (df['stop_lat'] > 0).values.any() & (df['stop_lon'] > 0).values.any():
         log('{} GTFS feed stops: coordinates are in northeast hemisphere. '
             'Latitude = North (90); Longitude = East (90).'.format(
-            os.path.split(feed_folder)[1]))
+                os.path.split(feed_folder)[1]))
 
     if (df['stop_lat'] < 0).values.any() & (df['stop_lon'] > 0).values.any():
         log('{} GTFS feed stops: coordinates are in southeast hemisphere. '
             'Latitude = South (-90); Longitude = East (90).'.format(
-            os.path.split(feed_folder)[1]))
+                os.path.split(feed_folder)[1]))
 
 
 def _validate_gtfs(stops_df, feed_folder,

@@ -114,10 +114,11 @@ def integrate_network(urbanaccess_network, headways=False,
             'one of the network objects: transit_edges, transit_nodes, '
             'osm_edges, or osm_nodes were found to be empty.')
 
-    log('Loaded UrbanAccess network components comprised of: {:,} '
-        'transit nodes and {:,} edges; {:,} OSM nodes and {:,} edges.'.format(
+    log('Loaded UrbanAccess network components comprised of:')
+    log('     Transit: {:,} nodes and {:,} edges;'.format(
         len(urbanaccess_network.transit_nodes),
-        len(urbanaccess_network.transit_edges),
+        len(urbanaccess_network.transit_edges)))
+    log('     OSM: {:,} nodes and {:,} edges'.format(
         len(urbanaccess_network.osm_nodes),
         len(urbanaccess_network.osm_edges)))
 
@@ -140,12 +141,12 @@ def integrate_network(urbanaccess_network, headways=False,
             raise ValueError('{} is not a supported statistic or is not a '
                              'string'.format(headway_statistic))
 
-        if 'node_id_from' not in urbanaccess_network.transit_edges.columns \
-                and 'from' in urbanaccess_network.transit_edges.columns:
+        transit_edge_cols = urbanaccess_network.transit_edges.columns
+        if 'node_id_from' not in transit_edge_cols or 'from' in \
+                transit_edge_cols:
             urbanaccess_network.transit_edges.rename(
                 columns={'from': 'node_id_from'}, inplace=True)
-        if 'node_id_to' not in urbanaccess_network.transit_edges.columns and\
-                        'to' in urbanaccess_network.transit_edges.columns:
+        if 'node_id_to' not in transit_edge_cols or 'to' in transit_edge_cols:
             urbanaccess_network.transit_edges.rename(
                 columns={'to': 'node_id_to'}, inplace=True)
 
@@ -206,16 +207,15 @@ def integrate_network(urbanaccess_network, headways=False,
          urbanaccess_network.osm_nodes], axis=0)
 
     urbanaccess_network.net_edges, urbanaccess_network.net_nodes = \
-        _format_pandana_edges_nodes(
-        edge_df=urbanaccess_network.net_edges,
-        node_df=urbanaccess_network.net_nodes)
+        _format_pandana_edges_nodes(edge_df=urbanaccess_network.net_edges,
+                                    node_df=urbanaccess_network.net_nodes)
 
     success_msg_1 = ('Network edge and node network integration completed '
                      'successfully resulting in a total of {:,} nodes '
                      'and {:,} edges:')
     success_msg_2 = '     Transit: {:,} nodes {:,} edges;'
-    success_msg_3 = '     OSM {:,} nodes {:,} edges; and'
-    success_msg_4 = '     {:,} connector edges.'
+    success_msg_3 = '     OSM: {:,} nodes {:,} edges; and'
+    success_msg_4 = '     OSM/Transit connector: {:,} edges.'
     log(success_msg_1.format(len(urbanaccess_network.net_nodes),
                              len(urbanaccess_network.net_edges)))
     log(success_msg_2.format(len(urbanaccess_network.transit_nodes),
@@ -272,7 +272,7 @@ def _add_headway_impedance(ped_to_transit_edges_df, headways_df,
     osm_to_transit_wheadway.rename(columns={'weight_tmp': 'weight'},
                                    inplace=True)
 
-    log('headway impedance calculation completed. Took {:,.2f} seconds'.format(
+    log('Headway impedance calculation completed. Took {:,.2f} seconds'.format(
         time.time() - start_time))
 
     return osm_to_transit_wheadway
@@ -425,6 +425,8 @@ def _format_pandana_edges_nodes(edge_df, node_df):
     edge_df_wnumericid, node_df : pandas.DataFrame
 
     """
+    start_time = time.time()
+
     # pandana requires ids that are integer: for nodes - make it the index,
     # for edges make it the from and to columns
     node_df['id_int'] = range(1, len(node_df) + 1)
@@ -457,7 +459,9 @@ def _format_pandana_edges_nodes(edge_df, node_df):
     if 'nearest_osm_node' in node_df.columns:
         node_df.drop(['nearest_osm_node'], axis=1, inplace=True)
 
-    log('Edge and node tables formatted for Pandana')
+    log('Edge and node tables formatted for Pandana with integer node ids: '
+        'id_int, to_int, and from_int. Took {:,.2f} seconds'.format(
+            time.time() - start_time))
     return edge_df_wnumericid, node_df
 
 

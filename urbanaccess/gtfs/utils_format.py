@@ -265,7 +265,7 @@ def _calendar_dates_agencyid(calendar_dates_df, routes_df,
             'multiple agency_ids. This feed calendar_dates table will be '
             'modified from its original format to provide service_ids for '
             'each agency using a one to many join'.format(os.path.split(
-            feed_folder)[1]))
+                feed_folder)[1]))
 
         tmp = merged_df[
             ['service_id', 'unique_agency_id']].drop_duplicates(
@@ -330,7 +330,7 @@ def _calendar_agencyid(calendar_df, routes_df, trips_df,
             'multiple agency_ids. This feed calendar table will be '
             'modified from its original format to provide service_ids for '
             'each agency using a one to many join'.format(os.path.split(
-            feed_folder)[1]))
+                feed_folder)[1]))
 
         tmp = merged_df[
             ['service_id', 'unique_agency_id']].drop_duplicates(
@@ -342,7 +342,9 @@ def _calendar_agencyid(calendar_df, routes_df, trips_df,
 
     else:
 
-        merged_df.drop_duplicates(subset='service_id', keep='first', inplace=True)
+        merged_df.drop_duplicates(subset='service_id',
+                                  keep='first',
+                                  inplace=True)
         merged_df = pd.merge(calendar_df,
                              merged_df[['unique_agency_id', 'service_id']],
                              how='left',
@@ -429,7 +431,7 @@ def _stops_agencyid(stops_df, trips_df, routes_df,
             'multiple agency_ids. This feed stops table will be '
             'modified from its original format to provide stop_ids for '
             'each agency using a one to many join'.format(os.path.split(
-            feed_folder)[1]))
+                feed_folder)[1]))
 
         tmp = merged_df[
             ['stop_id', 'unique_agency_id']].drop_duplicates(
@@ -550,41 +552,36 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
 
     df_list = [stops_df, routes_df, trips_df, stop_times_df, calendar_df]
     # if calendar_dates_df is not empty then add it to the processing list
-    if calendar_dates_df.empty == False:
+    if calendar_dates_df.empty is False:
         df_list.extend([calendar_dates_df])
 
     path_absent = os.path.exists(
-        os.path.join(feed_folder, 'agency.txt')) == False
+        os.path.join(feed_folder, 'agency.txt')) is False
     agency_absent = 'agency_id' not in agency_df.columns
-    if (path_absent or agency_absent) and nulls_as_folder == True:
+
+    if (path_absent or agency_absent) and nulls_as_folder is True:
 
         for index, df in enumerate(df_list):
-            unique_agency_id = sub(r'\s+', '_',
-                                   os.path.split(feed_folder)[1]).replace('&',
-                                                                          'and').lower()
+            unique_agency_id = _generate_unique_feed_id(feed_folder)
             df['unique_agency_id'] = unique_agency_id
             df_list[index] = df
 
-        log(
-            'The agency.txt or agency_id column was not found. The unique '
+        log('The agency.txt or agency_id column was not found. The unique '
             'agency id: {} was generated using the name of the folder '
             'containing the GTFS feed text files.'.format(
                 unique_agency_id))
 
-    elif os.path.exists(os.path.join(feed_folder,
-                                     'agency.txt')) == False or \
-                    nulls_as_folder == False:
+    elif path_absent is False and nulls_as_folder is False:
         raise ValueError(
             'No agency.txt file was found in {}. Add the missing file to '
-            'folder or set nulls_as_folder to True'.format(
-                feed_folder))
+            'folder or set nulls_as_folder to True'.format(feed_folder))
 
     else:
-        if not os.path.exists(os.path.join(feed_folder, 'agency.txt')):
-            raise ValueError('{} not found.'.format(os.path.join(feed_folder,
-                                                     'agency.txt')))
+        if path_absent:
+            file_path = os.path.join(feed_folder, 'agency.txt')
+            raise ValueError('{} not found.'.format(file_path))
         if 'agency_name' not in agency_df.columns or 'agency_id' not in \
-                                                      agency_df.columns:
+                agency_df.columns:
             raise ValueError('both agency_name and agency_id columns were not '
                              'found in agency.txt')
         if len(agency_df[['agency_id', 'agency_name']]) == 0:
@@ -596,9 +593,9 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
                 raise ValueError('null values in agency_name were found')
 
             # could be added to helper function
-            unique_agency_id = sub(r'\s+', '_',
-                                   agency_df['agency_name'][0]).replace('&',
-                                                                        'and').lower()
+            # take first agency
+            agency_snake_case = sub(r'\s+', '_', agency_df['agency_name'][0])
+            unique_agency_id = agency_snake_case.replace('&', 'and').lower()
 
             for index, df in enumerate(df_list):
                 df['unique_agency_id'] = unique_agency_id
@@ -623,7 +620,7 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
                 ['trip_id', 'route_id', 'service_id']]
 
             # if calendar_dates_df is not empty then process it
-            if calendar_dates_df.empty == False:
+            if calendar_dates_df.empty is False:
                 calendar_dates_replacement_df = _calendar_dates_agencyid(
                     calendar_dates_df=calendar_dates_df,
                     routes_df=subset_routes_df,
@@ -669,7 +666,7 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
                        calendar_replacement_df]
             # if calendar_dates_df is not empty then add it to the
             # processing list
-            if calendar_dates_df.empty == False:
+            if calendar_dates_df.empty is False:
                 df_list.extend([calendar_dates_replacement_df])
 
             log(
@@ -679,9 +676,8 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
 
     for index, df in enumerate(df_list):
         if df['unique_agency_id'].isnull().values.any():
-            unique_agency_id = sub(r'\s+', '_',
-                                   os.path.split(feed_folder)[1]).replace('&',
-                                                                          'and').lower()
+
+            unique_agency_id = _generate_unique_feed_id(feed_folder)
 
             df['unique_agency_id'].fillna(
                 ''.join(['multiple_operators_', unique_agency_id]),
@@ -697,7 +693,7 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
             df_list[index] = df
 
     # if calendar_dates_df is empty then return the original empty df
-    if calendar_dates_df.empty == True:
+    if calendar_dates_df.empty:
         df_list.extend([calendar_dates_df])
 
     log('Unique agency id operation complete. Took {:,.2f} seconds'.format(
@@ -743,12 +739,11 @@ def _add_unique_gtfsfeed_id(stops_df, routes_df, trips_df,
                stop_times_df,
                calendar_df]
     # if calendar_dates_df is not empty then add it to the processing list
-    if calendar_dates_df.empty == False:
+    if calendar_dates_df.empty is False:
         df_list.extend([calendar_dates_df])
 
-    # standardize feed_folder name,
-    feed_folder = sub(r'\s+', '_', os.path.split(feed_folder)[1]).replace('&',
-                                                                          'and').lower()
+    # standardize feed_folder name
+    feed_folder = _generate_unique_feed_id(feed_folder)
 
     for index, df in enumerate(df_list):
         # create new unique_feed_id column based on the name of the feed folder
@@ -756,7 +751,7 @@ def _add_unique_gtfsfeed_id(stops_df, routes_df, trips_df,
         df_list[index] = df
 
     # if calendar_dates_df is empty then return the original empty df
-    if calendar_dates_df.empty == True:
+    if calendar_dates_df.empty:
         df_list.extend([calendar_dates_df])
 
     log('Unique GTFS feed id operation complete. Took {:,.2f} seconds'.format(
@@ -1075,3 +1070,26 @@ def _generate_unique_agency_id(df, col_name):
     # replace all ampersands
     col_snake_no_amps = col_snake_case.str.replace('&', 'and')
     return col_snake_no_amps.str.lower()
+
+
+def _generate_unique_feed_id(feed_folder):
+    """
+    Generate unique feed id
+
+    Parameters
+    ----------
+    feed_folder : str
+        typically will be the path ot the feed folder
+
+    Returns
+    -------
+    col_snake_no_amps : str
+    """
+
+    folder_name = os.path.split(feed_folder)[1]
+    # replace all runs of spaces with a single underscore and replace all
+    # ampersands
+    folder_snake_case_no_amps = sub(r'\s+', '_', folder_name).replace('&',
+                                                                      'and')
+
+    return folder_snake_case_no_amps.lower()

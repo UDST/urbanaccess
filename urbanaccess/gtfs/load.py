@@ -26,17 +26,26 @@ def _standardize_txt(csv_rootpath=os.path.join(config.settings.data_folder,
     -------
     None
     """
-    _txt_encoder_check(csv_rootpath)
-    _txt_header_whitespace_check(csv_rootpath)
+
+    gtfsfiles_to_use = ['stops.txt', 'routes.txt', 'trips.txt',
+                        'stop_times.txt', 'calendar.txt',
+                        'agency.txt', 'calendar_dates.txt']
+
+    _txt_encoder_check(gtfsfiles_to_use, csv_rootpath)
+    _txt_header_whitespace_check(gtfsfiles_to_use, csv_rootpath)
 
 
-def _txt_encoder_check(csv_rootpath=os.path.join(config.settings.data_folder,
-                                                 'gtfsfeed_text')):
+def _txt_encoder_check(gtfsfiles_to_use,
+                       csv_rootpath=os.path.join(
+                           config.settings.data_folder,
+                           'gtfsfeed_text')):
     """
     Standardize all text files inside a GTFS feed for encoding problems
 
     Parameters
     ----------
+    gtfsfiles_to_use : list
+        list of gtfs feed txt files to utilize
     csv_rootpath : str, optional
         root path where all gtfs feeds that make up a contiguous metropolitan
         area are stored
@@ -47,10 +56,6 @@ def _txt_encoder_check(csv_rootpath=os.path.join(config.settings.data_folder,
     """
     # UnicodeDecodeError
     start_time = time.time()
-
-    gtfsfiles_to_use = ['stops.txt', 'routes.txt', 'trips.txt',
-                          'stop_times.txt', 'calendar.txt',
-                        'agency.txt', 'calendar_dates.txt']
 
     folderlist = [foldername for foldername in os.listdir(csv_rootpath) if
                   os.path.isdir(os.path.join(csv_rootpath, foldername))]
@@ -72,8 +77,8 @@ def _txt_encoder_check(csv_rootpath=os.path.join(config.settings.data_folder,
                 if raw.startswith(codecs.BOM_UTF8):
                     raw = raw.replace(codecs.BOM_UTF8, '', 1)
                     # Write to file
-                    file_open = open(os.path.join(csv_rootpath, folder, textfile),
-                                     'w')
+                    file_open = open(
+                        os.path.join(csv_rootpath, folder, textfile), 'w')
                     file_open.write(raw)
                     file_open.close()
 
@@ -81,15 +86,18 @@ def _txt_encoder_check(csv_rootpath=os.path.join(config.settings.data_folder,
         time.time() - start_time))
 
 
-def _txt_header_whitespace_check(
-        csv_rootpath=os.path.join(config.settings.data_folder,
-                                  'gtfsfeed_text')):
+def _txt_header_whitespace_check(gtfsfiles_to_use,
+                                 csv_rootpath=os.path.join(
+                                     config.settings.data_folder,
+                                     'gtfsfeed_text')):
     """
     Standardize all text files inside a GTFS feed to remove whitespace
     in headers
 
     Parameters
     ----------
+    gtfsfiles_to_use : list
+        list of gtfs feed txt files to utilize
     csv_rootpath : str, optional
         root path where all gtfs feeds that make up a contiguous metropolitan
         area are stored
@@ -99,10 +107,6 @@ def _txt_header_whitespace_check(
     None
     """
     start_time = time.time()
-
-    gtfsfiles_to_use = ['stops.txt', 'routes.txt', 'trips.txt',
-                          'stop_times.txt', 'calendar.txt',
-                        'agency.txt', 'calendar_dates.txt']
 
     folderlist = [foldername for foldername in os.listdir(csv_rootpath) if
                   os.path.isdir(os.path.join(csv_rootpath, foldername))]
@@ -122,9 +126,16 @@ def _txt_header_whitespace_check(
                     lines = f.readlines()
                 lines[0] = re.sub(r'\s+', '', lines[0]) + '\n'
                 # Write to file
-                with open(os.path.join(csv_rootpath, folder, textfile),
-                          'w') as f:
-                    f.writelines(lines)
+                try:
+                    with open(os.path.join(csv_rootpath, folder, textfile),
+                              'w') as f:
+                        f.writelines(lines)
+                except Exception:
+                    log('Unable to read {}. Check that file is not currently'
+                        'being read or is not already in memory as this is '
+                        'likely the cause of the error.'
+                        ''.format(os.path.join(csv_rootpath,
+                                               folder, textfile)))
     log(
         'GTFS text file header whitespace check completed. Took {:,'
         '.2f} seconds'.format(
@@ -229,8 +240,8 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
                 raise ValueError(
                     '{} is a required GTFS text file and was not found in '
                     'folder {}'.format(
-                    required_file,
-                    os.path.join(gtfsfeed_path, folder)))
+                        required_file,
+                        os.path.join(gtfsfeed_path, folder)))
 
         for textfile in required_gtfsfiles:
             if textfile == 'stops.txt':
@@ -357,6 +368,7 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
     gtfsfeeds_dfs.calendar = merged_calendar_df
     gtfsfeeds_dfs.calendar_dates = merged_calendar_dates_df
 
+    # TODO: add to print the list of gtfs feed txt files read in for each feed
     log('{:,} GTFS feed file(s) successfully read as dataframes:'.format(
         len(folderlist)))
     for folder in folderlist:

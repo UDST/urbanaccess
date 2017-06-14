@@ -108,9 +108,9 @@ class urbanaccess_config(object):
                        log_name=yaml_config.get('log_name', 'urbanaccess'),
                        log_filename=yaml_config.get('log_filename',
                                                     'urbanaccess'),
-                       gtfs_api=yaml_config.get('gtfs_api',
-                                                {'gtfsdataexch':
-                                                     'http://www.gtfs-data-exchange.com/api/agencies?format=csv'}),
+                       gtfs_api=yaml_config.get('gtfs_api', {
+                           'gtfsdataexch':
+                               'http://www.gtfs-data-exchange.com/api/agencies?format=csv'}),
                        )
 
         return settings
@@ -157,7 +157,7 @@ class urbanaccess_config(object):
             raise ValueError('yaml must be a string and have file extension '
                              '.yaml')
         yaml_file = os.path.join(configdir, yamlname)
-        if overwrite == False and os.path.isfile(yaml_file) == True:
+        if overwrite is False or os.path.isfile(yaml_file) is True:
             raise ValueError(
                 '{} already exists. Rename or turn overwrite to True'.format(
                     yamlname))

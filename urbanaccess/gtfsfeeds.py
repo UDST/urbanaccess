@@ -81,7 +81,7 @@ class urbanaccess_gtfsfeeds(object):
                     raise ValueError('{} must be a string'.format(value))
 
         if (pd.Series(
-            yaml_config['gtfs_feeds'].values()).value_counts() != 1).all():
+                yaml_config['gtfs_feeds'].values()).value_counts() != 1).all():
             raise ValueError(
                 'duplicate values were found when the passed add_dict '
                 'dictionary was added to the existing dictionary. Feed URL '
@@ -121,14 +121,14 @@ class urbanaccess_gtfsfeeds(object):
         if not isinstance(replace, bool):
             raise ValueError('replace is not bool')
 
-        if replace != True:
+        if replace is not True:
 
             for key in add_dict.keys():
                 if key in self.gtfs_feeds.keys():
                     raise ValueError(
                         '{} passed in add_dict already exists in gtfs_feeds. '
                         'Only unique keys are allowed to be added.'.format(
-                        key))
+                            key))
                 if not isinstance(key, str):
                     raise ValueError('{} must be a string'.format(key))
                 for value in add_dict[key]:
@@ -185,7 +185,7 @@ class urbanaccess_gtfsfeeds(object):
 
             if not isinstance(del_key, list) or not isinstance(del_key, str):
                 raise ValueError('del_key must be a string or list of strings')
-            if remove_all == True:
+            if remove_all:
                 raise ValueError(
                     'remove_all must be False in order to remove individual '
                     'records: {}'.format(del_key))
@@ -233,7 +233,7 @@ class urbanaccess_gtfsfeeds(object):
             raise ValueError('yaml must be a string and have file extension '
                              '.yaml')
         yaml_file = os.path.join(gtfsfeeddir, yamlname)
-        if overwrite == False and os.path.isfile(yaml_file) == True:
+        if overwrite is False and os.path.isfile(yaml_file) is True:
             raise ValueError(
                 '{} already exists. Rename or turn overwrite to True'.format(
                     yamlname))
@@ -282,9 +282,8 @@ def search(api='gtfsdataexch', search_text=None, search_field=None,
 
     log(
         'Note: Your use of a GTFS feed is governed by each GTFS feed author '
-        'license terms. ' \
-        'It is suggested you read the respective license terms for the '
-        'appropriate use of a GTFS feed.',
+        'license terms. It is suggested you read the respective license '
+        'terms for the appropriate use of a GTFS feed.',
         level=lg.WARNING)
 
     if not isinstance(api, str):
@@ -361,8 +360,9 @@ def search(api='gtfsdataexch', search_text=None, search_field=None,
 
             if add_feed:
                 if overwrite_feed:
-                    search_result_df['dataexchange_url'] = search_result_df[
-                                                               'dataexchange_url'] + 'latest.zip'
+                    zip_url = search_result_df[
+                                  'dataexchange_url'] + 'latest.zip'
+                    search_result_df['dataexchange_url'] = zip_url
                     search_result_dict = search_result_df.set_index('name')[
                         'dataexchange_url'].to_dict()
                     feeds.gtfs_feeds = search_result_dict
@@ -371,8 +371,9 @@ def search(api='gtfsdataexch', search_text=None, search_field=None,
                         'found records:'.format(
                             len(search_result_df)))
                 else:
-                    search_result_df['dataexchange_url'] = search_result_df[
-                                                               'dataexchange_url'] + 'latest.zip'
+                    zip_url = search_result_df[
+                                  'dataexchange_url'] + 'latest.zip'
+                    search_result_df['dataexchange_url'] = zip_url
                     search_result_dict = search_result_df.set_index('name')[
                         'dataexchange_url'].to_dict()
                     feeds.add_feed(search_result_dict)
@@ -498,7 +499,7 @@ def download(data_folder=os.path.join(config.settings.data_folder),
 
                     with open(zipfile_path, "wb") as local_file:
                         local_file.write(file.read())
-                except:
+                except Exception:
                     log('Unable to connect. URL at {} returned status code '
                         '{} and no data'.format(feed_url_value, status_code),
                         level=lg.ERROR)
@@ -592,6 +593,7 @@ def _unzip(zip_rootpath, delete_zips=True):
         'files'.format(
             time.time() - start_time, len(zipfilelist)))
 
+
 def _zipfile_type_check(file, feed_url_value):
     """
     zipfile format checker helper
@@ -607,9 +609,8 @@ def _zipfile_type_check(file, feed_url_value):
     -------
     nothing
     """
-    if 'zip' not in file.info().dict[
-        'content-type'] == True or 'octet' not in file.info().dict[ \
-            'content-type'] == True:
+    if 'zip' not in file.info().dict['content-type'] \
+            is True or 'octet' not in file.info().dict['content-type'] is True:
         raise ValueError(
-            'data requested at {} is not a zipfile. data must be '
-            'a zipfile'.format(feed_url_value))
+            'data requested at {} is not a zipfile. '
+            'Data must be a zipfile'.format(feed_url_value))
