@@ -30,4 +30,3 @@ env:
 - cd urbanaccess/tests/integration; python integration_madison.py
 - cd urbanaccess/tests/integration; python integration_sandiego.py
 - cd urbanaccess/tests/integration; python integration_gb.py
-- cd../../
