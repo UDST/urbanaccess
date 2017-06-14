@@ -386,7 +386,7 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
 
         num_caldates_service_ids_extracted = len(subset_result_df)
         log('An additional {:,} service_ids were extracted from '
-            'calendar_dates. Total service_id extracted: {:,}'.format(
+            'calendar_dates. Total service_ids extracted: {:,}'.format(
                 num_caldates_service_ids_extracted,
                 num_caldates_service_ids_extracted +
                 num_cal_service_ids_extracted))
