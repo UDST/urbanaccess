@@ -34,21 +34,25 @@ def _calc_headways_by_route_stop(df):
             df['unique_route_id'].astype('str'), sep=','))
 
     stop_route_groups = df.groupby('unique_stop_route')
-    log(
-        'Starting route stop headway calculation for {:,} route '
-        'stops...'.format(
-            len(stop_route_groups)))
+    log('Starting route stop headway calculation for {:,} route '
+        'stops...'.format(len(stop_route_groups)))
+
     results = {}
-    for unique_stop_route, stop_route_group in stop_route_groups:
-        stop_route_group.sort_values(['departure_time_sec_interpolate'],
-                                     ascending=True, inplace=True)
-        next_bus_time = stop_route_group[
-                            'departure_time_sec_interpolate'].iloc[1:].values
-        prev_bus_time = stop_route_group[
-                            'departure_time_sec_interpolate'].iloc[:-1].values
-        stop_route_group_headways = (next_bus_time - prev_bus_time) / 60
-        results[unique_stop_route] = pd.Series(
-            stop_route_group_headways).describe()
+
+    # suppress RuntimeWarning: Mean of empty slice. for this code block
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category='RuntimeWarning')
+
+        for unique_stop_route, stop_route_group in stop_route_groups:
+            stop_route_group.sort_values(['departure_time_sec_interpolate'],
+                                         ascending=True, inplace=True)
+            next_bus_time = stop_route_group[
+                                'departure_time_sec_interpolate'].iloc[1:].values
+            prev_bus_time = stop_route_group[
+                                'departure_time_sec_interpolate'].iloc[:-1].values
+            stop_route_group_headways = (next_bus_time - prev_bus_time) / 60
+            results[unique_stop_route] = pd.Series(
+                stop_route_group_headways).describe()
 
     log('Route stop headway calculation complete. Took {:,.2f} seconds'.format(
         time.time() - start_time))

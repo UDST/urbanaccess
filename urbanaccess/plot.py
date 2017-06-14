@@ -68,20 +68,20 @@ def plot_net(nodes, edges, x_col=None, y_col=None, from_col=None,
     start_time = time.time()
 
     # set default x and y cols if none specified
-    if 'x' in nodes.columns and 'y' in nodes.columns and x_col is \
-            None and y_col is None:
+    if 'x' in nodes.columns or 'y' in nodes.columns or x_col is \
+            None or y_col is None:
         x_col = 'x'
         y_col = 'y'
 
     # set default from_col and to_col cols if none specified
-    if 'from_int' in edges.columns and 'to_int' in edges.columns and\
-                    from_col is None and to_col is None:
+    if 'from_int' in edges.columns or 'to_int' in edges.columns or\
+                    from_col is None or to_col is None:
         from_col = 'from_int'
         to_col = 'to_int'
 
     # set default from_col and to_col cols if none specified
-    if 'node_id_from' in edges.columns and 'node_id_to' in edges.columns and\
-                    from_col is None and to_col is None:
+    if 'node_id_from' in edges.columns or 'node_id_to' in edges.columns or\
+                    from_col is None or to_col is None:
         from_col = 'node_id_from'
         to_col = 'node_id_to'
 
@@ -262,7 +262,7 @@ def _prep_edges(edges, nodes, from_col, to_col,
             '{} or {} columns were not found in nodes columns'.format(x_col,
                                                                       y_col))
 
-    if from_col not in nodes.columns or to_col not in edges.columns:
+    if from_col not in edges.columns or to_col not in edges.columns:
         raise ValueError(
             '{} or {} columns were not found in edges columns'.format(from_col,
                                                                       to_col))

@@ -122,7 +122,8 @@ def _txt_header_whitespace_check(
                     lines = f.readlines()
                 lines[0] = re.sub(r'\s+', '', lines[0]) + '\n'
                 # Write to file
-                with open(os.path.join(csv_rootpath, folder, textfile), 'w') as f:
+                with open(os.path.join(csv_rootpath, folder, textfile),
+                          'w') as f:
                     f.writelines(lines)
     log(
         'GTFS text file header whitespace check completed. Took {:,'
