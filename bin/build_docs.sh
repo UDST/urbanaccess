@@ -52,7 +52,7 @@ if [ "$TRAVIS_REPO_SLUG" == "UDST/urbanaccess" ] && \
 
         cd gh-pages
         rm -rf *
-        cp -R ../urbanaccess/docs/_build/html/* ./
+        cp -R ../urbanaccess/docs/build/html/* ./
         git add -A .
 
         git commit -am "Update dev docs after building $TRAVIS_BUILD_NUMBER"
