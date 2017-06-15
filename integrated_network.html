@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -44,6 +46,7 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
@@ -84,7 +87,10 @@
           
             
             
-                <ul class="current">
+              
+            
+            
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction and Workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_loaders.html">Download and Load Data</a></li>
@@ -111,8 +117,10 @@
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">UrbanAccess</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">UrbanAccess</a>
+        
       </nav>
 
 
@@ -121,23 +129,40 @@
         <div class="rst-content">
           
 
- 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-      
-    <li>Create an Integrated Transit and Street Network</li>
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Create an Integrated Transit and Street Network</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
+            
             <a href="_sources/integrated_network.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -177,7 +202,7 @@ the components of a graph network</p>
 <p>Create a transit network from the loaded GTFS feeds with travel time impedance.</p>
 <dl class="function">
 <dt id="urbanaccess.gtfs.network.create_transit_net">
-<code class="descclassname">urbanaccess.gtfs.network.</code><code class="descname">create_transit_net</code><span class="sig-paren">(</span><em>gtfsfeeds_dfs=None</em>, <em>day=None</em>, <em>timerange=None</em>, <em>overwrite_existing_stop_times_int=False</em>, <em>use_existing_stop_times_int=False</em>, <em>save_processed_gtfs=False</em>, <em>save_dir='data'</em>, <em>save_filename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.network.create_transit_net" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.gtfs.network.</code><code class="descname">create_transit_net</code><span class="sig-paren">(</span><em>gtfsfeeds_dfs</em>, <em>day</em>, <em>calendar_dates_lookup=None</em>, <em>timerange=None</em>, <em>overwrite_existing_stop_times_int=False</em>, <em>use_existing_stop_times_int=False</em>, <em>save_processed_gtfs=False</em>, <em>save_dir=’data’</em>, <em>save_filename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.network.create_transit_net" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a travel time weight network graph in units of
 minutes from GTFS data</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -189,10 +214,20 @@ minutes from GTFS data</p>
 <div><p>gtfsfeeds_dfs object with dataframes of stops, routes, trips,
 stop_times, calendar, and stop_times_int (optional)</p>
 </div></blockquote>
-<p><strong>day</strong> : {&#8216;friday&#8217;,&#8217;monday&#8217;,&#8217;saturday&#8217;, &#8216;sunday&#8217;,&#8217;thursday&#8217;,&#8217;tuesday&#8217;,&#8217;wednesday&#8217;}</p>
+<p><strong>day</strong> : {‘friday’,’monday’,’saturday’, ‘sunday’,’thursday’,’tuesday’,</p>
+<p><strong>‘wednesday’}</strong></p>
 <blockquote>
 <div><p>day of the week to extract transit schedule from that
 corresponds to the day in the GTFS calendar</p>
+</div></blockquote>
+<p><strong>calendar_dates_lookup</strong> : dict, optional</p>
+<blockquote>
+<div><p>dictionary of the lookup column (key) as a string and corresponding
+string (value) a s string or list of strings to use to subset trips
+using the calendar_dates dataframe. Search will be exact. If none,
+then the calendar_dates dataframe will not be used to select trips
+that are not in the calendar dataframe.
+Example: {‘schedule_type’ : ‘WD’} or {‘schedule_type’ : [‘WD’,’SU’]}</p>
 </div></blockquote>
 <p><strong>timerange</strong> : list</p>
 <blockquote>
@@ -246,7 +281,7 @@ be stored to disk in a hdf5 file</p>
 <p>Create a street network from the loaded OSM data with travel time impedance.</p>
 <dl class="function">
 <dt id="urbanaccess.osm.network.create_osm_net">
-<code class="descclassname">urbanaccess.osm.network.</code><code class="descname">create_osm_net</code><span class="sig-paren">(</span><em>osm_edges=None</em>, <em>osm_nodes=None</em>, <em>travel_speed_mph=3</em>, <em>network_type='walk'</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.osm.network.create_osm_net" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.osm.network.</code><code class="descname">create_osm_net</code><span class="sig-paren">(</span><em>osm_edges=None</em>, <em>osm_nodes=None</em>, <em>travel_speed_mph=3</em>, <em>network_type=’walk’</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.osm.network.create_osm_net" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a travel time weight network graph in units of minutes from
 openstreetmap nodes and edges</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -269,7 +304,7 @@ for pedestrian travel this is assumed to be 3 MPH</p>
 </div></blockquote>
 <p><strong>network_type</strong> : str, optional</p>
 <blockquote>
-<div><p>default is &#8216;walk&#8217; for the osm pedestrian network.
+<div><p>default is ‘walk’ for the osm pedestrian network.
 this string is used to label the osm network once it is
 integrated with the transit network</p>
 </div></blockquote>
@@ -294,7 +329,7 @@ integrated with the transit network</p>
 <p>If using headways in your integrated network you must first compute the route-stop level headway in this step <a class="reference internal" href="data_loaders.html#headways"><span class="std std-ref">here</span></a>.</p>
 <dl class="function">
 <dt id="urbanaccess.network.integrate_network">
-<code class="descclassname">urbanaccess.network.</code><code class="descname">integrate_network</code><span class="sig-paren">(</span><em>urbanaccess_network=None</em>, <em>headways=False</em>, <em>urbanaccess_gtfsfeeds_df=None</em>, <em>headway_statistic='mean'</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.network.integrate_network" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.network.</code><code class="descname">integrate_network</code><span class="sig-paren">(</span><em>urbanaccess_network=None</em>, <em>headways=False</em>, <em>urbanaccess_gtfsfeeds_df=None</em>, <em>headway_statistic=’mean’</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.network.integrate_network" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create an integrated network comprised of transit and OSM nodes and edges
 by connecting the transit network with the osm network.
 travel time is in units of minutes</p>
@@ -319,7 +354,7 @@ of average passenger transit stop waiting time.</p>
 <div><p>required if headways is true; the gtfsfeeds_dfs object that holds
 the corresponding headways and stops dataframes</p>
 </div></blockquote>
-<p><strong>headway_statistic</strong> : {&#8216;mean&#8217;, &#8216;std&#8217;, &#8216;min&#8217;, &#8216;max&#8217;}, optional</p>
+<p><strong>headway_statistic</strong> : {‘mean’, ‘std’, ‘min’, ‘max’}, optional</p>
 <blockquote>
 <div><p>required if headways is true; route stop headway
 statistic to apply to the osm to transit connector edges:
@@ -346,7 +381,7 @@ mean, std, min, max. Default is mean.</p>
 <span id="id1"></span><h2>Save Network<a class="headerlink" href="#save-network" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="urbanaccess.network.save_network">
-<code class="descclassname">urbanaccess.network.</code><code class="descname">save_network</code><span class="sig-paren">(</span><em>urbanaccess_network=None</em>, <em>dir='data'</em>, <em>filename=None</em>, <em>overwrite_key=False</em>, <em>overwrite_hdf5=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.network.save_network" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.network.</code><code class="descname">save_network</code><span class="sig-paren">(</span><em>urbanaccess_network=None</em>, <em>dir=’data’</em>, <em>filename=None</em>, <em>overwrite_key=False</em>, <em>overwrite_hdf5=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.network.save_network" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write a urbanaccess_network integrated nodes and edges to a node and edge
 table in a hdf5 file</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -389,7 +424,7 @@ specified directory will be overwritten</p>
 <span id="id2"></span><h2>Load Network<a class="headerlink" href="#load-network" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="urbanaccess.network.load_network">
-<code class="descclassname">urbanaccess.network.</code><code class="descname">load_network</code><span class="sig-paren">(</span><em>dir='data'</em>, <em>filename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.network.load_network" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.network.</code><code class="descname">load_network</code><span class="sig-paren">(</span><em>dir=’data’</em>, <em>filename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.network.load_network" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read an integrated network node and edge data from a hdf5 file to
 a urbanaccess_network object</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -423,15 +458,18 @@ a urbanaccess_network object</p>
 
 
            </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="plot.html" class="btn btn-neutral float-right" title="Plot Networks" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="plot.html" class="btn btn-neutral float-right" title="Plot Networks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="data_loaders.html" class="btn btn-neutral" title="Download and Load Data" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="data_loaders.html" class="btn btn-neutral" title="Download and Load Data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -464,13 +502,14 @@ a urbanaccess_network object</p>
             VERSION:'0.1a.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

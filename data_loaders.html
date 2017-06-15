@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -44,6 +46,7 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
@@ -84,7 +87,10 @@
           
             
             
-                <ul class="current">
+              
+            
+            
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction and Workflow</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Download and Load Data</a><ul>
@@ -111,8 +117,10 @@
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">UrbanAccess</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">UrbanAccess</a>
+        
       </nav>
 
 
@@ -121,23 +129,40 @@
         <div class="rst-content">
           
 
- 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-      
-    <li>Download and Load Data</li>
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Download and Load Data</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
+            
             <a href="_sources/data_loaders.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -270,7 +295,7 @@ the existing dict value with the value passed</p>
 
 <dl class="classmethod">
 <dt id="urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds.from_yaml">
-<em class="property">classmethod </em><code class="descname">from_yaml</code><span class="sig-paren">(</span><em>gtfsfeeddir='data\\gtfsfeeds'</em>, <em>yamlname='gtfsfeeds.yaml'</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds.from_yaml" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_yaml</code><span class="sig-paren">(</span><em>gtfsfeeddir=’data/gtfsfeeds’</em>, <em>yamlname=’gtfsfeeds.yaml’</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds.from_yaml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a urbanaccess_gtfsfeeds instance from a saved YAML.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -285,7 +310,7 @@ the existing dict value with the value passed</p>
 <div><p>File name from which to load a YAML file.</p>
 </div></blockquote>
 <p><strong>Returns</strong></p>
-<p><strong>&#8212;&#8212;-</strong></p>
+<p><strong>——-</strong></p>
 <p class="last"><strong>urbanaccess_gtfsfeeds</strong></p>
 </td>
 </tr>
@@ -325,7 +350,7 @@ urbanaccess_gtfsfeeds instance</p>
 
 <dl class="method">
 <dt id="urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds.to_yaml">
-<code class="descname">to_yaml</code><span class="sig-paren">(</span><em>gtfsfeeddir='data\\gtfsfeeds'</em>, <em>yamlname='gtfsfeeds.yaml'</em>, <em>overwrite=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds.to_yaml" title="Permalink to this definition">¶</a></dt>
+<code class="descname">to_yaml</code><span class="sig-paren">(</span><em>gtfsfeeddir=’data/gtfsfeeds’</em>, <em>yamlname=’gtfsfeeds.yaml’</em>, <em>overwrite=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds.to_yaml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save a urbanaccess_gtfsfeeds representation to a YAML file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -344,7 +369,7 @@ urbanaccess_gtfsfeeds instance</p>
 <div><p>if true, overwrite an existing same name YAML file in specified directory</p>
 </div></blockquote>
 <p><strong>Returns</strong></p>
-<p><strong>&#8212;&#8212;-</strong></p>
+<p><strong>——-</strong></p>
 <p class="last"><strong>Nothing</strong></p>
 </td>
 </tr>
@@ -357,7 +382,7 @@ urbanaccess_gtfsfeeds instance</p>
 <p>Search for feeds on the GTFS Data Exchange (Note the GTFS Data Exchange is no longer being maintained as of Summer 2016 so feeds here may be out of date).</p>
 <dl class="function">
 <dt id="urbanaccess.gtfsfeeds.search">
-<code class="descclassname">urbanaccess.gtfsfeeds.</code><code class="descname">search</code><span class="sig-paren">(</span><em>api='gtfsdataexch'</em>, <em>search_text=None</em>, <em>search_field=None</em>, <em>match='contains'</em>, <em>add_feed=False</em>, <em>overwrite_feed=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.search" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.gtfsfeeds.</code><code class="descname">search</code><span class="sig-paren">(</span><em>api=’gtfsdataexch’</em>, <em>search_text=None</em>, <em>search_field=None</em>, <em>match=’contains’</em>, <em>add_feed=False</em>, <em>overwrite_feed=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.search" title="Permalink to this definition">¶</a></dt>
 <dd><p>Connect to a GTFS feed repository API and search for GTFS feeds that exist
 in a remote GTFS repository and whether or not to add the GTFS feed name
 and download URL to the urbanaccess_gtfsfeeds instance.
@@ -366,7 +391,7 @@ Currently only supports access to the GTFS Data Exchange API.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>api</strong> : {&#8216;gtfsdataexch&#8217;}, optional</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>api</strong> : {‘gtfsdataexch’}, optional</p>
 <blockquote>
 <div><p>name of GTFS feed repository to search in. name corresponds to the
 dict specified in the urbanacess_config instance. Currently only
@@ -380,7 +405,7 @@ supports access to the GTFS Data Exchange repository.</p>
 <blockquote>
 <div><p>name of the field or column to search for string</p>
 </div></blockquote>
-<p><strong>match</strong> : {&#8216;contains&#8217;, &#8216;exact&#8217;}, optional</p>
+<p><strong>match</strong> : {‘contains’, ‘exact’}, optional</p>
 <blockquote>
 <div><p>search string matching method as either: contains or exact</p>
 </div></blockquote>
@@ -396,7 +421,7 @@ with the records returned in the search results.
 All existing records will be removed.</p>
 </div></blockquote>
 <p><strong>Returns</strong></p>
-<p><strong>&#8212;&#8212;-</strong></p>
+<p><strong>——-</strong></p>
 <p><strong>search_result_df</strong> : pandas.DataFrame</p>
 <blockquote class="last">
 <div><p>Dataframe of search results displaying full feed metadata</p>
@@ -410,7 +435,7 @@ All existing records will be removed.</p>
 <p>Download data from feeds in your <code class="docutils literal"><span class="pre">feeds</span></code> object or from custom feed URLs.</p>
 <dl class="function">
 <dt id="urbanaccess.gtfsfeeds.download">
-<code class="descclassname">urbanaccess.gtfsfeeds.</code><code class="descname">download</code><span class="sig-paren">(</span><em>data_folder='data'</em>, <em>feed_name=None</em>, <em>feed_url=None</em>, <em>feed_dict=None</em>, <em>error_pause_duration=5</em>, <em>delete_zips=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.download" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.gtfsfeeds.</code><code class="descname">download</code><span class="sig-paren">(</span><em>data_folder=’data’</em>, <em>feed_name=None</em>, <em>feed_url=None</em>, <em>feed_dict=None</em>, <em>error_pause_duration=5</em>, <em>delete_zips=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.download" title="Permalink to this definition">¶</a></dt>
 <dd><p>Connect to the URLs passed in function or the URLs stored in the
 urbanaccess_gtfsfeeds instance and download the GTFS feed zipfile(s)
 then unzip inside a local root directory. Resulting GTFS feed text files
@@ -447,7 +472,7 @@ agency GTFS feed as the key and the GTFS feed URL as the value:
 <div><p>if true the downloaded zipfiles will be removed</p>
 </div></blockquote>
 <p><strong>Returns</strong></p>
-<p><strong>&#8212;&#8212;-</strong></p>
+<p><strong>——-</strong></p>
 <p class="last"><strong>nothing</strong></p>
 </td>
 </tr>
@@ -501,8 +526,9 @@ from <a class="reference external" href="http://boundingbox.klokantech.com/">htt
 </div></blockquote>
 <p><strong>append_definitions</strong> : bool</p>
 <blockquote>
-<div><p>if true, columns that use the GTFS data schema for their attribute codes will have the corresponding GTFS
-definition information of that code appended to the resulting dataframes for reference</p>
+<div><p>if true, columns that use the GTFS data schema for their attribute
+codes will have the corresponding GTFS definition information of
+that code appended to the resulting dataframes for reference</p>
 </div></blockquote>
 </td>
 </tr>
@@ -540,7 +566,7 @@ definition information of that code appended to the resulting dataframes for ref
 <div><p>time range for which to calculate headways between as a list of
 time 1 and time 2
 where times are 24 hour clock strings such as:
-[&#8216;07:00:00&#8217;,&#8216;10:00:00&#8217;]</p>
+[‘07:00:00’,‘10:00:00’]</p>
 </div></blockquote>
 </td>
 </tr>
@@ -561,7 +587,7 @@ with relevant route and stop information</p>
 <span id="save-gtfs"></span><h2>Saving Processed GTFS data<a class="headerlink" href="#saving-processed-gtfs-data" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="urbanaccess.gtfs.network.save_processed_gtfs_data">
-<code class="descclassname">urbanaccess.gtfs.network.</code><code class="descname">save_processed_gtfs_data</code><span class="sig-paren">(</span><em>gtfsfeeds_dfs=None</em>, <em>dir='data'</em>, <em>filename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.network.save_processed_gtfs_data" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.gtfs.network.</code><code class="descname">save_processed_gtfs_data</code><span class="sig-paren">(</span><em>gtfsfeeds_dfs=None</em>, <em>dir=’data’</em>, <em>filename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.network.save_processed_gtfs_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write dataframes in a gtfsfeeds_dfs object to a hdf5 file</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -593,7 +619,7 @@ with relevant route and stop information</p>
 <span id="load-gtfs"></span><h2>Loading Processed GTFS data<a class="headerlink" href="#loading-processed-gtfs-data" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="urbanaccess.gtfs.network.load_processed_gtfs_data">
-<code class="descclassname">urbanaccess.gtfs.network.</code><code class="descname">load_processed_gtfs_data</code><span class="sig-paren">(</span><em>dir='data'</em>, <em>filename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.network.load_processed_gtfs_data" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.gtfs.network.</code><code class="descname">load_processed_gtfs_data</code><span class="sig-paren">(</span><em>dir=’data’</em>, <em>filename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.network.load_processed_gtfs_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read data from a hdf5 file to a gtfsfeeds_dfs object</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -622,7 +648,7 @@ with relevant route and stop information</p>
 <p>Download OSM street network nodes and edges.</p>
 <dl class="function">
 <dt id="urbanaccess.osm.load.ua_network_from_bbox">
-<code class="descclassname">urbanaccess.osm.load.</code><code class="descname">ua_network_from_bbox</code><span class="sig-paren">(</span><em>lat_min=None</em>, <em>lng_min=None</em>, <em>lat_max=None</em>, <em>lng_max=None</em>, <em>bbox=None</em>, <em>network_type='walk'</em>, <em>timeout=180</em>, <em>memory=None</em>, <em>max_query_area_size=2500000000L</em>, <em>remove_lcn=True</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.osm.load.ua_network_from_bbox" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.osm.load.</code><code class="descname">ua_network_from_bbox</code><span class="sig-paren">(</span><em>lat_min=None</em>, <em>lng_min=None</em>, <em>lat_max=None</em>, <em>lng_max=None</em>, <em>bbox=None</em>, <em>network_type=’walk’</em>, <em>timeout=180</em>, <em>memory=None</em>, <em>max_query_area_size=2500000000</em>, <em>remove_lcn=True</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.osm.load.ua_network_from_bbox" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a graph network (nodes and edges) from a bounding lat/lon box that
 is compatible with the network analysis tool Pandana</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -653,11 +679,11 @@ example: (-122.304611,37.798933,-122.263412,37.822802)
 a bbox can be extracted for an area using: the CSV format
 bbox from <a class="reference external" href="http://boundingbox.klokantech.com/">http://boundingbox.klokantech.com/</a></p>
 </div></blockquote>
-<p><strong>network_type</strong> : {&#8216;walk&#8217;, &#8216;drive&#8217;}, optional</p>
+<p><strong>network_type</strong> : {‘walk’, ‘drive’}, optional</p>
 <blockquote>
-<div><p>Specify the network type where value of &#8216;walk&#8217; includes roadways
+<div><p>Specify the network type where value of ‘walk’ includes roadways
 where pedestrians are allowed and pedestrian
-pathways and &#8216;drive&#8217; includes driveable roadways. Default is walk.</p>
+pathways and ‘drive’ includes driveable roadways. Default is walk.</p>
 </div></blockquote>
 <p><strong>timeout</strong> : int, optional</p>
 <blockquote>
@@ -697,15 +723,18 @@ from the rest of the larger network</p>
 
 
            </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="integrated_network.html" class="btn btn-neutral float-right" title="Create an Integrated Transit and Street Network" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="integrated_network.html" class="btn btn-neutral float-right" title="Create an Integrated Transit and Street Network" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="introduction.html" class="btn btn-neutral" title="Introduction" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="introduction.html" class="btn btn-neutral" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -738,13 +767,14 @@ from the rest of the larger network</p>
             VERSION:'0.1a.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

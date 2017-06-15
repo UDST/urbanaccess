@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -44,6 +46,7 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
@@ -84,7 +87,10 @@
           
             
             
-                <ul class="current">
+              
+            
+            
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction and Workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_loaders.html">Download and Load Data</a></li>
@@ -103,8 +109,10 @@
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">UrbanAccess</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">UrbanAccess</a>
+        
       </nav>
 
 
@@ -113,23 +121,40 @@
         <div class="rst-content">
           
 
- 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-      
-    <li>Plot Networks</li>
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Plot Networks</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
+            
             <a href="_sources/plot.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -150,7 +175,7 @@
 <em>Integrated AC Transit and BART transit and pedestrian network travel times for Oakland, CA</em></p>
 <dl class="function">
 <dt id="urbanaccess.plot.plot_net">
-<code class="descclassname">urbanaccess.plot.</code><code class="descname">plot_net</code><span class="sig-paren">(</span><em>nodes=None</em>, <em>edges=None</em>, <em>x_col='x'</em>, <em>y_col='y'</em>, <em>bbox=None</em>, <em>fig_height=6</em>, <em>margin=0.02</em>, <em>edge_color='#999999'</em>, <em>edge_linewidth=1</em>, <em>edge_alpha=1</em>, <em>node_color='black'</em>, <em>node_size=15</em>, <em>node_alpha=1</em>, <em>node_edgecolor='none'</em>, <em>node_zorder=3</em>, <em>nodes_only=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.plot.plot_net" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.plot.</code><code class="descname">plot_net</code><span class="sig-paren">(</span><em>nodes=None</em>, <em>edges=None</em>, <em>x_col=’x’</em>, <em>y_col=’y’</em>, <em>bbox=None</em>, <em>fig_height=6</em>, <em>margin=0.02</em>, <em>edge_color=’#999999’</em>, <em>edge_linewidth=1</em>, <em>edge_alpha=1</em>, <em>node_color=’black’</em>, <em>node_size=15</em>, <em>node_alpha=1</em>, <em>node_edgecolor=’none’</em>, <em>node_zorder=3</em>, <em>nodes_only=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.plot.plot_net" title="Permalink to this definition">¶</a></dt>
 <dd><p>plot urbanaccess network nodes and edges</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -231,7 +256,7 @@ nodes under the edges, 3 will plot nodes on top</p>
 
 <dl class="function">
 <dt id="urbanaccess.plot.col_colors">
-<code class="descclassname">urbanaccess.plot.</code><code class="descname">col_colors</code><span class="sig-paren">(</span><em>df=None</em>, <em>col=None</em>, <em>num_bins=5</em>, <em>cmap='spectral'</em>, <em>start=0.1</em>, <em>stop=0.9</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.plot.col_colors" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.plot.</code><code class="descname">col_colors</code><span class="sig-paren">(</span><em>df=None</em>, <em>col=None</em>, <em>num_bins=5</em>, <em>cmap=’spectral’</em>, <em>start=0.1</em>, <em>stop=0.9</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.plot.col_colors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a list of colors by binning a continuous variable column
 into quantiles</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -272,15 +297,18 @@ into quantiles</p>
 
 
            </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="utilities.html" class="btn btn-neutral float-right" title="Utilities" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="utilities.html" class="btn btn-neutral float-right" title="Utilities" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="integrated_network.html" class="btn btn-neutral" title="Create an Integrated Transit and Street Network" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="integrated_network.html" class="btn btn-neutral" title="Create an Integrated Transit and Street Network" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -313,13 +341,14 @@ into quantiles</p>
             VERSION:'0.1a.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

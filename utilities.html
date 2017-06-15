@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -43,6 +45,7 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
@@ -83,7 +86,10 @@
           
             
             
-                <ul class="current">
+              
+            
+            
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction and Workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_loaders.html">Download and Load Data</a></li>
@@ -102,8 +108,10 @@
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">UrbanAccess</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">UrbanAccess</a>
+        
       </nav>
 
 
@@ -112,23 +120,40 @@
         <div class="rst-content">
           
 
- 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-      
-    <li>Utilities</li>
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Utilities</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
+            
             <a href="_sources/utilities.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -184,7 +209,7 @@ the GTFS API server root URL as the value to pass to the GTFS loader</p>
 <p>By default the global configuration settings are already set, however they can be changed by using the functions in the <code class="docutils literal"><span class="pre">urbanaccess_config</span></code> class:</p>
 <dl class="class">
 <dt id="urbanaccess.config.urbanaccess_config">
-<em class="property">class </em><code class="descclassname">urbanaccess.config.</code><code class="descname">urbanaccess_config</code><span class="sig-paren">(</span><em>data_folder='data'</em>, <em>logs_folder='logs'</em>, <em>log_file=True</em>, <em>log_console=False</em>, <em>log_name='urbanaccess'</em>, <em>log_filename='urbanaccess'</em>, <em>gtfs_api={'gtfsdataexch': 'http://www.gtfs-data-exchange.com/api/agencies?format=csv'}</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.config.urbanaccess_config" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">urbanaccess.config.</code><code class="descname">urbanaccess_config</code><span class="sig-paren">(</span><em>data_folder=’data’</em>, <em>logs_folder=’logs’</em>, <em>log_file=True</em>, <em>log_console=False</em>, <em>log_name=’urbanaccess’</em>, <em>log_filename=’urbanaccess’</em>, <em>gtfs_api={‘gtfsdataexch’: ‘http://www.gtfs-data-exchange.com/api/agencies?format=csv’}</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.config.urbanaccess_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>A set of configuration variables to initiate the
 configuration settings for UrbanAccess.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -226,7 +251,7 @@ the GTFS API server root URL as the value to pass to the GTFS loader</p>
 </table>
 <dl class="classmethod">
 <dt id="urbanaccess.config.urbanaccess_config.from_yaml">
-<em class="property">classmethod </em><code class="descname">from_yaml</code><span class="sig-paren">(</span><em>configdir='configs'</em>, <em>yamlname='urbanaccess_config.yaml'</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.config.urbanaccess_config.from_yaml" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_yaml</code><span class="sig-paren">(</span><em>configdir=’configs’</em>, <em>yamlname=’urbanaccess_config.yaml’</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.config.urbanaccess_config.from_yaml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a urbanaccess_config instance from a saved YAML configuration.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -241,7 +266,7 @@ the GTFS API server root URL as the value to pass to the GTFS loader</p>
 <div><p>File name from which to load a YAML file.</p>
 </div></blockquote>
 <p><strong>Returns</strong></p>
-<p><strong>&#8212;&#8212;-</strong></p>
+<p><strong>——-</strong></p>
 <p class="last"><strong>urbanaccess_config</strong></p>
 </td>
 </tr>
@@ -257,7 +282,7 @@ the GTFS API server root URL as the value to pass to the GTFS loader</p>
 
 <dl class="method">
 <dt id="urbanaccess.config.urbanaccess_config.to_yaml">
-<code class="descname">to_yaml</code><span class="sig-paren">(</span><em>configdir='configs'</em>, <em>yamlname='urbanaccess_config.yaml'</em>, <em>overwrite=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.config.urbanaccess_config.to_yaml" title="Permalink to this definition">¶</a></dt>
+<code class="descname">to_yaml</code><span class="sig-paren">(</span><em>configdir=’configs’</em>, <em>yamlname=’urbanaccess_config.yaml’</em>, <em>overwrite=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.config.urbanaccess_config.to_yaml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save a urbanaccess_config representation to a YAML file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -277,7 +302,7 @@ the GTFS API server root URL as the value to pass to the GTFS loader</p>
 file in specified directory</p>
 </div></blockquote>
 <p><strong>Returns</strong></p>
-<p><strong>&#8212;&#8212;-</strong></p>
+<p><strong>——-</strong></p>
 <p class="last"><strong>Nothing</strong></p>
 </td>
 </tr>
@@ -291,13 +316,16 @@ file in specified directory</p>
 
 
            </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
       
-        <a href="plot.html" class="btn btn-neutral" title="Plot Networks" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="plot.html" class="btn btn-neutral" title="Plot Networks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -330,13 +358,14 @@ file in specified directory</p>
             VERSION:'0.1a.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 
