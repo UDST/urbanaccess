@@ -44,8 +44,8 @@ if [ "$TRAVIS_REPO_SLUG" == "UDST/urbanaccess" ] && \
 
         cd ../../
         echo "Setting git attributes"
-        git config --global user.email "jiffyclub@gmail.com"
-        git config --global user.name "Matt Davis"
+        git config --global user.email "fernandez@urbansim.com"
+        git config --global user.name "udst-documentator"
 
         echo "Cloning repository"
         git clone --quiet --single-branch --branch=gh-pages https://${GH_TOKEN}@github.com/udst/urbanaccess.git  gh-pages > /dev/null 2>&1
