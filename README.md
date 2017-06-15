@@ -22,12 +22,12 @@ UrbanAccess offers the following tools:
 Let us know what you are working on or if you think you have a great use case by tweeting us at `@urbansim` or post on the UrbanSim [forum](http://discussion.urbansim.com/).  
 
 ## Current status
-UrbanAccess is currently in a alpha release and only compatible with Python 2.x. Further code refinements are expected.
+UrbanAccess is currently in a alpha release and only compatible with Python 2.x and Python 3.5. Further code refinements are expected.
 
 *Forthcoming improvements:*
 - Tutorial/demo
 - Unit tests
-- Python 3
+- More robust Python 3 support
 - pep8 compliance
 
 ## Reporting bugs

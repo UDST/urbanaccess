@@ -21,8 +21,9 @@ setup(
     author='UrbanSim Inc. and Samuel D. Blanchard',
     url='https://github.com/UDST/urbanaccess',
     classifiers=[
+        'Development Status :: 3 - Alpha',
         'Programming Language :: Python :: 2.7',
-        'Development Status :: 3 - Alpha'
+        'Programming Language :: Python :: 3.5',
         'License :: OSI Approved :: GNU Affero General Public License v3'
     ],
     packages=find_packages(exclude=['*.tests']),
@@ -35,6 +36,7 @@ setup(
         'matplotlib>=2.0',
         'geopy>=1.11.0',
         'pyyaml>=3.11',
-        'scikit-learn>=0.17.1'
+        'scikit-learn>=0.17.1',
+        'future >= 0.16.0'
     ]
 )

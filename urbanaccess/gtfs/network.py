@@ -1,7 +1,12 @@
-from __future__ import division
+from future.utils import raise_with_traceback
+import logging as lg
+import numpy as np
 import pandas as pd
 import time
-import logging as lg
+
+# Note: The above imported logging funcs were modified from the OSMnx library
+#       & used with permission from the author Geoff Boeing: log, get_logger
+#       OSMnx repo: https://github.com/gboeing/osmnx/blob/master/osmnx/utils.py
 
 from urbanaccess.utils import log, df_to_hdf5, hdf5_to_df
 from urbanaccess.network import ua_network
@@ -71,39 +76,51 @@ def create_transit_net(gtfsfeeds_dfs, day,
     """
     start_time = time.time()
 
-    time_error_statement = (
-        '{} starttime and endtime are not in the correct format. '
-        'Format should be 24 hour clock in following format: 08:00:00 or '
-        '17:00:00'.format(
-            timerange))
-    assert isinstance(timerange, list) and len(
-        timerange) == 2, time_error_statement
+    # timerange related checks
+    assert isinstance(timerange, list)
+    time_error_statement = ('{} starttime and endtime are not in the '
+                            'correct format. Format should be 24 '
+                            'hour clock in following format: '
+                            '08:00:00 or 17:00:00'.format(timerange))
+    assert len(timerange) == 2, time_error_statement
     assert timerange[0] < timerange[1], time_error_statement
-    for t in timerange:
-        assert isinstance(t, str), time_error_statement
-        assert len(t) == 8, time_error_statement
-    if int(str(timerange[1][0:2])) - int(str(timerange[0][0:2])) > 3:
-        log((
-            'WARNING: Time range passed: {} is a {} hour period. Long '
-            'periods over 3 hours may take a significant amount of time to '
-            'process.').format(
-            timerange,
-            int(str(timerange[1][0:2])) - int(str(timerange[0][0:2]))),
-            level=lg.WARNING)
-    assert gtfsfeeds_dfs is not None
-    if gtfsfeeds_dfs.trips.empty or gtfsfeeds_dfs.calendar.empty or \
-            gtfsfeeds_dfs.stop_times.empty or gtfsfeeds_dfs.stops.empty:
-        raise ValueError('one of the gtfsfeeds_dfs object trips, calendar, '
-                         'stops, or stop_times were found to be empty.')
-    assert isinstance(overwrite_existing_stop_times_int, bool)
-    assert isinstance(use_existing_stop_times_int, bool)
-    assert isinstance(save_processed_gtfs, bool)
 
+    for item in timerange:
+        assert isinstance(item, str), time_error_statement
+        assert len(item) == 8, time_error_statement
+    
+    tr_one = str(timerange[1][0:2])
+    tr_two = str(timerange[0][0:2])
+    tr_time_thresh = (int(tr_one) - int(tr_two))
+    if tr_time_thresh > 3:
+        log('WARNING: Time range passed: {} is a {} hour '
+            'period. Long periods over 3 hours may take a '
+            'significant amount of time to '
+            'process.'.format(timerange, str(tr_time_thresh)), level=lg.WARNING)
+
+    # boolean parameter related checks
+    for ea in [overwrite_existing_stop_times_int,
+               use_existing_stop_times_int,
+               save_processed_gtfs]:
+        assert isinstance(ea, bool)
+
+    # no gtfs dataframes can be empty for this function to work
+    any_gtfs_empty = (gtfsfeeds_dfs.trips.empty or 
+                      gtfsfeeds_dfs.calendar.empty or 
+                      gtfsfeeds_dfs.stop_times.empty or 
+                      gtfsfeeds_dfs.stops.empty)
+    if any_gtfs_empty:
+        err_text = ('One of the gtfsfeeds_dfs object trips, calendar, '
+                    'stops, or stop_times were found to be empty.')
+        raise_with_traceback(ValueError(err_text))
+
+    # cols we expect in the dataframe
     columns = ['route_id',
                'direction_id',
                'trip_id',
                'service_id',
                'unique_agency_id']
+
     if 'direction_id' not in gtfsfeeds_dfs.trips.columns:
         columns.remove('direction_id')
     calendar_selected_trips_df = _trip_schedule_selector(
@@ -124,55 +141,90 @@ def create_transit_net(gtfsfeeds_dfs, day,
         gtfsfeeds_dfs.stop_times_int = _time_difference(
             stop_times_df=gtfsfeeds_dfs.stop_times_int)
 
+    # direction_id is conditional, though
+    if 'direction_id' not in gtfsfeeds_dfs.trips.columns:
+        columns.remove('direction_id')
+    
+    trips_subgdf = gtfsfeeds_dfs.trips[columns]
+    calendar_selected_trips_df = _trip_schedule_selector(
+                                    input_trips_df=trips_subgdf,
+                                    input_calendar_df=gtfsfeeds_dfs.calendar,
+                                    input_calendar_dates_df=gtfsfeeds_dfs.calendar_dates,
+                                    day=day)
+
+    # confirm if need to interpolate stop times and, if yes, then do so
+    interpolate_trigger = (gtfsfeeds_dfs.stop_times_int.empty or 
+                           overwrite_existing_stop_times_int or 
+                           use_existing_stop_times_int == False)
+    if interpolate_trigger:
+        interp_stops = _interpolate_stop_times(
+                        stop_times_df=gtfsfeeds_dfs.stop_times,
+                        calendar_selected_trips_df=calendar_selected_trips_df,
+                        day=day)
+
+        time_diff_interp_stops = _time_difference(stop_times_df=interp_stops)
+        gtfsfeeds_dfs.stop_times_int = time_diff_interp_stops
+
+        # check if we want to save this output to hdf5 file
         if save_processed_gtfs:
-            save_processed_gtfs_data(gtfsfeeds_dfs=gtfsfeeds_dfs,
-                                     dir=save_dir, filename=save_filename)
+            save_processed_gtfs_data(
+                                gtfsfeeds_dfs=gtfsfeeds_dfs,
+                                dir=save_dir,
+                                filename=save_filename)
 
     if use_existing_stop_times_int:
-        assert gtfsfeeds_dfs.stop_times_int.empty == False, ('existing '
-                                                             'stop_times_int '
-                                                             'is empty. set '
-                                                             'use_existing_stop_times_int to False to create it.')
+        err_text = ('Existing stop_times_int is empty. '
+                    'set use_existing_stop_times_int to False to create it.')
+        assert gtfsfeeds_df.stop_times_int.empty == False, err_text
 
     selected_interpolated_stop_times_df = _time_selector(
-        df=gtfsfeeds_dfs.stop_times_int,
-        starttime=timerange[0],
-        endtime=timerange[1])
+                                                df=gtfsfeeds_dfs.stop_times_int,
+                                                starttime=timerange[0],
+                                                endtime=timerange[1])
 
-    final_edge_table = _format_transit_net_edge(
-        stop_times_df=selected_interpolated_stop_times_df[['unique_trip_id',
-                                                           'stop_id',
-                                                           'unique_stop_id',
-                                                           'timediff',
-                                                           'stop_sequence',
-                                                           'unique_agency_id',
-                                                           'trip_id']])
+    # generate final edges dataframe for transit
+    desired_stops_int_cols = ['unique_trip_id',
+                              'stop_id',
+                              'unique_stop_id',
+                              'timediff',
+                              'stop_sequence',
+                              'unique_agency_id',
+                              'trip_id']
+    sub_stops_int = selected_interpolated_stop_times_df[desired_stops_int_cols]
+    final_edge_table = _format_transit_net_edge(stop_times_df=sub_stops_int)
 
-    ua_network.transit_edges = _convert_imp_time_units(df=final_edge_table,
-                                                       time_col='weight',
-                                                       convert_to='minutes')
+    # now convert to desired time format and apply to global network value
+    ua_network.transit_edges = _convert_imp_time_units(
+                                                df=final_edge_table,
+                                                time_col='weight',
+                                                convert_to='minutes')
 
-    final_selected_stops = _stops_in_edge_table_selector(
-        input_stops_df=gtfsfeeds_dfs.stops,
-        input_stop_times_df=selected_interpolated_stop_times_df)
+    # similarly, finalize select transit network nodes and apply to network
+    fin_sel_stops = _stops_in_edge_table_selector(
+                        input_stops_df=gtfsfeeds_dfs.stops,
+                        input_stop_times_df=selected_interpolated_stop_times_df)
+    ua_network.transit_nodes = _format_transit_net_nodes(df=fin_sel_stops)
 
-    ua_network.transit_nodes = _format_transit_net_nodes(
-        df=final_selected_stops)
-
+    # TODO: Undesirable to continually update networks.transit_edges
+    #       Should reach a "final" state before updating (so fix above)
     ua_network.transit_edges = _route_type_to_edge(
-        transit_edge_df=ua_network.transit_edges,
-        stop_time_df=gtfsfeeds_dfs.stop_times)
+                                    transit_edge_df=ua_network.transit_edges,
+                                    stop_time_df=gtfsfeeds_dfs.stop_times)
 
     ua_network.transit_edges = _route_id_to_edge(
-        transit_edge_df=ua_network.transit_edges,
-        trips_df=gtfsfeeds_dfs.trips)
+                                    transit_edge_df=ua_network.transit_edges,
+                                    trips_df=gtfsfeeds_dfs.trips)
+
 
     # assign node and edge net type
     ua_network.transit_nodes['net_type'] = 'transit'
     ua_network.transit_edges['net_type'] = 'transit'
 
-    log(('Successfully created transit network. Took {:,'
-         '.2f} seconds').format(time.time() - start_time))
+    # closing message logs
+    fin_time_diff = time.time() - start_time
+    success_msg = ('Successfully created transit network. Took '
+                   '{:,.2f} seconds').format(fin_time_diff)
+    log(success_msg)
 
     return ua_network
 

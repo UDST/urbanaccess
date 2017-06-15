@@ -1,3 +1,4 @@
+from future.utils import raise_with_traceback
 import os
 import yaml
 
@@ -150,7 +151,9 @@ class urbanaccess_config(object):
             'yaml must be a string and have file extension .yaml'
         yaml_file = os.path.join(configdir, yamlname)
         if overwrite == False and os.path.isfile(yaml_file) == True:
-            raise ValueError(('{} already exists. Rename or turn overwrite to True').format(yamlname))
+            err_text = ('{} already exists. Rename or turn '
+                        'overwrite to True').format(yamlname)
+            raise_with_traceback(ValueError(err_text))
         else:
             with open(yaml_file, 'w') as f:
                 yaml.dump(self.to_dict(), f, default_flow_style=False)

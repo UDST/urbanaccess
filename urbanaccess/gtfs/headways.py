@@ -1,7 +1,12 @@
-import warnings
+from future.utils import raise_with_traceback
+import logging as lg
 import pandas as pd
 import time
-import logging as lg
+import warnings
+
+# Note: The above imported logging funcs were modified from the OSMnx library
+#       & used with permission from the author Geoff Boeing: log, get_logger
+#       OSMnx repo: https://github.com/gboeing/osmnx/blob/master/osmnx/utils.py
 
 from urbanaccess.utils import log
 from urbanaccess.gtfs.network import _time_selector
@@ -34,7 +39,7 @@ def _calc_headways_by_route_stop(df):
     log('Starting route stop headway calculation for {:,} route stops...'.format(len(stop_route_groups)))
     results = {}
     for unique_stop_route, stop_route_group in stop_route_groups:
-        stop_route_group.sort(['departure_time_sec_interpolate'],ascending = True, inplace=True)
+        stop_route_group.sort_values(['departure_time_sec_interpolate'], ascending=True, inplace=True)
         next_bus_time = stop_route_group['departure_time_sec_interpolate'].iloc[1:].values
         prev_bus_time = stop_route_group['departure_time_sec_interpolate'].iloc[:-1].values
         stop_route_group_headways = (next_bus_time - prev_bus_time)/60
@@ -145,8 +150,11 @@ def headways(gtfsfeeds_df,headway_timerange):
                                                             int(str(headway_timerange[1][0:2])) - int(str(headway_timerange[0][0:2]))),level=lg.WARNING)
 
     assert gtfsfeeds_df is not None
+    
     if gtfsfeeds_df.stop_times_int.empty or gtfsfeeds_df.trips.empty or gtfsfeeds_df.routes.empty:
-        raise ValueError('one of the gtfsfeeds_dfs objects: stop_times_int, trips, or routes were found to be empty.')
+        err_text = ('One of the gtfsfeeds_df objects: stop_times_int, '
+                    'trips, or routes were found to be empty.')
+        raise_with_traceback(ValueError(err_text))
 
     headways_df = _headway_handler(interpolated_stop_times_df=gtfsfeeds_df.stop_times_int,
                                    trips_df=gtfsfeeds_df.trips,

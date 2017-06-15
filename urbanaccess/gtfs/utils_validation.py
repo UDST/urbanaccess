@@ -1,6 +1,9 @@
-from __future__ import division
-import os
 import logging as lg
+import os
+
+# Note: The above imported logging funcs were modified from the OSMnx library
+#       & used with permission from the author Geoff Boeing: log, get_logger
+#       OSMnx repo: https://github.com/gboeing/osmnx/blob/master/osmnx/utils.py
 
 from urbanaccess.utils import log
 
@@ -124,7 +127,23 @@ def _validate_gtfs(stop_times_df=None, stops_df=None, feed_folder=None, verbose=
     -------
     stops_df : pandas.DataFrame
     """
-    assert (stop_times_df['arrival_time']< 0).values.any() == False or (stop_times_df['departure_time']< 0).values.any() == False, 'stop_times.txt file in {} GTFS feed has negative stop times. Time must be positive.'.format(os.path.split(feed_folder)[1])
+
+    # TODO: This seems to be a misplaced validation as the arrival and 
+    #       departure times have not been converted from strings yet!
+    try:
+        # ensure we have both arrival and departure dataframes that aren't empty
+        no_arrivals = (stop_times_df['arrival_time'] < 0).values.any() == False
+        no_departures = (stop_times_df['departure_time'] < 0).values.any() == False
+
+        feed_folder_loc = os.path.split(feed_folder)[1]
+        err_msg = ('stop_times.txt file in {} GTFS feed has negative stop '
+                   'times. Time must be positive.').format(feed_folder_loc)
+    except TypeError:
+        log('Ignore unorderable types: str() < int() error.')
+        no_arrivals = True
+        no_departures = True
+    
+    assert no_arrivals or no_departures, err_msg
 
     stops_df = _boundingbox_check(df=stops_df,
                                   feed_folder=feed_folder,

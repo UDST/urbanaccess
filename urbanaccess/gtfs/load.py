@@ -43,26 +43,52 @@ def _txt_encoder_check(csv_rootpath=os.path.join(config.settings.data_folder,
     -------
     None
     """
-    #UnicodeDecodeError
+    
+    # UnicodeDecodeError
     start_time = time.time()
-    folderlist = [foldername for foldername in os.listdir(csv_rootpath) if
-                  os.path.isdir(os.path.join(csv_rootpath, foldername))]
+
+    # TODO: This seems like a temp hack to deal with a specific case,
+    #       Perhaps could be moved out of the load workflow?
+    
+    # use to ensure new folderlist creates is valid
+    def path_ok(name):
+        return os.path.isdir(os.path.join(csv_rootpath, name))
+
+    folderlist = [name for name in os.listdir(csv_rootpath) if path_ok(name)]
+    
+    # otherwise default to the rootpath
     if not folderlist:
         folderlist = [csv_rootpath]
+
     for folder in folderlist:
-        textfilelist = [textfilename for textfilename in os.listdir(os.path.join(csv_rootpath,folder)) if textfilename.endswith(".txt")]
+        folder_loc = os.listdir(os.path.join(csv_rootpath, folder))
+        textfilelist = [name for name in folder_loc if name.endswith(".txt")]
+        
         for textfile in textfilelist:
-            # Read from file
-            file_open = open(os.path.join(csv_rootpath,folder,textfile))
-            raw = file_open.read()
-            file_open.close()
-            if raw.startswith(codecs.BOM_UTF8):
-                raw = raw.replace(codecs.BOM_UTF8, '', 1)
-                # Write to file
-                file_open = open(os.path.join(csv_rootpath,folder,textfile), 'w')
-                file_open.write(raw)
+            textfile_loc = os.path.join(csv_rootpath, folder, textfile)
+
+            try:
+                file_open = open(textfile_loc)
+                raw = file_open.read()
                 file_open.close()
-    log('GTFS text file encoding check completed. Took {:,.2f} seconds'.format(time.time()-start_time))
+
+                # don't check as string, check char as byte
+                bom_l = len(codecs.BOM_UTF8)
+                if raw[0:bom_l] == codecs.BOM_UTF8:
+                    # set the first char to an empty byte
+                    raw = raw[bom_l:]
+                    # write to file
+                    file_open = open(textfile_loc, 'w')
+                    file_open.write(raw)
+                    file_open.close()
+
+            except UnicodeDecodeError:
+                log('Failed to read this file: {}'.format(textfile_loc))
+    
+    time_diff = time.time() - start_time
+    update_msg = ('GTFS text file encoding check completed. Took '
+                  '{:,.2f} seconds').format(time_diff)
+    log(update_msg)
 
 def _txt_header_whitespace_check(csv_rootpath=os.path.join(config.settings.data_folder,
                                                           'gtfsfeed_text')):
@@ -88,14 +114,23 @@ def _txt_header_whitespace_check(csv_rootpath=os.path.join(config.settings.data_
     for folder in folderlist:
         textfilelist = [textfilename for textfilename in os.listdir(os.path.join(csv_rootpath,folder)) if textfilename.endswith(".txt")]
         for textfile in textfilelist:
-            # Read from file
-            with open(os.path.join(csv_rootpath,folder,textfile)) as f:
-                lines = f.readlines()
-            lines[0] = re.sub(r'\s+', '', lines[0]) + '\n'
-            # Write to file
-            with open(os.path.join(csv_rootpath,folder,textfile), 'w') as f:
-                f.writelines(lines)
-    log('GTFS text file header whitespace check completed. Took {:,.2f} seconds'.format(time.time()-start_time))
+            textfile_loc = os.path.join(csv_rootpath, folder, textfile)
+            
+            try:
+                with open(textfile_loc) as f:
+                    lines = f.readlines()
+                lines[0] = re.sub(r'\s+', '', lines[0]) + '\n'
+                
+                with open(textfile_loc, 'w') as f:
+                    f.writelines(lines)
+
+            except UnicodeDecodeError:
+                log('Failed to read this file: {}'.format(textfile_loc))
+
+    time_diff = time.time() - start_time
+    status_msg = ('GTFS text file header whitespace check completed. '
+                  'Took {:,.2f} seconds').format(time_diff)
+    log(status_msg)
 
 def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
                    bbox=None, remove_stops_outsidebbox=None,
@@ -209,12 +244,14 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
                                                                                                                          feed_folder=os.path.join(gtfsfeed_path, folder))
 
         if validation:
-            stops_df = utils_validation._validate_gtfs(stop_times_df=stop_times_df,
-                                                       stops_df=stops_df,
-                                                       feed_folder=os.path.join(gtfsfeed_path, folder),
-                                                       verbose=verbose,
-                                                       bbox=bbox,
-                                                       remove_stops_outsidebbox=remove_stops_outsidebbox)
+            stops_df = utils_validation.validate_gtfs(
+                            stop_times_df=stop_times_df,
+                            stops_df=stops_df,
+                            feed_folder=os.path.join(gtfsfeed_path, folder),
+                            verbose=verbose,
+                            bbox=bbox,
+                            remove_stops_outsidebbox=remove_stops_outsidebbox)
+
             if remove_stops_outsidebbox:
                 stops_inside_bbox = list(stops_df['stop_id'])
                 stop_times_df = stop_times_df[stop_times_df['stop_id'].isin(stops_inside_bbox)]
@@ -246,7 +283,10 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
                                                                                                                      stop_times_df=merged_stop_times_df,
                                                                                                                      trips_df=merged_trips_df)
 
-    merged_stop_times_df = utils_format._timetoseconds(df=merged_stop_times_df, time_cols=['departure_time', 'arrival_time'])
+    merged_stop_times_df = utils_format.timetoseconds(
+                                                df=merged_stop_times_df,
+                                                time_cols=['departure_time',
+                                                           'arrival_time'])
 
     # set gtfsfeeds_dfs object to merged GTFS dfs
     gtfsfeeds_dfs.stops = merged_stops_df
