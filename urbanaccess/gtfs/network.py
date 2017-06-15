@@ -287,15 +287,16 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
         input_trips_df) * 100, 2)
 
     feeds_wtrips_in_cal = trips_in_calendar['unique_feed_id'].unique()
+    print_feed_ids = [' '.join(feed_id.split('_')[:-1]) for feed_id in
+                      feeds_wtrips_in_cal]
     feeds_wotrips_in_cal = trips_notin_calendar['unique_feed_id'].unique()
-    for feed_id in feeds_wtrips_in_cal:
-        log(
-            '{:,} trip(s) {:.2f} percent of {:,} total trip records were '
-            'found in calendar for GTFS feed: {}'.format(
-                len(trips_in_calendar),
-                pct_trips_in_calendar,
-                len(input_trips_df),
-                ' '.join(feed_id.split('_')[:-1])))
+    log(
+        '{:,} trip(s) {:.2f} percent of {:,} total trip records were '
+        'found in calendar for GTFS feed(s): {}'.format(
+            len(trips_in_calendar),
+            pct_trips_in_calendar,
+            len(input_trips_df),
+            print_feed_ids))
 
     feed_id_not_in_cal = [x for x in feeds_wotrips_in_cal if x not in \
                           feeds_wtrips_in_cal]
