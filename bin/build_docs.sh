@@ -57,5 +57,5 @@ if [ "$TRAVIS_REPO_SLUG" == "UDST/urbanaccess" ] && \
 
         git commit -am "Update dev docs after building $TRAVIS_BUILD_NUMBER"
         echo "Pushing commit"
-        git push -fq origin gh-pages > /dev/null 2>&1
+        git push -fq origin gh-pages # > /dev/null 2>&1
 fi
