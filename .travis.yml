@@ -20,5 +20,8 @@ install:
 - pip install pandana geopy osmnet
 - pip install .
 
+after_success:
+- bin/build_docs.sh
+
 script:
 - py.test
