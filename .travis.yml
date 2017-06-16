@@ -22,8 +22,8 @@ install:
 
 script:
 - py.test
-- cd urbanaccess/demo; jupyter nbconvert --to python simple_example.ipynb
-- cd urbanaccess/demo; python simple_example.py
+- cd demo; jupyter nbconvert --to python simple_example.ipynb
+- cd demo; python simple_example.py
 - cd urbanaccess/tests/integration; python integration_madison.py
 - cd urbanaccess/tests/integration; python integration_sandiego.py
 - cd urbanaccess/tests/integration; python integration_gb.py
