@@ -58,6 +58,12 @@ urbanaccess_nw = urbanaccess.network.integrate_network(
     urbanaccess_gtfsfeeds_df=loaded_feeds,
     headway_statistic='mean')
 
+urbanaccess.network.save_network(urbanaccess_network=urbanaccess_nw,
+                                 filename='final_net.h5',
+                                 overwrite_key=True)
+
+urbanaccess_nw = urbanaccess.network.load_network(filename='final_net.h5')
+
 color_range = urbanaccess.plot.col_colors(df=urbanaccess_nw.net_edges,
                                           col='weight',
                                           num_bins=5,
