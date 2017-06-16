@@ -54,7 +54,7 @@ Loading GTFS Data
 
 Load raw GTFS data (from multiple feeds) into a UrbanAccess transit data object and run data through the validation and formatting sequence.
 
-GTFS feeds are assumed to either be a single feed designated by the feed folder or multiple feeds desginated as the root folder that holds all individual feed folders.
+GTFS feeds are assumed to either be a single feed designated by the feed folder or multiple feeds designated as the root folder that holds all individual feed folders.
 
 .. autofunction:: urbanaccess.gtfs.load.gtfsfeed_to_df
 
