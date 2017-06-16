@@ -15,6 +15,7 @@ Contents
    Create an Integrated Transit and Street Network <integrated_network>
    Plot Networks <plot>
    Utilities <utilities>
+   Network Gallery <gallery>
 
 
 * :ref:`genindex`

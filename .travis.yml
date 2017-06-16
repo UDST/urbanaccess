@@ -15,6 +15,7 @@ install:
 - conda info -a
 - |
   conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION pip numpy=1.11 pandas pytest pycodestyle matplotlib scikit-learn pyyaml
+  conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION pip numpy=1.11 ipython-notebook pandas pytest matplotlib scikit-learn pyyaml
 - source activate test-environment
 - conda list
 - pip install pandana geopy osmnet
