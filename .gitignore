@@ -10,6 +10,8 @@
 /data
 /configs
 /docs/build
+/demo/logs
+/demo/data
 /tests/logs
 /tests/integration/data
 /tests/integration/logs
