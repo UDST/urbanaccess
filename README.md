@@ -27,7 +27,6 @@ UrbanAccess is currently in a alpha release and only compatible with Python 2.x.
 *Forthcoming improvements:*
 - Unit tests
 - Python 3
-- pep8 compliance
 
 ## Reporting bugs
 Please report any bugs you encounter via [GitHub issues](https://github.com/UDST/urbanaccess/issues).
