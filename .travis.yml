@@ -13,8 +13,10 @@ install:
 - conda config --set always_yes yes --set changeps1 no
 - conda update -q conda
 - conda info -a
+- conda config --add channels udst
+- conda config --add channels conda-forge
 - |
-  conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION pip numpy=1.11 pandas pytest pycodestyle matplotlib scikit-learn pyyaml
+  conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION pip numpy=1.11 pandas pytest ipython-notebook pycodestyle matplotlib scikit-learn pyyaml basemap basemap-data-hires
 - source activate test-environment
 - conda list
 - pip install pandana geopy osmnet
@@ -26,9 +28,12 @@ after_success:
 script:
 - pycodestyle urbanaccess
 - py.test
-- cd urbanaccess/tests/integration; python integration_madison.py
-- cd urbanaccess/tests/integration; python integration_sandiego.py
-- cd urbanaccess/tests/integration; python integration_gb.py
+- cd demo; jupyter nbconvert --to python simple_example.ipynb
+- cd ../urbanaccess/tests/integration; python remove_nb_magic.py -in simple_example.py -out simple_example_clean.py
+- cd ../../../demo; python simple_example_clean.py
+- cd ../urbanaccess/tests/integration; python integration_madison.py
+- python integration_sandiego.py
+- python integration_gb.py
 
 env:
   global:

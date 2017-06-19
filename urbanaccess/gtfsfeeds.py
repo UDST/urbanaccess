@@ -12,6 +12,7 @@ from urbanaccess.utils import log
 from urbanaccess import config
 
 
+# TODO: make class CamelCase
 class urbanaccess_gtfsfeeds(object):
     """
     A dict of GTFS feeds as {name of GTFS feed or transit service/agency :

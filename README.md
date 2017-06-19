@@ -25,10 +25,8 @@ Let us know what you are working on or if you think you have a great use case by
 UrbanAccess is currently in a alpha release and only compatible with Python 2.x. Further code refinements are expected.
 
 *Forthcoming improvements:*
-- Tutorial/demo
 - Unit tests
 - Python 3
-- pep8 compliance
 
 ## Reporting bugs
 Please report any bugs you encounter via [GitHub issues](https://github.com/UDST/urbanaccess/issues).
@@ -50,17 +48,19 @@ To update to the latest version:
 
 Use ``git pull`` inside the cloned repository
 
-## Documentation
+## Documentation and demo
 
 Documentation for UrbanAccess can be found [here](https://udst.github.io/urbanaccess/index.html).
 
+A demo jupyter notebook for UrbanAccess can be found in the demo directory.
+
 ## Minimum GTFS data requirements
 
-The minimum [GTFS data types](https://developers.google.com/transit/gtfs/) required to use UrbanAccess are: ``stop_times``, ``stops``, ``routes``, ``calendar``, and ``trips``
+The minimum [GTFS data types](https://developers.google.com/transit/gtfs/) required to use UrbanAccess are: ``stop_times``, ``stops``, ``routes``, ``calendar``, and ``trips`` however if there is no ``calendar``, ``calendar_dates`` can be used as a replacement.
 
 ## Citation and academic literature
 To cite this tool and for a complete description of the UrbanAccess methodology see the paper below:  
-[`Samuel D. Blanchard and Paul Waddell. 2017. "UrbanAccess: A Generalized Methodology for Measuring Regional Accessibility with an Integrated Pedestrian and Transit Network." Transportation Research Record: Journal of the Transportation Research Board. No. 2653. pp. 35–44.`](http://trrjournalonline.trb.org/doi/pdf/10.3141/2653-05)
+[`Samuel D. Blanchard and Paul Waddell. 2017. "UrbanAccess: Generalized Methodology for Measuring Regional Accessibility with an Integrated Pedestrian and Transit Network." Transportation Research Record: Journal of the Transportation Research Board. No. 2653. pp. 35–44.`](http://trrjournalonline.trb.org/doi/pdf/10.3141/2653-05)
 
 ## Related UDST libraries
 - [Pandana](https://github.com/UDST/pandana)
