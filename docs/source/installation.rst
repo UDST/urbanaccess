@@ -30,7 +30,6 @@ UrbanAccess is currently in a alpha release and only compatible with Python 2.x.
 
 * Unit tests
 * Python 3
-* pep8 compliance
 
 Installation
 ~~~~~~~~~~~~~~
