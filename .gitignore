@@ -10,6 +10,9 @@
 /data
 /configs
 /docs/build
+/tests/logs
+/tests/integration/data
+/tests/integration/logs
 
 # Test cache
 .cache

@@ -1,5 +1,6 @@
 import pandas as pd
 
+
 class urbanaccess_gtfs_df(object):
     """
     A collection of dataframes representing the standardized and
@@ -29,7 +30,6 @@ class urbanaccess_gtfs_df(object):
                  calendar_dates=pd.DataFrame(),
                  stop_times_int=pd.DataFrame(),
                  headways=pd.DataFrame()):
-
         self.stops = stops
         self.routes = routes
         self.trips = trips
@@ -38,6 +38,7 @@ class urbanaccess_gtfs_df(object):
         self.calendar_dates = calendar_dates
         self.stop_times_int = stop_times_int
         self.headways = headways
+
 
 # instantiate the UrbanAccess gtfs feed dataframe object
 gtfsfeeds_dfs = urbanaccess_gtfs_df()

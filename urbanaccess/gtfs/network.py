@@ -12,8 +12,8 @@ pd.options.mode.chained_assignment = None
 
 
 def create_transit_net(gtfsfeeds_dfs, day,
+                       timerange,
                        calendar_dates_lookup=None,
-                       timerange=None,
                        overwrite_existing_stop_times_int=False,
                        use_existing_stop_times_int=False,
                        save_processed_gtfs=False,
@@ -27,40 +27,42 @@ def create_transit_net(gtfsfeeds_dfs, day,
     ----------
     gtfsfeeds_dfs : object
         gtfsfeeds_dfs object with dataframes of stops, routes, trips,
-        stop_times, calendar, and stop_times_int (optional)
-    day : {'friday','monday','saturday', 'sunday','thursday','tuesday',
+        stop_times, calendar, calendar_dates (optional) and
+        stop_times_int (optional)
+    day : {'friday', 'monday', 'saturday', 'sunday', 'thursday', 'tuesday',
     'wednesday'}
         day of the week to extract transit schedule from that
         corresponds to the day in the GTFS calendar
-    calendar_dates_lookup : dict, optional
-        dictionary of the lookup column (key) as a string and corresponding
-        string (value) a s string or list of strings to use to subset trips
-        using the calendar_dates dataframe. Search will be exact. If none,
-        then the calendar_dates dataframe will not be used to select trips
-        that are not in the calendar dataframe.
-        Example: {'schedule_type' : 'WD'} or {'schedule_type' : ['WD','SU']}
     timerange : list
         time range to extract transit schedule from in a list with time
         1 and time 2. it is suggested the time range
         specified is large enough to allow for travel
         from one end of the transit network to the other but small enough
         to represent a relevant travel time period such as a 3 hour window
-        for the AM Peak period. must follow format
+        for the AM Peak period. Must follow format
         of a 24 hour clock for example: 08:00:00 or 17:00:00
-    overwrite_existing_stop_times_int : bool
+    calendar_dates_lookup : dict, optional
+        dictionary of the lookup column (key) as a string and corresponding
+        string (value) as string or list of strings to use to subset trips
+        using the calendar_dates dataframe. Search will be exact. If none,
+        then the calendar_dates dataframe will not be used to select trips
+        that are not in the calendar dataframe. Note search will select all
+        records that meet each key value pair criteria.
+        Example: {'schedule_type' : 'WD'} or {'schedule_type' : ['WD', 'SU']}
+    overwrite_existing_stop_times_int : bool, optional
         if true, and if there is an existing stop_times_int
         dataframe stored in the gtfsfeeds_dfs object it will be
         overwritten
-    use_existing_stop_times_int : bool
+    use_existing_stop_times_int : bool, optional
         if true, and if there is an existing stop_times_int
         dataframe for the same time period stored in the
         gtfsfeeds_dfs object it will be used instead of re-calculated
-    save_processed_gtfs : bool
+    save_processed_gtfs : bool, optional
         if true, all processed gtfs dataframes will
         be stored to disk in a hdf5 file
-    save_dir : str
+    save_dir : str, optional
         directory to save the hdf5 file
-    save_filename : str
+    save_filename : str, optional
         name to save the hdf5 file as
 
     Returns
@@ -73,39 +75,48 @@ def create_transit_net(gtfsfeeds_dfs, day,
 
     time_error_statement = (
         '{} starttime and endtime are not in the correct format. '
-        'Format should be 24 hour clock in following format: 08:00:00 or '
-        '17:00:00'.format(
+        'Format should be a 24 hour clock in the following format: 08:00:00 '
+        'or 17:00:00'.format(
             timerange))
-    assert isinstance(timerange, list) and len(
-        timerange) == 2, time_error_statement
-    assert timerange[0] < timerange[1], time_error_statement
+    if not isinstance(timerange, list) or len(timerange) != 2:
+        raise ValueError(time_error_statement)
+    if timerange[0] > timerange[1]:
+        raise ValueError(time_error_statement)
     for t in timerange:
-        assert isinstance(t, str), time_error_statement
-        assert len(t) == 8, time_error_statement
+        if not isinstance(t, str):
+            raise ValueError(time_error_statement)
+        if len(t) != 8:
+            raise ValueError(time_error_statement)
     if int(str(timerange[1][0:2])) - int(str(timerange[0][0:2])) > 3:
-        log((
+        log(
             'WARNING: Time range passed: {} is a {} hour period. Long '
             'periods over 3 hours may take a significant amount of time to '
-            'process.').format(
-            timerange,
-            int(str(timerange[1][0:2])) - int(str(timerange[0][0:2]))),
+            'process.'.format(
+                timerange,
+                int(str(timerange[1][0:2])) - int(str(timerange[0][0:2]))),
             level=lg.WARNING)
-    assert gtfsfeeds_dfs is not None
+    if gtfsfeeds_dfs is None:
+        raise ValueError('gtfsfeeds_dfs is None')
     if gtfsfeeds_dfs.trips.empty or gtfsfeeds_dfs.calendar.empty or \
             gtfsfeeds_dfs.stop_times.empty or gtfsfeeds_dfs.stops.empty:
         raise ValueError('one of the gtfsfeeds_dfs object trips, calendar, '
                          'stops, or stop_times were found to be empty.')
-    assert isinstance(overwrite_existing_stop_times_int, bool)
-    assert isinstance(use_existing_stop_times_int, bool)
-    assert isinstance(save_processed_gtfs, bool)
+    if not isinstance(overwrite_existing_stop_times_int, bool):
+        raise ValueError('overwrite_existing_stop_times_int must be bool')
+    if not isinstance(use_existing_stop_times_int, bool):
+        raise ValueError('use_existing_stop_times_int must be bool')
+    if not isinstance(save_processed_gtfs, bool):
+        raise ValueError('save_processed_gtfs must be bool')
 
     columns = ['route_id',
                'direction_id',
                'trip_id',
                'service_id',
-               'unique_agency_id']
+               'unique_agency_id',
+               'unique_feed_id']
     if 'direction_id' not in gtfsfeeds_dfs.trips.columns:
         columns.remove('direction_id')
+
     calendar_selected_trips_df = _trip_schedule_selector(
         input_trips_df=gtfsfeeds_dfs.trips[columns],
         input_calendar_df=gtfsfeeds_dfs.calendar,
@@ -114,8 +125,8 @@ def create_transit_net(gtfsfeeds_dfs, day,
         calendar_dates_lookup=calendar_dates_lookup)
 
     if gtfsfeeds_dfs.stop_times_int.empty or \
-            overwrite_existing_stop_times_int or \
-                    use_existing_stop_times_int == False:
+            overwrite_existing_stop_times_int or use_existing_stop_times_int\
+            is False:
         gtfsfeeds_dfs.stop_times_int = _interpolate_stop_times(
             stop_times_df=gtfsfeeds_dfs.stop_times,
             calendar_selected_trips_df=calendar_selected_trips_df,
@@ -129,10 +140,10 @@ def create_transit_net(gtfsfeeds_dfs, day,
                                      dir=save_dir, filename=save_filename)
 
     if use_existing_stop_times_int:
-        assert gtfsfeeds_dfs.stop_times_int.empty == False, ('existing '
-                                                             'stop_times_int '
-                                                             'is empty. set '
-                                                             'use_existing_stop_times_int to False to create it.')
+        if gtfsfeeds_dfs.stop_times_int.empty:
+            raise ValueError('existing stop_times_int is empty. Set '
+                             'use_existing_stop_times_int to False to create '
+                             'it.')
 
     selected_interpolated_stop_times_df = _time_selector(
         df=gtfsfeeds_dfs.stop_times_int,
@@ -148,31 +159,32 @@ def create_transit_net(gtfsfeeds_dfs, day,
                                                            'unique_agency_id',
                                                            'trip_id']])
 
-    ua_network.transit_edges = _convert_imp_time_units(df=final_edge_table,
-                                                       time_col='weight',
-                                                       convert_to='minutes')
+    transit_edges = _convert_imp_time_units(df=final_edge_table,
+                                            time_col='weight',
+                                            convert_to='minutes')
 
     final_selected_stops = _stops_in_edge_table_selector(
         input_stops_df=gtfsfeeds_dfs.stops,
         input_stop_times_df=selected_interpolated_stop_times_df)
 
-    ua_network.transit_nodes = _format_transit_net_nodes(
-        df=final_selected_stops)
+    transit_nodes = _format_transit_net_nodes(df=final_selected_stops)
 
-    ua_network.transit_edges = _route_type_to_edge(
-        transit_edge_df=ua_network.transit_edges,
-        stop_time_df=gtfsfeeds_dfs.stop_times)
+    transit_edges = _route_type_to_edge(transit_edge_df=transit_edges,
+                                        stop_time_df=gtfsfeeds_dfs.stop_times)
 
-    ua_network.transit_edges = _route_id_to_edge(
-        transit_edge_df=ua_network.transit_edges,
-        trips_df=gtfsfeeds_dfs.trips)
+    transit_edges = _route_id_to_edge(transit_edge_df=transit_edges,
+                                      trips_df=gtfsfeeds_dfs.trips)
 
     # assign node and edge net type
-    ua_network.transit_nodes['net_type'] = 'transit'
-    ua_network.transit_edges['net_type'] = 'transit'
+    transit_nodes['net_type'] = 'transit'
+    transit_edges['net_type'] = 'transit'
 
-    log(('Successfully created transit network. Took {:,'
-         '.2f} seconds').format(time.time() - start_time))
+    # set global ua_network edges and nodes
+    ua_network.transit_edges = transit_edges
+    ua_network.transit_nodes = transit_nodes
+
+    log('Successfully created transit network. Took {:,.2f} seconds'.format(
+        time.time() - start_time))
 
     return ua_network
 
@@ -191,7 +203,7 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
         calendar dataframe
     input_calendar_dates_df : pandas.DataFrame
         calendar_dates dataframe
-    day : {'friday','monday','saturday','sunday','thursday','tuesday',
+    day : {'friday', 'monday', 'saturday', 'sunday', 'thursday', 'tuesday',
     'wednesday'}
         day of the week to extract transit schedule that corresponds to the
         day in the GTFS calendar
@@ -200,8 +212,9 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
         string (value) a s string or list of strings to use to subset trips
         using the calendar_dates dataframe. Search will be exact. If none,
         then the calendar_dates dataframe will not be used to select trips
-        that are not in the calendar dataframe.
-        Example: {'schedule_type' : 'WD'} or {'schedule_type' : ['WD','SU']}
+        that are not in the calendar dataframe. Note search will select all
+        records that meet each key value pair criteria.
+        Example: {'schedule_type' : 'WD'} or {'schedule_type' : ['WD', 'SU']}
 
     Returns
     -------
@@ -243,19 +256,24 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
                     raise ValueError('{} must be a string'.format(value))
 
     # create unique service ids
-    df_list = [input_trips_df, input_calendar_df, input_calendar_dates_df]
+    df_list = [input_trips_df, input_calendar_df]
+    # if input_calendar_dates_df is not empty then add it to processing
+    if input_calendar_dates_df.empty is False:
+        df_list.extend([input_calendar_dates_df])
 
-    for df in df_list:
+    for index, df in enumerate(df_list):
         df['unique_service_id'] = (df['service_id'].str.cat(
                 df['unique_agency_id'].astype('str'),
                 sep='_'))
+        df_list[index] = df
 
     # select service ids where day specified has a 1 = service runs on that day
     log('Using calendar to extract service_ids to select trips.')
     input_calendar_df = input_calendar_df[(input_calendar_df[day] == 1)]
     input_calendar_df = input_calendar_df[['unique_service_id']]
-    log('{:,} service_ids were extracted from calendar'.format(len(
-        input_calendar_df)))
+    num_cal_service_ids_extracted = len(input_calendar_df)
+    log('{:,} service_ids were extracted from calendar'.format(
+        num_cal_service_ids_extracted))
 
     # generate information needed to tell user the status of their trips in
     # terms of service_ids in calendar and calendar_dates tables
@@ -266,30 +284,57 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
         'unique_service_id'].isin(input_calendar_df['unique_service_id'])]
 
     pct_trips_in_calendar = round(len(trips_in_calendar) / len(
-        input_trips_df) * 100, 3)
-    pct_trips_notin_calendar = round(len(trips_notin_calendar) / len(
-        input_trips_df) * 100, 3)
+        input_trips_df) * 100, 2)
 
-    log(('{:,} trip(s) {:.3f} percent of {:,} total trip records were found '
-         'in calendar').format(len(trips_in_calendar),
-                               pct_trips_in_calendar,
-                               len(input_trips_df)))
+    feeds_wtrips_in_cal = trips_in_calendar['unique_feed_id'].unique()
+    print_feed_ids = [' '.join(feed_id.split('_')[:-1]) for feed_id in
+                      feeds_wtrips_in_cal]
+    feeds_wotrips_in_cal = trips_notin_calendar['unique_feed_id'].unique()
+    log(
+        '{:,} trip(s) {:.2f} percent of {:,} total trip records were '
+        'found in calendar for GTFS feed(s): {}'.format(
+            len(trips_in_calendar),
+            pct_trips_in_calendar,
+            len(input_trips_df),
+            print_feed_ids))
+
+    feed_id_not_in_cal = [x for x in feeds_wotrips_in_cal if
+                          x not in feeds_wtrips_in_cal]
+    for feed_id in feed_id_not_in_cal:
+        log(
+            '0 trip(s) 0 percent of {:,} total trip records were '
+            'found in calendar for GTFS feed: {}'.format(
+                len(input_trips_df),
+                ' '.join(feed_id.split('_')[:-1])))
 
     if len(trips_notin_calendar) > 0 and calendar_dates_lookup is None:
         warning_msg = (
-            'NOTE: {:,} trip(s) {:.3f} percent of {:,} total trip records '
-            'were found to be in calendar_dates and not calendar. The '
-            'calendar_dates_lookup parameter is None. In order to use the '
-            'trips inside the calendar_dates dataframe it is suggested you '
-            'specify a search parameter in the calendar_dates_lookup dict. '
-            'This should only be done if you know the corresponding '
-            'GTFS feed is using calendar_dates instead of calendar to '
-            'specify the service_ids. When in doubt do not use the '
-            'calendar_dates_lookup parameter.')
-        log(warning_msg.format(
-            len(trips_notin_calendar),
-            pct_trips_notin_calendar,
-            len(input_trips_df)), level=lg.WARNING)
+            'NOTE: If you expected more trips to have been extracted and your '
+            'GTFS feed(s) have a calendar_dates file, consider utilizing the '
+            'calendar_dates_lookup parameter in order to add additional trips '
+            'based on information inside of calendar_dates. This should only '
+            'be done if you know the corresponding GTFS feed is using '
+            'calendar_dates instead of calendar to specify service_ids. When '
+            'in doubt do not use the calendar_dates_lookup parameter.')
+        log(warning_msg, level=lg.WARNING)
+
+    if len(feeds_wtrips_in_cal) != len(
+            feeds_wotrips_in_cal) and calendar_dates_lookup is None:
+        for feed_id in feeds_wotrips_in_cal:
+            log(
+                '{:,} trip(s) {:.2f} percent of {:,} total trip records were '
+                'not found in calendar for GTFS feed: {}'.format(
+                    len(trips_in_calendar),
+                    pct_trips_in_calendar,
+                    len(input_trips_df),
+                    ' '.join(feed_id.split('_')[:-1])))
+            if feed_id not in feeds_wtrips_in_cal:
+                log('Warning: GTFS feed: {} no trips were selected using '
+                    'calendar. It is suggested you use the '
+                    'calendar_dates_lookup parameter to utilize this feeds '
+                    'calendar_dates file.'.format(
+                        ' '.join(feed_id.split('_')[:-1])),
+                    level=lg.WARNING)
 
     # look for service_ids inside of calendar_dates if calendar does not
     # supply enough service_ids to select trips by
@@ -300,10 +345,15 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
 
         subset_result_df = pd.DataFrame()
 
+        if input_calendar_dates_df.empty:
+            raise ValueError(
+                'calendar_dates_df is empty. Unable to use the '
+                'calendar_dates_lookup parameter')
+
         for col_name_key, string_value in calendar_dates_lookup.items():
             if col_name_key not in input_calendar_dates_df.columns:
-                raise ValueError(('{} column not found in calendar_dates '
-                                  'dataframe').format(col_name_key))
+                raise ValueError('{} column not found in calendar_dates '
+                                 'dataframe'.format(col_name_key))
 
             if col_name_key not in input_calendar_dates_df.select_dtypes(
                     include=[object]).columns:
@@ -314,22 +364,33 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
                 string_value = [string_value]
 
             for text in string_value:
-
+                # TODO: modify this in order to allow subset based on gtfs
+                # feed name or a or/and condition
                 subset_result = input_calendar_dates_df[
                     input_calendar_dates_df[col_name_key].str.match(
                         text, case=False, na=False)]
-                log(('Found {:,} records that matched query: column: {} and '
-                     'string: {}').format(len(subset_result),
-                                          col_name_key,
-                                          text))
+                feed_id_list = subset_result['unique_feed_id'].unique()
+                for index, id in enumerate(feed_id_list):
+                    feed_id_list[index] = ' '.join(id.split('_')[:-1])
+
+                log('Found {:,} records that matched query: column: {} and '
+                    'string: {} for GTFS feed(s): {}'.format(len(
+                        subset_result),
+                        col_name_key,
+                        text,
+                        feed_id_list))
 
                 subset_result_df = subset_result_df.append(subset_result)
 
         subset_result_df.drop_duplicates(inplace=True)
         subset_result_df = subset_result_df[['unique_service_id']]
 
-        log('{:,} service_ids were extracted from calendar_dates'.format(len(
-            subset_result_df)))
+        num_caldates_service_ids_extracted = len(subset_result_df)
+        log('An additional {:,} service_ids were extracted from '
+            'calendar_dates. Total service_ids extracted: {:,}'.format(
+                num_caldates_service_ids_extracted,
+                num_caldates_service_ids_extracted +
+                num_cal_service_ids_extracted))
         input_calendar_df = input_calendar_df.append(subset_result_df)
         input_calendar_df.drop_duplicates(inplace=True)
 
@@ -348,16 +409,21 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
     calendar_selected_trips_df.drop('unique_service_id', axis=1, inplace=True)
 
     if calendar_dates_lookup is None:
-        log(('{:,} of {:,} total trips were extracted representing calendar '
-             'day: {}. Took {:,.2f} seconds').format(len(
-            calendar_selected_trips_df), len(input_trips_df),
-            day, time.time() - start_time))
+        log('{:,} of {:,} total trips were extracted representing calendar '
+            'day: {}. Took {:,.2f} seconds'.format(len(
+                calendar_selected_trips_df),
+                len(input_trips_df),
+                day,
+                time.time() - start_time))
     else:
-        log(('{:,} of {:,} total trips were extracted representing calendar '
-             'day: {} and calendar_dates search parameters: {}. Took {:,'
-             '.2f} seconds').format(len(
-            calendar_selected_trips_df), len(input_trips_df),
-            day, calendar_dates_lookup, time.time() - start_time))
+        log('{:,} of {:,} total trips were extracted representing calendar '
+            'day: {} and calendar_dates search parameters: {}. Took {:,'
+            '.2f} seconds'.format(len(
+                calendar_selected_trips_df),
+                len(input_trips_df),
+                day,
+                calendar_dates_lookup,
+                time.time() - start_time))
 
     return calendar_selected_trips_df
 
@@ -389,10 +455,11 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df, day):
     # create unique trip ids
     df_list = [calendar_selected_trips_df, stop_times_df]
 
-    for df in df_list:
+    for index, df in enumerate(df_list):
         df['unique_trip_id'] = (df['trip_id'].str.cat(
-                df['unique_agency_id'].astype('str'),
-                sep='_'))
+            df['unique_agency_id'].astype('str'),
+            sep='_'))
+        df_list[index] = df
 
     # sort stop times inplace based on first to last stop in
     # sequence -- required as the linear interpolator runs
@@ -403,7 +470,8 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df, day):
             'Please check these missing values. In order for interpolation '
             'to proceed correctly, '
             'all records must have a stop_sequence value.'.format(
-            stop_times_df['stop_sequence'].isnull().sum()), level=lg.WARNING)
+                stop_times_df['stop_sequence'].isnull().sum()),
+            level=lg.WARNING)
 
     stop_times_df.sort_values(by=['unique_trip_id', 'stop_sequence'],
                               inplace=True)
@@ -426,15 +494,16 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df, day):
         log('Note: Processing may take a long time depending'
             ' on the number of records. '
             'Total unique trips to assess: {:,}'.format(
-            len(stop_times_df['unique_trip_id'].unique())), level=lg.WARNING)
+                len(stop_times_df['unique_trip_id'].unique())),
+            level=lg.WARNING)
         log('Starting departure stop time interpolation...')
-        log((
-                'Departure time records missing from trips following {} '
-                'schedule: {:,} ({:.2f} percent of {:,} total '
-                'records)').format(
-            day, missing_stop_times_count,
-            (missing_stop_times_count / len(stop_times_df)) * 100,
-            len(stop_times_df['departure_time_sec'])))
+        log(
+            'Departure time records missing from trips following {} '
+            'schedule: {:,} ({:.2f} percent of {:,} total '
+            'records)'.format(
+                day, missing_stop_times_count,
+                (missing_stop_times_count / len(stop_times_df)) * 100,
+                len(stop_times_df['departure_time_sec'])))
 
         log('Interpolating...')
 
@@ -528,13 +597,11 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df, day):
     final_stop_times_df['departure_time_sec_interpolate'].fillna(
         final_stop_times_df['departure_time_sec'], inplace=True)
 
-    if final_stop_times_df[
-        'departure_time_sec_interpolate'].isnull().sum() > 0:
-        log(
-            'WARNING: Number of records unable to interpolate: {:,}. These '
-            'records have been removed.'.format(
-                final_stop_times_df[
-                    'departure_time_sec_interpolate'].isnull().sum()),
+    num_not_interpolated = final_stop_times_df[
+        'departure_time_sec_interpolate'].isnull().sum()
+    if num_not_interpolated > 0:
+        log('WARNING: Number of records unable to interpolate: {:,}. '
+            'These records have been removed.'.format(num_not_interpolated),
             level=lg.WARNING)
 
     # convert the interpolated times (float) to integer so all times are
@@ -545,12 +612,12 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df, day):
         final_stop_times_df['departure_time_sec_interpolate'].notnull()]
     # convert float to int
     final_stop_times_df['departure_time_sec_interpolate'] = \
-    final_stop_times_df['departure_time_sec_interpolate'].astype(int)
+        final_stop_times_df['departure_time_sec_interpolate'].astype(int)
 
     # add unique stop id
-    final_stop_times_df['unique_stop_id'] = final_stop_times_df[
-        ['stop_id', 'unique_agency_id']].apply(
-        lambda x: '{}_{}'.format(x[0], x[1]), axis=1)
+    final_stop_times_df['unique_stop_id'] = (
+        final_stop_times_df['stop_id'].str.cat(
+            final_stop_times_df['unique_agency_id'].astype('str'), sep='_'))
 
     if missing_stop_times_count > 0:
         log(
@@ -561,7 +628,7 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df, day):
     return final_stop_times_df
 
 
-def _time_difference(stop_times_df=None):
+def _time_difference(stop_times_df):
     """
     Calculate the difference in departure_time between stops in stop times
     table to produce travel time
@@ -589,7 +656,7 @@ def _time_difference(stop_times_df=None):
     return stop_times_df
 
 
-def _time_selector(df=None, starttime=None, endtime=None):
+def _time_selector(df, starttime, endtime):
     """
     Select stop times that fall within a specified time range
 
@@ -615,6 +682,7 @@ def _time_selector(df=None, starttime=None, endtime=None):
     # convert string time components to integer and then calculate seconds
     # past midnight
     # convert starttime 24 hour to seconds past midnight
+    # TODO: optimize for speed
     start_h = int(str(starttime[0:2]))
     start_m = int(str(starttime[3:5]))
     start_s = int(str(starttime[6:8]))
@@ -627,8 +695,8 @@ def _time_selector(df=None, starttime=None, endtime=None):
 
     # create df of stops times that are within the requested range
     selected_stop_timesdf = df[(
-    (starttime_sec < df["departure_time_sec_interpolate"]) & (
-    df["departure_time_sec_interpolate"] < endtime_sec))]
+        (starttime_sec < df["departure_time_sec_interpolate"]) & (
+            df["departure_time_sec_interpolate"] < endtime_sec))]
 
     log(
         'Stop times from {} to {} successfully selected {:,} records out of '
@@ -641,7 +709,7 @@ def _time_selector(df=None, starttime=None, endtime=None):
     return selected_stop_timesdf
 
 
-def _format_transit_net_edge(stop_times_df=None):
+def _format_transit_net_edge(stop_times_df):
     """
     Format transit network data table to match the format required for edges
     in Pandana graph networks edges
@@ -689,9 +757,9 @@ def _format_transit_net_edge(stop_times_df=None):
     merged_edge_df = pd.concat(merged_edge, ignore_index=True)
     merged_edge_df['sequence'] = merged_edge_df['sequence'].astype(int,
                                                                    copy=False)
-    merged_edge_df['id'] = merged_edge_df[
-        ['unique_trip_id', 'sequence']].apply(
-        lambda x: '{}_{}'.format(x[0], x[1]), axis=1)
+    merged_edge_df['id'] = (
+        merged_edge_df['unique_trip_id'].str.cat(
+            merged_edge_df['sequence'].astype('str'), sep='_'))
 
     log('stop time table transformation to '
         'Pandana format edge table completed. '
@@ -700,7 +768,7 @@ def _format_transit_net_edge(stop_times_df=None):
     return merged_edge_df
 
 
-def _convert_imp_time_units(df=None, time_col='weight', convert_to='minutes'):
+def _convert_imp_time_units(df, time_col='weight', convert_to='minutes'):
     """
     Convert the travel time impedance units
 
@@ -710,7 +778,7 @@ def _convert_imp_time_units(df=None, time_col='weight', convert_to='minutes'):
         edge dataframe with weight column
     time_col : str
         name of column that holds the travel impedance
-    convert_to : {'seconds','minutes'}
+    convert_to : {'seconds', 'minutes'}
         unit to convert travel time to. should always be set to 'minutes'
 
     Returns
@@ -719,7 +787,9 @@ def _convert_imp_time_units(df=None, time_col='weight', convert_to='minutes'):
 
     """
     valid_convert_to = ['seconds', 'minutes']
-    assert convert_to in valid_convert_to and isinstance(convert_to, str)
+    if convert_to not in valid_convert_to or not isinstance(convert_to, str):
+        raise ValueError('{} not a valid value or not a string'.format(
+            convert_to))
 
     if convert_to == 'seconds':
         df[time_col] = df[time_col].astype('float')
@@ -734,8 +804,8 @@ def _convert_imp_time_units(df=None, time_col='weight', convert_to='minutes'):
     return df
 
 
-def _stops_in_edge_table_selector(input_stops_df=None,
-                                  input_stop_times_df=None):
+def _stops_in_edge_table_selector(input_stops_df,
+                                  input_stop_times_df):
     """
     Select stops that are active during the day and time period specified
 
@@ -754,9 +824,9 @@ def _stops_in_edge_table_selector(input_stops_df=None,
     start_time = time.time()
 
     # add unique stop id
-    input_stops_df['unique_stop_id'] = input_stops_df[
-        ['stop_id', 'unique_agency_id']].apply(
-        lambda x: '{}_{}'.format(x[0], x[1]), axis=1)
+    input_stops_df['unique_stop_id'] = (
+        input_stops_df['stop_id'].str.cat(
+            input_stops_df['unique_agency_id'].astype('str'), sep='_'))
 
     # Select stop ids that match stop ids in the subset stop time data that
     # match day and time selection
@@ -773,7 +843,7 @@ def _stops_in_edge_table_selector(input_stops_df=None,
     return selected_stops_df
 
 
-def _format_transit_net_nodes(df=None):
+def _format_transit_net_nodes(df):
     """
     Create transit node table from stops dataframe and perform final formatting
 
@@ -791,8 +861,9 @@ def _format_transit_net_nodes(df=None):
 
     # add unique stop id
     if 'unique_stop_id' not in df.columns:
-        df['unique_stop_id'] = df[['stop_id', 'unique_agency_id']].apply(
-            lambda x: '{}_{}'.format(x[0], x[1]), axis=1)
+        df['unique_stop_id'] = (
+            df['stop_id'].str.cat(
+                df['unique_agency_id'].astype('str'), sep='_'))
 
     final_node_df = pd.DataFrame()
     final_node_df['node_id'] = df['unique_stop_id']
@@ -820,7 +891,7 @@ def _format_transit_net_nodes(df=None):
     return final_node_df
 
 
-def _route_type_to_edge(transit_edge_df=None, stop_time_df=None):
+def _route_type_to_edge(transit_edge_df, stop_time_df):
     """
     Append route type information to transit edge table
 
@@ -839,17 +910,19 @@ def _route_type_to_edge(transit_edge_df=None, stop_time_df=None):
     start_time = time.time()
 
     # create unique trip ids
-    stop_time_df['unique_trip_id'] = stop_time_df[
-        ['trip_id', 'unique_agency_id']].apply(
-        lambda x: '{}_{}'.format(x[0], x[1]), axis=1)
+    stop_time_df['unique_trip_id'] = (
+        stop_time_df['trip_id'].str.cat(
+            stop_time_df['unique_agency_id'].astype('str'), sep='_'))
 
     # join route_id to the edge table
     merged_df = pd.merge(transit_edge_df,
                          stop_time_df[['unique_trip_id', 'route_type']],
                          how='left', on='unique_trip_id', sort=False,
                          copy=False)
-    merged_df.drop_duplicates(subset='unique_trip_id', keep='first', inplace
-    =True)  # need to get unique records here to have a one to one join -
+    merged_df.drop_duplicates(subset='unique_trip_id',
+                              keep='first',
+                              inplace=True)
+    # need to get unique records here to have a one to one join -
     # this serves as the look up table
     # join the look up table created above to the table of interest
     transit_edge_df_w_routetype = pd.merge(transit_edge_df, merged_df[
@@ -864,7 +937,7 @@ def _route_type_to_edge(transit_edge_df=None, stop_time_df=None):
     return transit_edge_df_w_routetype
 
 
-def _route_id_to_edge(transit_edge_df=None, trips_df=None):
+def _route_id_to_edge(transit_edge_df, trips_df):
     """
     Append route ids to transit edge table
 
@@ -884,12 +957,12 @@ def _route_id_to_edge(transit_edge_df=None, trips_df=None):
 
     if 'unique_route_id' not in transit_edge_df.columns:
         # create unique trip and route ids
-        trips_df['unique_trip_id'] = trips_df[
-            ['trip_id', 'unique_agency_id']].apply(
-            lambda x: '{}_{}'.format(x[0], x[1]), axis=1)
-        trips_df['unique_route_id'] = trips_df[
-            ['route_id', 'unique_agency_id']].apply(
-            lambda x: '{}_{}'.format(x[0], x[1]), axis=1)
+        trips_df['unique_trip_id'] = (
+            trips_df['trip_id'].str.cat(
+                trips_df['unique_agency_id'].astype('str'), sep='_'))
+        trips_df['unique_route_id'] = (
+            trips_df['route_id'].str.cat(
+                trips_df['unique_agency_id'].astype('str'), sep='_'))
 
         transit_edge_df_with_routes = pd.merge(transit_edge_df, trips_df[
             ['unique_trip_id', 'unique_route_id']],
@@ -905,7 +978,7 @@ def _route_id_to_edge(transit_edge_df=None, trips_df=None):
     return transit_edge_df_with_routes
 
 
-def edge_impedance_by_route_type(transit_edge_df=None,
+def edge_impedance_by_route_type(transit_edge_df,
                                  street_level_rail=None,
                                  underground_rail=None,
                                  intercity_rail=None,
@@ -921,19 +994,19 @@ def edge_impedance_by_route_type(transit_edge_df=None,
     ----------
     transit_edge_df : pandas.DataFrame
         transit edge dataframe
-    street_level_rail : float
+    street_level_rail : float, optional
         factor between -1 to 1 to multiply against travel time
-    intercity_rail : float
+    intercity_rail : float, optional
         factor between -1 to 1 to multiply against travel time
-    bus : float
+    bus : float, optional
         factor between -1 to 1 to multiply against travel time
-    ferry : float
+    ferry : float, optional
         factor between -1 to 1 to multiply against travel time
-    cable_car : float
+    cable_car : float, optional
         factor between -1 to 1 to multiply against travel time
-    gondola : float
+    gondola : float, optional
         factor between -1 to 1 to multiply against travel time
-    funicular : float
+    funicular : float, optional
         factor between -1 to 1 to multiply against travel time
 
     Returns
@@ -942,8 +1015,8 @@ def edge_impedance_by_route_type(transit_edge_df=None,
     ua_network.transit_edges : pandas.DataFrame
 
     """
-    assert 'route_type' in transit_edge_df.columns, 'No route_type column ' \
-                                                    'was found in dataframe'
+    if 'route_type' not in transit_edge_df.columns:
+        raise ValueError('No route_type column was found in dataframe')
 
     # check count of records for each route type
     route_type_desc = {0: 'Street Level Rail: Tram Streetcar Light rail',
@@ -952,8 +1025,7 @@ def edge_impedance_by_route_type(transit_edge_df=None,
                        4: 'Ferry', 5: 'Cable Car',
                        6: 'Gondola or Suspended cable car',
                        7: 'Steep incline: Funicular'}
-    log('Route type distribution as percentage of '
-        'transit mode: {:.2f}'.format(
+    log('Route type distribution as percentage of transit mode: {:.2f}'.format(
         transit_edge_df['route_type'].map(route_type_desc.get).value_counts(
             normalize=True, dropna=False) * 100))
 
@@ -962,8 +1034,8 @@ def edge_impedance_by_route_type(transit_edge_df=None,
 
     for var in var_list:
         if var is not None:
-            assert isinstance(var,
-                              float), 'One or more variables are not float'
+            if not isinstance(var, float):
+                raise ValueError('One or more variables are not float')
 
     travel_time_col_name = 'weight'
     travel_time_col = transit_edge_df[travel_time_col_name]
@@ -972,7 +1044,7 @@ def edge_impedance_by_route_type(transit_edge_df=None,
             transit_edge_df[transit_edge_df['route_type'] == 0]) > 0:
         transit_edge_df[travel_time_col_name][
             transit_edge_df['route_type'] == 0] = travel_time_col + (
-        travel_time_col * street_level_rail)
+            travel_time_col * street_level_rail)
         log(
             'Adjusted Street Level Rail transit edge impedance based on mode'
             ' type penalty coefficient: {}'.format(
@@ -981,7 +1053,7 @@ def edge_impedance_by_route_type(transit_edge_df=None,
             transit_edge_df[transit_edge_df['route_type'] == 1]) > 0:
         transit_edge_df[travel_time_col_name][
             transit_edge_df['route_type'] == 1] = travel_time_col + (
-        travel_time_col * underground_rail)
+            travel_time_col * underground_rail)
         log(
             'Adjusted Underground rail transit edge impedance based on mode '
             'type penalty coefficient: {}'.format(
@@ -990,7 +1062,7 @@ def edge_impedance_by_route_type(transit_edge_df=None,
             transit_edge_df[transit_edge_df['route_type'] == 2]) > 0:
         transit_edge_df[travel_time_col_name][
             transit_edge_df['route_type'] == 2] = travel_time_col + (
-        travel_time_col * intercity_rail)
+            travel_time_col * intercity_rail)
         log(
             'Adjusted Rail transit edge impedance based on mode type penalty '
             'coefficient: {}'.format(
@@ -999,7 +1071,7 @@ def edge_impedance_by_route_type(transit_edge_df=None,
             transit_edge_df[transit_edge_df['route_type'] == 3]) > 0:
         transit_edge_df[travel_time_col_name][
             transit_edge_df['route_type'] == 3] = travel_time_col + (
-        travel_time_col * bus)
+            travel_time_col * bus)
         log(
             'Adjusted Bus transit edge impedance based on mode type penalty '
             'coefficient: {}'.format(
@@ -1008,7 +1080,7 @@ def edge_impedance_by_route_type(transit_edge_df=None,
             transit_edge_df[transit_edge_df['route_type'] == 4]) > 0:
         transit_edge_df[travel_time_col_name][
             transit_edge_df['route_type'] == 4] = travel_time_col + (
-        travel_time_col * ferry)
+            travel_time_col * ferry)
         log(
             'Adjusted Ferry transit edge impedance based on mode type '
             'penalty coefficient: {}'.format(
@@ -1017,7 +1089,7 @@ def edge_impedance_by_route_type(transit_edge_df=None,
             transit_edge_df[transit_edge_df['route_type'] == 5]) > 0:
         transit_edge_df[travel_time_col_name][
             transit_edge_df['route_type'] == 5] = travel_time_col + (
-        travel_time_col * cable_car)
+            travel_time_col * cable_car)
         log(
             'Adjusted Cable Car transit edge impedance based on mode type '
             'penalty coefficient: {}'.format(
@@ -1026,7 +1098,7 @@ def edge_impedance_by_route_type(transit_edge_df=None,
             transit_edge_df[transit_edge_df['route_type'] == 6]) > 0:
         transit_edge_df[travel_time_col_name][
             transit_edge_df['route_type'] == 6] = travel_time_col + (
-        travel_time_col * gondola)
+            travel_time_col * gondola)
         log(
             'Adjusted Gondola or Suspended cable car transit edge impedance '
             'based on mode type penalty coefficient: {}'.format(
@@ -1035,7 +1107,7 @@ def edge_impedance_by_route_type(transit_edge_df=None,
             transit_edge_df[transit_edge_df['route_type'] == 7]) > 0:
         transit_edge_df[travel_time_col_name][
             transit_edge_df['route_type'] == 7] = travel_time_col + (
-        travel_time_col * funicular)
+            travel_time_col * funicular)
         log(
             'Adjusted Funicular transit edge impedance based on mode type '
             'penalty coefficient: {}'.format(
@@ -1048,9 +1120,9 @@ def edge_impedance_by_route_type(transit_edge_df=None,
     return ua_network
 
 
-def save_processed_gtfs_data(gtfsfeeds_dfs=None,
-                             dir=config.settings.data_folder,
-                             filename=None):
+def save_processed_gtfs_data(gtfsfeeds_dfs,
+                             filename,
+                             dir=config.settings.data_folder):
     """
     Write dataframes in a gtfsfeeds_dfs object to a hdf5 file
 
@@ -1058,26 +1130,23 @@ def save_processed_gtfs_data(gtfsfeeds_dfs=None,
     ----------
     gtfsfeeds_dfs : object
         gtfsfeeds_dfs object
-    dir : string, optional
-        directory to save hdf5 file
     filename : string
         name of the hdf5 file to save with .h5 extension
+    dir : string, optional
+        directory to save hdf5 file
 
     Returns
     -------
     None
     """
-    assert gtfsfeeds_dfs is not None \
-           or gtfsfeeds_dfs.stops.empty == False \
-           or gtfsfeeds_dfs.routes.empty == False \
-           or gtfsfeeds_dfs.trips.empty == False \
-           or gtfsfeeds_dfs.stop_times.empty == False \
-           or gtfsfeeds_dfs.calendar.empty == False \
-           or gtfsfeeds_dfs.stop_times_int.empty == False, 'gtfsfeeds_dfs is ' \
-                                                           '' \
-                                                           'missing one of ' \
-                                                           'the required ' \
-                                                           'dataframes.'
+    # TODO: refactor check below to use any() for readability
+    if gtfsfeeds_dfs is None or gtfsfeeds_dfs.stops.empty or \
+            gtfsfeeds_dfs.routes.empty or gtfsfeeds_dfs.trips.empty \
+            or gtfsfeeds_dfs.stop_times.empty or \
+            gtfsfeeds_dfs.calendar.empty or \
+            gtfsfeeds_dfs.stop_times_int.empty:
+        raise ValueError('gtfsfeeds_dfs is missing one of the required '
+                         'dataframes.')
 
     df_to_hdf5(data=gtfsfeeds_dfs.stops, key='stops', overwrite_key=False,
                dir=dir, filename=filename, overwrite_hdf5=False)
@@ -1095,27 +1164,27 @@ def save_processed_gtfs_data(gtfsfeeds_dfs=None,
                overwrite_key=False, dir=dir, filename=filename,
                overwrite_hdf5=False)
 
-    if gtfsfeeds_dfs.headways.empty == False:
+    if gtfsfeeds_dfs.headways.empty is False:
         df_to_hdf5(data=gtfsfeeds_dfs.headways, key='headways',
                    overwrite_key=False, dir=dir, filename=filename,
                    overwrite_hdf5=False)
 
-    if gtfsfeeds_dfs.calendar_dates.empty == False:
+    if gtfsfeeds_dfs.calendar_dates.empty is False:
         df_to_hdf5(data=gtfsfeeds_dfs.calendar_dates, key='calendar_dates',
                    overwrite_key=False, dir=dir, filename=filename,
                    overwrite_hdf5=False)
 
 
-def load_processed_gtfs_data(dir=config.settings.data_folder, filename=None):
+def load_processed_gtfs_data(filename, dir=config.settings.data_folder):
     """
     Read data from a hdf5 file to a gtfsfeeds_dfs object
 
     Parameters
     ----------
-    dir : string, optional
-        directory to read hdf5 file
     filename : string
         name of the hdf5 file to read with .h5 extension
+    dir : string, optional
+        directory to read hdf5 file
 
     Returns
     -------

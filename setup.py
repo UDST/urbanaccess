@@ -3,6 +3,7 @@ try:
     import setuptools
 except ImportError:
     from ez_setup import use_setuptools
+
     use_setuptools()
 
 from setuptools import setup, find_packages
@@ -12,11 +13,14 @@ from setuptools import setup, find_packages
 with open('README.md', 'r') as f:
     long_description = f.read()
 
+description = 'A tool for creating GTFS transit and OSM pedestrian networks ' \
+              'for use in Pandana accessibility analyses.'
+
 setup(
     name='urbanaccess',
     version='0.1a',
     license='AGPL',
-    description='A tool for creating GTFS transit and OSM pedestrian networks for use in Pandana accessibility analyses.',
+    description=description,
     long_description=long_description,
     author='UrbanSim Inc. and Samuel D. Blanchard',
     url='https://github.com/UDST/urbanaccess',
