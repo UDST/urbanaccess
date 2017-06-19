@@ -1513,15 +1513,16 @@ def test_add_unique_gtfsfeed_id(stops_feed_1, routes_feed_1, trips_feed_1,
                                 calendar_dates_feed_1, folder_feed_1):
 
     stops_df, routes_df, trips_df, stop_times_df, calendar_df, \
-    calendar_dates_df = utils_format._add_unique_gtfsfeed_id(
-        stops_df=stops_feed_1,
-        routes_df=routes_feed_1,
-        trips_df=trips_feed_1,
-        stop_times_df=stop_times_feed_1,
-        calendar_df=calendar_feed_1,
-        calendar_dates_df=calendar_dates_feed_1,
-        feed_folder=folder_feed_1,
-        feed_number=1)
+        calendar_dates_df = (utils_format
+                             ._add_unique_gtfsfeed_id(
+                                stops_df=stops_feed_1,
+                                routes_df=routes_feed_1,
+                                trips_df=trips_feed_1,
+                                stop_times_df=stop_times_feed_1,
+                                calendar_df=calendar_feed_1,
+                                calendar_dates_df=calendar_dates_feed_1,
+                                feed_folder=folder_feed_1,
+                                feed_number=1))
 
     df_dict = {'stops': [stops_df, stops_feed_1],
                'routes': [routes_df, routes_feed_1],

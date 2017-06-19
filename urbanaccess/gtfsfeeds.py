@@ -57,9 +57,8 @@ class urbanaccess_gtfsfeeds(object):
         if not os.path.exists(gtfsfeeddir):
             raise ValueError('{} does not exist or was not found'.format(
                 gtfsfeeddir))
-        if not isinstance(yamlname, str) or '.yaml' not in yamlname:
-            raise ValueError('yaml must be a string and have file extension '
-                             '.yaml')
+        if not isinstance(yamlname, str):
+            raise ValueError('yaml must be a string')
 
         yaml_file = os.path.join(gtfsfeeddir, yamlname)
 
@@ -183,7 +182,7 @@ class urbanaccess_gtfsfeeds(object):
 
         else:
 
-            if not isinstance(del_key, list) or not isinstance(del_key, str):
+            if not isinstance(del_key, (list, str)):
                 raise ValueError('del_key must be a string or list of strings')
             if remove_all:
                 raise ValueError(
@@ -229,9 +228,8 @@ class urbanaccess_gtfsfeeds(object):
                 'created'.format(
                     gtfsfeeddir))
             os.makedirs(gtfsfeeddir)
-        if not isinstance(yamlname, str) and '.yaml' not in yamlname:
-            raise ValueError('yaml must be a string and have file extension '
-                             '.yaml')
+        if not isinstance(yamlname, str):
+            raise ValueError('yaml must be a string')
         yaml_file = os.path.join(gtfsfeeddir, yamlname)
         if overwrite is False and os.path.isfile(yaml_file) is True:
             raise ValueError(

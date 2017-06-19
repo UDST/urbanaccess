@@ -46,15 +46,13 @@ def _calc_headways_by_route_stop(df):
         for unique_stop_route, stop_route_group in stop_route_groups:
             stop_route_group.sort_values(['departure_time_sec_interpolate'],
                                          ascending=True, inplace=True)
-            next_bus_time = stop_route_group[
-                                'departure_time_sec_interpolate'].iloc[
-                            1:].values
-            prev_bus_time = stop_route_group[
-                                'departure_time_sec_interpolate'].iloc[
-                            :-1].values
+            next_bus_time = (stop_route_group['departure_time_sec_interpolate']
+                             .iloc[1:].values)
+            prev_bus_time = (stop_route_group['departure_time_sec_interpolate']
+                             .iloc[:-1].values)
             stop_route_group_headways = (next_bus_time - prev_bus_time) / 60
-            results[unique_stop_route] = pd.Series(
-                stop_route_group_headways).describe()
+            results[unique_stop_route] = (pd.Series(stop_route_group_headways)
+                                          .describe())
 
     log('Route stop headway calculation complete. Took {:,.2f} seconds'.format(
         time.time() - start_time))
@@ -131,11 +129,10 @@ def _headway_handler(interpolated_stop_times_df, trips_df,
     headway_by_routestop_df = _calc_headways_by_route_stop(df=merge_df)
 
     # add unique route stop node_id
-    headway_by_routestop_df = pd.merge(headway_by_routestop_df, merge_df[
-        ['unique_stop_route', 'unique_stop_id', 'unique_route_id']],
-                                       how='left', left_index=True,
-                                       right_on='unique_stop_route',
-                                       sort=False)
+    headway_by_routestop_df = pd.merge(
+        headway_by_routestop_df,
+        merge_df[['unique_stop_route', 'unique_stop_id', 'unique_route_id']],
+        how='left', left_index=True, right_on='unique_stop_route', sort=False)
     headway_by_routestop_df.drop('unique_stop_route', axis=1, inplace=True)
     headway_by_routestop_df['node_id_route'] = (
         headway_by_routestop_df['unique_stop_id'].str.cat(
@@ -173,17 +170,17 @@ def headways(gtfsfeeds_df, headway_timerange):
         'Format should be a 24 hour clock in following format: 08:00:00 '
         'or 17:00:00'.format(headway_timerange))
     if not isinstance(headway_timerange, list) or len(headway_timerange) != 2:
-        raise ValueError(time_error_statement)
-    if headway_timerange[0] > headway_timerange[1]:
-        raise ValueError(time_error_statement)
+        raise ValueError('timerange must be a list of length 2')
+    if headway_timerange[0].split(':')[0] > headway_timerange[1].split(':')[0]:
+        raise ValueError('starttime is greater than endtime')
 
     for t in headway_timerange:
         if not isinstance(t, str):
             raise ValueError(time_error_statement)
         if len(t) != 8:
             raise ValueError(time_error_statement)
-    if int(str(headway_timerange[1][0:2])) - int(
-            str(headway_timerange[0][0:2])) > 3:
+    if int(headway_timerange[1].split(':')[0]) - int(
+            headway_timerange[0].split(':')[0]) > 3:
         long_time_range_msg = (
             'WARNING: Time range passed: {} is a {} hour period. Long periods '
             'over 3 hours may take a significant amount of time to process.')

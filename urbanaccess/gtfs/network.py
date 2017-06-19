@@ -203,7 +203,7 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
         calendar dataframe
     input_calendar_dates_df : pandas.DataFrame
         calendar_dates dataframe
-    day : {'friday','monday','saturday','sunday','thursday','tuesday',
+    day : {'friday', 'monday', 'saturday', 'sunday', 'thursday', 'tuesday',
     'wednesday'}
         day of the week to extract transit schedule that corresponds to the
         day in the GTFS calendar
@@ -214,7 +214,7 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
         then the calendar_dates dataframe will not be used to select trips
         that are not in the calendar dataframe. Note search will select all
         records that meet each key value pair criteria.
-        Example: {'schedule_type' : 'WD'} or {'schedule_type' : ['WD','SU']}
+        Example: {'schedule_type' : 'WD'} or {'schedule_type' : ['WD', 'SU']}
 
     Returns
     -------
@@ -298,8 +298,8 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
             len(input_trips_df),
             print_feed_ids))
 
-    feed_id_not_in_cal = [x for x in feeds_wotrips_in_cal if x not in \
-                          feeds_wtrips_in_cal]
+    feed_id_not_in_cal = [x for x in feeds_wotrips_in_cal if
+                          x not in feeds_wtrips_in_cal]
     for feed_id in feed_id_not_in_cal:
         log(
             '0 trip(s) 0 percent of {:,} total trip records were '
@@ -597,13 +597,11 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df, day):
     final_stop_times_df['departure_time_sec_interpolate'].fillna(
         final_stop_times_df['departure_time_sec'], inplace=True)
 
-    if final_stop_times_df[
-        'departure_time_sec_interpolate'].isnull().sum() > 0:
-        log(
-            'WARNING: Number of records unable to interpolate: {:,}. '
-            'These records have been removed.'.format(
-                final_stop_times_df[
-                    'departure_time_sec_interpolate'].isnull().sum()),
+    num_not_interpolated = final_stop_times_df[
+        'departure_time_sec_interpolate'].isnull().sum()
+    if num_not_interpolated > 0:
+        log('WARNING: Number of records unable to interpolate: {:,}. '
+            'These records have been removed.'.format(num_not_interpolated),
             level=lg.WARNING)
 
     # convert the interpolated times (float) to integer so all times are
@@ -1141,6 +1139,7 @@ def save_processed_gtfs_data(gtfsfeeds_dfs,
     -------
     None
     """
+    # TODO: refactor check below to use any() for readability
     if gtfsfeeds_dfs is None or gtfsfeeds_dfs.stops.empty or \
             gtfsfeeds_dfs.routes.empty or gtfsfeeds_dfs.trips.empty \
             or gtfsfeeds_dfs.stop_times.empty or \
