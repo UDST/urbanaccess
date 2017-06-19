@@ -28,7 +28,7 @@ def _format_check(settings):
             if not isinstance(settings[key], bool):
                 raise ValueError('{} must be boolean'.format(key))
 
-
+# TODO: make class CamelCase
 class urbanaccess_config(object):
     """
     A set of configuration variables to initiate the
