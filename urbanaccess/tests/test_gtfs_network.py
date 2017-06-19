@@ -142,7 +142,7 @@ def test_edge_reformatter(stop_times_interpolated):
 
     # edge df should have these columns and no null values
     for col in ['node_id_from', 'node_id_to', 'weight']:
-        assert col in df.columns and df[col].isnull().values.any() == False
+        assert col in df.columns and df[col].isnull().values.any() == False  # noqa
 
     # there should be 4 edges per trip id
     for i, row in df.groupby('unique_trip_id').size().iteritems():
@@ -154,9 +154,9 @@ def test_edge_reformatter(stop_times_interpolated):
         'unique_stop_id'][0] and \
            df['node_id_to'][0] == stop_times_interpolated[
                'unique_stop_id'][1] and \
-           df['weight'][0] == stop_times_interpolated['timediff'][1]
+           df['weight'][0] == stop_times_interpolated['timediff'][1]  # noqa
 
     assert df['unique_trip_id'][8] == stop_times_interpolated[
         'unique_trip_id'][11] and \
            df['unique_agency_id'][8] == stop_times_interpolated[
-               'unique_agency_id'][11]
+               'unique_agency_id'][11]  # noqa

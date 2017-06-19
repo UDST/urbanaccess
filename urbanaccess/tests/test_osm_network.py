@@ -13,7 +13,7 @@ def test_column_names(bbox1):
                                         timeout=180, memory=None,
                                         max_query_area_size=50 * 1000 * 50 *
                                                             1000,
-                                        remove_lcn=False)
+                                        remove_lcn=False)  # noqa
     col_list = ['x', 'y', 'id']
     for col in col_list:
         assert col in nodes.columns

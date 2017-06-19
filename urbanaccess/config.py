@@ -60,7 +60,9 @@ class urbanaccess_config(object):
                  log_console=False,
                  log_name='urbanaccess',
                  log_filename='urbanaccess',
-                 gtfs_api={'gtfsdataexch': 'http://www.gtfs-data-exchange.com/api/agencies?format=csv'}):
+                 gtfs_api={'gtfsdataexch': (
+                         'http://www.gtfs-data-exchange.com/'
+                         'api/agencies?format=csv')}):
 
         self.data_folder = data_folder
         self.logs_folder = logs_folder
@@ -92,9 +94,8 @@ class urbanaccess_config(object):
         if not os.path.exists(configdir):
             raise ValueError('{} does not exist or was not found'.format(
                 configdir))
-        if not isinstance(yamlname, str) or '.yaml' not in yamlname:
-            raise ValueError('yaml must be a string and have file extension '
-                             '.yaml')
+        if not isinstance(yamlname, str):
+            raise ValueError('yaml must be a string')
 
         yaml_file = os.path.join(configdir, yamlname)
 
@@ -110,7 +111,8 @@ class urbanaccess_config(object):
                                                     'urbanaccess'),
                        gtfs_api=yaml_config.get('gtfs_api', {
                            'gtfsdataexch':
-                               'http://www.gtfs-data-exchange.com/api/agencies?format=csv'}),
+                               ('http://www.gtfs-data-exchange.com/'
+                                'api/agencies?format=csv')}),
                        )
 
         return settings
@@ -153,11 +155,10 @@ class urbanaccess_config(object):
             raise ValueError('{} does not exist or was not found'.format(
                 configdir))
             os.makedirs(configdir)
-        if not isinstance(yamlname, str) or '.yaml' not in yamlname:
-            raise ValueError('yaml must be a string and have file extension '
-                             '.yaml')
+        if not isinstance(yamlname, str):
+            raise ValueError('yaml must be a string')
         yaml_file = os.path.join(configdir, yamlname)
-        if overwrite is False or os.path.isfile(yaml_file) is True:
+        if overwrite is False and os.path.isfile(yaml_file) is True:
             raise ValueError(
                 '{} already exists. Rename or turn overwrite to True'.format(
                     yamlname))

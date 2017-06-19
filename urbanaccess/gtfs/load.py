@@ -282,58 +282,58 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
                     calendar_dates_df = pd.DataFrame()
 
         stops_df, routes_df, trips_df, stop_times_df, calendar_df, \
-        calendar_dates_df = utils_format._add_unique_agencyid(
-            agency_df=agency_df,
-            stops_df=stops_df,
-            routes_df=routes_df,
-            trips_df=trips_df,
-            stop_times_df=stop_times_df,
-            calendar_df=calendar_df,
-            calendar_dates_df=calendar_dates_df,
-            nulls_as_folder=True,
-            feed_folder=os.path.join(gtfsfeed_path, folder))
+            calendar_dates_df = (utils_format
+                                 ._add_unique_agencyid(
+                                    agency_df=agency_df,
+                                    stops_df=stops_df,
+                                    routes_df=routes_df,
+                                    trips_df=trips_df,
+                                    stop_times_df=stop_times_df,
+                                    calendar_df=calendar_df,
+                                    calendar_dates_df=calendar_dates_df,
+                                    nulls_as_folder=True,
+                                    feed_folder=os.path.join(
+                                        gtfsfeed_path, folder)))
 
         stops_df, routes_df, trips_df, stop_times_df, calendar_df, \
-        calendar_dates_df = utils_format._add_unique_gtfsfeed_id(
-            stops_df=stops_df,
-            routes_df=routes_df,
-            trips_df=trips_df,
-            stop_times_df=stop_times_df,
-            calendar_df=calendar_df,
-            calendar_dates_df=calendar_dates_df,
-            feed_folder=folder,
-            feed_number=index+1)
+            calendar_dates_df = (utils_format
+                                 ._add_unique_gtfsfeed_id(
+                                    stops_df=stops_df,
+                                    routes_df=routes_df,
+                                    trips_df=trips_df,
+                                    stop_times_df=stop_times_df,
+                                    calendar_df=calendar_df,
+                                    calendar_dates_df=calendar_dates_df,
+                                    feed_folder=folder,
+                                    feed_number=index+1))
 
         if validation:
-            stops_df = utils_validation._validate_gtfs(
-                stops_df=stops_df,
-                feed_folder=os.path.join(gtfsfeed_path, folder),
-                verbose=verbose,
-                bbox=bbox,
-                remove_stops_outsidebbox=remove_stops_outsidebbox)
+            stops_df = (utils_validation
+                        ._validate_gtfs(
+                            stops_df=stops_df,
+                            feed_folder=os.path.join(gtfsfeed_path, folder),
+                            verbose=verbose,
+                            bbox=bbox,
+                            remove_stops_outsidebbox=remove_stops_outsidebbox))
             if remove_stops_outsidebbox:
                 stops_inside_bbox = list(stops_df['stop_id'])
                 stop_times_df = stop_times_df[stop_times_df['stop_id'].isin(
                     stops_inside_bbox)]
 
-        stops_df = utils_format._append_route_type(stops_df=stops_df,
-                                                   stop_times_df=stop_times_df,
-                                                   routes_df=routes_df[
-                                                       ['route_id',
-                                                        'route_type']],
-                                                   trips_df=trips_df[
-                                                       ['trip_id',
-                                                        'route_id']],
-                                                   info_to_append='route_type_to_stops')
-        stop_times_df = utils_format._append_route_type(stops_df=stops_df,
-                                                        stop_times_df=stop_times_df,
-                                                        routes_df=routes_df[
-                                                            ['route_id',
-                                                             'route_type']],
-                                                        trips_df=trips_df[
-                                                            ['trip_id',
-                                                             'route_id']],
-                                                        info_to_append='route_type_to_stop_times')
+        stops_df = (utils_format
+                    ._append_route_type(
+                        stops_df=stops_df,
+                        stop_times_df=stop_times_df,
+                        routes_df=routes_df[['route_id', 'route_type']],
+                        trips_df=trips_df[['trip_id', 'route_id']],
+                        info_to_append='route_type_to_stops'))
+        stop_times_df = (utils_format
+                         ._append_route_type(
+                            stops_df=stops_df,
+                            stop_times_df=stop_times_df,
+                            routes_df=routes_df[['route_id', 'route_type']],
+                            trips_df=trips_df[['trip_id', 'route_id']],
+                            info_to_append='route_type_to_stop_times'))
 
         merged_stops_df = merged_stops_df.append(stops_df, ignore_index=True)
         merged_routes_df = merged_routes_df.append(routes_df,
@@ -351,11 +351,12 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
 
     if append_definitions:
         merged_stops_df, merged_routes_df, merged_stop_times_df, \
-        merged_trips_df = utils_format._add_txt_definitions(
-            stops_df=merged_stops_df,
-            routes_df=merged_routes_df,
-            stop_times_df=merged_stop_times_df,
-            trips_df=merged_trips_df)
+            merged_trips_df = (utils_format
+                               ._add_txt_definitions(
+                                    stops_df=merged_stops_df,
+                                    routes_df=merged_routes_df,
+                                    stop_times_df=merged_stop_times_df,
+                                    trips_df=merged_trips_df))
 
     merged_stop_times_df = utils_format._timetoseconds(
         df=merged_stop_times_df, time_cols=['departure_time'])
