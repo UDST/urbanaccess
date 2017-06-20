@@ -52,9 +52,23 @@ Examples of a Pandana accessibility to jobs aggregation query in Oakland, CA usi
 |45min|
 
 
+Examples of a Pandana nearest POI query to hospitals and parks within a 30 minute travel time in Oakland, CA using an UrbanAccess integrated transit and pedestrian network (Note: these plots are generated using Pandana's plot functions and are plotting the network nodes.)
+
+**Travel time to nearest hospital within 30 minutes**
+|hospitals|
+
+
+**Travel time to nearest park within 30 minutes**
+|parks|
+
+
 .. |15min| image:: _images/15_min_jobs.png
 	:scale: 80%
 .. |30min| image:: _images/30_min_jobs.png
 	:scale: 80%
 .. |45min| image:: _images/45_min_jobs.png
+	:scale: 80%
+.. |hospitals| image:: _images/hospitals_30.png
+	:scale: 80%
+.. |parks| image:: _images/parks_30.png
 	:scale: 80%
