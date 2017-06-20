@@ -87,7 +87,8 @@ General workflow
 
 4. **Compute a network analysis**
 
-* `Compute an accessibility query using Pandana <https://github.com/UDST/pandana>`__
+* :ref:`Compute an accessibility query <pandana-section>` using `Pandana <https://github.com/UDST/pandana>`__
+
 
 .. |travel_time_net| image:: _images/travel_time_net.png
 	:scale: 80%

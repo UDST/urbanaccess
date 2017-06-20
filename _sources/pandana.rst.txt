@@ -9,7 +9,7 @@ There are a couple of important reminders about using an UrbanAccess network wit
 
 * By default, UrbanAccess generates a one way network. One way means there is an explicit edge for each direction in the edge table. Where applicable, it is important to set any Pandana ``two_way`` parameters to ``False`` (they are ``True`` by default) to indicate that the network is a one way network.
 * As of Pandana v0.3.0, ``node ids`` and ``from`` and ``to`` columns in your network must be integer type and not string. UrbanAccess automatically generates both string and integer types so use the ``from_int`` and ``to_int`` columns in edges and the index in nodes ``id_int``.
-* UrbanAccess by default will generate edge weights that represent travel time in units of minutes. Even though Pandana's impedance parameters are sometimes called ``distance`` you can use units of minutes here.
+* UrbanAccess by default will generate edge weights in the column ``weight`` that represent travel time in units of minutes. Even though Pandana's impedance parameters are sometimes called ``distance`` you can use units of minutes here.
 
 For reporting issues related to Pandana and for Pandana documentation see the `Pandana repo <https://github.com/UDST/pandana>`__ directly.
 
