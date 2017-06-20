@@ -31,6 +31,10 @@ Running an aggregation query using a total number of jobs variable for a travel 
 
     jobs_45 = transit_ped_net.aggregate(45, type='sum', decay='linear', name='jobs')
 
+Running a nearest POI query to parks with a travel time threshold of 45 minutes::
+
+    nearest_parks = transit_ped_net.nearest_pois(distance=45, category="parks", num_pois=2, max_distance=0)
+
 Examples of Pandana results using an UrbanAccess network
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -192,6 +192,10 @@
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">jobs_45</span> <span class="o">=</span> <span class="n">transit_ped_net</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="mi">45</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;sum&#39;</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;jobs&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>Running a nearest POI query to parks with a travel time threshold of 45 minutes:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">nearest_parks</span> <span class="o">=</span> <span class="n">transit_ped_net</span><span class="o">.</span><span class="n">nearest_pois</span><span class="p">(</span><span class="n">distance</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="s2">&quot;parks&quot;</span><span class="p">,</span> <span class="n">num_pois</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_distance</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="examples-of-pandana-results-using-an-urbanaccess-network">
 <h2>Examples of Pandana results using an UrbanAccess network<a class="headerlink" href="#examples-of-pandana-results-using-an-urbanaccess-network" title="Permalink to this headline">¶</a></h2>
