@@ -17,7 +17,9 @@ UrbanAccess offers the following tools:
   * by transit mode
   * by including average passenger headways to approximate passenger transit stop wait time
 * Integrate pedestrian and transit networks to approximate pedestrian scale accessibility
-* Resulting networks are designed to be used to compute accessibility metrics using the open source network analysis tool [Pandana](https://github.com/UDST/pandana) 
+* Resulting networks are designed to be used to compute accessibility metrics using the open source network analysis tool [Pandana](https://github.com/UDST/pandana)
+  * Compute cumulative accessibility metrics
+  * Nearest feature analysis using POIs
 
 Let us know what you are working on or if you think you have a great use case by tweeting us at `@urbansim` or post on the UrbanSim [forum](http://discussion.urbansim.com/).  
 
