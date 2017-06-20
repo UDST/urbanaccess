@@ -27,7 +27,7 @@ Creating a Pandana network object::
                                    integrated_ua_net.net_edges[["weight"]],
                                    twoway=False)
 
-Running an aggregation query using a jobs variables for a travel time threshold of 45 minutes::
+Running an aggregation query using a total number of jobs variable for a travel time threshold of 45 minutes::
 
     jobs_45 = transit_ped_net.aggregate(45, type='sum', decay='linear', name='jobs')
 

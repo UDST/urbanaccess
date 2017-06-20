@@ -31,7 +31,7 @@ Let us know what you are working on or if you think you have a great use case by
 Demo
 ~~~~
 
-A demo is available as a jupyter notebook and can be run by going to the cloned repo demo directory and in a terminal run ``jupyter notebook`` inside the directory to load the ``simple_example.ipynb`` notebook.
+A `demo <https://github.com/UDST/urbanaccess/tree/master/demo>`__ is available as a jupyter notebook and can be run by going to the cloned repo demo directory and in a terminal run ``jupyter notebook`` inside the directory to load the ``simple_example.ipynb`` notebook.
 
 Minimum GTFS data requirements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -33,7 +33,7 @@ script:
 - cd ../../../demo; python simple_example_clean.py
 - cd ../urbanaccess/tests/integration; python integration_madison.py
 - python integration_sandiego.py
-- python integration_gb.py
+- python integration_gb.py && cd $TRAVIS_BUILD_DIR
 
 env:
   global:

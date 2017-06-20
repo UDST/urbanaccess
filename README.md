@@ -52,7 +52,7 @@ Use ``git pull`` inside the cloned repository
 
 Documentation for UrbanAccess can be found [here](https://udst.github.io/urbanaccess/index.html).
 
-A demo jupyter notebook for UrbanAccess can be found in the demo directory.
+A demo jupyter notebook for UrbanAccess can be found in the [demo directory](https://github.com/UDST/urbanaccess/tree/master/demo).
 
 ## Minimum GTFS data requirements
 
