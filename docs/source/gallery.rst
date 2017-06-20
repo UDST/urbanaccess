@@ -21,6 +21,7 @@ Here are some examples of GTFS and OSM networks that have been created using Urb
 |uk_rail|
 *Rail network for Scotland, Wales and England*
 
+If you have interesting examples and would like us to share them here please contact us.
 
 .. |oakland| image:: _images/travel_time_net.png
 	:scale: 80%

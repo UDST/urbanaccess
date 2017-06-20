@@ -16,10 +16,10 @@ Dependencies
 * pyyaml >= 3.11
 * scikit-learn >= 0.17.1
 
-Dependencies can be installed through the conda-forge channel. To add these as default installation channels for conda, run this code in a terminal:
+Dependencies can be installed through the ``conda-forge`` channel. To add these as default installation channels for conda, run this code in a terminal::
 
-``conda config --add channels udst``
-``conda config --add channels conda-forge``
+    conda config --add channels udst
+    conda config --add channels conda-forge
 
 Current status
 ~~~~~~~~~~~~~~~~~~
