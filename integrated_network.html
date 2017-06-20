@@ -105,6 +105,8 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="plot.html">Plot Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utilities.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pandana.html">Using an UrbanAccess network with Pandana</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gallery.html">Network Gallery</a></li>
 </ul>
 
             
@@ -202,7 +204,7 @@ the components of a graph network</p>
 <p>Create a transit network from the loaded GTFS feeds with travel time impedance.</p>
 <dl class="function">
 <dt id="urbanaccess.gtfs.network.create_transit_net">
-<code class="descclassname">urbanaccess.gtfs.network.</code><code class="descname">create_transit_net</code><span class="sig-paren">(</span><em>gtfsfeeds_dfs</em>, <em>day</em>, <em>calendar_dates_lookup=None</em>, <em>timerange=None</em>, <em>overwrite_existing_stop_times_int=False</em>, <em>use_existing_stop_times_int=False</em>, <em>save_processed_gtfs=False</em>, <em>save_dir=’data’</em>, <em>save_filename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.network.create_transit_net" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.gtfs.network.</code><code class="descname">create_transit_net</code><span class="sig-paren">(</span><em>gtfsfeeds_dfs</em>, <em>day</em>, <em>timerange</em>, <em>calendar_dates_lookup=None</em>, <em>overwrite_existing_stop_times_int=False</em>, <em>use_existing_stop_times_int=False</em>, <em>save_processed_gtfs=False</em>, <em>save_dir=’data’</em>, <em>save_filename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.network.create_transit_net" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a travel time weight network graph in units of
 minutes from GTFS data</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -212,22 +214,14 @@ minutes from GTFS data</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>gtfsfeeds_dfs</strong> : object</p>
 <blockquote>
 <div><p>gtfsfeeds_dfs object with dataframes of stops, routes, trips,
-stop_times, calendar, and stop_times_int (optional)</p>
+stop_times, calendar, calendar_dates (optional) and
+stop_times_int (optional)</p>
 </div></blockquote>
-<p><strong>day</strong> : {‘friday’,’monday’,’saturday’, ‘sunday’,’thursday’,’tuesday’,</p>
+<p><strong>day</strong> : {‘friday’, ‘monday’, ‘saturday’, ‘sunday’, ‘thursday’, ‘tuesday’,</p>
 <p><strong>‘wednesday’}</strong></p>
 <blockquote>
 <div><p>day of the week to extract transit schedule from that
 corresponds to the day in the GTFS calendar</p>
-</div></blockquote>
-<p><strong>calendar_dates_lookup</strong> : dict, optional</p>
-<blockquote>
-<div><p>dictionary of the lookup column (key) as a string and corresponding
-string (value) a s string or list of strings to use to subset trips
-using the calendar_dates dataframe. Search will be exact. If none,
-then the calendar_dates dataframe will not be used to select trips
-that are not in the calendar dataframe.
-Example: {‘schedule_type’ : ‘WD’} or {‘schedule_type’ : [‘WD’,’SU’]}</p>
 </div></blockquote>
 <p><strong>timerange</strong> : list</p>
 <blockquote>
@@ -236,31 +230,41 @@ Example: {‘schedule_type’ : ‘WD’} or {‘schedule_type’ : [‘WD’,�
 specified is large enough to allow for travel
 from one end of the transit network to the other but small enough
 to represent a relevant travel time period such as a 3 hour window
-for the AM Peak period. must follow format
+for the AM Peak period. Must follow format
 of a 24 hour clock for example: 08:00:00 or 17:00:00</p>
 </div></blockquote>
-<p><strong>overwrite_existing_stop_times_int</strong> : bool</p>
+<p><strong>calendar_dates_lookup</strong> : dict, optional</p>
+<blockquote>
+<div><p>dictionary of the lookup column (key) as a string and corresponding
+string (value) as string or list of strings to use to subset trips
+using the calendar_dates dataframe. Search will be exact. If none,
+then the calendar_dates dataframe will not be used to select trips
+that are not in the calendar dataframe. Note search will select all
+records that meet each key value pair criteria.
+Example: {‘schedule_type’ : ‘WD’} or {‘schedule_type’ : [‘WD’, ‘SU’]}</p>
+</div></blockquote>
+<p><strong>overwrite_existing_stop_times_int</strong> : bool, optional</p>
 <blockquote>
 <div><p>if true, and if there is an existing stop_times_int
 dataframe stored in the gtfsfeeds_dfs object it will be
 overwritten</p>
 </div></blockquote>
-<p><strong>use_existing_stop_times_int</strong> : bool</p>
+<p><strong>use_existing_stop_times_int</strong> : bool, optional</p>
 <blockquote>
 <div><p>if true, and if there is an existing stop_times_int
 dataframe for the same time period stored in the
 gtfsfeeds_dfs object it will be used instead of re-calculated</p>
 </div></blockquote>
-<p><strong>save_processed_gtfs</strong> : bool</p>
+<p><strong>save_processed_gtfs</strong> : bool, optional</p>
 <blockquote>
 <div><p>if true, all processed gtfs dataframes will
 be stored to disk in a hdf5 file</p>
 </div></blockquote>
-<p><strong>save_dir</strong> : str</p>
+<p><strong>save_dir</strong> : str, optional</p>
 <blockquote>
 <div><p>directory to save the hdf5 file</p>
 </div></blockquote>
-<p><strong>save_filename</strong> : str</p>
+<p><strong>save_filename</strong> : str, optional</p>
 <blockquote>
 <div><p>name to save the hdf5 file as</p>
 </div></blockquote>
@@ -281,7 +285,7 @@ be stored to disk in a hdf5 file</p>
 <p>Create a street network from the loaded OSM data with travel time impedance.</p>
 <dl class="function">
 <dt id="urbanaccess.osm.network.create_osm_net">
-<code class="descclassname">urbanaccess.osm.network.</code><code class="descname">create_osm_net</code><span class="sig-paren">(</span><em>osm_edges=None</em>, <em>osm_nodes=None</em>, <em>travel_speed_mph=3</em>, <em>network_type=’walk’</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.osm.network.create_osm_net" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.osm.network.</code><code class="descname">create_osm_net</code><span class="sig-paren">(</span><em>osm_edges</em>, <em>osm_nodes</em>, <em>travel_speed_mph=3</em>, <em>network_type=’walk’</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.osm.network.create_osm_net" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a travel time weight network graph in units of minutes from
 openstreetmap nodes and edges</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -329,7 +333,7 @@ integrated with the transit network</p>
 <p>If using headways in your integrated network you must first compute the route-stop level headway in this step <a class="reference internal" href="data_loaders.html#headways"><span class="std std-ref">here</span></a>.</p>
 <dl class="function">
 <dt id="urbanaccess.network.integrate_network">
-<code class="descclassname">urbanaccess.network.</code><code class="descname">integrate_network</code><span class="sig-paren">(</span><em>urbanaccess_network=None</em>, <em>headways=False</em>, <em>urbanaccess_gtfsfeeds_df=None</em>, <em>headway_statistic=’mean’</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.network.integrate_network" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.network.</code><code class="descname">integrate_network</code><span class="sig-paren">(</span><em>urbanaccess_network</em>, <em>headways=False</em>, <em>urbanaccess_gtfsfeeds_df=None</em>, <em>headway_statistic=’mean’</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.network.integrate_network" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create an integrated network comprised of transit and OSM nodes and edges
 by connecting the transit network with the osm network.
 travel time is in units of minutes</p>
@@ -381,7 +385,7 @@ mean, std, min, max. Default is mean.</p>
 <span id="id1"></span><h2>Save Network<a class="headerlink" href="#save-network" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="urbanaccess.network.save_network">
-<code class="descclassname">urbanaccess.network.</code><code class="descname">save_network</code><span class="sig-paren">(</span><em>urbanaccess_network=None</em>, <em>dir=’data’</em>, <em>filename=None</em>, <em>overwrite_key=False</em>, <em>overwrite_hdf5=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.network.save_network" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.network.</code><code class="descname">save_network</code><span class="sig-paren">(</span><em>urbanaccess_network</em>, <em>filename</em>, <em>dir=’data’</em>, <em>overwrite_key=False</em>, <em>overwrite_hdf5=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.network.save_network" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write a urbanaccess_network integrated nodes and edges to a node and edge
 table in a hdf5 file</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -392,13 +396,13 @@ table in a hdf5 file</p>
 <blockquote>
 <div><p>urbanaccess_network object with net_edges and net_nodes dataframes</p>
 </div></blockquote>
-<p><strong>dir</strong> : string, optional</p>
-<blockquote>
-<div><p>directory to save hdf5 file</p>
-</div></blockquote>
 <p><strong>filename</strong> : string</p>
 <blockquote>
 <div><p>name of the hdf5 file to save with .h5 extension</p>
+</div></blockquote>
+<p><strong>dir</strong> : string, optional</p>
+<blockquote>
+<div><p>directory to save hdf5 file</p>
 </div></blockquote>
 <p><strong>overwrite_key</strong> : bool, optional</p>
 <blockquote>

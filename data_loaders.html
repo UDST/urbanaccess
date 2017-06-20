@@ -105,6 +105,8 @@
 <li class="toctree-l1"><a class="reference internal" href="integrated_network.html">Create an Integrated Transit and Street Network</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plot.html">Plot Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utilities.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pandana.html">Using an UrbanAccess network with Pandana</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gallery.html">Network Gallery</a></li>
 </ul>
 
             
@@ -222,7 +224,8 @@ GTFS feeds.</p>
 <dl class="data">
 <dt id="urbanaccess.gtfsfeeds.feeds">
 <code class="descclassname">urbanaccess.gtfsfeeds.</code><code class="descname">feeds</code><a class="headerlink" href="#urbanaccess.gtfsfeeds.feeds" title="Permalink to this definition">¶</a></dt>
-<dd><p>A dict of GTFS feeds as {name of GTFS feed or transit service/agency : URL of feed} to request and
+<dd><p>A dict of GTFS feeds as {name of GTFS feed or transit service/agency :
+URL of feed} to request and
 download in the gtfs downloader.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -247,7 +250,8 @@ the GTFS feed URL as the value to pass to the GTFS downloader as:
 <dl class="class">
 <dt id="urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds">
 <em class="property">class </em><code class="descclassname">urbanaccess.gtfsfeeds.</code><code class="descname">urbanaccess_gtfsfeeds</code><span class="sig-paren">(</span><em>gtfs_feeds={}</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds" title="Permalink to this definition">¶</a></dt>
-<dd><p>A dict of GTFS feeds as {name of GTFS feed or transit service/agency : URL of feed} to request and
+<dd><p>A dict of GTFS feeds as {name of GTFS feed or transit service/agency :
+URL of feed} to request and
 download in the gtfs downloader.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -282,7 +286,7 @@ GTFS feed URL as the value to pass to the GTFS downloader
 as:
 {unique name of GTFS feed or transit service/agency : URL of feed}</p>
 </div></blockquote>
-<p><strong>replace</strong> : bool</p>
+<p><strong>replace</strong> : bool, optional</p>
 <blockquote class="last">
 <div><p>If key of dict is already in the UrbanAccess replace
 the existing dict value with the value passed</p>
@@ -326,12 +330,12 @@ the existing dict value with the value passed</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>del_key</strong> : str or list</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>del_key</strong> : str or list, optional</p>
 <blockquote>
 <div><p>dict keys as a single string or list of
 strings to remove from existing</p>
 </div></blockquote>
-<p><strong>remove_all</strong> : bool</p>
+<p><strong>remove_all</strong> : bool, optional</p>
 <blockquote class="last">
 <div><p>if true, remove all keys from existing
 urbanaccess_gtfsfeeds instance</p>
@@ -364,9 +368,10 @@ urbanaccess_gtfsfeeds instance</p>
 <blockquote>
 <div><p>File name to which to save a YAML file.</p>
 </div></blockquote>
-<p><strong>overwrite</strong> : bool</p>
+<p><strong>overwrite</strong> : bool, optional</p>
 <blockquote>
-<div><p>if true, overwrite an existing same name YAML file in specified directory</p>
+<div><p>if true, overwrite an existing same name YAML file in specified
+directory</p>
 </div></blockquote>
 <p><strong>Returns</strong></p>
 <p><strong>——-</strong></p>
@@ -397,7 +402,7 @@ Currently only supports access to the GTFS Data Exchange API.</p>
 dict specified in the urbanacess_config instance. Currently only
 supports access to the GTFS Data Exchange repository.</p>
 </div></blockquote>
-<p><strong>search_text</strong> : str</p>
+<p><strong>search_text</strong> : str, optional</p>
 <blockquote>
 <div><p>string pattern to search for</p>
 </div></blockquote>
@@ -463,11 +468,11 @@ specified</p>
 agency GTFS feed as the key and the GTFS feed URL as the value:
 {unique name of GTFS feed or transit service/agency : URL of feed}</p>
 </div></blockquote>
-<p><strong>error_pause_duration</strong> : int</p>
+<p><strong>error_pause_duration</strong> : int, optional</p>
 <blockquote>
 <div><p>how long to pause in seconds before re-trying requests if error</p>
 </div></blockquote>
-<p><strong>delete_zips</strong> : bool</p>
+<p><strong>delete_zips</strong> : bool, optional</p>
 <blockquote>
 <div><p>if true the downloaded zipfiles will be removed</p>
 </div></blockquote>
@@ -484,7 +489,7 @@ agency GTFS feed as the key and the GTFS feed URL as the value:
 <div class="section" id="loading-gtfs-data">
 <span id="gtfs-loader"></span><h2>Loading GTFS Data<a class="headerlink" href="#loading-gtfs-data" title="Permalink to this headline">¶</a></h2>
 <p>Load raw GTFS data (from multiple feeds) into a UrbanAccess transit data object and run data through the validation and formatting sequence.</p>
-<p>GTFS feeds are assumed to either be a single feed designated by the feed folder or multiple feeds desginated as the root folder that holds all individual feed folders.</p>
+<p>GTFS feeds are assumed to either be a single feed designated by the feed folder or multiple feeds designated as the root folder that holds all individual feed folders.</p>
 <dl class="function">
 <dt id="urbanaccess.gtfs.load.gtfsfeed_to_df">
 <code class="descclassname">urbanaccess.gtfs.load.</code><code class="descname">gtfsfeed_to_df</code><span class="sig-paren">(</span><em>gtfsfeed_path=None</em>, <em>validation=False</em>, <em>verbose=True</em>, <em>bbox=None</em>, <em>remove_stops_outsidebbox=None</em>, <em>append_definitions=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.load.gtfsfeed_to_df" title="Permalink to this definition">¶</a></dt>
@@ -564,9 +569,8 @@ that code appended to the resulting dataframes for reference</p>
 <p><strong>headway_timerange</strong> : list</p>
 <blockquote>
 <div><p>time range for which to calculate headways between as a list of
-time 1 and time 2
-where times are 24 hour clock strings such as:
-[‘07:00:00’,‘10:00:00’]</p>
+time 1 and time 2 where times are 24 hour clock strings such as:
+[‘07:00:00’, ‘10:00:00’]</p>
 </div></blockquote>
 </td>
 </tr>
@@ -587,7 +591,7 @@ with relevant route and stop information</p>
 <span id="save-gtfs"></span><h2>Saving Processed GTFS data<a class="headerlink" href="#saving-processed-gtfs-data" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="urbanaccess.gtfs.network.save_processed_gtfs_data">
-<code class="descclassname">urbanaccess.gtfs.network.</code><code class="descname">save_processed_gtfs_data</code><span class="sig-paren">(</span><em>gtfsfeeds_dfs=None</em>, <em>dir=’data’</em>, <em>filename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.network.save_processed_gtfs_data" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.gtfs.network.</code><code class="descname">save_processed_gtfs_data</code><span class="sig-paren">(</span><em>gtfsfeeds_dfs</em>, <em>filename</em>, <em>dir=’data’</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.network.save_processed_gtfs_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write dataframes in a gtfsfeeds_dfs object to a hdf5 file</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -597,13 +601,13 @@ with relevant route and stop information</p>
 <blockquote>
 <div><p>gtfsfeeds_dfs object</p>
 </div></blockquote>
-<p><strong>dir</strong> : string, optional</p>
-<blockquote>
-<div><p>directory to save hdf5 file</p>
-</div></blockquote>
 <p><strong>filename</strong> : string</p>
 <blockquote>
 <div><p>name of the hdf5 file to save with .h5 extension</p>
+</div></blockquote>
+<p><strong>dir</strong> : string, optional</p>
+<blockquote>
+<div><p>directory to save hdf5 file</p>
 </div></blockquote>
 </td>
 </tr>
@@ -619,19 +623,19 @@ with relevant route and stop information</p>
 <span id="load-gtfs"></span><h2>Loading Processed GTFS data<a class="headerlink" href="#loading-processed-gtfs-data" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="urbanaccess.gtfs.network.load_processed_gtfs_data">
-<code class="descclassname">urbanaccess.gtfs.network.</code><code class="descname">load_processed_gtfs_data</code><span class="sig-paren">(</span><em>dir=’data’</em>, <em>filename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.network.load_processed_gtfs_data" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.gtfs.network.</code><code class="descname">load_processed_gtfs_data</code><span class="sig-paren">(</span><em>filename</em>, <em>dir=’data’</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.network.load_processed_gtfs_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read data from a hdf5 file to a gtfsfeeds_dfs object</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dir</strong> : string, optional</p>
-<blockquote>
-<div><p>directory to read hdf5 file</p>
-</div></blockquote>
-<p><strong>filename</strong> : string</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename</strong> : string</p>
 <blockquote>
 <div><p>name of the hdf5 file to read with .h5 extension</p>
+</div></blockquote>
+<p><strong>dir</strong> : string, optional</p>
+<blockquote>
+<div><p>directory to read hdf5 file</p>
 </div></blockquote>
 </td>
 </tr>
