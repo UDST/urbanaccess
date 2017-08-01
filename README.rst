@@ -124,7 +124,7 @@ To cite this tool and for a complete description of the UrbanAccess methodology 
 
 `Samuel D. Blanchard and Paul Waddell. 2017. "UrbanAccess: Generalized Methodology for Measuring Regional Accessibility with an Integrated Pedestrian and Transit Network." Transportation Research Record: Journal of the Transportation Research Board. No. 2653. pp. 35–44. <http://trrjournalonline.trb.org/doi/pdf/10.3141/2653-05>`__
 
-For other related literature see `here <https://udst.github.io/urbanaccess/introduction.html#citation-and-academic-literature`__.
+For other related literature see `here <https://udst.github.io/urbanaccess/introduction.html#citation-and-academic-literature>`__.
 
 Related UDST libraries
 ----------------------
