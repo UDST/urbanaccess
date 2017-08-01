@@ -1,13 +1,13 @@
 Installation
 =====================
 
-UrbanAccess relies on a number of libraries in the scientific Python stack which can be easily installed using the `Anaconda`_ python distribution.
+UrbanAccess relies on a number of libraries in the scientific Python stack which can be easily installed using the `Anaconda`_ python distribution which can be downloaded `here <https://www.continuum.io/downloads>`__.
 
 Dependencies
 ~~~~~~~~~~~~~~~~~~
 
 * requests >= 2.9.1
-* pandas >= 0.16.0
+* pandas >= 0.17.0
 * numpy >= 1.11
 * osmnet >= 0.1a
 * pandana >= 0.2.0
@@ -16,7 +16,7 @@ Dependencies
 * pyyaml >= 3.11
 * scikit-learn >= 0.17.1
 
-Dependencies can be installed through the ``conda-forge`` channel. To add these as default installation channels for conda, run this code in a terminal::
+Dependencies can be installed through the ``conda-forge`` and ``udst`` channels. To add these as default installation channels for conda, run this code in a terminal::
 
     conda config --add channels udst
     conda config --add channels conda-forge

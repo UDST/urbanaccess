@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Download and Load Data &mdash; UrbanAccess 0.1a.0 documentation</title>
+  <title>Download and Load Data &mdash; UrbanAccess 0.1.0 documentation</title>
   
 
   
@@ -35,7 +35,7 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="UrbanAccess 0.1a.0 documentation" href="index.html"/>
+    <link rel="top" title="UrbanAccess 0.1.0 documentation" href="index.html"/>
         <link rel="next" title="Create an Integrated Transit and Street Network" href="integrated_network.html"/>
         <link rel="prev" title="Introduction" href="introduction.html"/> 
 
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.1a
+                0.1.0
               </div>
             
           
@@ -188,7 +188,7 @@
 </ul>
 <div class="section" id="the-gtfs-data-object">
 <span id="gtfs-data-object"></span><h2>The GTFS Data Object<a class="headerlink" href="#the-gtfs-data-object" title="Permalink to this headline">¶</a></h2>
-<p>The GTFS data object stores the processed and aggregated GTFS feed data in Pandas dataframes.</p>
+<p>The GTFS data object stores the processed and aggregated GTFS feed data in Pandas DataFrames.</p>
 <dl class="data">
 <dt id="urbanaccess.gtfs.gtfsfeeds_dataframe.gtfsfeeds_dfs">
 <code class="descclassname">urbanaccess.gtfs.gtfsfeeds_dataframe.</code><code class="descname">gtfsfeeds_dfs</code><a class="headerlink" href="#urbanaccess.gtfs.gtfsfeeds_dataframe.gtfsfeeds_dfs" title="Permalink to this definition">¶</a></dt>
@@ -299,7 +299,7 @@ the existing dict value with the value passed</p>
 
 <dl class="classmethod">
 <dt id="urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds.from_yaml">
-<em class="property">classmethod </em><code class="descname">from_yaml</code><span class="sig-paren">(</span><em>gtfsfeeddir=’data/gtfsfeeds’</em>, <em>yamlname=’gtfsfeeds.yaml’</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds.from_yaml" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_yaml</code><span class="sig-paren">(</span><em>gtfsfeeddir='data/gtfsfeeds'</em>, <em>yamlname='gtfsfeeds.yaml'</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds.from_yaml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a urbanaccess_gtfsfeeds instance from a saved YAML.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -354,7 +354,7 @@ urbanaccess_gtfsfeeds instance</p>
 
 <dl class="method">
 <dt id="urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds.to_yaml">
-<code class="descname">to_yaml</code><span class="sig-paren">(</span><em>gtfsfeeddir=’data/gtfsfeeds’</em>, <em>yamlname=’gtfsfeeds.yaml’</em>, <em>overwrite=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds.to_yaml" title="Permalink to this definition">¶</a></dt>
+<code class="descname">to_yaml</code><span class="sig-paren">(</span><em>gtfsfeeddir='data/gtfsfeeds'</em>, <em>yamlname='gtfsfeeds.yaml'</em>, <em>overwrite=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds.to_yaml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save a urbanaccess_gtfsfeeds representation to a YAML file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -387,7 +387,7 @@ directory</p>
 <p>Search for feeds on the GTFS Data Exchange (Note the GTFS Data Exchange is no longer being maintained as of Summer 2016 so feeds here may be out of date).</p>
 <dl class="function">
 <dt id="urbanaccess.gtfsfeeds.search">
-<code class="descclassname">urbanaccess.gtfsfeeds.</code><code class="descname">search</code><span class="sig-paren">(</span><em>api=’gtfsdataexch’</em>, <em>search_text=None</em>, <em>search_field=None</em>, <em>match=’contains’</em>, <em>add_feed=False</em>, <em>overwrite_feed=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.search" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.gtfsfeeds.</code><code class="descname">search</code><span class="sig-paren">(</span><em>api='gtfsdataexch'</em>, <em>search_text=None</em>, <em>search_field=None</em>, <em>match='contains'</em>, <em>add_feed=False</em>, <em>overwrite_feed=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.search" title="Permalink to this definition">¶</a></dt>
 <dd><p>Connect to a GTFS feed repository API and search for GTFS feeds that exist
 in a remote GTFS repository and whether or not to add the GTFS feed name
 and download URL to the urbanaccess_gtfsfeeds instance.
@@ -440,7 +440,7 @@ All existing records will be removed.</p>
 <p>Download data from feeds in your <code class="docutils literal"><span class="pre">feeds</span></code> object or from custom feed URLs.</p>
 <dl class="function">
 <dt id="urbanaccess.gtfsfeeds.download">
-<code class="descclassname">urbanaccess.gtfsfeeds.</code><code class="descname">download</code><span class="sig-paren">(</span><em>data_folder=’data’</em>, <em>feed_name=None</em>, <em>feed_url=None</em>, <em>feed_dict=None</em>, <em>error_pause_duration=5</em>, <em>delete_zips=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.download" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.gtfsfeeds.</code><code class="descname">download</code><span class="sig-paren">(</span><em>data_folder='data'</em>, <em>feed_name=None</em>, <em>feed_url=None</em>, <em>feed_dict=None</em>, <em>error_pause_duration=5</em>, <em>delete_zips=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.download" title="Permalink to this definition">¶</a></dt>
 <dd><p>Connect to the URLs passed in function or the URLs stored in the
 urbanaccess_gtfsfeeds instance and download the GTFS feed zipfile(s)
 then unzip inside a local root directory. Resulting GTFS feed text files
@@ -591,7 +591,7 @@ with relevant route and stop information</p>
 <span id="save-gtfs"></span><h2>Saving Processed GTFS data<a class="headerlink" href="#saving-processed-gtfs-data" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="urbanaccess.gtfs.network.save_processed_gtfs_data">
-<code class="descclassname">urbanaccess.gtfs.network.</code><code class="descname">save_processed_gtfs_data</code><span class="sig-paren">(</span><em>gtfsfeeds_dfs</em>, <em>filename</em>, <em>dir=’data’</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.network.save_processed_gtfs_data" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.gtfs.network.</code><code class="descname">save_processed_gtfs_data</code><span class="sig-paren">(</span><em>gtfsfeeds_dfs</em>, <em>filename</em>, <em>dir='data'</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.network.save_processed_gtfs_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write dataframes in a gtfsfeeds_dfs object to a hdf5 file</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -623,7 +623,7 @@ with relevant route and stop information</p>
 <span id="load-gtfs"></span><h2>Loading Processed GTFS data<a class="headerlink" href="#loading-processed-gtfs-data" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="urbanaccess.gtfs.network.load_processed_gtfs_data">
-<code class="descclassname">urbanaccess.gtfs.network.</code><code class="descname">load_processed_gtfs_data</code><span class="sig-paren">(</span><em>filename</em>, <em>dir=’data’</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.network.load_processed_gtfs_data" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.gtfs.network.</code><code class="descname">load_processed_gtfs_data</code><span class="sig-paren">(</span><em>filename</em>, <em>dir='data'</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.network.load_processed_gtfs_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read data from a hdf5 file to a gtfsfeeds_dfs object</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -652,7 +652,7 @@ with relevant route and stop information</p>
 <p>Download OSM street network nodes and edges.</p>
 <dl class="function">
 <dt id="urbanaccess.osm.load.ua_network_from_bbox">
-<code class="descclassname">urbanaccess.osm.load.</code><code class="descname">ua_network_from_bbox</code><span class="sig-paren">(</span><em>lat_min=None</em>, <em>lng_min=None</em>, <em>lat_max=None</em>, <em>lng_max=None</em>, <em>bbox=None</em>, <em>network_type=’walk’</em>, <em>timeout=180</em>, <em>memory=None</em>, <em>max_query_area_size=2500000000</em>, <em>remove_lcn=True</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.osm.load.ua_network_from_bbox" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.osm.load.</code><code class="descname">ua_network_from_bbox</code><span class="sig-paren">(</span><em>lat_min=None</em>, <em>lng_min=None</em>, <em>lat_max=None</em>, <em>lng_max=None</em>, <em>bbox=None</em>, <em>network_type='walk'</em>, <em>timeout=180</em>, <em>memory=None</em>, <em>max_query_area_size=2500000000</em>, <em>remove_lcn=True</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.osm.load.ua_network_from_bbox" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a graph network (nodes and edges) from a bounding lat/lon box that
 is compatible with the network analysis tool Pandana</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -768,7 +768,7 @@ from the rest of the larger network</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.1a.0',
+            VERSION:'0.1.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
@@ -778,7 +778,7 @@ from the rest of the larger network</p>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

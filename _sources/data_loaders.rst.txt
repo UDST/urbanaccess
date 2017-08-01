@@ -19,7 +19,7 @@ UrbanAccess has data downloaders and data loaders that can be used to acquire an
 The GTFS Data Object
 ~~~~~~~~~~~~~~~~~~~~~~
 
-The GTFS data object stores the processed and aggregated GTFS feed data in Pandas dataframes.
+The GTFS data object stores the processed and aggregated GTFS feed data in Pandas DataFrames.
 
 .. autodata:: urbanaccess.gtfs.gtfsfeeds_dataframe.gtfsfeeds_dfs
     :annotation:

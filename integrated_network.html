@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Create an Integrated Transit and Street Network &mdash; UrbanAccess 0.1a.0 documentation</title>
+  <title>Create an Integrated Transit and Street Network &mdash; UrbanAccess 0.1.0 documentation</title>
   
 
   
@@ -35,7 +35,7 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="UrbanAccess 0.1a.0 documentation" href="index.html"/>
+    <link rel="top" title="UrbanAccess 0.1.0 documentation" href="index.html"/>
         <link rel="next" title="Plot Networks" href="plot.html"/>
         <link rel="prev" title="Download and Load Data" href="data_loaders.html"/> 
 
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.1a
+                0.1.0
               </div>
             
           
@@ -179,7 +179,7 @@
 <dl class="data">
 <dt id="urbanaccess.network.ua_network">
 <code class="descclassname">urbanaccess.network.</code><code class="descname">ua_network</code><a class="headerlink" href="#urbanaccess.network.ua_network" title="Permalink to this definition">¶</a></dt>
-<dd><p>A urbanaccess object of dataframes representing
+<dd><p>A urbanaccess object of Pandas DataFrames representing
 the components of a graph network</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -204,7 +204,7 @@ the components of a graph network</p>
 <p>Create a transit network from the loaded GTFS feeds with travel time impedance.</p>
 <dl class="function">
 <dt id="urbanaccess.gtfs.network.create_transit_net">
-<code class="descclassname">urbanaccess.gtfs.network.</code><code class="descname">create_transit_net</code><span class="sig-paren">(</span><em>gtfsfeeds_dfs</em>, <em>day</em>, <em>timerange</em>, <em>calendar_dates_lookup=None</em>, <em>overwrite_existing_stop_times_int=False</em>, <em>use_existing_stop_times_int=False</em>, <em>save_processed_gtfs=False</em>, <em>save_dir=’data’</em>, <em>save_filename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.network.create_transit_net" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.gtfs.network.</code><code class="descname">create_transit_net</code><span class="sig-paren">(</span><em>gtfsfeeds_dfs</em>, <em>day</em>, <em>timerange</em>, <em>calendar_dates_lookup=None</em>, <em>overwrite_existing_stop_times_int=False</em>, <em>use_existing_stop_times_int=False</em>, <em>save_processed_gtfs=False</em>, <em>save_dir='data'</em>, <em>save_filename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.network.create_transit_net" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a travel time weight network graph in units of
 minutes from GTFS data</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -213,7 +213,7 @@ minutes from GTFS data</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>gtfsfeeds_dfs</strong> : object</p>
 <blockquote>
-<div><p>gtfsfeeds_dfs object with dataframes of stops, routes, trips,
+<div><p>gtfsfeeds_dfs object with DataFrames of stops, routes, trips,
 stop_times, calendar, calendar_dates (optional) and
 stop_times_int (optional)</p>
 </div></blockquote>
@@ -237,27 +237,27 @@ of a 24 hour clock for example: 08:00:00 or 17:00:00</p>
 <blockquote>
 <div><p>dictionary of the lookup column (key) as a string and corresponding
 string (value) as string or list of strings to use to subset trips
-using the calendar_dates dataframe. Search will be exact. If none,
-then the calendar_dates dataframe will not be used to select trips
-that are not in the calendar dataframe. Note search will select all
+using the calendar_dates DataFrame. Search will be exact. If none,
+then the calendar_dates DataFrame will not be used to select trips
+that are not in the calendar DataFrame. Note search will select all
 records that meet each key value pair criteria.
 Example: {‘schedule_type’ : ‘WD’} or {‘schedule_type’ : [‘WD’, ‘SU’]}</p>
 </div></blockquote>
 <p><strong>overwrite_existing_stop_times_int</strong> : bool, optional</p>
 <blockquote>
 <div><p>if true, and if there is an existing stop_times_int
-dataframe stored in the gtfsfeeds_dfs object it will be
+DataFrame stored in the gtfsfeeds_dfs object it will be
 overwritten</p>
 </div></blockquote>
 <p><strong>use_existing_stop_times_int</strong> : bool, optional</p>
 <blockquote>
 <div><p>if true, and if there is an existing stop_times_int
-dataframe for the same time period stored in the
+DataFrame for the same time period stored in the
 gtfsfeeds_dfs object it will be used instead of re-calculated</p>
 </div></blockquote>
 <p><strong>save_processed_gtfs</strong> : bool, optional</p>
 <blockquote>
-<div><p>if true, all processed gtfs dataframes will
+<div><p>if true, all processed gtfs DataFrames will
 be stored to disk in a hdf5 file</p>
 </div></blockquote>
 <p><strong>save_dir</strong> : str, optional</p>
@@ -285,7 +285,7 @@ be stored to disk in a hdf5 file</p>
 <p>Create a street network from the loaded OSM data with travel time impedance.</p>
 <dl class="function">
 <dt id="urbanaccess.osm.network.create_osm_net">
-<code class="descclassname">urbanaccess.osm.network.</code><code class="descname">create_osm_net</code><span class="sig-paren">(</span><em>osm_edges</em>, <em>osm_nodes</em>, <em>travel_speed_mph=3</em>, <em>network_type=’walk’</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.osm.network.create_osm_net" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.osm.network.</code><code class="descname">create_osm_net</code><span class="sig-paren">(</span><em>osm_edges</em>, <em>osm_nodes</em>, <em>travel_speed_mph=3</em>, <em>network_type='walk'</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.osm.network.create_osm_net" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a travel time weight network graph in units of minutes from
 openstreetmap nodes and edges</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -333,7 +333,7 @@ integrated with the transit network</p>
 <p>If using headways in your integrated network you must first compute the route-stop level headway in this step <a class="reference internal" href="data_loaders.html#headways"><span class="std std-ref">here</span></a>.</p>
 <dl class="function">
 <dt id="urbanaccess.network.integrate_network">
-<code class="descclassname">urbanaccess.network.</code><code class="descname">integrate_network</code><span class="sig-paren">(</span><em>urbanaccess_network</em>, <em>headways=False</em>, <em>urbanaccess_gtfsfeeds_df=None</em>, <em>headway_statistic=’mean’</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.network.integrate_network" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.network.</code><code class="descname">integrate_network</code><span class="sig-paren">(</span><em>urbanaccess_network</em>, <em>headways=False</em>, <em>urbanaccess_gtfsfeeds_df=None</em>, <em>headway_statistic='mean'</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.network.integrate_network" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create an integrated network comprised of transit and OSM nodes and edges
 by connecting the transit network with the osm network.
 travel time is in units of minutes</p>
@@ -356,7 +356,7 @@ of average passenger transit stop waiting time.</p>
 <p><strong>urbanaccess_gtfsfeeds_df</strong> : object, optional</p>
 <blockquote>
 <div><p>required if headways is true; the gtfsfeeds_dfs object that holds
-the corresponding headways and stops dataframes</p>
+the corresponding headways and stops DataFrames</p>
 </div></blockquote>
 <p><strong>headway_statistic</strong> : {‘mean’, ‘std’, ‘min’, ‘max’}, optional</p>
 <blockquote>
@@ -385,7 +385,7 @@ mean, std, min, max. Default is mean.</p>
 <span id="id1"></span><h2>Save Network<a class="headerlink" href="#save-network" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="urbanaccess.network.save_network">
-<code class="descclassname">urbanaccess.network.</code><code class="descname">save_network</code><span class="sig-paren">(</span><em>urbanaccess_network</em>, <em>filename</em>, <em>dir=’data’</em>, <em>overwrite_key=False</em>, <em>overwrite_hdf5=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.network.save_network" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.network.</code><code class="descname">save_network</code><span class="sig-paren">(</span><em>urbanaccess_network</em>, <em>filename</em>, <em>dir='data'</em>, <em>overwrite_key=False</em>, <em>overwrite_hdf5=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.network.save_network" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write a urbanaccess_network integrated nodes and edges to a node and edge
 table in a hdf5 file</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -394,7 +394,7 @@ table in a hdf5 file</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>urbanaccess_network</strong> : object</p>
 <blockquote>
-<div><p>urbanaccess_network object with net_edges and net_nodes dataframes</p>
+<div><p>urbanaccess_network object with net_edges and net_nodes DataFrames</p>
 </div></blockquote>
 <p><strong>filename</strong> : string</p>
 <blockquote>
@@ -428,7 +428,7 @@ specified directory will be overwritten</p>
 <span id="id2"></span><h2>Load Network<a class="headerlink" href="#load-network" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="urbanaccess.network.load_network">
-<code class="descclassname">urbanaccess.network.</code><code class="descname">load_network</code><span class="sig-paren">(</span><em>dir=’data’</em>, <em>filename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.network.load_network" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbanaccess.network.</code><code class="descname">load_network</code><span class="sig-paren">(</span><em>dir='data'</em>, <em>filename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.network.load_network" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read an integrated network node and edge data from a hdf5 file to
 a urbanaccess_network object</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -447,7 +447,7 @@ a urbanaccess_network object</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>ua_network</strong> : object</p>
 <blockquote>
-<div><p>urbanaccess_network object with net_edges and net_nodes dataframes</p>
+<div><p>urbanaccess_network object with net_edges and net_nodes DataFrames</p>
 </div></blockquote>
 <p><strong>ua_network.net_edges</strong> : object</p>
 <p class="last"><strong>ua_network.net_nodes</strong> : object</p>
@@ -503,7 +503,7 @@ a urbanaccess_network object</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.1a.0',
+            VERSION:'0.1.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
@@ -513,7 +513,7 @@ a urbanaccess_network object</p>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 
