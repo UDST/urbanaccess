@@ -4,7 +4,7 @@ Installation
 UrbanAccess relies on a number of libraries in the scientific Python stack which can be easily installed using the `Anaconda`_ python distribution which can be downloaded `here <https://www.continuum.io/downloads>`__.
 
 Dependencies
-~~~~~~~~~~~~~~~~~~
+------------
 
 * requests >= 2.9.1
 * pandas >= 0.17.0
@@ -22,7 +22,7 @@ Dependencies can be installed through the ``conda-forge`` and ``udst`` channels.
     conda config --add channels conda-forge
 
 Current status
-~~~~~~~~~~~~~~~~~~
+--------------
 
 UrbanAccess is currently in a alpha release and only compatible with Python 2.x. Further code refinements are expected.
 
@@ -31,17 +31,30 @@ UrbanAccess is currently in a alpha release and only compatible with Python 2.x.
 * Unit tests
 * Python 3
 
-Installation
-~~~~~~~~~~~~~~
+Install the latest release
+--------------------------
 
-pip and conda installations are forthcoming. UrbanAccess is currently in a alpha release and further code refinements are expected. As such, it is suggested to install using the ``develop`` command rather than ``install``. Make sure you are using the latest version of the code base by using git's ``git pull`` inside the cloned repository.
+conda
+~~~~~~
+conda installation is forthcoming.
+
+pip
+~~~~~~
+UrbanAccess is available on PyPI and can be installed with::
+
+    pip install -U urbanaccess
+
+Development Installation
+------------------------
+
+ UrbanAccess is currently in a alpha release and further code refinements are expected. As such, it is suggested to install using the ``develop`` command rather than ``install``. Make sure you are using the latest version of the code base by using git's ``git pull`` inside the cloned repository.
 
 To install UrbanAccess follow these steps:
 
 1. Git clone the `UrbanAccess repo <https://github.com/udst/urbanaccess>`__
 2. in the cloned directory run: ``python setup.py develop``
 
-To update to the latest version:
+To update to the latest development version:
 
 Use ``git pull`` inside the cloned repository
 

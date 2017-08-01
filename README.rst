@@ -72,21 +72,30 @@ UrbanAccess:
 1. Open a feature request via `GitHub issues <https://github.com/UDST/urbanaccess/issues>`__.
 2. Contribute your code from a fork or branch by using a Pull Request and request a review so it can be considered as an addition to the codebase.
 
-Installation
-------------
+Install the latest release
+--------------------------
 
-pip and conda installations are forthcoming. UrbanAccess is currently in
-a alpha release and further code refinements are expected. As such, it
-is suggested to install using the ``develop`` command rather than
-``install``. Make sure you are using the latest version of the code base
-by using git's ``git pull`` inside the cloned repository.
+conda
+~~~~~~
+conda installation is forthcoming.
+
+pip
+~~~~~~
+UrbanAccess is available on PyPI and can be installed with::
+
+    pip install -U urbanaccess
+
+Development Installation
+------------------------
+
+ UrbanAccess is currently in a alpha release and further code refinements are expected. As such, it is suggested to install using the ``develop`` command rather than ``install``. Make sure you are using the latest version of the code base by using git's ``git pull`` inside the cloned repository.
 
 To install UrbanAccess follow these steps:
 
 1. Git clone the `UrbanAccess repo <https://github.com/udst/urbanaccess>`__
 2. in the cloned directory run: ``python setup.py develop``
 
-To update to the latest version:
+To update to the latest development version:
 
 Use ``git pull`` inside the cloned repository
 
