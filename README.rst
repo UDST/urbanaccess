@@ -28,8 +28,8 @@ UrbanAccess offers the following tools:
 
 * GTFS and OSM network data acquisition via APIs
 * Network data validation and regional network aggregation
-
 * Compute network impedance:
+
   * by transit schedule day of the week and time of day
   * by transit mode
   * by including average passenger headways to approximate passenger transit stop wait time
@@ -38,6 +38,7 @@ UrbanAccess offers the following tools:
 * Resulting networks are designed to be used to compute accessibility
   metrics using the open source network analysis tool
   `Pandana <https://github.com/UDST/pandana>`__
+
   * Compute cumulative accessibility metrics
   * Nearest feature analysis using POIs
 
@@ -68,10 +69,8 @@ Contributing to UrbanAccess
 If you have improvements or new features you would like to see in
 UrbanAccess:
 
-1. Open a feature request via `GitHub
-issues <https://github.com/UDST/urbanaccess/issues>`__.
-2. Contribute your code from a fork or branch by using a Pull Request and request a
-review so it can be considered as an addition to the codebase.
+1. Open a feature request via `GitHub issues <https://github.com/UDST/urbanaccess/issues>`__.
+2. Contribute your code from a fork or branch by using a Pull Request and request a review so it can be considered as an addition to the codebase.
 
 Installation
 ------------
@@ -84,8 +83,7 @@ by using git's ``git pull`` inside the cloned repository.
 
 To install UrbanAccess follow these steps:
 
-1. Git clone the `UrbanAccess
-   repo <https://github.com/udst/urbanaccess>`__
+1. Git clone the `UrbanAccess repo <https://github.com/udst/urbanaccess>`__
 2. in the cloned directory run: ``python setup.py develop``
 
 To update to the latest version:
