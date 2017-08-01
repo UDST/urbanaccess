@@ -6,9 +6,8 @@ UrbanAccess
 A tool for computing GTFS transit and OSM pedestrian networks for
 accessibility analysis.
 
-|Integrated AC Transit and BART transit and pedestrian network travel
-times for Oakland, CA| *Integrated AC Transit and BART transit and
-pedestrian network travel times for Oakland, CA*
+|Integrated AC Transit and BART transit and pedestrian network travel times for Oakland, CA|
+*Integrated AC Transit and BART transit and pedestrian network travel times for Oakland, CA*
 
 Overview
 ========
@@ -25,17 +24,20 @@ network data acquisition, validation, and processing; 2) computing an
 integrated pedestrian and transit weighted network graph; and 3) network
 analysis using Pandana.
 
-| UrbanAccess offers the following tools:
-| \* GTFS and OSM network data acquisition via APIs \* Network data
-  validation and regional network aggregation \* Compute network
-  impedance: \* by transit schedule day of the week and time of day \*
-  by transit mode \* by including average passenger headways to
-  approximate passenger transit stop wait time \* Integrate pedestrian
-  and transit networks to approximate pedestrian scale accessibility \*
-  Resulting networks are designed to be used to compute accessibility
+UrbanAccess offers the following tools:
+
+* GTFS and OSM network data acquisition via APIs
+* Network data validation and regional network aggregation
+* Compute network impedance:
+  * by transit schedule day of the week and time of day
+  * by transit mode
+  * by including average passenger headways to approximate passenger transit stop wait time
+* Integrate pedestrian and transit networks to approximate pedestrian scale accessibility
+* Resulting networks are designed to be used to compute accessibility
   metrics using the open source network analysis tool
-  `Pandana <https://github.com/UDST/pandana>`__ \* Compute cumulative
-  accessibility metrics \* Nearest feature analysis using POIs
+  `Pandana <https://github.com/UDST/pandana>`__
+  * Compute cumulative accessibility metrics
+  * Nearest feature analysis using POIs
 
 Let us know what you are working on or if you think you have a great use
 case by tweeting us at ``@urbansim`` or post on the UrbanSim
@@ -47,7 +49,10 @@ Current status
 UrbanAccess is currently in a alpha release and only compatible with
 Python 2.x. Further code refinements are expected.
 
-*Forthcoming improvements:* - Unit tests - Python 3
+*Forthcoming improvements:*
+
+- Unit tests
+- Python 3
 
 Reporting bugs
 --------------
@@ -59,9 +64,12 @@ Contributing to UrbanAccess
 ---------------------------
 
 If you have improvements or new features you would like to see in
-UrbanAccess: 1. Open a feature request via `GitHub
-issues <https://github.com/UDST/urbanaccess/issues>`__. 2. Contribute
-your code from a fork or branch by using a Pull Request and request a
+UrbanAccess:
+
+1. Open a feature request via `GitHub
+issues <https://github.com/UDST/urbanaccess/issues>`__.
+
+2. Contribute your code from a fork or branch by using a Pull Request and request a
 review so it can be considered as an addition to the codebase.
 
 Installation
@@ -104,9 +112,9 @@ can be used as a replacement.
 Citation and academic literature
 --------------------------------
 
-| To cite this tool and for a complete description of the UrbanAccess
-  methodology see the paper below:
-| ```Samuel D. Blanchard and Paul Waddell. 2017. "UrbanAccess: Generalized Methodology for Measuring Regional Accessibility with an Integrated Pedestrian and Transit Network." Transportation Research Record: Journal of the Transportation Research Board. No. 2653. pp. 35–44.`` <http://trrjournalonline.trb.org/doi/pdf/10.3141/2653-05>`__
+To cite this tool and for a complete description of the UrbanAccess methodology see the paper below:
+
+```Samuel D. Blanchard and Paul Waddell. 2017. "UrbanAccess: Generalized Methodology for Measuring Regional Accessibility with an Integrated Pedestrian and Transit Network." Transportation Research Record: Journal of the Transportation Research Board. No. 2653. pp. 35–44.`` <http://trrjournalonline.trb.org/doi/pdf/10.3141/2653-05>`__
 
 Related UDST libraries
 ----------------------

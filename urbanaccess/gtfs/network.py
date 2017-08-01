@@ -26,7 +26,7 @@ def create_transit_net(gtfsfeeds_dfs, day,
     Parameters
     ----------
     gtfsfeeds_dfs : object
-        gtfsfeeds_dfs object with dataframes of stops, routes, trips,
+        gtfsfeeds_dfs object with DataFrames of stops, routes, trips,
         stop_times, calendar, calendar_dates (optional) and
         stop_times_int (optional)
     day : {'friday', 'monday', 'saturday', 'sunday', 'thursday', 'tuesday',
@@ -44,21 +44,21 @@ def create_transit_net(gtfsfeeds_dfs, day,
     calendar_dates_lookup : dict, optional
         dictionary of the lookup column (key) as a string and corresponding
         string (value) as string or list of strings to use to subset trips
-        using the calendar_dates dataframe. Search will be exact. If none,
-        then the calendar_dates dataframe will not be used to select trips
-        that are not in the calendar dataframe. Note search will select all
+        using the calendar_dates DataFrame. Search will be exact. If none,
+        then the calendar_dates DataFrame will not be used to select trips
+        that are not in the calendar DataFrame. Note search will select all
         records that meet each key value pair criteria.
         Example: {'schedule_type' : 'WD'} or {'schedule_type' : ['WD', 'SU']}
     overwrite_existing_stop_times_int : bool, optional
         if true, and if there is an existing stop_times_int
-        dataframe stored in the gtfsfeeds_dfs object it will be
+        DataFrame stored in the gtfsfeeds_dfs object it will be
         overwritten
     use_existing_stop_times_int : bool, optional
         if true, and if there is an existing stop_times_int
-        dataframe for the same time period stored in the
+        DataFrame for the same time period stored in the
         gtfsfeeds_dfs object it will be used instead of re-calculated
     save_processed_gtfs : bool, optional
-        if true, all processed gtfs dataframes will
+        if true, all processed gtfs DataFrames will
         be stored to disk in a hdf5 file
     save_dir : str, optional
         directory to save the hdf5 file
@@ -198,11 +198,11 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
     Parameters
     ----------
     input_trips_df : pandas.DataFrame
-        trips dataframe
+        trips DataFrame
     input_calendar_df : pandas.DataFrame
-        calendar dataframe
+        calendar DataFrame
     input_calendar_dates_df : pandas.DataFrame
-        calendar_dates dataframe
+        calendar_dates DataFrame
     day : {'friday', 'monday', 'saturday', 'sunday', 'thursday', 'tuesday',
     'wednesday'}
         day of the week to extract transit schedule that corresponds to the
@@ -210,9 +210,9 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
     calendar_dates_lookup : dict, optional
         dictionary of the lookup column (key) as a string and corresponding
         string (value) a s string or list of strings to use to subset trips
-        using the calendar_dates dataframe. Search will be exact. If none,
-        then the calendar_dates dataframe will not be used to select trips
-        that are not in the calendar dataframe. Note search will select all
+        using the calendar_dates DataFrame. Search will be exact. If none,
+        then the calendar_dates DataFrame will not be used to select trips
+        that are not in the calendar DataFrame. Note search will select all
         records that meet each key value pair criteria.
         Example: {'schedule_type' : 'WD'} or {'schedule_type' : ['WD', 'SU']}
 
@@ -436,9 +436,9 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df, day):
     Parameters
     ----------
     stop_times_df : pandas.DataFrame
-        stop times dataframe
+        stop times DataFrame
     calendar_selected_trips_df : pandas.DataFrame
-        dataframe of trips that run on specific day
+        DataFrame of trips that run on specific day
     day : {'friday','monday','saturday','sunday','thursday','tuesday',
     'wednesday'}
         day of the week to extract transit schedule from that corresponds
@@ -466,7 +466,7 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df, day):
     # from first value to last value
     if stop_times_df['stop_sequence'].isnull().sum() > 1:
         log('WARNING: There are {:,} '
-            'stop_sequence records missing in the stop_times dataframe. '
+            'stop_sequence records missing in the stop_times DataFrame. '
             'Please check these missing values. In order for interpolation '
             'to proceed correctly, '
             'all records must have a stop_sequence value.'.format(
@@ -637,7 +637,7 @@ def _time_difference(stop_times_df):
     Parameters
     ----------
     stop_times_df : pandas.DataFrame
-        interpolated stop times dataframe
+        interpolated stop times DataFrame
 
     Returns
     -------
@@ -664,7 +664,7 @@ def _time_selector(df, starttime, endtime):
     Parameters
     ----------
     df : pandas.DataFrame
-        interpolated stop times dataframe
+        interpolated stop times DataFrame
     starttime : str
         24 hour clock formatted time 1
     endtime : str
@@ -776,7 +776,7 @@ def _convert_imp_time_units(df, time_col='weight', convert_to='minutes'):
     Parameters
     ----------
     df : pandas.DataFrame
-        edge dataframe with weight column
+        edge DataFrame with weight column
     time_col : str
         name of column that holds the travel impedance
     convert_to : {'seconds', 'minutes'}
@@ -813,7 +813,7 @@ def _stops_in_edge_table_selector(input_stops_df,
     Parameters
     ----------
     input_stops_df : pandas.DataFrame
-        stops dataframe
+        stops DataFrame
     input_stop_times_df : pandas.DataFrame
         stop_times dataframe
 

@@ -9,7 +9,7 @@ from urbanaccess import config
 
 class urbanaccess_network(object):
     """
-    A urbanaccess object of dataframes representing
+    A urbanaccess object of Pandas DataFrames representing
     the components of a graph network
 
     Parameters
@@ -46,15 +46,15 @@ ua_network = urbanaccess_network()
 
 def _nearest_neighbor(df1, df2):
     """
-    For a dataframe of xy coordinates find the nearest xy
-    coordinates in a subsequent dataframe
+    For a DataFrame of xy coordinates find the nearest xy
+    coordinates in a subsequent DataFrame
 
     Parameters
     ----------
     df1 : pandas.DataFrame
-        dataframe of records to return as the nearest record to records in df2
+        DataFrame of records to return as the nearest record to records in df2
     df2 : pandas.DataFrame
-        dataframe of records with xy coordinates for which to find the
+        DataFrame of records with xy coordinates for which to find the
         nearest record in df1 for
     Returns
     -------
@@ -86,7 +86,7 @@ def integrate_network(urbanaccess_network, headways=False,
         of average passenger transit stop waiting time.
     urbanaccess_gtfsfeeds_df : object, optional
         required if headways is true; the gtfsfeeds_dfs object that holds
-        the corresponding headways and stops dataframes
+        the corresponding headways and stops DataFrames
     headway_statistic : {'mean', 'std', 'min', 'max'}, optional
         required if headways is true; route stop headway
         statistic to apply to the osm to transit connector edges:
@@ -131,9 +131,9 @@ def integrate_network(urbanaccess_network, headways=False,
                 urbanaccess_gtfsfeeds_df.headways.empty or \
                 urbanaccess_gtfsfeeds_df.stops.empty:
             raise ValueError(
-                'stops and headway dataframes were not found in the '
+                'stops and headway DataFrames were not found in the '
                 'urbanaccess_gtfsfeeds object. Please create these '
-                'dataframes in order to use headways.')
+                'DataFrames in order to use headways.')
 
         valid_stats = ['mean', 'std', 'min', 'max']
         if headway_statistic not in valid_stats or not isinstance(
@@ -236,9 +236,9 @@ def _add_headway_impedance(ped_to_transit_edges_df, headways_df,
     Parameters
     ----------
     ped_to_transit_edges_df : pandas.DataFrame
-        dataframe of the osm to transit connectors
+        DataFrame of the osm to transit connectors
     headways_df : pandas.DataFrame
-        headways dataframe
+        headways DataFrame
     headway_statistic : {'mean', 'std', 'min', 'max'}, optional
         required if headways is true; route stop headway statistic to apply
         to the osm to transit connector edges:
@@ -285,9 +285,9 @@ def _route_id_to_node(stops_df, edges_w_routes):
     Parameters
     ----------
     stops_df : pandas.DataFrame
-        processed gtfs stops dataframe
+        processed gtfs stops DataFrame
     edges_w_routes : pandas.DataFrame
-        transit edge dataframe that has route id information
+        transit edge DataFrame that has route id information
 
     Returns
     -------
@@ -351,9 +351,9 @@ def _connector_edges(osm_nodes, transit_nodes, travel_speed_mph=3):
     Parameters
     ----------
     osm_nodes : pandas.DataFrame
-        osm nodes dataframe
+        osm nodes DataFrame
     transit_nodes : pandas.DataFrame
-        transit nodes dataframe
+        transit nodes DataFrame
     travel_speed_mph : int, optional
         travel speed to use to calculate travel time across a
         distance on a edge. units are in miles per hour (MPH)
@@ -407,7 +407,7 @@ def _connector_edges(osm_nodes, transit_nodes, travel_speed_mph=3):
 
 def _format_pandana_edges_nodes(edge_df, node_df):
     """
-    Perform final formatting on nodes and edge dataframes to prepare them
+    Perform final formatting on nodes and edge DataFrames to prepare them
     for use in Pandana.
     Formatting mainly consists of creating a unique node id and edge from
     and to id that is an integer
@@ -416,9 +416,9 @@ def _format_pandana_edges_nodes(edge_df, node_df):
     Parameters
     ----------
     edge_df : pandas.DataFrame
-        integrated transit and osm edge dataframe
+        integrated transit and osm edge DataFrame
     node_df : pandas.DataFrame
-        integrated transit and osm node dataframe
+        integrated transit and osm node DataFrame
 
     Returns
     -------
@@ -475,7 +475,7 @@ def save_network(urbanaccess_network, filename,
     Parameters
     ----------
     urbanaccess_network : object
-        urbanaccess_network object with net_edges and net_nodes dataframes
+        urbanaccess_network object with net_edges and net_nodes DataFrames
     filename : string
         name of the hdf5 file to save with .h5 extension
     dir : string, optional
@@ -519,7 +519,7 @@ def load_network(dir=config.settings.data_folder, filename=None):
     Returns
     -------
     ua_network : object
-        urbanaccess_network object with net_edges and net_nodes dataframes
+        urbanaccess_network object with net_edges and net_nodes DataFrames
     ua_network.net_edges : object
     ua_network.net_nodes : object
     """

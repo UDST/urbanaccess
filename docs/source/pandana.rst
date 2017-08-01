@@ -18,7 +18,7 @@ Examples of using an UrbanAccess network with Pandana
 
 The examples below only depict isolated code snippets to provide a general idea of how each function can be parametrized. See the demo for a full workflow.
 
-Creating a Pandana network object::
+Creating a Pandana Network object::
 
     transit_ped_net = pdna.Network(integrated_ua_net.net_nodes["x"],
                                    integrated_ua_net.net_nodes["y"],

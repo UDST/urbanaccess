@@ -266,7 +266,7 @@ def hdf5_to_df(dir=None, filename=None, key=None):
             hdf5_load_path))
 
     with pd.HDFStore(hdf5_load_path) as store:
-
+        # TODO: fix print statement to only display current key, not all keys
         log('Successfully read store: {} with the following keys: {}'.format(
             hdf5_load_path, store.keys()))
         try:

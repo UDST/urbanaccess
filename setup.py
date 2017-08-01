@@ -32,13 +32,13 @@ setup(
     packages=find_packages(exclude=['*.tests']),
     install_requires=[
         'requests >= 2.9.1',
-        'pandas >= 0.16.0',
+        'pandas >= 0.17.0',
         'numpy >= 1.11',
-        'osmnet>=0.1a',
-        'pandana>=0.2.0',
-        'matplotlib>=2.0',
-        'geopy>=1.11.0',
-        'pyyaml>=3.11',
-        'scikit-learn>=0.17.1'
+        'osmnet >= 0.1.4',
+        'pandana >= 0.2.0',
+        'matplotlib >= 2.0',
+        'geopy >= 1.11.0',
+        'pyyaml >= 3.11',
+        'scikit-learn >= 0.17.1'
     ]
 )
