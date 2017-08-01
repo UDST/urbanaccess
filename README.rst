@@ -28,10 +28,12 @@ UrbanAccess offers the following tools:
 
 * GTFS and OSM network data acquisition via APIs
 * Network data validation and regional network aggregation
+
 * Compute network impedance:
   * by transit schedule day of the week and time of day
   * by transit mode
   * by including average passenger headways to approximate passenger transit stop wait time
+
 * Integrate pedestrian and transit networks to approximate pedestrian scale accessibility
 * Resulting networks are designed to be used to compute accessibility
   metrics using the open source network analysis tool
@@ -68,7 +70,6 @@ UrbanAccess:
 
 1. Open a feature request via `GitHub
 issues <https://github.com/UDST/urbanaccess/issues>`__.
-
 2. Contribute your code from a fork or branch by using a Pull Request and request a
 review so it can be considered as an addition to the codebase.
 
@@ -114,7 +115,7 @@ Citation and academic literature
 
 To cite this tool and for a complete description of the UrbanAccess methodology see the paper below:
 
-```Samuel D. Blanchard and Paul Waddell. 2017. "UrbanAccess: Generalized Methodology for Measuring Regional Accessibility with an Integrated Pedestrian and Transit Network." Transportation Research Record: Journal of the Transportation Research Board. No. 2653. pp. 35–44.`` <http://trrjournalonline.trb.org/doi/pdf/10.3141/2653-05>`__
+`Samuel D. Blanchard and Paul Waddell. 2017. "UrbanAccess: Generalized Methodology for Measuring Regional Accessibility with an Integrated Pedestrian and Transit Network." Transportation Research Record: Journal of the Transportation Research Board. No. 2653. pp. 35–44. <http://trrjournalonline.trb.org/doi/pdf/10.3141/2653-05>`__
 
 Related UDST libraries
 ----------------------
