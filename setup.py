@@ -26,7 +26,7 @@ setup(
     url='https://github.com/UDST/urbanaccess',
     classifiers=[
         'Programming Language :: Python :: 2.7',
-        'Development Status :: 3 - Alpha'
+        'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: GNU Affero General Public License v3'
     ],
     packages=find_packages(exclude=['*.tests']),
