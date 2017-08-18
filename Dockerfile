@@ -65,6 +65,9 @@ RUN mkdir -p /code/
 WORKDIR /code
 COPY . /code
 
+# install this repo's python package
+RUN pip install .
+
 # run tests which has added bonus of installing
 # test dependencies so they won't have to be installed
 # on every single test run
