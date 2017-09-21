@@ -5,10 +5,6 @@ import pandas as pd
 from urbanaccess.gtfs.utils.gtfs_format import (_time_selector)
 from urbanaccess.utils import _join_camel
 
-# Note: The above imported logging funcs were modified from the OSMnx library
-#       & used with permission from the author Geoff Boeing: log, get_logger
-#       OSMnx repo: https://github.com/gboeing/osmnx/blob/master/osmnx/utils.py
-
 warnings.simplefilter(action = "ignore", category = FutureWarning)
 
 

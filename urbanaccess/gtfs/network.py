@@ -10,9 +10,6 @@ from urbanaccess.network import ua_network
 from urbanaccess.utils import log, df_to_hdf5, hdf5_to_df
 from .synthesize import convert_transit_data_to_network
 
-# Note: The above imported logging funcs were modified from the OSMnx library
-#       & used with permission from the author Geoff Boeing: log, get_logger
-#       OSMnx repo: https://github.com/gboeing/osmnx/blob/master/osmnx/utils.py
 
 pd.options.mode.chained_assignment = None
 

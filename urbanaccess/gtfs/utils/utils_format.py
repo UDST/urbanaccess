@@ -16,11 +16,6 @@ from urbanaccess.gtfs.utils.gtfs_format import (_calendar_agency_uids,
 from urbanaccess.utils import log
 
 
-# Note: The above imported logging funcs were modified from the OSMnx library
-#       & used with permission from the author Geoff Boeing: log, get_logger
-#       OSMnx repo: https://github.com/gboeing/osmnx/blob/master/osmnx/utils.py
-
-
 def clean_gtfs_tables(gtfs_array):
     # the overall gtfs with the results from the first in list
     first_gtfs = gtfs_array.pop(0)
