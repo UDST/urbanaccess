@@ -1,15 +1,25 @@
-import yaml
-import pandas as pd
-import urllib
-from urllib2 import urlopen
-import traceback
-import zipfile
 import os
 import logging as lg
 import time
 
+import pandas as pd
+import traceback
+import yaml
+import zipfile
+
+try:
+    # For Python 3.0 and later
+    from urllib.request import urlopen
+except ImportError:
+    # Fall back to Python 2's urllib2
+    from urllib2 import urlopen
+
 from urbanaccess.config import settings
 from urbanaccess.utils import log
+
+
+# Global(s) referenced in the functions wihtin this file
+feeds = UrbanAccessGTFSFeeds()
 
 
 class UrbanAccessGTFSFeeds(object):
@@ -237,99 +247,18 @@ class UrbanAccessGTFSFeeds(object):
             log('{} file successfully created'.format(yaml_file))
 
 
-# instantiate the UrbanAccess gtfs feed object
-feeds = UrbanAccessGTFSFeeds()
-
-
-def search(api=None,
-
-           # Relevant to GTFS Data Exchange
-           search_text=None,
-           search_field=None,
-           match='contains',
-
-           # Relevant to TransitLand
-           bounding_box=None,
-           
-           # Settings
-           add_feed=False,
-           overwrite_feed=False):
-    """
-    Connect to a GTFS feed repository API and search for GTFS feeds that exist
-    in a remote GTFS repository and whether or not to add the GTFS feed name
-    and download URL to the UrbanAccessGTFSFeeds instance.
-    
-    Currently support GTFS Data Exchange and Transit.Land APIs.
-
-    Parameters
-    ----------
-    api : {'gtfs_data_exchange'}, optional
-        name of GTFS feed repository to search in. name corresponds to the
-        dict specified in the urbanacess_config instance. Currently only
-        supports access to the GTFS Data Exchange repository.
-    
-    search_text : str, optional
-        string pattern to search for
-    search_field : string or list, optional
-        name of the field or column to search for string
-    match : {'contains', 'exact'}, optional
-        search string matching method as either: contains or exact
-
-    bounding_box : list, optional
-        list of float values indicated in WGS84 projection the coordinates
-        of the area being queries [-122.4183,37.7758,-122.4120,37.7858]
-        where for format goes:
-        southwest_lon, southwest_lat, northeast_lon, northeast_lat
-    
-    add_feed : bool, optional
-        add search results to existing UrbanAccessGTFSFeeds instance using
-        the name field as the key and the URL as the value
-    overwrite_feed : bool, optional
-        If true the existing UrbanAccessGTFSFeeds instance will be replaced
-        with the records returned in the search results.
-        All existing records will be removed.
-    Returns
-    -------
-    search_result_df : pandas.DataFrame
-        Dataframe of search results displaying full feed metadata
-    """
-
-    # Top level parameter checks
-    assert isinstance(api, str), ('Parameter api needs to be set in order to '
-                                  'know which API service to query.')
-    assert match in ['contains', 'exact']
-    assert isinstance(add_feed, bool)
-
-    log('Note: Your use of a GTFS feed is governed by each GTFS feed author '
-        'license terms. It is suggested you read the respective license '
-        'terms for the appropriate use of a GTFS feed.',
-        level=lg.WARNING)
-
-    if api == 'gtfs_data_exchange':
-        url = settings.gtfs_api[api]
-        _run_data_exchange_search(url,
-                                  search_text,
-                                  search_field,
-                                  match,
-                                  add_feed,
-                                  overwrite_feed)
-    elif api == 'transitland':
-        _run_transitland_search()
-
-    # Catch-all for unknown API strings that ares submitted
-    else:
-        raise ValueError(('Unknown API feed requested. {} is not '
-                          'currently a supported API'.format(api)))
-
 def _run_data_exchange_search(url,
                               search_text,
                               search_field,
                               match,
-                              add_feed,
-                              overwrite_feed):
+                              add_feed):
     log('Warning: The GTFSDataExchange is no longer being '
         'maintained as of Summer 2016. Data accessed here '
         'may be out of date.', level=lg.WARNING)
+
+    # TODO: Phase out this variable - see comments in TODO at
+    #       bottom of this method.
+    overwrite_feed = True
 
     # This will run a query against the GTFS Data Exchange site and
     # convert the response to a Pandas DataFrame
@@ -445,6 +374,90 @@ def _run_data_exchange_search(url,
         return search_result_df
 
 
+def _run_transitland_search(bounding_box,
+                            search_text,
+                            search_field,
+                            match):
+    pass
+
+
+
+def search(api=None,
+
+           # Relevant to GTFS Data Exchange
+           search_text=None,
+           search_field=None,
+           match='contains',
+
+           # Relevant to TransitLand
+           bounding_box=None,
+           
+           # Settings
+           add_feed=False):
+    """
+    Connect to a GTFS feed repository API and search for GTFS feeds that exist
+    in a remote GTFS repository and whether or not to add the GTFS feed name
+    and download URL to the UrbanAccessGTFSFeeds instance.
+    
+    Currently support GTFS Data Exchange and Transit.Land APIs.
+
+    Parameters
+    ----------
+    api : {'gtfs_data_exchange'}, optional
+        name of GTFS feed repository to search in. name corresponds to the
+        dict specified in the urbanacess_config instance. Currently only
+        supports access to the GTFS Data Exchange repository.
+    
+    search_text : str, optional
+        string pattern to search for
+    search_field : string or list, optional
+        name of the field or column to search for string
+    match : {'contains', 'exact'}, optional
+        search string matching method as either: contains or exact
+
+    bounding_box : list, optional
+        list of float values indicated in WGS84 projection the coordinates
+        of the area being queries [-122.4183,37.7758,-122.4120,37.7858]
+        where for format goes:
+        southwest_lon, southwest_lat, northeast_lon, northeast_lat
+    
+    add_feed : bool, optional
+        add search results to existing UrbanAccessGTFSFeeds instance using
+        the name field as the key and the URL as the value
+    Returns
+    -------
+    search_result_df : pandas.DataFrame
+        Dataframe of search results displaying full feed metadata
+    """
+
+    # Top level parameter checks
+    assert isinstance(api, str), ('Parameter api needs to be set in order to '
+                                  'know which API service to query.')
+    assert match in ['contains', 'exact']
+    assert isinstance(add_feed, bool)
+
+    log('Note: Your use of a GTFS feed is governed by each GTFS feed author '
+        'license terms. It is suggested you read the respective license '
+        'terms for the appropriate use of a GTFS feed.',
+        level=lg.WARNING)
+
+    if api == 'gtfs_data_exchange':
+        url = settings.gtfs_api[api]
+        _run_data_exchange_search(url,
+                                  search_text,
+                                  search_field,
+                                  match,
+                                  add_feed,
+                                  overwrite_feed)
+    elif api == 'transitland':
+        _run_transitland_search(bounding_box)
+
+    # Catch-all for unknown API strings that ares submitted
+    else:
+        raise ValueError(('Unknown API feed requested. {} is not '
+                          'currently a supported API'.format(api)))
+
+
 def download(data_folder=os.path.join(settings.data_folder),
              feed_name=None, feed_url=None, feed_dict=None,
              error_pause_duration=5, delete_zips=False):
@@ -530,7 +543,7 @@ def download(data_folder=os.path.join(settings.data_folder),
         zipfile_path = ''.join([download_folder, '/', feed_name_key, '.zip'])
 
         if 'http' in feed_url_value:
-            status_code = urllib.urlopen(feed_url_value).getcode()
+            status_code = urlopen(feed_url_value).getcode()
             if status_code == 200:
                 file = urlopen(feed_url_value)
 
