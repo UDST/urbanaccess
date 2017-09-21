@@ -1,7 +1,9 @@
 import pandas as pd
 
+from urbanaccess.utils import _join_camel
 
-def calendar_dates_agency_uids(calendar_dates_df, routes_agencies_trips):
+
+def _calendar_dates_agency_uids(calendar_dates_df, routes_agencies_trips):
     # merge the three (combined) with calendar (all, with cal)
     all_w_cal = _left_merge(calendar_dates_df,
                             routes_agencies_trips,
@@ -16,7 +18,7 @@ def calendar_dates_agency_uids(calendar_dates_df, routes_agencies_trips):
     return final_out
 
 
-def calendar_agency_uids(calendar_df, routes_agencies_trips):
+def _calendar_agency_uids(calendar_df, routes_agencies_trips):
     cal_sub = calendar_df[['service_id']]
     all_w_cal = _left_merge(cal_sub, routes_agencies_trips, 'service_id')
 
@@ -28,7 +30,7 @@ def calendar_agency_uids(calendar_df, routes_agencies_trips):
     return merged_df
 
 
-def trips_agency_uids(trips_df, routes_agencies_trips):
+def _trips_agency_uids(trips_df, routes_agencies_trips):
     merged_df = _add_uid_and_clean(
         routes_agencies_trips, 'agency_name', 'trip_id')
 
@@ -38,7 +40,7 @@ def trips_agency_uids(trips_df, routes_agencies_trips):
     return merged_df
 
 
-def routes_agency_uids(routes_df, agency_df):
+def _routes_agency_uids(routes_df, agency_df):
     routes_sub = routes_df[['route_id', 'agency_id']]
     merged_df = _left_merge(routes_sub, agency_df, 'agency_id')
 
@@ -52,7 +54,7 @@ def routes_agency_uids(routes_df, agency_df):
     return merged_df
 
 
-def stops_agency_uids(stops_df, stop_times_df, routes_agencies_trips):
+def _stops_agency_uids(stops_df, stop_times_df, routes_agencies_trips):
     all_w_stops = _left_merge(stop_times_df, routes_agencies_trips, 'trip_id')
 
     stops_sub = stops_df[['stop_id']]
@@ -66,7 +68,7 @@ def stops_agency_uids(stops_df, stop_times_df, routes_agencies_trips):
     return merged_df
 
 
-def stop_times_agency_uids(stop_times_df, routes_agencies_trips):
+def _stop_times_agency_uids(stop_times_df, routes_agencies_trips):
     merged_df = _left_merge(stop_times_df, routes_agencies_trips, 'trip_id')
 
     merged_df = _add_uid_and_clean(merged_df, 'agency_name', 'trip_id')
@@ -77,7 +79,7 @@ def stop_times_agency_uids(stop_times_df, routes_agencies_trips):
     return merged_df
 
 
-def time_selector(df, start_time, end_time):
+def _time_selector(df, start_time, end_time):
     # takes input start and end time range from 24 hour
     # clock and converts it to seconds past midnight
     # in order to select times that may be after midnight
@@ -106,7 +108,7 @@ def time_selector(df, start_time, end_time):
     return selected_stop_times_df
 
 
-def trip_sched_selector(sub_trips_df, cal, day):
+def _trip_sched_selector(sub_trips_df, cal, day):
     # TODO: Eventually replace the above function, not replacing
     #       for now because other version handles a lot of edge
     #       cases we ignore
@@ -117,11 +119,11 @@ def trip_sched_selector(sub_trips_df, cal, day):
     # create unique service ids by concatenating two col string
     want_cols = ['service_id', 'unique_agency_id']
     svc_id = sub_trips_df[want_cols]
-    new_uid_svc = svc_id.apply(lambda x: join_camel(x), axis=1)
+    new_uid_svc = svc_id.apply(lambda x: _join_camel(x), axis=1)
     sub_trips_df['unique_service_id'] = new_uid_svc
 
     cal_id = cal[want_cols]
-    new_uid_cal = cal_id.apply(lambda x: join_camel(x), axis=1)
+    new_uid_cal = cal_id.apply(lambda x: _join_camel(x), axis=1)
     cal['unique_service_id'] = new_uid_cal
 
     # select service ids where day specified in
@@ -143,20 +145,6 @@ def trip_sched_selector(sub_trips_df, cal, day):
     cal_sel_trips_df.drop('unique_service_id', axis=1, inplace=True)
 
     return cal_sel_trips_df
-
-
-def join_camel(x):
-    # TODO: weirdly, we use this throughout the codebase
-    #       should likely move to a more general utils file
-    
-    # make sure that x has length of at least 2
-    while len(x) < 2:
-        # else add arbitrary string until it is length 2
-        x.append('foo')
-
-    first = str(x[0])
-    second = str(x[1])
-    return '{}_{}'.format(first, second)
 
 
 def _generate_unique_agency_id(df, col_name):

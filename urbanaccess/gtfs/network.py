@@ -1,20 +1,18 @@
-from future.utils import raise_with_traceback
 import logging as lg
-import numpy as np
-import pandas as pd
 import time
+
+import pandas as pd
+
+from urbanaccess import config
+from urbanaccess.gtfs.gtfsfeeds_dataframe import gtfsfeeds_dfs
+from urbanaccess.gtfs.utils.gtfs_format import (_time_selector)
+from urbanaccess.network import ua_network
+from urbanaccess.utils import log, df_to_hdf5, hdf5_to_df
+from .synthesize import convert_transit_data_to_network
 
 # Note: The above imported logging funcs were modified from the OSMnx library
 #       & used with permission from the author Geoff Boeing: log, get_logger
 #       OSMnx repo: https://github.com/gboeing/osmnx/blob/master/osmnx/utils.py
-
-from urbanaccess.utils import log, df_to_hdf5, hdf5_to_df
-from urbanaccess.network import ua_network
-from urbanaccess import config
-from urbanaccess.gtfs.gtfsfeeds_dataframe import gtfsfeeds_dfs
-
-from .gtfs_format import (join_camel, time_selector)
-from .synthesize import convert_transit_data_to_network
 
 pd.options.mode.chained_assignment = None
 
@@ -325,7 +323,7 @@ def _time_selector(df=None, starttime=None, endtime=None):
     # TODO: Deprecated, should not be referenced anymore
     start_time = time.time()
 
-    selected_stop_timesdf = time_selector(df, starttime, endtime)
+    selected_stop_timesdf = _time_selector(df, starttime, endtime)
 
 
     log(

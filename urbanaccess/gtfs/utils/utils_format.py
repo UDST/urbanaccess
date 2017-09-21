@@ -1,19 +1,24 @@
-import logging as lg
 import os
+import os
+import time
+from re import sub
+
 import numpy as np
 import pandas as pd
 from future.utils import raise_with_traceback
-from re import sub
-import time
+
+from urbanaccess.gtfs.utils.gtfs_format import (_calendar_agency_uids,
+                                                _calendar_dates_agency_uids,
+                                                _routes_agency_uids,
+                                                _stop_times_agency_uids,
+                                                _stops_agency_uids,
+                                                _trips_agency_uids)
+from urbanaccess.utils import log
+
 
 # Note: The above imported logging funcs were modified from the OSMnx library
 #       & used with permission from the author Geoff Boeing: log, get_logger
 #       OSMnx repo: https://github.com/gboeing/osmnx/blob/master/osmnx/utils.py
-
-from urbanaccess.utils import log
-from .gtfs_format import (calendar_agency_uids, calendar_dates_agency_uids,
-                          routes_agency_uids, stop_times_agency_uids,
-                          stops_agency_uids, trips_agency_uids)
 
 
 def clean_gtfs_tables(gtfs_array):
@@ -852,24 +857,24 @@ def make_agencies_unique(gtfs):
         sub_routes_df,
         sub_trips_df)
 
-    calendar_dates_replacement_df = calendar_dates_agency_uids(
+    calendar_dates_replacement_df = _calendar_dates_agency_uids(
         calendar_dates_df,
         routes_agencies_trips)
 
-    calendar_replacement_df = calendar_agency_uids(
+    calendar_replacement_df = _calendar_agency_uids(
         calendar_df,
         routes_agencies_trips)
 
-    trips_replacement_df = trips_agency_uids(trips_df, routes_agencies_trips)
+    trips_replacement_df = _trips_agency_uids(trips_df, routes_agencies_trips)
 
-    stops_replacement_df = stops_agency_uids(
+    stops_replacement_df = _stops_agency_uids(
         stops_df,
         sub_stop_times_df,
         routes_agencies_trips)
 
-    routes_replacement_df = routes_agency_uids(routes_df, sub_agency_df)
+    routes_replacement_df = _routes_agency_uids(routes_df, sub_agency_df)
 
-    stop_times_replacement_df = stop_times_agency_uids(
+    stop_times_replacement_df = _stop_times_agency_uids(
         stop_times_df,
         routes_agencies_trips)
 
