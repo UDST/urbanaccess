@@ -6,7 +6,20 @@ import urbanaccess as UA
 
 def test_search_data_exchange():
 
-    UA.gtfsfeeds.search()
-        
+    result = UA.gtfsfeeds.search(
+        api='gtfs_data_exchange'
 
-    assert True
+        # Relevant to GTFS Data Exchange
+        search_text=None,
+        search_field=None,
+        match='contains',
+
+        # Relevant to TransitLand
+        bounding_box=None,
+
+        # Settings
+        add_feed=False,
+        overwrite_feed=False)
+
+    print('Done. ----')
+    print(result)

@@ -67,7 +67,7 @@ class UrbanAccessConfiguration(object):
 
         assert isinstance(configdir, str), 'configdir must be a string'
         assert os.path.exists(configdir), ('{} does not exist or was '
-                                           'not found'.format(configdir)))
+                                           'not found'.format(configdir))
         assert isinstance(yamlname, str), 'yaml must be a string'
 
         yaml_file = os.path.join(configdir, yamlname)
@@ -90,7 +90,7 @@ class UrbanAccessConfiguration(object):
         """
         Return a dict representation of an UrbanAccessConfiguration instance.
         """
-        
+
         return {'data_folder': self.data_folder,
                 'logs_folder': self.logs_folder,
                 'log_file': self.log_file,
