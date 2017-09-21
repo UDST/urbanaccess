@@ -3,9 +3,7 @@ import pandas as pd
 from geopy.distance import vincenty
 from sklearn.neighbors import KDTree
 
-from urbanaccess.utils import log
-
-from .gtfs.gtfs_format import join_camel
+from urbanaccess.utils import log, _join_camel
 
 
 def integrate_walk_and_transit_networks(transit_nw,
@@ -36,11 +34,11 @@ def integrate_walk_and_transit_networks(transit_nw,
 
     # create unique ids based off of from and to destinations
     from_sub = transit_nw['edges'][['node_id_from', 'unique_route_id']]
-    from_update = from_sub.apply(lambda x: join_camel(x), axis=1)
+    from_update = from_sub.apply(lambda x: _join_camel(x), axis=1)
     transit_nw['edges']['node_id_route_from'] = from_update
 
     to_sub = transit_nw['edges'][['node_id_to', 'unique_route_id']]
-    to_update = to_sub.apply(lambda x: join_camel(x), axis=1)
+    to_update = to_sub.apply(lambda x: _join_camel(x), axis=1)
     transit_nw['edges']['node_id_route_to'] = to_update
 
     # overwrite nodes data based off of edge data
@@ -87,7 +85,7 @@ def _route_id_to_node(stops_df, edges_w_routes):
 
     # create unique stop ids
     st_sub = stops_df[['stop_id', 'unique_agency_id']]
-    stops_df['unique_stop_id'] = st_sub.apply(lambda x: join_camel(x), axis=1)
+    stops_df['unique_stop_id'] = st_sub.apply(lambda x: _join_camel(x), axis=1)
 
     tmp1 = pd.merge(edges_w_routes[['node_id_from', 'node_id_route_from']],
                     stops_df[['unique_stop_id', 'stop_lat', 'stop_lon']],

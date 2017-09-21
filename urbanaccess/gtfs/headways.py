@@ -1,17 +1,13 @@
-from future.utils import raise_with_traceback
-import logging as lg
-import pandas as pd
-import time
 import warnings
+
+import pandas as pd
+
+from urbanaccess.gtfs.utils.gtfs_format import (_time_selector)
+from urbanaccess.utils import _join_camel
 
 # Note: The above imported logging funcs were modified from the OSMnx library
 #       & used with permission from the author Geoff Boeing: log, get_logger
 #       OSMnx repo: https://github.com/gboeing/osmnx/blob/master/osmnx/utils.py
-
-from urbanaccess.utils import log
-from urbanaccess.gtfs.network import _time_selector
-
-from .gtfs_format import (join_camel, time_selector)
 
 warnings.simplefilter(action = "ignore", category = FutureWarning)
 
@@ -71,11 +67,11 @@ def calc_period_headways(gtfsfeeds_df, headway_timerange):
 
     # add unique trip and route id
     trip_uid_sub = trips_df[['trip_id', 'unique_agency_id']]
-    trip_uids = trip_uid_sub.apply(lambda x: join_camel(x), axis=1)
+    trip_uids = trip_uid_sub.apply(lambda x: _join_camel(x), axis=1)
     trips_df['unique_trip_id'] = trip_uids
 
     trip_rte_uid_sub = trips_df[['route_id', 'unique_agency_id']]
-    route_uids = trip_rte_uid_sub.apply(lambda x: join_camel(x), axis=1)
+    route_uids = trip_rte_uid_sub.apply(lambda x: _join_camel(x), axis=1)
     trips_df['unique_route_id'] = route_uids
 
     columns = ['unique_route_id',
@@ -93,7 +89,7 @@ def calc_period_headways(gtfsfeeds_df, headway_timerange):
 
     # add unique route id
     rte_uid = routes_df[['route_id', 'unique_agency_id']]
-    routes_df['unique_route_id'] = rte_uid.apply(lambda x: join_camel(x),
+    routes_df['unique_route_id'] = rte_uid.apply(lambda x: _join_camel(x),
                                                  axis=1)
 
     columns = ['unique_route_id',
@@ -105,9 +101,9 @@ def calc_period_headways(gtfsfeeds_df, headway_timerange):
     st_times_interp = gtfsfeeds_df['stop_times_int']
     hdwy_start = headway_timerange[0]
     hdwy_end = headway_timerange[1]
-    selected_interpolated_stop_times_df = time_selector(st_times_interp,
-                                                        hdwy_start,
-                                                        hdwy_end)
+    selected_interpolated_stop_times_df = _time_selector(st_times_interp,
+                                                         hdwy_start,
+                                                         hdwy_end)
 
     trips_and_routes = pd.merge(trips_df,
                                 routes_df,
@@ -171,7 +167,7 @@ def calc_period_headways(gtfsfeeds_df, headway_timerange):
 
     # generate the new unique id
     hdwy_sub = headway_by_routestop_df[['unique_stop_id', 'unique_route_id']]
-    node_rte_id = hdwy_sub.apply(lambda x: join_camel(x), axis=1)
+    node_rte_id = hdwy_sub.apply(lambda x: _join_camel(x), axis=1)
     headway_by_routestop_df['node_id_route'] = node_rte_id
 
     # update the overall gtfs' headways dataframe

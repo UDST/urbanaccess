@@ -30,7 +30,7 @@ def create_osm_net(osm_edges,
     Returns
     -------
     ua_network : object
-        urbanaccess_network object with osm_edges and osm_nodes dataframes
+        UrbanAccessNetwork object with osm_edges and osm_nodes dataframes
     ua_network.osm_edges : pandas.DataFrame
     ua_network.osm_nodes : pandas.DataFrame
 

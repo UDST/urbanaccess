@@ -9,9 +9,10 @@ from urbanaccess import config
 from .synthesize import (integrate_walk_and_transit_networks,
                          make_pdna_compatible)
 
-# TODO: This should not be a class unless it needs to have some
-#       methods associated with it, otherwise this should just be a dict
-class urbanaccess_network(object):
+
+# TODO: refactor to put all functions that operate on this data inside of
+# this class
+class UrbanAccessNetwork(object):
     """
     A urbanaccess object of dataframes representing
     the components of a graph network
@@ -45,7 +46,7 @@ class urbanaccess_network(object):
         self.net_edges = net_edges
 
 # instantiate the UrbanAccess network object
-ua_network = urbanaccess_network()
+ua_network = UrbanAccessNetwork()
 
 
 def integrate_network(urbanaccess_network=None, headways=False,
@@ -75,20 +76,20 @@ def integrate_network(urbanaccess_network=None, headways=False,
 
     Returns
     -------
-    urbanaccess_network : object
-    urbanaccess_network.transit_edges : pandas.DataFrame
-    urbanaccess_network.transit_nodes : pandas.DataFrame
-    urbanaccess_network.osm_edges : pandas.DataFrame
-    urbanaccess_network.osm_nodes : pandas.DataFrame
-    urbanaccess_network.net_connector_edges : pandas.DataFrame
-    urbanaccess_network.net_edges : pandas.DataFrame
-    urbanaccess_network.net_nodes : pandas.DataFrame
+    UrbanAccessNetwork : object
+    UrbanAccessNetwork.transit_edges : pandas.DataFrame
+    UrbanAccessNetwork.transit_nodes : pandas.DataFrame
+    UrbanAccessNetwork.osm_edges : pandas.DataFrame
+    UrbanAccessNetwork.osm_nodes : pandas.DataFrame
+    UrbanAccessNetwork.net_connector_edges : pandas.DataFrame
+    UrbanAccessNetwork.net_edges : pandas.DataFrame
+    UrbanAccessNetwork.net_nodes : pandas.DataFrame
     """
 
     # check argument parameters
     assert isinstance(headways, bool)
 
-    # loop through the urbanaccess_network and make sure all
+    # loop through the UrbanAccessNetwork and make sure all
     # required components are populated dataframes
     check_if_empty_list = [urbanaccess_network.transit_edges,
                            urbanaccess_network.transit_nodes,

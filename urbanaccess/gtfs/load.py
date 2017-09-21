@@ -1,13 +1,15 @@
-import os
 import codecs
+import os
 import re
 import time
+
 import pandas as pd
 
 from urbanaccess import config
-from urbanaccess.utils import log
 from urbanaccess.gtfs.gtfsfeeds_dataframe import gtfsfeeds_dfs
-from urbanaccess.gtfs import utils_format
+from urbanaccess.gtfs.utils import utils_format
+from urbanaccess.utils import log
+
 
 def _standardize_txt(csv_rootpath=os.path.join(config.settings.data_folder,
                                               'gtfsfeed_text')):

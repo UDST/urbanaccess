@@ -1,6 +1,13 @@
+mport pandas as pd
+
+from urbanaccess.gtfs.utils.gtfs_format import _time_selector, _trip_sched_selector
+
+from urbanaccess.utils import _join_camel
+
 import pandas as pd
 
-from .gtfs_format import join_camel, time_selector, trip_sched_selector
+from urbanaccess.gtfs.utils.gtfs_format import _join_camel, _time_selector, \
+    _trip_sched_selector
 
 
 def convert_transit_data_to_network(gtfsfeeds_df, day, timerange):
@@ -18,7 +25,7 @@ def convert_transit_data_to_network(gtfsfeeds_df, day, timerange):
             cal_select_trips)
 
     # select times
-    sel_interp_stop_times_df = time_selector(
+    sel_interp_stop_times_df = _time_selector(
         gtfsfeeds_df['stop_times_int'],
         timerange[0],
         timerange[1])
@@ -250,7 +257,7 @@ def interp_stop_times(stop_times_df, cal_sel_trips_df, day='wednesday'):
     # add unique stop id
     st_uid = ['stop_id', 'unique_agency_id']
     join_st_uids = final_stop_times[st_uid].apply(
-        lambda x: join_camel(x), axis=1)
+        lambda x: _join_camel(x), axis=1)
     final_stop_times['unique_stop_id'] = join_st_uids
 
     return final_stop_times
@@ -274,7 +281,7 @@ def _generate_expected_transit_nw_cols(gtfs_trips):
 def _generate_cal_select_trips(gtfsfeeds_df, day):
     columns = _generate_expected_transit_nw_cols(gtfsfeeds_df['trips'])
     trips_sub_gdf = gtfsfeeds_df['trips'][columns]
-    calendar_selected_trips_df = trip_sched_selector(
+    calendar_selected_trips_df = _trip_sched_selector(
         trips_sub_gdf,
         gtfsfeeds_df['calendar'],
         day)
@@ -291,7 +298,7 @@ def _interpolate_stop_times(st_times, cal_select_trips):
 
 def _generate_uid(main_df, sub_selection):
     subset_df = main_df[sub_selection]
-    resulting_uids = subset_df.apply(lambda x: join_camel(x), axis=1)
+    resulting_uids = subset_df.apply(lambda x: _join_camel(x), axis=1)
 
     return resulting_uids
 
@@ -372,11 +379,11 @@ def _route_id_to_edge(transit_edge_df, trips_df):
 
     # create unique trip and route ids
     trips_tr_sub = trips_df[['trip_id', 'unique_agency_id']]
-    tr_uid = trips_tr_sub.apply(lambda x: join_camel(x), axis=1)
+    tr_uid = trips_tr_sub.apply(lambda x: _join_camel(x), axis=1)
     trips_df['unique_trip_id'] = tr_uid
 
     trips_rt_sub = trips_df[['route_id', 'unique_agency_id']]
-    rte_uid = trips_rt_sub.apply(lambda x: join_camel(x), axis=1)
+    rte_uid = trips_rt_sub.apply(lambda x: _join_camel(x), axis=1)
     trips_df['unique_route_id'] = rte_uid
 
     trips_sub = trips_df[['unique_trip_id', 'unique_route_id']]
