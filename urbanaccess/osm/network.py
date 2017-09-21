@@ -4,8 +4,10 @@ from urbanaccess.utils import log
 from urbanaccess.network import ua_network
 
 
-def create_osm_net(osm_edges, osm_nodes,
-                   travel_speed_mph=3, network_type='walk'):
+def create_osm_net(osm_edges,
+                   osm_nodes,
+                   travel_speed_mph=3,
+                   network_type='walk'):
     """
     Create a travel time weight network graph in units of minutes from
     openstreetmap nodes and edges
@@ -35,13 +37,15 @@ def create_osm_net(osm_edges, osm_nodes,
     """
     start_time = time.time()
 
-    if not isinstance(network_type, str) or network_type is None:
-        raise ValueError('{!s} network_type passed is either not a '
-                         'string or is None'.format(network_type))
+    assert network_type == 'walk'
+    # don't divide by zero!
+    assert travel_speed_mph > 0
 
-    # assign impedance to OSM edges
-    osm_edges['weight'] = (osm_edges[
-                               'distance'] / 1609.34) / travel_speed_mph * 60
+    # assign impedance to OSM edges, measured in minutes
+    dist_in_miles = (osm_edges['distance'] / 1609.34)
+    dist_in_hours = (dist_in_miles / travel_speed_mph)
+    dist_in_minutes = (dist_in_hours * 60)
+    osm_edges['weight'] = dist_in_minutes
 
     # assign node and edge net type
     osm_edges['net_type'] = network_type
@@ -50,9 +54,10 @@ def create_osm_net(osm_edges, osm_nodes,
     ua_network.osm_nodes = osm_nodes
     ua_network.osm_edges = osm_edges
 
-    log(
-        'Created OSM network with travel time impedance using a travel speed '
-        'of {} MPH. Took {:,.2f} seconds'.format(
-            travel_speed_mph, time.time() - start_time))
+    time_diff = time.time() - start_time
+    msg = ('Created OSM network with travel time impedance '
+           'using a travel speed of {} MPH. Took {:,.2f} '
+           'seconds').format(travel_speed_mph, time_diff)
+    log(msg)
 
     return ua_network

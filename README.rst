@@ -1,3 +1,11 @@
+UrbanAccess - Fork notes
+========================
+Build the Docker image by running `docker build -t udst-urbanaccess .`. Run tests by executing `docker run --rm -v $(pwd):/code udst-urbanaccess ./test.sh`.
+
+When working locally, you may need to clear out the `.pyc` files when running tests after creating container. Do so via: `find . -name \*.pyc -delete`.
+
+# Original README contents below
+
 UrbanAccess
 ===========
 
