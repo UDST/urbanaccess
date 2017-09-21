@@ -150,7 +150,8 @@ def create_hdf5(dir=None, filename=None, overwrite_hdf5=False):
         if not os.path.exists(dir):
             os.makedirs(dir)
     except Exception:
-        raise ValueError('Unable to make directory {}'.format(dir))
+        raise_with_traceback(ValueError('Unable to '
+                                        'make directory {}'.format(dir)))
 
     if filename is None:
         filename = 'urbanaccess.h5'
@@ -267,9 +268,9 @@ def hdf5_to_df(dir=None, filename=None, key=None):
             df = store[key]
             log('Returned {} as dataframe'.format(key))
         except Exception:
-            raise KeyError(
+            raise_with_traceback(KeyError(
                 'Unable to find key: {}. Keys found: {}'.format(key,
-                                                                store.keys()))
+                                                                store.keys())))
 
         return df
 
