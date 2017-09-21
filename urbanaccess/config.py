@@ -38,7 +38,7 @@ class UrbanAccessConfiguration(object):
                  log_console=False,
                  log_name='urbanaccess',
                  log_filename='urbanaccess',
-                 gtfs_api=GTFS_FEED_API_SOURCES['gtfs_data_exchange']):
+                 gtfs_api=GTFS_FEED_API_SOURCES):
 
         self.data_folder = data_folder
         self.logs_folder = logs_folder

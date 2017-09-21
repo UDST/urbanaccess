@@ -7,19 +7,18 @@ import traceback
 import yaml
 import zipfile
 
-try:
-    # For Python 3.0 and later
-    from urllib.request import urlopen
-except ImportError:
-    # Fall back to Python 2's urllib2
-    from urllib2 import urlopen
-
 from urbanaccess.config import settings
 from urbanaccess.utils import log
 
-
-# Global(s) referenced in the functions wihtin this file
-feeds = UrbanAccessGTFSFeeds()
+# Python version handling
+try:
+    # For Python 3.0 and later
+    from urllib.request import urlopen
+    log('Using Python 3 urlopen package via urllib.')
+except ImportError:
+    # Fall back to Python 2's urllib2
+    from urllib2 import urlopen
+    log('Using Python 2 urlopen package via urllib2.')
 
 
 class UrbanAccessGTFSFeeds(object):
@@ -354,6 +353,11 @@ def _run_data_exchange_search(url,
 
         de_url = search_result_df.set_index('name')['dataexchange_url']
         search_result_dict = de_url.to_dict()
+
+        # TODO: Is this something we return every time? How would this persist?
+        #       Perhaps these search methods should be functions of the 
+        #       UrbanAccessGTFSFeeds class?
+        feeds = UrbanAccessGTFSFeeds()
         
         # TODO: Won't we always, ultimately, "overwrite" an existing feed
         #       since there does not appear to be a way to hold, for example,
@@ -378,7 +382,7 @@ def _run_transitland_search(bounding_box,
                             search_text,
                             search_field,
                             match):
-    pass
+    return NotImplementedError('TransitLand search currently resides in gt.py')
 
 
 
@@ -447,8 +451,7 @@ def search(api=None,
                                   search_text,
                                   search_field,
                                   match,
-                                  add_feed,
-                                  overwrite_feed)
+                                  add_feed)
     elif api == 'transitland':
         _run_transitland_search(bounding_box)
 
