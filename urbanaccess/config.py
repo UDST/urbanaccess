@@ -1,16 +1,20 @@
-from future.utils import raise_with_traceback
 import os
 import yaml
 
 
+GTFS_FEED_API_SOURCES = {
+    'gtfs_data_exchange': 'http://www.gtfs-data-exchange.com/api/agencies?format=csv',
+}
+
+
 def _format_check(settings):
     """
-    Check the format of a urbanaccess_config object.
+    Check the format of a UrbanAccessConfiguration object.
 
     Parameters
     ----------
     settings : dict
-        urbanaccess_config as a dictionary
+        UrbanAccessConfiguration as a dictionary
     Returns
     -------
     Nothing
@@ -20,16 +24,17 @@ def _format_check(settings):
                   'log_console', 'log_name', 'log_filename', 'gtfs_api']
 
     for key in settings.keys():
-        assert key in valid_keys, \
-            ('{} not found in list of valid configuation keys').format(key)
-        assert isinstance(key,str), \
-            ('{} must be a string').format(key)
+        if key not in valid_keys:
+            raise ValueError('{} not found in list of valid configuation '
+                             'keys'.format(key))
+        if not isinstance(key, str):
+            raise ValueError('{} must be a string'.format(key))
         if key == 'log_file' or key == 'log_console':
-            assert isinstance(settings[key],bool), \
-                ('{} must be boolean').format(key)
+            if not isinstance(settings[key], bool):
+                raise ValueError('{} must be boolean'.format(key))
 
 
-class urbanaccess_config(object):
+class UrbanAccessConfiguration(object):
     """
     A set of configuration variables to initiate the
     configuration settings for UrbanAccess.
@@ -60,7 +65,7 @@ class urbanaccess_config(object):
                  log_console=False,
                  log_name='urbanaccess',
                  log_filename='urbanaccess',
-                 gtfs_api={'gtfsdataexch': 'http://www.gtfs-data-exchange.com/api/agencies?format=csv'}):
+                 gtfs_api=GTFS_FEED_API_SOURCES['gtfs_data_exchange']):
 
         self.data_folder = data_folder
         self.logs_folder = logs_folder
@@ -72,9 +77,9 @@ class urbanaccess_config(object):
 
     @classmethod
     def from_yaml(cls, configdir='configs',
-                  yamlname='urbanaccess_config.yaml'):
+                  yamlname='UrbanAccessConfiguration.yaml'):
         """
-        Create a urbanaccess_config instance from a saved YAML configuration.
+        Create a UrbanAccessConfiguration instance from a saved YAML configuration.
 
         Parameters
         ----------
@@ -84,14 +89,16 @@ class urbanaccess_config(object):
             File name from which to load a YAML file.
         Returns
         -------
-        urbanaccess_config
+        UrbanAccessConfiguration
         """
 
-        assert isinstance(configdir,str), 'configdir must be a string'
-        assert os.path.exists(configdir), \
-            ('{} does not exist or was not found').format(configdir)
-        assert isinstance(yamlname,str) and '.yaml' in yamlname,\
-            'yaml must be a string and have file extension .yaml'
+        if not isinstance(configdir, str):
+            raise ValueError('configdir must be a string')
+        if not os.path.exists(configdir):
+            raise ValueError('{} does not exist or was not found'.format(
+                configdir))
+        if not isinstance(yamlname, str):
+            raise ValueError('yaml must be a string')
 
         yaml_file = os.path.join(configdir, yamlname)
 
@@ -103,17 +110,19 @@ class urbanaccess_config(object):
                        log_file=yaml_config.get('log_file', True),
                        log_console=yaml_config.get('log_console', False),
                        log_name=yaml_config.get('log_name', 'urbanaccess'),
-                       log_filename=yaml_config.get('log_filename', 'urbanaccess'),
-                       gtfs_api=yaml_config.get('gtfs_api',
-                                                {'gtfsdataexch':
-                                                     'http://www.gtfs-data-exchange.com/api/agencies?format=csv'}),
+                       log_filename=yaml_config.get('log_filename',
+                                                    'urbanaccess'),
+                       gtfs_api=yaml_config.get('gtfs_api', {
+                           'gtfsdataexch':
+                               ('http://www.gtfs-data-exchange.com/'
+                                'api/agencies?format=csv')}),
                        )
 
         return settings
 
     def to_dict(self):
         """
-        Return a dict representation of an urbanaccess_config instance.
+        Return a dict representation of an UrbanAccessConfiguration instance.
         """
         return {'data_folder': self.data_folder,
                 'logs_folder': self.logs_folder,
@@ -124,10 +133,10 @@ class urbanaccess_config(object):
                 'gtfs_api': self.gtfs_api,
                 }
 
-    def to_yaml(self, configdir='configs', yamlname='urbanaccess_config.yaml',
+    def to_yaml(self, configdir='configs', yamlname='UrbanAccessConfiguration.yaml',
                 overwrite=False):
         """
-        Save a urbanaccess_config representation to a YAML file.
+        Save a UrbanAccessConfiguration representation to a YAML file.
 
         Parameters
         ----------
@@ -135,7 +144,7 @@ class urbanaccess_config(object):
             Directory to save a YAML file.
         yamlname : str or file like, optional
             File name to which to save a YAML file.
-        overwrite : bool
+        overwrite : bool, optional
             if true, overwrite an existing same name YAML
             file in specified directory
         Returns
@@ -143,22 +152,24 @@ class urbanaccess_config(object):
         Nothing
         """
 
-        assert isinstance(configdir,str), 'configdir must be a string'
+        if not isinstance(configdir, str):
+            raise ValueError('configdir must be a string')
         if not os.path.exists(configdir):
-            print ('{} does not exist or was not found').format(configdir)
+            raise ValueError('{} does not exist or was not found'.format(
+                configdir))
             os.makedirs(configdir)
-        assert isinstance(yamlname,str) and '.yaml' in yamlname, \
-            'yaml must be a string and have file extension .yaml'
+        if not isinstance(yamlname, str):
+            raise ValueError('yaml must be a string')
         yaml_file = os.path.join(configdir, yamlname)
-        if overwrite == False and os.path.isfile(yaml_file) == True:
-            err_text = ('{} already exists. Rename or turn '
-                        'overwrite to True').format(yamlname)
-            raise_with_traceback(ValueError(err_text))
+        if overwrite is False and os.path.isfile(yaml_file) is True:
+            raise ValueError(
+                '{} already exists. Rename or turn overwrite to True'.format(
+                    yamlname))
         else:
             with open(yaml_file, 'w') as f:
                 yaml.dump(self.to_dict(), f, default_flow_style=False)
 
-# instantiate the UrbanAccess configuration object and check format
-settings = urbanaccess_config()
-_format_check(settings.to_dict())
 
+# instantiate the UrbanAccess configuration object and check format
+settings = UrbanAccessConfiguration()
+_format_check(settings.to_dict())
