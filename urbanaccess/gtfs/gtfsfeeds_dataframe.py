@@ -1,6 +1,6 @@
 import pandas as pd
 
-class urbanaccess_gtfs_df(object):
+class UrbanAccessGTFSCollection(object):
     """
     A collection of dataframes representing the standardized and
     merged metropolitan-wide transit network from multiple
@@ -40,4 +40,4 @@ class urbanaccess_gtfs_df(object):
         self.headways = headways
 
 # instantiate the UrbanAccess gtfs feed dataframe object
-gtfsfeeds_dfs = urbanaccess_gtfs_df()
+gtfsfeeds_dfs = UrbanAccessGTFSCollection()
