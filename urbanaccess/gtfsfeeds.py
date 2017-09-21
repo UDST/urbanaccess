@@ -12,8 +12,7 @@ from urbanaccess.config import settings
 from urbanaccess.utils import log
 
 
-# TODO: make class CamelCase
-class urbanaccess_gtfsfeeds(object):
+class UrbanAccessGTFSFeeds(object):
     """
     A dict of GTFS feeds as {name of GTFS feed or transit service/agency :
     URL of feed} to request and
@@ -40,7 +39,7 @@ class urbanaccess_gtfsfeeds(object):
                                                 'gtfsfeeds'),
                   yamlname='gtfsfeeds.yaml'):
         """
-        Create a urbanaccess_gtfsfeeds instance from a saved YAML.
+        Create a UrbanAccessGTFSFeeds instance from a saved YAML.
 
         Parameters
         ----------
@@ -50,24 +49,20 @@ class urbanaccess_gtfsfeeds(object):
             File name from which to load a YAML file.
         Returns
         -------
-        urbanaccess_gtfsfeeds
+        UrbanAccessGTFSFeeds
         """
 
-        if not isinstance(gtfsfeeddir, str):
-            raise ValueError('gtfsfeeddir must be a string')
-        if not os.path.exists(gtfsfeeddir):
-            raise ValueError('{} does not exist or was not found'.format(
-                gtfsfeeddir))
-        if not isinstance(yamlname, str):
-            raise ValueError('yaml must be a string')
+        # Type assertions
+        assert isinstance(gtfsfeeddir, str)
+        assert isinstance(yamlname, str)
 
+        # If path does not exist, error will state that such is true
         yaml_file = os.path.join(gtfsfeeddir, yamlname)
-
         with open(yaml_file, 'r') as f:
             yaml_config = yaml.load(f)
 
-        if not isinstance(yaml_config, dict):
-            raise ValueError('{} yamlname is not a dict'.format(yamlname))
+        # Make sure the response is as we expect
+        assert isinstance(yaml_config, dict)
 
         validkey = 'gtfs_feeds'
         if validkey not in yaml_config.keys():
@@ -95,18 +90,18 @@ class urbanaccess_gtfsfeeds(object):
 
     def to_dict(self):
         """
-        Return a dict representation of an urbanaccess_gtfsfeeds instance.
+        Return a dict representation of an UrbanAccessGTFSFeeds instance.
         """
         return {'gtfs_feeds': self.gtfs_feeds}
 
     def add_feed(self, add_dict, replace=False):
         """
-        Add a dictionary to the urbanaccess_gtfsfeeds instance.
+        Add a dictionary to the UrbanAccessGTFSFeeds instance.
 
         Parameters
         ----------
         add_dict : dict
-            Dictionary to add to existing urbanaccess_gtfsfeeds with the name
+            Dictionary to add to existing UrbanAccessGTFSFeeds with the name
             of the transit service or agency GTFS feed as the key and the
             GTFS feed URL as the value to pass to the GTFS downloader
             as:
@@ -162,7 +157,7 @@ class urbanaccess_gtfsfeeds(object):
 
     def remove_feed(self, del_key=None, remove_all=False):
         """
-        Remove GTFS feeds from the existing urbanaccess_gtfsfeeds instance
+        Remove GTFS feeds from the existing UrbanAccessGTFSFeeds instance
 
         Parameters
         ----------
@@ -171,7 +166,7 @@ class urbanaccess_gtfsfeeds(object):
             strings to remove from existing
         remove_all : bool, optional
             if true, remove all keys from existing
-            urbanaccess_gtfsfeeds instance
+            UrbanAccessGTFSFeeds instance
         """
 
         if not isinstance(remove_all, bool):
@@ -205,7 +200,7 @@ class urbanaccess_gtfsfeeds(object):
                 yamlname='gtfsfeeds.yaml',
                 overwrite=False):
         """
-        Save a urbanaccess_gtfsfeeds representation to a YAML file.
+        Save a UrbanAccessGTFSFeeds representation to a YAML file.
 
         Parameters
         ----------
@@ -243,15 +238,19 @@ class urbanaccess_gtfsfeeds(object):
 
 
 # instantiate the UrbanAccess gtfs feed object
-feeds = urbanaccess_gtfsfeeds()
+feeds = UrbanAccessGTFSFeeds()
 
 
-def search(api='gtfs_data_exchange', search_text=None, search_field=None,
-           match='contains', add_feed=False, overwrite_feed=False):
+def search(api=None,
+           search_text=None,
+           search_field=None,
+           match='contains',
+           add_feed=False,
+           overwrite_feed=False):
     """
     Connect to a GTFS feed repository API and search for GTFS feeds that exist
     in a remote GTFS repository and whether or not to add the GTFS feed name
-    and download URL to the urbanaccess_gtfsfeeds instance.
+    and download URL to the UrbanAccessGTFSFeeds instance.
     
     Currently support GTFS Data Exchange and Transit.Land APIs.
 
@@ -268,10 +267,10 @@ def search(api='gtfs_data_exchange', search_text=None, search_field=None,
     match : {'contains', 'exact'}, optional
         search string matching method as either: contains or exact
     add_feed : bool, optional
-        add search results to existing urbanaccess_gtfsfeeds instance using
+        add search results to existing UrbanAccessGTFSFeeds instance using
         the name field as the key and the URL as the value
     overwrite_feed : bool, optional
-        If true the existing urbanaccess_gtfsfeeds instance will be replaced
+        If true the existing UrbanAccessGTFSFeeds instance will be replaced
         with the records returned in the search results.
         All existing records will be removed.
     Returns
@@ -279,6 +278,10 @@ def search(api='gtfs_data_exchange', search_text=None, search_field=None,
     search_result_df : pandas.DataFrame
         Dataframe of search results displaying full feed metadata
     """
+
+    if not api:
+        raise ValueError(('Parameter api needs to be set in order to '
+                          'know which API service to query.'))
 
     log('Note: Your use of a GTFS feed is governed by each GTFS feed author '
         'license terms. It is suggested you read the respective license '
@@ -388,7 +391,7 @@ def download(data_folder=os.path.join(config.settings.data_folder),
              error_pause_duration=5, delete_zips=False):
     """
     Connect to the URLs passed in function or the URLs stored in the
-    urbanaccess_gtfsfeeds instance and download the GTFS feed zipfile(s)
+    UrbanAccessGTFSFeeds instance and download the GTFS feed zipfile(s)
     then unzip inside a local root directory. Resulting GTFS feed text files
     will be located in the root folder: gtfsfeed_text unless otherwise
     specified
