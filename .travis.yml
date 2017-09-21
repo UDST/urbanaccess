@@ -32,8 +32,7 @@ script:
 - cd ../urbanaccess/tests/integration; python remove_nb_magic.py -in simple_example.py -out simple_example_clean.py
 - cd ../../../demo; python simple_example_clean.py
 - cd ../urbanaccess/tests/integration; python integration_madison.py
-- python integration_sandiego.py
-- python integration_gb.py && cd $TRAVIS_BUILD_DIR
+- python integration_sandiego.py && cd $TRAVIS_BUILD_DIR
 
 env:
   global:
