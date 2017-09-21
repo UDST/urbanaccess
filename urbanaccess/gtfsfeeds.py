@@ -35,7 +35,7 @@ class UrbanAccessGTFSFeeds(object):
         self.gtfs_feeds = gtfs_feeds
 
     @classmethod
-    def from_yaml(cls, gtfsfeeddir=os.path.join(config.settings.data_folder,
+    def from_yaml(cls, gtfsfeeddir=os.path.join(settings.data_folder,
                                                 'gtfsfeeds'),
                   yamlname='gtfsfeeds.yaml'):
         """
@@ -195,7 +195,7 @@ class UrbanAccessGTFSFeeds(object):
                 del self.gtfs_feeds[key]
                 log('Removed {} feed from gtfs_feeds'.format(key))
 
-    def to_yaml(self, gtfsfeeddir=os.path.join(config.settings.data_folder,
+    def to_yaml(self, gtfsfeeddir=os.path.join(settings.data_folder,
                                                'gtfsfeeds'),
                 yamlname='gtfsfeeds.yaml',
                 overwrite=False):
@@ -242,9 +242,16 @@ feeds = UrbanAccessGTFSFeeds()
 
 
 def search(api=None,
+
+           # Relevant to GTFS Data Exchange
            search_text=None,
            search_field=None,
            match='contains',
+
+           # Relevant to TransitLand
+           bounding_box=None,
+           
+           # Settings
            add_feed=False,
            overwrite_feed=False):
     """
@@ -260,12 +267,20 @@ def search(api=None,
         name of GTFS feed repository to search in. name corresponds to the
         dict specified in the urbanacess_config instance. Currently only
         supports access to the GTFS Data Exchange repository.
+    
     search_text : str, optional
         string pattern to search for
     search_field : string or list, optional
         name of the field or column to search for string
     match : {'contains', 'exact'}, optional
         search string matching method as either: contains or exact
+
+    bounding_box : list, optional
+        list of float values indicated in WGS84 projection the coordinates
+        of the area being queries [-122.4183,37.7758,-122.4120,37.7858]
+        where for format goes:
+        southwest_lon, southwest_lat, northeast_lon, northeast_lat
+    
     add_feed : bool, optional
         add search results to existing UrbanAccessGTFSFeeds instance using
         the name field as the key and the URL as the value
@@ -279,114 +294,158 @@ def search(api=None,
         Dataframe of search results displaying full feed metadata
     """
 
-    if not api:
-        raise ValueError(('Parameter api needs to be set in order to '
-                          'know which API service to query.'))
+    # Top level parameter checks
+    assert isinstance(api, str), ('Parameter api needs to be set in order to '
+                                  'know which API service to query.')
+    assert match in ['contains', 'exact']
+    assert isinstance(add_feed, bool)
 
     log('Note: Your use of a GTFS feed is governed by each GTFS feed author '
         'license terms. It is suggested you read the respective license '
         'terms for the appropriate use of a GTFS feed.',
         level=lg.WARNING)
 
-    assert isinstance(api, str):
-    if api not in config.settings.gtfs_api.keys():
-        raise ValueError('{} is not currently a supported API'.format(api))
-    if config.settings.gtfs_api[api] is None or not isinstance(
-            config.settings.gtfs_api[api], str):
-        raise ValueError('{} is not defined or defined incorrectly'.format(
-            api))
-    if not isinstance(match, str) or match not in ['contains', 'exact']:
-        raise ValueError('match must be either: contains or exact')
-    if not isinstance(add_feed, bool):
-        raise ValueError('add_feed must be bool')
-
     if api == 'gtfs_data_exchange':
-        log(
-            'Warning: The GTFSDataExchange is no longer being maintained as '
-            'of Summer 2016. '
-            'Data accessed here may be out of date.', level=lg.WARNING)
+        url = settings.gtfs_api[api]
+        _run_data_exchange_search(url,
+                                  search_text,
+                                  search_field,
+                                  match,
+                                  add_feed,
+                                  overwrite_feed)
+    elif api == 'transitland':
+        _run_transitland_search()
 
-        feed_table = pd.read_table(config.settings.gtfs_api[api], sep=',')
-        feed_table['date_added'] = pd.to_datetime(feed_table['date_added'],
-                                                  unit='s')
-        feed_table['date_last_updated'] = pd.to_datetime(
-            feed_table['date_last_updated'], unit='s')
+    # Catch-all for unknown API strings that ares submitted
+    else:
+        raise ValueError(('Unknown API feed requested. {} is not '
+                          'currently a supported API'.format(api)))
 
-        if search_text is None:
-            log(
-                'No search parameters were passed. Returning full list of {} '
-                'GTFS feeds:'.format(
-                    len(feed_table)))
-            return feed_table
+def _run_data_exchange_search(url,
+                              search_text,
+                              search_field,
+                              match,
+                              add_feed,
+                              overwrite_feed):
+    log('Warning: The GTFSDataExchange is no longer being '
+        'maintained as of Summer 2016. Data accessed here '
+        'may be out of date.', level=lg.WARNING)
+
+    # This will run a query against the GTFS Data Exchange site and
+    # convert the response to a Pandas DataFrame
+    feed_table = pd.read_table(url, sep=',')
+
+    # Then convert the date column to datetime format
+    feed_table['date_added'] = pd.to_datetime(feed_table['date_added'],
+                                              unit='s')
+    
+    # Formatting: Datetime values should be accurate only to seconds level
+    to_seconds = pd.to_datetime(feed_table['date_last_updated'], unit='s')
+    feed_table['date_last_updated'] = to_seconds
+
+    # Handle if there is an empty response
+    if search_text is None:
+        log('No search parameters were passed. Returning full list '
+            'of {} GTFS feeds:'.format(len(feed_table)))
+        return feed_table
+
+    # Instantiate the results as an empty DataFrame
+    # TODO: Should specify the columns at initial creation
+    #       for more control over the results in the following loop
+    search_result_df = pd.DataFrame()
+
+    if search_field is None:
+        search_field = ['name',
+                        'url',
+                        'dataexchange_id',
+                        'feed_baseurl']
+    # Make sure that if search field was just passed as a string, it
+    # gets converted into a list
+    elif isinstance(search_field, str):
+        search_field = [search_field]
+    else:
+        raise ValueError(('Unhandled search_field '
+                          'value: {}').format(search_field))
+
+
+    # Perform same list conversion for search_text
+    if isinstance(search_text, str):
+        search_text = [search_text]
+    
+    # Make sure at this point we are only dealing with list types
+    assert isinstance(search_field, list)
+    assert isinstance(search_text, list)
+
+    # Pull out the response DataFrame's column names
+    # TODO: Querying by type is not "safe" as it relies on consistent
+    #       parsing of the API response.
+    feed_table_cols = list(feed_table.select_dtypes(include=[object]).columns)
+
+    # Before proceeding, make sure that we do indeed have each field
+    for field in search_field:
+        assert field in feed_table.columns
+
+    # Now proceed with the string search
+    for field in search_field:
+        for col in feed_table_cols:
+            for text in search_text:
+                spec_col = feed_table[col]
+                
+                # Perform the string matching method prescribed
+                if match == 'contains':
+                    search_result = feed_table[spec_col.str.contains(
+                                                text,
+                                                case=False,
+                                                na=False)]
+                if match == 'exact':
+                    search_result = feed_table[spec_col.str.match(
+                                                text,
+                                                case=False,
+                                                na=False)]
+
+                # Add the result to the top-level results DataFrame
+                search_result_df = search_result_df.append(search_result)
+    
+    # Run the drop duplication just once at the end of the loop
+    search_result_df.drop_duplicates(inplace=True)
+
+    # Let the user know what the results of the operation were
+    log('Found {} records that matched {} inside {} '
+        'columns:'.format(len(search_result_df),
+                          search_text,
+                          search_field))
+
+    # Exit early if no results
+    if len(search_result_df) == 0:
+        return None
+
+    if add_feed:
+        zip_url = search_result_df['dataexchange_url'] + 'latest.zip'
+        search_result_df['dataexchange_url'] = zip_url
+
+        de_url = search_result_df.set_index('name')['dataexchange_url']
+        search_result_dict = de_url.to_dict()
+        
+        # TODO: Won't we always, ultimately, "overwrite" an existing feed
+        #       since there does not appear to be a way to hold, for example,
+        #       multiple "AC Transit" results at once.
+        if overwrite_feed:
+            feeds.gtfs_feeds = search_result_dict
+            log('Replaced all records in gtfs_feed list with the {} '
+                'found records:'.format(len(search_result_df)))
+        
         else:
-            pass
+            feeds.add_feed(search_result_dict)
+            log('Added {} records to gtfs_feed '
+                'list:'.format(len(search_result_df)))
+        
+        return search_result_dict
 
-        search_result_df = pd.DataFrame()
-
-        if search_field is None:
-            search_field = ['name', 'url', 'dataexchange_id', 'feed_baseurl']
-        else:
-            if not isinstance(search_field, list):
-                raise ValueError('search_field is not list')
-
-        for field in search_field:
-            if field not in feed_table.columns:
-                raise ValueError(
-                    '{} column not found in available feed table'.format(
-                        field))
-            for col in feed_table.select_dtypes(include=[object]).columns:
-
-                if isinstance(search_text, str):
-                    search_text = [search_text]
-                else:
-                    if not isinstance(search_text, list):
-                        raise ValueError('search_text is not list')
-
-                for text in search_text:
-                    if match == 'contains':
-                        search_result = feed_table[
-                            feed_table[col].str.contains(text, case=False,
-                                                         na=False)]
-                    if match == 'exact':
-                        search_result = feed_table[
-                            feed_table[col].str.match(text, case=False,
-                                                      na=False)]
-                    search_result_df = search_result_df.append(search_result)
-                    search_result_df.drop_duplicates(inplace=True)
-
-        log('Found {} records that matched {} inside {} columns:'.format(
-            len(search_result_df), search_text, search_field))
-
-        if len(search_result_df) != 0:
-
-            if add_feed:
-                if overwrite_feed:
-                    zip_url = search_result_df[
-                                  'dataexchange_url'] + 'latest.zip'
-                    search_result_df['dataexchange_url'] = zip_url
-                    search_result_dict = search_result_df.set_index('name')[
-                        'dataexchange_url'].to_dict()
-                    feeds.gtfs_feeds = search_result_dict
-                    log(
-                        'Replaced all records in gtfs_feed list with the {} '
-                        'found records:'.format(
-                            len(search_result_df)))
-                else:
-                    zip_url = search_result_df[
-                                  'dataexchange_url'] + 'latest.zip'
-                    search_result_df['dataexchange_url'] = zip_url
-                    search_result_dict = search_result_df.set_index('name')[
-                        'dataexchange_url'].to_dict()
-                    feeds.add_feed(search_result_dict)
-                    log('Added {} records to gtfs_feed list:'.format(
-                        len(search_result_df)))
-                return search_result_dict
-
-            else:
-                return search_result_df
+    else:
+        return search_result_df
 
 
-def download(data_folder=os.path.join(config.settings.data_folder),
+def download(data_folder=os.path.join(settings.data_folder),
              feed_name=None, feed_url=None, feed_dict=None,
              error_pause_duration=5, delete_zips=False):
     """
