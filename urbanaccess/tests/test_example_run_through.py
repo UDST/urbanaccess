@@ -204,7 +204,7 @@ def test_workflow():
     urbanaccess_nw = urbanaccess.network.integrate_network(
                                     urbanaccess_network=ua_network,
                                     headways=True,
-                                    urbanaccess_gtfsfeeds_df=loaded_feeds,
+                                    UrbanAccessGTFSFeeds_df=loaded_feeds,
                                     headway_statistic='mean')
 
     # now to shift over to pandana's domain

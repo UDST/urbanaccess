@@ -34,9 +34,9 @@ Manage and download multiple feeds at once using the ``feeds`` object.
 .. autodata:: urbanaccess.gtfsfeeds.feeds
     :annotation:
 
-The ``feeds`` object is an instance of the ``urbanaccess_gtfsfeeds`` class with the following functions:
+The ``feeds`` object is an instance of the ``UrbanAccessGTFSFeeds`` class with the following functions:
 
-.. autoclass:: urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds
+.. autoclass:: urbanaccess.gtfsfeeds.UrbanAccessGTFSFeeds
     :members:
 
 Search for feeds on the GTFS Data Exchange (Note the GTFS Data Exchange is no longer being maintained as of Summer 2016 so feeds here may be out of date).

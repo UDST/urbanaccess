@@ -8,8 +8,8 @@ import os
 import logging as lg
 import time
 
+from urbanaccess.config import settings
 from urbanaccess.utils import log
-from urbanaccess import config
 
 
 # TODO: make class CamelCase
@@ -252,7 +252,8 @@ def search(api='gtfs_data_exchange', search_text=None, search_field=None,
     Connect to a GTFS feed repository API and search for GTFS feeds that exist
     in a remote GTFS repository and whether or not to add the GTFS feed name
     and download URL to the urbanaccess_gtfsfeeds instance.
-    Currently only supports access to the GTFS Data Exchange API.
+    
+    Currently support GTFS Data Exchange and Transit.Land APIs.
 
     Parameters
     ----------
@@ -279,14 +280,12 @@ def search(api='gtfs_data_exchange', search_text=None, search_field=None,
         Dataframe of search results displaying full feed metadata
     """
 
-    log(
-        'Note: Your use of a GTFS feed is governed by each GTFS feed author '
+    log('Note: Your use of a GTFS feed is governed by each GTFS feed author '
         'license terms. It is suggested you read the respective license '
         'terms for the appropriate use of a GTFS feed.',
         level=lg.WARNING)
 
-    if not isinstance(api, str):
-        raise ValueError('{} must be a string'.format(api))
+    assert isinstance(api, str):
     if api not in config.settings.gtfs_api.keys():
         raise ValueError('{} is not currently a supported API'.format(api))
     if config.settings.gtfs_api[api] is None or not isinstance(
