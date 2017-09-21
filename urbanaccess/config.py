@@ -7,33 +7,6 @@ GTFS_FEED_API_SOURCES = {
 }
 
 
-def _format_check(settings):
-    """
-    Check the format of a UrbanAccessConfiguration object.
-
-    Parameters
-    ----------
-    settings : dict
-        UrbanAccessConfiguration as a dictionary
-    Returns
-    -------
-    Nothing
-    """
-
-    valid_keys = ['data_folder', 'logs_folder', 'log_file',
-                  'log_console', 'log_name', 'log_filename', 'gtfs_api']
-
-    for key in settings.keys():
-        if key not in valid_keys:
-            raise ValueError('{} not found in list of valid configuation '
-                             'keys'.format(key))
-        if not isinstance(key, str):
-            raise ValueError('{} must be a string'.format(key))
-        if key == 'log_file' or key == 'log_console':
-            if not isinstance(settings[key], bool):
-                raise ValueError('{} must be boolean'.format(key))
-
-
 class UrbanAccessConfiguration(object):
     """
     A set of configuration variables to initiate the
@@ -92,13 +65,10 @@ class UrbanAccessConfiguration(object):
         UrbanAccessConfiguration
         """
 
-        if not isinstance(configdir, str):
-            raise ValueError('configdir must be a string')
-        if not os.path.exists(configdir):
-            raise ValueError('{} does not exist or was not found'.format(
-                configdir))
-        if not isinstance(yamlname, str):
-            raise ValueError('yaml must be a string')
+        assert isinstance(configdir, str), 'configdir must be a string'
+        assert os.path.exists(configdir), ('{} does not exist or was '
+                                           'not found'.format(configdir)))
+        assert isinstance(yamlname, str), 'yaml must be a string'
 
         yaml_file = os.path.join(configdir, yamlname)
 
@@ -110,12 +80,8 @@ class UrbanAccessConfiguration(object):
                        log_file=yaml_config.get('log_file', True),
                        log_console=yaml_config.get('log_console', False),
                        log_name=yaml_config.get('log_name', 'urbanaccess'),
-                       log_filename=yaml_config.get('log_filename',
-                                                    'urbanaccess'),
-                       gtfs_api=yaml_config.get('gtfs_api', {
-                           'gtfsdataexch':
-                               ('http://www.gtfs-data-exchange.com/'
-                                'api/agencies?format=csv')}),
+                       log_filename=yaml_config.get('log_filename', 'urbanaccess'),
+                       gtfs_api=yaml_config.get('gtfs_api', GTFS_FEED_API_SOURCES),
                        )
 
         return settings
@@ -124,6 +90,7 @@ class UrbanAccessConfiguration(object):
         """
         Return a dict representation of an UrbanAccessConfiguration instance.
         """
+        
         return {'data_folder': self.data_folder,
                 'logs_folder': self.logs_folder,
                 'log_file': self.log_file,
@@ -168,6 +135,33 @@ class UrbanAccessConfiguration(object):
         else:
             with open(yaml_file, 'w') as f:
                 yaml.dump(self.to_dict(), f, default_flow_style=False)
+
+
+def _format_check(settings):
+    """
+    Check the format of a UrbanAccessConfiguration object.
+
+    Parameters
+    ----------
+    settings : dict
+        UrbanAccessConfiguration as a dictionary
+    Returns
+    -------
+    Nothing
+    """
+
+    valid_keys = ['data_folder', 'logs_folder', 'log_file',
+                  'log_console', 'log_name', 'log_filename', 'gtfs_api']
+
+    for key in settings.keys():
+        if key not in valid_keys:
+            raise ValueError('{} not found in list of valid configuation '
+                             'keys'.format(key))
+        if not isinstance(key, str):
+            raise ValueError('{} must be a string'.format(key))
+        if key == 'log_file' or key == 'log_console':
+            if not isinstance(settings[key], bool):
+                raise ValueError('{} must be boolean'.format(key))
 
 
 # instantiate the UrbanAccess configuration object and check format
