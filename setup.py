@@ -28,14 +28,14 @@ setup(
     ],
     packages=find_packages(exclude=['*.tests']),
     install_requires=[
-        'requests==2.9.1',
-        'pandas==0.20.3',
-        'numpy==1.13.1',
+        'requests>=2.9.1',
+        'pandas>=0.20.3',
+        'numpy>=1.13.1',
         'osmnet==0.1.4',
-        'pandana==0.4.0.1',
-        'matplotlib==2.0.2',
-        'geopy==1.11.0',
-        'pyyaml==3.11',
-        'scikit-learn==0.18.2'
+        'pandana>=0.4.0.1',
+        'matplotlib>=2.0.2',
+        'geopy>=1.11.0',
+        'pyyaml>=3.11',
+        'scikit-learn>=0.18.2'
     ]
 )
