@@ -31,59 +31,59 @@ def _standardize_txt(csv_rootpath=os.path.join(config.settings.data_folder,
                         'stop_times.txt', 'calendar.txt',
                         'agency.txt', 'calendar_dates.txt']
 
-    _txt_encoder_check(gtfsfiles_to_use, csv_rootpath)
+#     _txt_encoder_check(gtfsfiles_to_use, csv_rootpath)
     _txt_header_whitespace_check(gtfsfiles_to_use, csv_rootpath)
 
 
-def _txt_encoder_check(gtfsfiles_to_use,
-                       csv_rootpath=os.path.join(
-                           config.settings.data_folder,
-                           'gtfsfeed_text')):
-    """
-    Standardize all text files inside a GTFS feed for encoding problems
-
-    Parameters
-    ----------
-    gtfsfiles_to_use : list
-        list of gtfs feed txt files to utilize
-    csv_rootpath : str, optional
-        root path where all gtfs feeds that make up a contiguous metropolitan
-        area are stored
-
-    Returns
-    -------
-    None
-    """
-    # UnicodeDecodeError
-    start_time = time.time()
-
-    folderlist = [foldername for foldername in os.listdir(csv_rootpath) if
-                  os.path.isdir(os.path.join(csv_rootpath, foldername))]
-
-    if not folderlist:
-        folderlist = [csv_rootpath]
-
-    for folder in folderlist:
-        textfilelist = [textfilename for textfilename in
-                        os.listdir(os.path.join(csv_rootpath, folder)) if
-                        textfilename.endswith(".txt")]
-
-        for textfile in textfilelist:
-            if textfile in gtfsfiles_to_use:
-                # Read from file
-                file_open = open(os.path.join(csv_rootpath, folder, textfile))
-                raw = file_open.read()
-                file_open.close()
-                if raw.startswith(codecs.BOM_UTF8):
-                    raw = raw.replace(codecs.BOM_UTF8, '', 1)
-                    # Write to file
-                    file_open = open(
-                        os.path.join(csv_rootpath, folder, textfile), 'w')
-                    file_open.write(raw)
-                    file_open.close()
-
-    log('GTFS text file encoding check completed. Took {:,.2f} seconds'.format(
-        time.time() - start_time))
+# def _txt_encoder_check(gtfsfiles_to_use,
+#                        csv_rootpath=os.path.join(
+#                            config.settings.data_folder,
+#                            'gtfsfeed_text')):
+#     """
+#     Standardize all text files inside a GTFS feed for encoding problems
+# 
+#     Parameters
+#     ----------
+#     gtfsfiles_to_use : list
+#         list of gtfs feed txt files to utilize
+#     csv_rootpath : str, optional
+#         root path where all gtfs feeds that make up a contiguous metropolitan
+#         area are stored
+# 
+#     Returns
+#     -------
+#     None
+#     """
+#     # UnicodeDecodeError
+#     start_time = time.time()
+# 
+#     folderlist = [foldername for foldername in os.listdir(csv_rootpath) if
+#                   os.path.isdir(os.path.join(csv_rootpath, foldername))]
+# 
+#     if not folderlist:
+#         folderlist = [csv_rootpath]
+# 
+#     for folder in folderlist:
+#         textfilelist = [textfilename for textfilename in
+#                         os.listdir(os.path.join(csv_rootpath, folder)) if
+#                         textfilename.endswith(".txt")]
+# 
+#         for textfile in textfilelist:
+#             if textfile in gtfsfiles_to_use:
+#                 # Read from file
+#                 file_open = open(os.path.join(csv_rootpath, folder, textfile))
+#                 raw = file_open.read()
+#                 file_open.close()
+#                 if raw.startswith(codecs.BOM_UTF8):
+#                     raw = raw.replace(codecs.BOM_UTF8, '', 1)
+#                     # Write to file
+#                     file_open = open(
+#                         os.path.join(csv_rootpath, folder, textfile), 'w')
+#                     file_open.write(raw)
+#                     file_open.close()
+# 
+#     log('GTFS text file encoding check completed. Took {:,.2f} seconds'.format(
+#         time.time() - start_time))
 
 
 def _txt_header_whitespace_check(gtfsfiles_to_use,
