@@ -1,12 +1,11 @@
 import yaml
 import pandas as pd
-import urllib
-from urllib2 import urlopen
 import traceback
 import zipfile
 import os
 import logging as lg
 import time
+from six.moves.urllib.request import urlopen
 
 from urbanaccess.utils import log
 from urbanaccess import config
@@ -469,7 +468,7 @@ def download(data_folder=os.path.join(config.settings.data_folder),
         zipfile_path = ''.join([download_folder, '/', feed_name_key, '.zip'])
 
         if 'http' in feed_url_value:
-            status_code = urllib.urlopen(feed_url_value).getcode()
+            status_code = urlopen(feed_url_value).getcode()
             if status_code == 200:
                 file = urlopen(feed_url_value)
 
