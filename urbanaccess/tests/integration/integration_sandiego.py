@@ -8,7 +8,7 @@ start_time = time.time()
 
 name = 'san diego'
 
-print ('-------------------------')
+print('-------------------------')
 print('Starting integration test for {}...'.format(name))
 
 script_path = os.path.dirname(os.path.realpath(__file__))
@@ -69,4 +69,4 @@ urbanaccess.plot.plot_net(nodes=transit_net.transit_nodes,
 
 print('{} integration test completed successfully. Took {:,'
       '.2f} seconds'.format(name, time.time() - start_time))
-print ('-------------------------')
+print('-------------------------')
