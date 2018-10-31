@@ -43,7 +43,7 @@ def _txt_encoder_check(gtfsfiles_to_use,
                            'gtfsfeed_text')):
     """
     Standardize all text files inside a GTFS feed for encoding problems.
-    Not yet updated for Python 3.
+    Has not been updated for Python 3.
 
     Parameters
     ----------
