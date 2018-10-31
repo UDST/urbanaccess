@@ -607,7 +607,6 @@ def _zipfile_type_check(file, feed_url_value):
     -------
     nothing
     """
-    print(file.info())
     if 'zip' not in file.info().get('Content-Type') is True \
             or 'octet' not in file.info().get('Content-Type') is True:
         raise ValueError(

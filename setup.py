@@ -38,10 +38,8 @@ setup(
         'osmnet >= 0.1.4',
         'pandana >= 0.2.0',
         'matplotlib >= 2.0',
-        'basemap >= 1.0',
-        'basemap-data-hires > 1.0',
         'geopy >= 1.11.0',
         'pyyaml >= 3.11',
-        'scikit-learn >= 0.17.1',
+        'scikit-learn >= 0.17.1'
     ]
 )
