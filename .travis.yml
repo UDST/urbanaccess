@@ -15,11 +15,9 @@ install:
 - conda info -a
 - conda config --add channels udst
 - conda config --add channels conda-forge
-- |
-  conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION pip numpy pandas pytest jupyter pycodestyle matplotlib scikit-learn pyyaml basemap basemap-data-hires
-- source activate test-environment
+- conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION pip numpy pandas pytest jupyter pycodestyle matplotlib scikit-learn pyyaml basemap basemap-data-hires pandana=0.4 geopy osmnet
+- source activate test-env
 - conda list
-- pip install pandana==0.3.0 geopy osmnet
 - pip install .
 
 after_success:
