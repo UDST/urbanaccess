@@ -18,7 +18,7 @@ description = 'A tool for creating GTFS transit and OSM pedestrian networks ' \
 
 setup(
     name='urbanaccess',
-    version='0.2.dev2',
+    version='0.2.0',
     license='AGPL',
     description=description,
     long_description=long_description,
