@@ -1,12 +1,11 @@
 import yaml
 import pandas as pd
-import urllib
-from urllib2 import urlopen
 import traceback
 import zipfile
 import os
 import logging as lg
 import time
+from six.moves.urllib.request import urlopen
 
 from urbanaccess.utils import log
 from urbanaccess import config
@@ -469,7 +468,7 @@ def download(data_folder=os.path.join(config.settings.data_folder),
         zipfile_path = ''.join([download_folder, '/', feed_name_key, '.zip'])
 
         if 'http' in feed_url_value:
-            status_code = urllib.urlopen(feed_url_value).getcode()
+            status_code = urlopen(feed_url_value).getcode()
             if status_code == 200:
                 file = urlopen(feed_url_value)
 
@@ -608,8 +607,8 @@ def _zipfile_type_check(file, feed_url_value):
     -------
     nothing
     """
-    if 'zip' not in file.info().dict['content-type'] \
-            is True or 'octet' not in file.info().dict['content-type'] is True:
+    if 'zip' not in file.info().get('Content-Type') is True \
+            or 'octet' not in file.info().get('Content-Type') is True:
         raise ValueError(
             'data requested at {} is not a zipfile. '
             'Data must be a zipfile'.format(feed_url_value))

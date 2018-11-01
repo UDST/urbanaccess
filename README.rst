@@ -46,16 +46,21 @@ Let us know what you are working on or if you think you have a great use
 case by tweeting us at ``@urbansim`` or post on the UrbanSim
 `forum <http://discussion.urbansim.com/>`__.
 
+Citation and academic literature
+--------------------------------
+
+To cite this tool and for a complete description of the UrbanAccess methodology see the paper below:
+
+`Samuel D. Blanchard and Paul Waddell. 2017. "UrbanAccess: Generalized Methodology for Measuring Regional Accessibility with an Integrated Pedestrian and Transit Network." Transportation Research Record: Journal of the Transportation Research Board. No. 2653. pp. 35–44. <http://trrjournalonline.trb.org/doi/pdf/10.3141/2653-05>`__
+
+For other related literature see `here <https://udst.github.io/urbanaccess/introduction.html#citation-and-academic-literature>`__.
+
 Current status
 --------------
-
-UrbanAccess is currently in a alpha release and only compatible with
-Python 2.x. Further code refinements are expected.
 
 *Forthcoming improvements:*
 
 - Unit tests
-- Python 3
 
 Reporting bugs
 --------------
@@ -77,7 +82,9 @@ Install the latest release
 
 conda
 ~~~~~~
-conda installation is forthcoming.
+UrbanAccess is available on conda and can be installed with::
+
+    conda install -c udst urbanaccess
 
 pip
 ~~~~~~
@@ -88,7 +95,7 @@ UrbanAccess is available on PyPI and can be installed with::
 Development Installation
 ------------------------
 
-UrbanAccess is currently in a alpha release and further code refinements are expected. As such, it is suggested to install using the ``develop`` command rather than ``install``. Make sure you are using the latest version of the code base by using git's ``git pull`` inside the cloned repository.
+Developers contributing code can install using the ``develop`` command rather than ``install``. Make sure you are using the latest version of the codebase by using git's ``git pull`` inside the cloned repository.
 
 To install UrbanAccess follow these steps:
 
@@ -116,15 +123,6 @@ types <https://developers.google.com/transit/gtfs/>`__ required to use
 UrbanAccess are: ``stop_times``, ``stops``, ``routes``, ``calendar``,
 and ``trips`` however if there is no ``calendar``, ``calendar_dates``
 can be used as a replacement.
-
-Citation and academic literature
---------------------------------
-
-To cite this tool and for a complete description of the UrbanAccess methodology see the paper below:
-
-`Samuel D. Blanchard and Paul Waddell. 2017. "UrbanAccess: Generalized Methodology for Measuring Regional Accessibility with an Integrated Pedestrian and Transit Network." Transportation Research Record: Journal of the Transportation Research Board. No. 2653. pp. 35–44. <http://trrjournalonline.trb.org/doi/pdf/10.3141/2653-05>`__
-
-For other related literature see `here <https://udst.github.io/urbanaccess/introduction.html#citation-and-academic-literature>`__.
 
 Related UDST libraries
 ----------------------
