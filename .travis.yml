@@ -18,7 +18,7 @@ install:
 - conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION pip numpy pandas pytest jupyter pycodestyle matplotlib scikit-learn pyyaml basemap basemap-data-hires
 - source activate test-env
 - conda list
-- pip install pandana==0.4 geopy osmnet
+- pip install pandana==0.4.1 geopy osmnet
 - pip install .
 
 after_success:
