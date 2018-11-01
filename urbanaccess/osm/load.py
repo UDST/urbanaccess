@@ -8,7 +8,9 @@ from pandana import Network
 from urbanaccess.utils import log
 
 # set the number of Pandana Networks in memory to arbitrary 40 for
-# removing low connectivity nodes (not needed beginning v0.4)
+# removing low connectivity nodes
+# Note: reserve_num_graphs was removed in Pandana beginning in v0.4 but is
+# required for prior versions
 if pandana.__version__[:3] in ['0.1', '0.2', '0.3']:
     pandana.network.reserve_num_graphs(40)
 
