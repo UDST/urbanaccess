@@ -9,7 +9,7 @@ start_time = time.time()
 name = 'madison'
 url = 'http://www.gtfs-data-exchange.com/agency/city-of-madison/latest.zip'
 
-print ('-------------------------')
+print('-------------------------')
 print('Starting integration test for {}...'.format(name))
 
 new_feed = {name: url}
@@ -88,4 +88,4 @@ urbanaccess.plot.plot_net(nodes=urbanaccess_nw.net_nodes,
 
 print('{} integration test completed successfully. Took {:,'
       '.2f} seconds'.format(name, time.time() - start_time))
-print ('-------------------------')
+print('-------------------------')

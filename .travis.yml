@@ -2,11 +2,15 @@ language: python
 sudo: false
 python:
 - '2.7'
+- '3.6'
+
+matrix:
+  allow_failures:
+  - python: '3.6'
+  fast_finish: true
 
 install:
-- if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh
-  -O miniconda.sh; else wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-  -O miniconda.sh; fi
+- wget http://bit.ly/miniconda -O miniconda.sh
 - bash miniconda.sh -b -p $HOME/miniconda
 - export PATH="$HOME/miniconda/bin:$PATH"
 - hash -r
@@ -15,11 +19,9 @@ install:
 - conda info -a
 - conda config --add channels udst
 - conda config --add channels conda-forge
-- |
-  conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION pip numpy=1.11 pandas pytest ipython-notebook pycodestyle matplotlib scikit-learn pyyaml basemap basemap-data-hires
-- source activate test-environment
+- conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION pip numpy pandas pytest jupyter pycodestyle matplotlib scikit-learn pyyaml basemap basemap-data-hires pandana geopy osmnet
+- source activate test-env
 - conda list
-- pip install pandana==0.3.0 geopy osmnet
 - pip install .
 
 after_success:
@@ -32,8 +34,7 @@ script:
 - cd ../urbanaccess/tests/integration; python remove_nb_magic.py -in simple_example.py -out simple_example_clean.py
 - cd ../../../demo; python simple_example_clean.py
 - cd ../urbanaccess/tests/integration; python integration_madison.py
-- python integration_sandiego.py
-- python integration_gb.py && cd $TRAVIS_BUILD_DIR
+- python integration_sandiego.py && cd $TRAVIS_BUILD_DIR
 
 env:
   global:

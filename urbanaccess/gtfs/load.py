@@ -3,6 +3,7 @@ import codecs
 import re
 import time
 import pandas as pd
+import six
 
 from urbanaccess import config
 from urbanaccess.utils import log
@@ -31,7 +32,8 @@ def _standardize_txt(csv_rootpath=os.path.join(config.settings.data_folder,
                         'stop_times.txt', 'calendar.txt',
                         'agency.txt', 'calendar_dates.txt']
 
-    _txt_encoder_check(gtfsfiles_to_use, csv_rootpath)
+    if six.PY2:
+        _txt_encoder_check(gtfsfiles_to_use, csv_rootpath)
     _txt_header_whitespace_check(gtfsfiles_to_use, csv_rootpath)
 
 
@@ -40,7 +42,8 @@ def _txt_encoder_check(gtfsfiles_to_use,
                            config.settings.data_folder,
                            'gtfsfeed_text')):
     """
-    Standardize all text files inside a GTFS feed for encoding problems
+    Standardize all text files inside a GTFS feed for encoding problems.
+    Has not been updated for Python 3.
 
     Parameters
     ----------
