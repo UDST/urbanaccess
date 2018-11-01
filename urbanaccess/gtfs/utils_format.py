@@ -799,20 +799,17 @@ def _timetoseconds(df, time_cols):
 
         h = pd.to_numeric(df[col].str[0:2])
         if h.any() > 48:
-            log(
-                'Warning: {} hour value is large and may be incorrect, '
+            log('Warning: {} hour value is large and may be incorrect, '
                 'please check this.'.format(
                     df[col].str[0:2].max()), level=lg.WARNING)
         m = pd.to_numeric(df[col].str[3:5])
         if m.any() > 60:
-            log(
-                'Warning: {} minute value is large and may be incorrect, '
+            log('Warning: {} minute value is large and may be incorrect, '
                 'please check this.'.format(
                     df[col].str[3:5].max()), level=lg.WARNING)
         s = pd.to_numeric(df[col].str[6:8])
         if s.any() > 60:
-            log(
-                'Warning: {} second value is large and may be incorrect, '
+            log('Warning: {} second value is large and may be incorrect, '
                 'please check this.'.format(
                     df[col].str[6:8].max()), level=lg.WARNING)
         col_series = (h * 60 * 60) + (m * 60) + s
@@ -830,8 +827,7 @@ def _timetoseconds(df, time_cols):
     final_df = pd.merge(df, concat_series_df, how='left', left_index=True,
                         right_index=True, sort=False, copy=False)
 
-    log(
-        'Successfully converted {} to seconds past midnight and appended new '
+    log('Successfully converted {} to seconds past midnight and appended new '
         'columns to stop_times. Took {:,.2f} seconds'.format(
             time_cols, time.time() - start_time))
 
