@@ -7,9 +7,10 @@ Dependencies
 ------------
 
 * requests >= 2.9.1
+* six >= 1.11
 * pandas >= 0.17.0
 * numpy >= 1.11
-* osmnet >= 0.1a
+* osmnet >= 0.1.4
 * pandana >= 0.2.0
 * matplotlib >= 2.0
 * geopy >= 1.11.0
@@ -24,19 +25,18 @@ Dependencies can be installed through the ``conda-forge`` and ``udst`` channels.
 Current status
 --------------
 
-UrbanAccess is currently in a alpha release and only compatible with Python 2.x. Further code refinements are expected.
-
 *Forthcoming improvements:*
 
 * Unit tests
-* Python 3
 
 Install the latest release
 --------------------------
 
 conda
 ~~~~~~
-conda installation is forthcoming.
+UrbanAccess is available on conda and can be installed with::
+
+    conda install -c udst urbanaccess
 
 pip
 ~~~~~~
@@ -47,7 +47,7 @@ UrbanAccess is available on PyPI and can be installed with::
 Development Installation
 ------------------------
 
-UrbanAccess is currently in a alpha release and further code refinements are expected. As such, it is suggested to install using the ``develop`` command rather than ``install``. Make sure you are using the latest version of the code base by using git's ``git pull`` inside the cloned repository.
+Developers contributing code can install using the ``develop`` command rather than ``install``. Make sure you are using the latest version of the codebase by using git's ``git pull`` inside the cloned repository.
 
 To install UrbanAccess follow these steps:
 
