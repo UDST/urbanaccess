@@ -2,14 +2,17 @@ from __future__ import division
 import time
 from osmnet.load import network_from_bbox
 
-from pandana.network import reserve_num_graphs
+import pandana
 from pandana import Network
 
 from urbanaccess.utils import log
 
 # set the number of Pandana Networks in memory to arbitrary 40 for
 # removing low connectivity nodes
-reserve_num_graphs(40)
+# Note: reserve_num_graphs was removed in Pandana beginning in v0.4 but is
+# required for prior versions
+if pandana.__version__[:3] in ['0.1', '0.2', '0.3']:
+    pandana.network.reserve_num_graphs(40)
 
 
 def ua_network_from_bbox(lat_min=None, lng_min=None, lat_max=None,
