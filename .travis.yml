@@ -59,5 +59,7 @@ jobs:
     - python integration_sandiego.py
     - cd $TRAVIS_BUILD_DIR
 
+script:
+
 #after_success:
 #- if [["$TEST_SUITE" == "integration"]]; then bin/build_docs.sh; fi
