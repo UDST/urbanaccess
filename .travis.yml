@@ -1,38 +1,61 @@
 language: python
 sudo: false
+
 python:
 - '2.7'
-- '3.5'
 - '3.6'
 
-install:
+env:
+- TEST_SUITE=unit_tests
+- TEST_SUITE=demo_notebook
+- TEST_SUITE=integration
+  global:
+    secure: SW6dfeQen1oZUYa2pr/qMdJGDK5c3tIbJsF1POLSMtgpbYaRQvogCkCd7sFXiTkxTCaNnz/eQyT2nDyUZJyDmYpntZmRthuN1zDgNk8ziDpmy/PF1bD4eshDr3MeoI4HgNYryl5qD8brEP0up0P/rvaAMoi26w4eyk0r+sO3PDVF6Jy4MwTufY4a4B4qYpi7V8yhExExytshHOEjD8C2IqEQDkwyR9oto2Gx8EpoCJEvxETG+aqLw1xj2UnXnbWND10Ni6pkeRpjAHFv4qM0i35griG2RKu9075Dubz/6UPMvpIEy581Zx5cqaSuOSUzde1L172vLTgOH31lnFXe1flHau1wI2gxOiamSdlVTAnVtL5P1aEtm1L5FjBcPlIs9rHmNGnydByX1Qe16HRLUopgAVm+jLZqWxrlesC5ax3uJ6Q3g0ZyKfmTJ5uWDeRusMVZswBT3NJc0BhkHDq7tE+3fokBfFApJcQwoXIplvRwXPkGFtKnL2IgCMTrKbDzGEYfdm/v7eV2xYe5hrEUIC9cUhkC1Ns2azAERXSgWcyM7ciFH3r1Jz9ixT+fuw9bTXibqcMjAmxdcQAW9y/rIPRJ3GMSdT7WEzYX19naGr+oyKqVMgsHFQ+wL7U5iblAGIy8VLNpE7Aa67dyG6SVAPTGzp0RouYLY9LYiRIybrI=
+
+matrix:
+  allow_failures:
+  - python: '3.6'
+    env: TEST_SUITE=demo_notebook
+
+before_install:
 - wget http://bit.ly/miniconda -O miniconda.sh
 - bash miniconda.sh -b -p $HOME/miniconda
 - export PATH="$HOME/miniconda/bin:$PATH"
 - hash -r
-- conda config --set always_yes yes --set changeps1 no
-- conda update -q conda
-- conda info -a
+- conda config --set always_yes yes --set show_channel_urls true
+- conda update conda
 - conda config --add channels udst
 - conda config --add channels conda-forge
-- conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION pip numpy pandas pytest jupyter pycodestyle matplotlib scikit-learn pyyaml basemap basemap-data-hires
+- conda create -quiet -name test-env python=$TRAVIS_PYTHON_VERSION pip numpy pandas pytest jupyter pycodestyle matplotlib scikit-learn pyyaml pandana geopy osmnet
 - source activate test-env
+- if [["$TEST_SUITE" == "demo_notebook"]]; then conda install basemap basemap-data-hires; fi
+- conda info -all
 - conda list
-- pip install pandana geopy osmnet
-- pip install .
 
-after_success:
-- bin/build_docs.sh
+install:
+- pip install .
+- pip show urbanaccess
 
 script:
+- if [["$TEST_SUITE" == "unit_tests"]]
+- then
 - pycodestyle urbanaccess
 - py.test
-- cd demo; jupyter nbconvert --to python simple_example.ipynb
-- cd ../urbanaccess/tests/integration; python remove_nb_magic.py -in simple_example.py -out simple_example_clean.py
-- cd ../../../demo; python simple_example_clean.py
-- cd ../urbanaccess/tests/integration; python integration_madison.py
-- python integration_sandiego.py && cd $TRAVIS_BUILD_DIR
+- fi
+- if [["$TEST_SUITE" == "demo_notebook"]]
+- then
+- jupyter nbconvert --to python demo/simple_example.ipynb
+- python urbanaccess/tests/integration/remove_nb_magic.py -in simple_example.py -out simple_example_clean.py
+- python demo/simple_example_clean.py
+- fi
+- if [["$TEST_SUITE" == "integration"]]
+- then
+- python urbanaccess/tests/integration/integration_madison.py
+- python urbanaccess/tests/integration/integration_sandiego.py
+- fi
 
-env:
-  global:
-    secure: SW6dfeQen1oZUYa2pr/qMdJGDK5c3tIbJsF1POLSMtgpbYaRQvogCkCd7sFXiTkxTCaNnz/eQyT2nDyUZJyDmYpntZmRthuN1zDgNk8ziDpmy/PF1bD4eshDr3MeoI4HgNYryl5qD8brEP0up0P/rvaAMoi26w4eyk0r+sO3PDVF6Jy4MwTufY4a4B4qYpi7V8yhExExytshHOEjD8C2IqEQDkwyR9oto2Gx8EpoCJEvxETG+aqLw1xj2UnXnbWND10Ni6pkeRpjAHFv4qM0i35griG2RKu9075Dubz/6UPMvpIEy581Zx5cqaSuOSUzde1L172vLTgOH31lnFXe1flHau1wI2gxOiamSdlVTAnVtL5P1aEtm1L5FjBcPlIs9rHmNGnydByX1Qe16HRLUopgAVm+jLZqWxrlesC5ax3uJ6Q3g0ZyKfmTJ5uWDeRusMVZswBT3NJc0BhkHDq7tE+3fokBfFApJcQwoXIplvRwXPkGFtKnL2IgCMTrKbDzGEYfdm/v7eV2xYe5hrEUIC9cUhkC1Ns2azAERXSgWcyM7ciFH3r1Jz9ixT+fuw9bTXibqcMjAmxdcQAW9y/rIPRJ3GMSdT7WEzYX19naGr+oyKqVMgsHFQ+wL7U5iblAGIy8VLNpE7Aa67dyG6SVAPTGzp0RouYLY9LYiRIybrI=
+after_success:
+- if [["$TEST_SUITE" == "integration"]]
+- then
+- bin/build_docs.sh
+- fi
