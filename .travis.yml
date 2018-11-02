@@ -5,9 +5,12 @@ python:
 - '3.6'
 
 matrix:
-  exclude:
-  - python: '3.6'
+  allow_failures:
+  - python: '3.6'  # temporary matplotlib + basemap incompatibility
+    env: PANDANA_VERSION=0.3
+  - python: '3.6'  # travis hangs in demo notebook
     env: PANDANA_VERSION=0.4
+  fast_finish: true
 
 install:
 - wget http://bit.ly/miniconda -O miniconda.sh
