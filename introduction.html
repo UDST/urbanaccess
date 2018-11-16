@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Introduction &mdash; UrbanAccess 0.1.0 documentation</title>
+  <title>Introduction &mdash; UrbanAccess 0.2.0 documentation</title>
   
 
   
@@ -24,27 +24,19 @@
 
   
 
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="UrbanAccess 0.1.0 documentation" href="index.html"/>
-        <link rel="next" title="Download and Load Data" href="data_loaders.html"/>
-        <link rel="prev" title="Installation" href="installation.html"/> 
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Download and Load Data" href="data_loaders.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
@@ -66,7 +58,7 @@
             
             
               <div class="version">
-                0.1.0
+                0.2.0
               </div>
             
           
@@ -121,7 +113,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">UrbanAccess</a>
@@ -129,9 +121,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -196,17 +189,17 @@
 </ul>
 </li>
 </ul>
-<p>Let us know what you are working on or if you think you have a great use case by tweeting us at <code class="docutils literal"><span class="pre">&#64;urbansim</span></code> or post on the UrbanSim <a class="reference external" href="http://discussion.urbansim.com/">forum</a>.</p>
+<p>Let us know what you are working on or if you think you have a great use case by tweeting us at <code class="docutils literal notranslate"><span class="pre">&#64;urbansim</span></code> or post on the UrbanSim <a class="reference external" href="http://discussion.urbansim.com/">forum</a>.</p>
 <p><a class="reference internal" href="_images/travel_time_net.png"><img alt="travel_time_net" src="_images/travel_time_net.png" style="width: 1265.6px; height: 1361.6px;" /></a>
 <em>Integrated AC Transit and BART transit and pedestrian network travel times for Oakland, CA</em></p>
 </div>
 <div class="section" id="demo">
 <h2>Demo<a class="headerlink" href="#demo" title="Permalink to this headline">¶</a></h2>
-<p>A <a class="reference external" href="https://github.com/UDST/urbanaccess/tree/master/demo">demo</a> is available as a jupyter notebook and can be run by going to the cloned repo demo directory and in a terminal run <code class="docutils literal"><span class="pre">jupyter</span> <span class="pre">notebook</span></code> inside the directory to load the <code class="docutils literal"><span class="pre">simple_example.ipynb</span></code> notebook.</p>
+<p>A <a class="reference external" href="https://github.com/UDST/urbanaccess/tree/master/demo">demo</a> is available as a jupyter notebook and can be run by going to the cloned repo demo directory and in a terminal run <code class="docutils literal notranslate"><span class="pre">jupyter</span> <span class="pre">notebook</span></code> inside the directory to load the <code class="docutils literal notranslate"><span class="pre">simple_example.ipynb</span></code> notebook.</p>
 </div>
 <div class="section" id="minimum-gtfs-data-requirements">
 <h2>Minimum GTFS data requirements<a class="headerlink" href="#minimum-gtfs-data-requirements" title="Permalink to this headline">¶</a></h2>
-<p>The minimum <a class="reference external" href="https://developers.google.com/transit/gtfs/">GTFS data types</a> required to use UrbanAccess are: <code class="docutils literal"><span class="pre">stop_times</span></code>, <code class="docutils literal"><span class="pre">stops</span></code>, <code class="docutils literal"><span class="pre">routes</span></code>, <code class="docutils literal"><span class="pre">calendar</span></code>, and <code class="docutils literal"><span class="pre">trips</span></code>. If you are using a feed that does not have or utilize a calendar you may use the <code class="docutils literal"><span class="pre">calendar_dates</span></code> file instead of <code class="docutils literal"><span class="pre">calendar</span></code> with the <code class="docutils literal"><span class="pre">calendar_dates_lookup</span></code> parameter <a class="reference internal" href="integrated_network.html#transit-network"><span class="std std-ref">here</span></a>.</p>
+<p>The minimum <a class="reference external" href="https://developers.google.com/transit/gtfs/">GTFS data types</a> required to use UrbanAccess are: <code class="docutils literal notranslate"><span class="pre">stop_times</span></code>, <code class="docutils literal notranslate"><span class="pre">stops</span></code>, <code class="docutils literal notranslate"><span class="pre">routes</span></code>, <code class="docutils literal notranslate"><span class="pre">calendar</span></code>, and <code class="docutils literal notranslate"><span class="pre">trips</span></code>. If you are using a feed that does not have or utilize a calendar you may use the <code class="docutils literal notranslate"><span class="pre">calendar_dates</span></code> file instead of <code class="docutils literal notranslate"><span class="pre">calendar</span></code> with the <code class="docutils literal notranslate"><span class="pre">calendar_dates_lookup</span></code> parameter <a class="reference internal" href="integrated_network.html#transit-network"><span class="std std-ref">here</span></a>.</p>
 </div>
 <div class="section" id="license">
 <h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
@@ -273,9 +266,7 @@
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -293,7 +284,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2017, UrbanSim Inc..
+        &copy; Copyright 2017, UrbanSim Inc.
 
     </p>
   </div> 
@@ -311,36 +302,23 @@
 
   
 
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'0.1.0',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
 
   
 
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

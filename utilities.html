@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Utilities &mdash; UrbanAccess 0.1.0 documentation</title>
+  <title>Utilities &mdash; UrbanAccess 0.2.0 documentation</title>
   
 
   
@@ -24,27 +24,19 @@
 
   
 
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="UrbanAccess 0.1.0 documentation" href="index.html"/>
-        <link rel="next" title="Using an UrbanAccess network with Pandana" href="pandana.html"/>
-        <link rel="prev" title="Plot Networks" href="plot.html"/> 
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Using an UrbanAccess network with Pandana" href="pandana.html" />
+    <link rel="prev" title="Plot Networks" href="plot.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
@@ -66,7 +58,7 @@
             
             
               <div class="version">
-                0.1.0
+                0.2.0
               </div>
             
           
@@ -110,7 +102,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">UrbanAccess</a>
@@ -118,9 +110,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -174,42 +167,37 @@ configuration settings for UrbanAccess.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data_folder</strong> : str</p>
-<blockquote>
-<div><p>location to save and load data files</p>
-</div></blockquote>
-<p><strong>logs_folder</strong> : str</p>
-<blockquote>
-<div><p>location to write log files</p>
-</div></blockquote>
-<p><strong>log_file</strong> : bool</p>
-<blockquote>
-<div><p>if true, save log output to a log file in logs_folder</p>
-</div></blockquote>
-<p><strong>log_console</strong> : bool</p>
-<blockquote>
-<div><p>if true, print log output to the console</p>
-</div></blockquote>
-<p><strong>log_name</strong> : str</p>
-<blockquote>
-<div><p>name of the logger</p>
-</div></blockquote>
-<p><strong>log_filename</strong> : str</p>
-<blockquote>
-<div><p>name of the log file</p>
-</div></blockquote>
-<p><strong>gtfs_api</strong> : dict</p>
-<blockquote class="last">
-<div><p>dictionary of the name of the GTFS API service as the key and
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>data_folder</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">location to save and load data files</p>
+</dd>
+<dt><strong>logs_folder</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">location to write log files</p>
+</dd>
+<dt><strong>log_file</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">if true, save log output to a log file in logs_folder</p>
+</dd>
+<dt><strong>log_console</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">if true, print log output to the console</p>
+</dd>
+<dt><strong>log_name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">name of the logger</p>
+</dd>
+<dt><strong>log_filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">name of the log file</p>
+</dd>
+<dt><strong>gtfs_api</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first last">dictionary of the name of the GTFS API service as the key and
 the GTFS API server root URL as the value to pass to the GTFS loader</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
-<p>By default the global configuration settings are already set, however they can be changed by using the functions in the <code class="docutils literal"><span class="pre">urbanaccess_config</span></code> class:</p>
+<p>By default the global configuration settings are already set, however they can be changed by using the functions in the <code class="docutils literal notranslate"><span class="pre">urbanaccess_config</span></code> class:</p>
 <dl class="class">
 <dt id="urbanaccess.config.urbanaccess_config">
 <em class="property">class </em><code class="descclassname">urbanaccess.config.</code><code class="descname">urbanaccess_config</code><span class="sig-paren">(</span><em>data_folder='data'</em>, <em>logs_folder='logs'</em>, <em>log_file=True</em>, <em>log_console=False</em>, <em>log_name='urbanaccess'</em>, <em>log_filename='urbanaccess'</em>, <em>gtfs_api={'gtfsdataexch': 'http://www.gtfs-data-exchange.com/api/agencies?format=csv'}</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.config.urbanaccess_config" title="Permalink to this definition">¶</a></dt>
@@ -219,35 +207,30 @@ configuration settings for UrbanAccess.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data_folder</strong> : str</p>
-<blockquote>
-<div><p>location to save and load data files</p>
-</div></blockquote>
-<p><strong>logs_folder</strong> : str</p>
-<blockquote>
-<div><p>location to write log files</p>
-</div></blockquote>
-<p><strong>log_file</strong> : bool</p>
-<blockquote>
-<div><p>if true, save log output to a log file in logs_folder</p>
-</div></blockquote>
-<p><strong>log_console</strong> : bool</p>
-<blockquote>
-<div><p>if true, print log output to the console</p>
-</div></blockquote>
-<p><strong>log_name</strong> : str</p>
-<blockquote>
-<div><p>name of the logger</p>
-</div></blockquote>
-<p><strong>log_filename</strong> : str</p>
-<blockquote>
-<div><p>name of the log file</p>
-</div></blockquote>
-<p><strong>gtfs_api</strong> : dict</p>
-<blockquote class="last">
-<div><p>dictionary of the name of the GTFS API service as the key and
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>data_folder</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">location to save and load data files</p>
+</dd>
+<dt><strong>logs_folder</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">location to write log files</p>
+</dd>
+<dt><strong>log_file</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">if true, save log output to a log file in logs_folder</p>
+</dd>
+<dt><strong>log_console</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">if true, print log output to the console</p>
+</dd>
+<dt><strong>log_name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">name of the logger</p>
+</dd>
+<dt><strong>log_filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">name of the log file</p>
+</dd>
+<dt><strong>gtfs_api</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first last">dictionary of the name of the GTFS API service as the key and
 the GTFS API server root URL as the value to pass to the GTFS loader</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -260,17 +243,20 @@ the GTFS API server root URL as the value to pass to the GTFS loader</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>configdir</strong> : str, optional</p>
-<blockquote>
-<div><p>Directory to load a YAML file.</p>
-</div></blockquote>
-<p><strong>yamlname</strong> : str or file like, optional</p>
-<blockquote>
-<div><p>File name from which to load a YAML file.</p>
-</div></blockquote>
-<p><strong>Returns</strong></p>
-<p><strong>——-</strong></p>
-<p class="last"><strong>urbanaccess_config</strong></p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>configdir</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">Directory to load a YAML file.</p>
+</dd>
+<dt><strong>yamlname</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or file like, optional</span></dt>
+<dd><p class="first last">File name from which to load a YAML file.</p>
+</dd>
+<dt><strong>Returns</strong></dt>
+<dd></dd>
+<dt><strong>——-</strong></dt>
+<dd></dd>
+<dt><strong>urbanaccess_config</strong></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -291,22 +277,24 @@ the GTFS API server root URL as the value to pass to the GTFS loader</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>configdir</strong> : str, optional</p>
-<blockquote>
-<div><p>Directory to save a YAML file.</p>
-</div></blockquote>
-<p><strong>yamlname</strong> : str or file like, optional</p>
-<blockquote>
-<div><p>File name to which to save a YAML file.</p>
-</div></blockquote>
-<p><strong>overwrite</strong> : bool, optional</p>
-<blockquote>
-<div><p>if true, overwrite an existing same name YAML
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>configdir</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">Directory to save a YAML file.</p>
+</dd>
+<dt><strong>yamlname</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or file like, optional</span></dt>
+<dd><p class="first last">File name to which to save a YAML file.</p>
+</dd>
+<dt><strong>overwrite</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd><p class="first last">if true, overwrite an existing same name YAML
 file in specified directory</p>
-</div></blockquote>
-<p><strong>Returns</strong></p>
-<p><strong>——-</strong></p>
-<p class="last"><strong>Nothing</strong></p>
+</dd>
+<dt><strong>Returns</strong></dt>
+<dd></dd>
+<dt><strong>——-</strong></dt>
+<dd></dd>
+<dt><strong>Nothing</strong></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -319,9 +307,7 @@ file in specified directory</p>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -339,7 +325,7 @@ file in specified directory</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2017, UrbanSim Inc..
+        &copy; Copyright 2017, UrbanSim Inc.
 
     </p>
   </div> 
@@ -357,36 +343,23 @@ file in specified directory</p>
 
   
 
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'0.1.0',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
 
   
 
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

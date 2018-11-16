@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Plot Networks &mdash; UrbanAccess 0.1.0 documentation</title>
+  <title>Plot Networks &mdash; UrbanAccess 0.2.0 documentation</title>
   
 
   
@@ -24,27 +24,19 @@
 
   
 
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="UrbanAccess 0.1.0 documentation" href="index.html"/>
-        <link rel="next" title="Utilities" href="utilities.html"/>
-        <link rel="prev" title="Create an Integrated Transit and Street Network" href="integrated_network.html"/> 
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Utilities" href="utilities.html" />
+    <link rel="prev" title="Create an Integrated Transit and Street Network" href="integrated_network.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
@@ -66,7 +58,7 @@
             
             
               <div class="version">
-                0.1.0
+                0.2.0
               </div>
             
           
@@ -110,7 +102,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">UrbanAccess</a>
@@ -118,9 +110,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -183,81 +176,72 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>nodes</strong> : pandas.DataFrame</p>
-<p><strong>edges</strong> : pandas.DataFrame</p>
-<p><strong>x_col</strong> : str, optional</p>
-<blockquote>
-<div><p>x coordinate column in nodes dataframe</p>
-</div></blockquote>
-<p><strong>y_col</strong> : str, optional</p>
-<blockquote>
-<div><p>y coordinate column in nodes dataframe</p>
-</div></blockquote>
-<p><strong>from_col</strong> : str, optional</p>
-<blockquote>
-<div><p>name of column to use for ‘from’ node id</p>
-</div></blockquote>
-<p><strong>to_col</strong> : str, optional</p>
-<blockquote>
-<div><p>name of column to use for ‘to’ node id</p>
-</div></blockquote>
-<p><strong>bbox</strong> : tuple, optional</p>
-<blockquote>
-<div><p>Bounding box formatted as a 4 element tuple:
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>nodes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+<dt><strong>edges</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+<dt><strong>x_col</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">x coordinate column in nodes dataframe</p>
+</dd>
+<dt><strong>y_col</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">y coordinate column in nodes dataframe</p>
+</dd>
+<dt><strong>from_col</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">name of column to use for ‘from’ node id</p>
+</dd>
+<dt><strong>to_col</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">name of column to use for ‘to’ node id</p>
+</dd>
+<dt><strong>bbox</strong> <span class="classifier-delimiter">:</span> <span class="classifier">tuple, optional</span></dt>
+<dd><p class="first last">Bounding box formatted as a 4 element tuple:
 (lng_max, lat_min, lng_min, lat_max)
 example: (-122.304611,37.798933,-122.263412,37.822802)
 a bbox can be extracted for an area using: the CSV format
 bbox from <a class="reference external" href="http://boundingbox.klokantech.com/">http://boundingbox.klokantech.com/</a>
 if None bbox will be calculated from spatial extents of data</p>
-</div></blockquote>
-<p><strong>fig_height</strong> : int</p>
-<blockquote>
-<div><p>matplotlib figure height in inches</p>
-</div></blockquote>
-<p><strong>margin</strong> : float</p>
-<blockquote>
-<div><p>margin around the figure</p>
-</div></blockquote>
-<p><strong>edge_color</strong> : string</p>
-<blockquote>
-<div><p>color of the edge lines</p>
-</div></blockquote>
-<p><strong>edge_linewidth</strong> : float</p>
-<blockquote>
-<div><p>width of the edge lines</p>
-</div></blockquote>
-<p><strong>edge_alpha</strong> : float</p>
-<blockquote>
-<div><p>opacity of the edge lines</p>
-</div></blockquote>
-<p><strong>node_color</strong> : string</p>
-<blockquote>
-<div><p>node color</p>
-</div></blockquote>
-<p><strong>node_size</strong> : int</p>
-<blockquote>
-<div><p>node size</p>
-</div></blockquote>
-<p><strong>node_alpha</strong> : float</p>
-<blockquote>
-<div><p>node opacity</p>
-</div></blockquote>
-<p><strong>node_edgecolor</strong> : string</p>
-<blockquote>
-<div><p>the color of the node border</p>
-</div></blockquote>
-<p><strong>node_zorder</strong> : int</p>
-<blockquote>
-<div><p>zorder to plot nodes, edges are zorder 2. A node_zorder 1 will plot
+</dd>
+<dt><strong>fig_height</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">matplotlib figure height in inches</p>
+</dd>
+<dt><strong>margin</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">margin around the figure</p>
+</dd>
+<dt><strong>edge_color</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">color of the edge lines</p>
+</dd>
+<dt><strong>edge_linewidth</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">width of the edge lines</p>
+</dd>
+<dt><strong>edge_alpha</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">opacity of the edge lines</p>
+</dd>
+<dt><strong>node_color</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">node color</p>
+</dd>
+<dt><strong>node_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">node size</p>
+</dd>
+<dt><strong>node_alpha</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">node opacity</p>
+</dd>
+<dt><strong>node_edgecolor</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">the color of the node border</p>
+</dd>
+<dt><strong>node_zorder</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">zorder to plot nodes, edges are zorder 2. A node_zorder 1 will plot
 nodes under the edges, 3 will plot nodes on top</p>
-</div></blockquote>
-<p><strong>nodes_only</strong> : bool</p>
-<blockquote>
-<div><p>if true only the nodes will plot</p>
-</div></blockquote>
+</dd>
+<dt><strong>nodes_only</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">if true only the nodes will plot</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">fig, ax</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>fig, ax</strong></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -273,30 +257,31 @@ into quantiles</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>df</strong> : pandas.DataFrame</p>
-<p><strong>col</strong> : string</p>
-<blockquote>
-<div><p>the name of the column in the dataframe with the continuous variable</p>
-</div></blockquote>
-<p><strong>num_bins</strong> : int</p>
-<blockquote>
-<div><p>how many quantiles</p>
-</div></blockquote>
-<p><strong>cmap</strong> : string</p>
-<blockquote>
-<div><p>name of a colormap</p>
-</div></blockquote>
-<p><strong>start</strong> : float</p>
-<blockquote>
-<div><p>where to start in the colorspace</p>
-</div></blockquote>
-<p><strong>stop</strong> : float</p>
-<blockquote>
-<div><p>where to end in the colorspace</p>
-</div></blockquote>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>df</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+<dt><strong>col</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">the name of the column in the dataframe with the continuous variable</p>
+</dd>
+<dt><strong>num_bins</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">how many quantiles</p>
+</dd>
+<dt><strong>cmap</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">name of a colormap</p>
+</dd>
+<dt><strong>start</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">where to start in the colorspace</p>
+</dd>
+<dt><strong>stop</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">where to end in the colorspace</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>colors</strong> : list</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>colors</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -307,9 +292,7 @@ into quantiles</p>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -327,7 +310,7 @@ into quantiles</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2017, UrbanSim Inc..
+        &copy; Copyright 2017, UrbanSim Inc.
 
     </p>
   </div> 
@@ -345,36 +328,23 @@ into quantiles</p>
 
   
 
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'0.1.0',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
 
   
 
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

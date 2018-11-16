@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Create an Integrated Transit and Street Network &mdash; UrbanAccess 0.1.0 documentation</title>
+  <title>Create an Integrated Transit and Street Network &mdash; UrbanAccess 0.2.0 documentation</title>
   
 
   
@@ -24,27 +24,19 @@
 
   
 
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="UrbanAccess 0.1.0 documentation" href="index.html"/>
-        <link rel="next" title="Plot Networks" href="plot.html"/>
-        <link rel="prev" title="Download and Load Data" href="data_loaders.html"/> 
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Plot Networks" href="plot.html" />
+    <link rel="prev" title="Download and Load Data" href="data_loaders.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
@@ -66,7 +58,7 @@
             
             
               <div class="version">
-                0.1.0
+                0.2.0
               </div>
             
           
@@ -118,7 +110,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">UrbanAccess</a>
@@ -126,9 +118,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -185,13 +178,22 @@ the components of a graph network</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>transit_nodes</strong> : pandas.DataFrame</p>
-<p><strong>transit_edges</strong> : pandas.DataFrame</p>
-<p><strong>net_connector_edges</strong> : pandas.DataFrame</p>
-<p><strong>osm_nodes</strong> : pandas.DataFrame</p>
-<p><strong>osm_edges</strong> : pandas.DataFrame</p>
-<p><strong>net_nodes</strong> : pandas.DataFrame</p>
-<p class="last"><strong>net_edges</strong> : pandas.DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>transit_nodes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+<dt><strong>transit_edges</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+<dt><strong>net_connector_edges</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+<dt><strong>osm_nodes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+<dt><strong>osm_edges</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+<dt><strong>net_nodes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+<dt><strong>net_edges</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -211,68 +213,67 @@ minutes from GTFS data</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>gtfsfeeds_dfs</strong> : object</p>
-<blockquote>
-<div><p>gtfsfeeds_dfs object with DataFrames of stops, routes, trips,
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>gtfsfeeds_dfs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
+<dd><p class="first last">gtfsfeeds_dfs object with DataFrames of stops, routes, trips,
 stop_times, calendar, calendar_dates (optional) and
 stop_times_int (optional)</p>
-</div></blockquote>
-<p><strong>day</strong> : {‘friday’, ‘monday’, ‘saturday’, ‘sunday’, ‘thursday’, ‘tuesday’,</p>
-<p><strong>‘wednesday’}</strong></p>
-<blockquote>
-<div><p>day of the week to extract transit schedule from that
+</dd>
+<dt><strong>day</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{‘friday’, ‘monday’, ‘saturday’, ‘sunday’, ‘thursday’, ‘tuesday’,</span></dt>
+<dd></dd>
+<dt><strong>‘wednesday’}</strong></dt>
+<dd><p class="first last">day of the week to extract transit schedule from that
 corresponds to the day in the GTFS calendar</p>
-</div></blockquote>
-<p><strong>timerange</strong> : list</p>
-<blockquote>
-<div><p>time range to extract transit schedule from in a list with time
+</dd>
+<dt><strong>timerange</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd><p class="first last">time range to extract transit schedule from in a list with time
 1 and time 2. it is suggested the time range
 specified is large enough to allow for travel
 from one end of the transit network to the other but small enough
 to represent a relevant travel time period such as a 3 hour window
 for the AM Peak period. Must follow format
 of a 24 hour clock for example: 08:00:00 or 17:00:00</p>
-</div></blockquote>
-<p><strong>calendar_dates_lookup</strong> : dict, optional</p>
-<blockquote>
-<div><p>dictionary of the lookup column (key) as a string and corresponding
+</dd>
+<dt><strong>calendar_dates_lookup</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict, optional</span></dt>
+<dd><p class="first last">dictionary of the lookup column (key) as a string and corresponding
 string (value) as string or list of strings to use to subset trips
 using the calendar_dates DataFrame. Search will be exact. If none,
 then the calendar_dates DataFrame will not be used to select trips
 that are not in the calendar DataFrame. Note search will select all
 records that meet each key value pair criteria.
 Example: {‘schedule_type’ : ‘WD’} or {‘schedule_type’ : [‘WD’, ‘SU’]}</p>
-</div></blockquote>
-<p><strong>overwrite_existing_stop_times_int</strong> : bool, optional</p>
-<blockquote>
-<div><p>if true, and if there is an existing stop_times_int
+</dd>
+<dt><strong>overwrite_existing_stop_times_int</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd><p class="first last">if true, and if there is an existing stop_times_int
 DataFrame stored in the gtfsfeeds_dfs object it will be
 overwritten</p>
-</div></blockquote>
-<p><strong>use_existing_stop_times_int</strong> : bool, optional</p>
-<blockquote>
-<div><p>if true, and if there is an existing stop_times_int
+</dd>
+<dt><strong>use_existing_stop_times_int</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd><p class="first last">if true, and if there is an existing stop_times_int
 DataFrame for the same time period stored in the
 gtfsfeeds_dfs object it will be used instead of re-calculated</p>
-</div></blockquote>
-<p><strong>save_processed_gtfs</strong> : bool, optional</p>
-<blockquote>
-<div><p>if true, all processed gtfs DataFrames will
+</dd>
+<dt><strong>save_processed_gtfs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd><p class="first last">if true, all processed gtfs DataFrames will
 be stored to disk in a hdf5 file</p>
-</div></blockquote>
-<p><strong>save_dir</strong> : str, optional</p>
-<blockquote>
-<div><p>directory to save the hdf5 file</p>
-</div></blockquote>
-<p><strong>save_filename</strong> : str, optional</p>
-<blockquote>
-<div><p>name to save the hdf5 file as</p>
-</div></blockquote>
+</dd>
+<dt><strong>save_dir</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">directory to save the hdf5 file</p>
+</dd>
+<dt><strong>save_filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">name to save the hdf5 file as</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>ua_network</strong> : object</p>
-<p><strong>ua_network.transit_edges</strong> : pandas.DataFrame</p>
-<p class="last"><strong>ua_network.transit_nodes</strong> : pandas.DataFrame</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>ua_network</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
+<dd></dd>
+<dt><strong>ua_network.transit_edges</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+<dt><strong>ua_network.transit_nodes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -292,34 +293,35 @@ openstreetmap nodes and edges</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>osm_edges</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>osm edge dataframe</p>
-</div></blockquote>
-<p><strong>osm_nodes</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>osm node dataframe</p>
-</div></blockquote>
-<p><strong>travel_speed_mph</strong> : int, optional</p>
-<blockquote>
-<div><p>travel speed to use to calculate travel time across a
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>osm_edges</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">osm edge dataframe</p>
+</dd>
+<dt><strong>osm_nodes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">osm node dataframe</p>
+</dd>
+<dt><strong>travel_speed_mph</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
+<dd><p class="first last">travel speed to use to calculate travel time across a
 distance on a edge. units are in miles per hour (MPH)
 for pedestrian travel this is assumed to be 3 MPH</p>
-</div></blockquote>
-<p><strong>network_type</strong> : str, optional</p>
-<blockquote>
-<div><p>default is ‘walk’ for the osm pedestrian network.
+</dd>
+<dt><strong>network_type</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">default is ‘walk’ for the osm pedestrian network.
 this string is used to label the osm network once it is
 integrated with the transit network</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>ua_network</strong> : object</p>
-<blockquote>
-<div><p>urbanaccess_network object with osm_edges and osm_nodes dataframes</p>
-</div></blockquote>
-<p><strong>ua_network.osm_edges</strong> : pandas.DataFrame</p>
-<p class="last"><strong>ua_network.osm_nodes</strong> : pandas.DataFrame</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>ua_network</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
+<dd><p class="first last">urbanaccess_network object with osm_edges and osm_nodes dataframes</p>
+</dd>
+<dt><strong>ua_network.osm_edges</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+<dt><strong>ua_network.osm_nodes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -341,39 +343,47 @@ travel time is in units of minutes</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>urbanaccess_network</strong> : object</p>
-<blockquote>
-<div><p>ua_network object with transit_edges, transit_nodes,
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>urbanaccess_network</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
+<dd><p class="first last">ua_network object with transit_edges, transit_nodes,
 osm_edges, osm_nodes</p>
-</div></blockquote>
-<p><strong>headways</strong> : bool, optional</p>
-<blockquote>
-<div><p>if true, route stop level headways calculated in a previous step
+</dd>
+<dt><strong>headways</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd><p class="first last">if true, route stop level headways calculated in a previous step
 will be applied to the osm to transit connector
 edge travel time weights as an approximate measure
 of average passenger transit stop waiting time.</p>
-</div></blockquote>
-<p><strong>urbanaccess_gtfsfeeds_df</strong> : object, optional</p>
-<blockquote>
-<div><p>required if headways is true; the gtfsfeeds_dfs object that holds
+</dd>
+<dt><strong>urbanaccess_gtfsfeeds_df</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object, optional</span></dt>
+<dd><p class="first last">required if headways is true; the gtfsfeeds_dfs object that holds
 the corresponding headways and stops DataFrames</p>
-</div></blockquote>
-<p><strong>headway_statistic</strong> : {‘mean’, ‘std’, ‘min’, ‘max’}, optional</p>
-<blockquote>
-<div><p>required if headways is true; route stop headway
+</dd>
+<dt><strong>headway_statistic</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{‘mean’, ‘std’, ‘min’, ‘max’}, optional</span></dt>
+<dd><p class="first last">required if headways is true; route stop headway
 statistic to apply to the osm to transit connector edges:
 mean, std, min, max. Default is mean.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>urbanaccess_network</strong> : object</p>
-<p><strong>urbanaccess_network.transit_edges</strong> : pandas.DataFrame</p>
-<p><strong>urbanaccess_network.transit_nodes</strong> : pandas.DataFrame</p>
-<p><strong>urbanaccess_network.osm_edges</strong> : pandas.DataFrame</p>
-<p><strong>urbanaccess_network.osm_nodes</strong> : pandas.DataFrame</p>
-<p><strong>urbanaccess_network.net_connector_edges</strong> : pandas.DataFrame</p>
-<p><strong>urbanaccess_network.net_edges</strong> : pandas.DataFrame</p>
-<p class="last"><strong>urbanaccess_network.net_nodes</strong> : pandas.DataFrame</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>urbanaccess_network</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
+<dd></dd>
+<dt><strong>urbanaccess_network.transit_edges</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+<dt><strong>urbanaccess_network.transit_nodes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+<dt><strong>urbanaccess_network.osm_edges</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+<dt><strong>urbanaccess_network.osm_nodes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+<dt><strong>urbanaccess_network.net_connector_edges</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+<dt><strong>urbanaccess_network.net_edges</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+<dt><strong>urbanaccess_network.net_nodes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -392,31 +402,31 @@ table in a hdf5 file</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>urbanaccess_network</strong> : object</p>
-<blockquote>
-<div><p>urbanaccess_network object with net_edges and net_nodes DataFrames</p>
-</div></blockquote>
-<p><strong>filename</strong> : string</p>
-<blockquote>
-<div><p>name of the hdf5 file to save with .h5 extension</p>
-</div></blockquote>
-<p><strong>dir</strong> : string, optional</p>
-<blockquote>
-<div><p>directory to save hdf5 file</p>
-</div></blockquote>
-<p><strong>overwrite_key</strong> : bool, optional</p>
-<blockquote>
-<div><p>if true any existing table with the specified key name will be
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>urbanaccess_network</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
+<dd><p class="first last">urbanaccess_network object with net_edges and net_nodes DataFrames</p>
+</dd>
+<dt><strong>filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">name of the hdf5 file to save with .h5 extension</p>
+</dd>
+<dt><strong>dir</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, optional</span></dt>
+<dd><p class="first last">directory to save hdf5 file</p>
+</dd>
+<dt><strong>overwrite_key</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd><p class="first last">if true any existing table with the specified key name will be
 overwritten</p>
-</div></blockquote>
-<p><strong>overwrite_hdf5</strong> : bool, optional</p>
-<blockquote>
-<div><p>if true any existing hdf5 file with the specified name in the
+</dd>
+<dt><strong>overwrite_hdf5</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd><p class="first last">if true any existing hdf5 file with the specified name in the
 specified directory will be overwritten</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>None</strong></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -435,22 +445,25 @@ a urbanaccess_network object</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dir</strong> : string, optional</p>
-<blockquote>
-<div><p>directory to read hdf5 file</p>
-</div></blockquote>
-<p><strong>filename</strong> : string</p>
-<blockquote>
-<div><p>name of the hdf5 file to read with .h5 extension</p>
-</div></blockquote>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>dir</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, optional</span></dt>
+<dd><p class="first last">directory to read hdf5 file</p>
+</dd>
+<dt><strong>filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">name of the hdf5 file to read with .h5 extension</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>ua_network</strong> : object</p>
-<blockquote>
-<div><p>urbanaccess_network object with net_edges and net_nodes DataFrames</p>
-</div></blockquote>
-<p><strong>ua_network.net_edges</strong> : object</p>
-<p class="last"><strong>ua_network.net_nodes</strong> : object</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>ua_network</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
+<dd><p class="first last">urbanaccess_network object with net_edges and net_nodes DataFrames</p>
+</dd>
+<dt><strong>ua_network.net_edges</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
+<dd></dd>
+<dt><strong>ua_network.net_nodes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -462,9 +475,7 @@ a urbanaccess_network object</p>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -482,7 +493,7 @@ a urbanaccess_network object</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2017, UrbanSim Inc..
+        &copy; Copyright 2017, UrbanSim Inc.
 
     </p>
   </div> 
@@ -500,36 +511,23 @@ a urbanaccess_network object</p>
 
   
 
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'0.1.0',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
 
   
 
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

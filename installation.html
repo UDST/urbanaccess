@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Installation &mdash; UrbanAccess 0.1.0 documentation</title>
+  <title>Installation &mdash; UrbanAccess 0.2.0 documentation</title>
   
 
   
@@ -24,27 +24,19 @@
 
   
 
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="UrbanAccess 0.1.0 documentation" href="index.html"/>
-        <link rel="next" title="Introduction" href="introduction.html"/>
-        <link rel="prev" title="UrbanAccess" href="index.html"/> 
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Introduction" href="introduction.html" />
+    <link rel="prev" title="UrbanAccess" href="index.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
@@ -66,7 +58,7 @@
             
             
               <div class="version">
-                0.1.0
+                0.2.0
               </div>
             
           
@@ -120,7 +112,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">UrbanAccess</a>
@@ -128,9 +120,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -179,62 +172,62 @@
 <h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>requests &gt;= 2.9.1</li>
+<li>six &gt;= 1.11</li>
 <li>pandas &gt;= 0.17.0</li>
 <li>numpy &gt;= 1.11</li>
-<li>osmnet &gt;= 0.1a</li>
+<li>osmnet &gt;= 0.1.4</li>
 <li>pandana &gt;= 0.2.0</li>
 <li>matplotlib &gt;= 2.0</li>
 <li>geopy &gt;= 1.11.0</li>
 <li>pyyaml &gt;= 3.11</li>
 <li>scikit-learn &gt;= 0.17.1</li>
 </ul>
-<p>Dependencies can be installed through the <code class="docutils literal"><span class="pre">conda-forge</span></code> and <code class="docutils literal"><span class="pre">udst</span></code> channels. To add these as default installation channels for conda, run this code in a terminal:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">config</span> <span class="o">--</span><span class="n">add</span> <span class="n">channels</span> <span class="n">udst</span>
+<p>Dependencies can be installed through the <code class="docutils literal notranslate"><span class="pre">conda-forge</span></code> and <code class="docutils literal notranslate"><span class="pre">udst</span></code> channels. To add these as default installation channels for conda, run this code in a terminal:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">config</span> <span class="o">--</span><span class="n">add</span> <span class="n">channels</span> <span class="n">udst</span>
 <span class="n">conda</span> <span class="n">config</span> <span class="o">--</span><span class="n">add</span> <span class="n">channels</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="current-status">
 <h2>Current status<a class="headerlink" href="#current-status" title="Permalink to this headline">¶</a></h2>
-<p>UrbanAccess is currently in a alpha release and only compatible with Python 2.x. Further code refinements are expected.</p>
 <p><em>Forthcoming improvements:</em></p>
 <ul class="simple">
 <li>Unit tests</li>
-<li>Python 3</li>
 </ul>
 </div>
 <div class="section" id="install-the-latest-release">
 <h2>Install the latest release<a class="headerlink" href="#install-the-latest-release" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="conda">
 <h3>conda<a class="headerlink" href="#conda" title="Permalink to this headline">¶</a></h3>
-<p>conda installation is forthcoming.</p>
+<p>UrbanAccess is available on conda and can be installed with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">udst</span> <span class="n">urbanaccess</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="pip">
 <h3>pip<a class="headerlink" href="#pip" title="Permalink to this headline">¶</a></h3>
 <p>UrbanAccess is available on PyPI and can be installed with:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">U</span> <span class="n">urbanaccess</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">U</span> <span class="n">urbanaccess</span>
 </pre></div>
 </div>
 </div>
 </div>
 <div class="section" id="development-installation">
 <h2>Development Installation<a class="headerlink" href="#development-installation" title="Permalink to this headline">¶</a></h2>
-<p>UrbanAccess is currently in a alpha release and further code refinements are expected. As such, it is suggested to install using the <code class="docutils literal"><span class="pre">develop</span></code> command rather than <code class="docutils literal"><span class="pre">install</span></code>. Make sure you are using the latest version of the code base by using git’s <code class="docutils literal"><span class="pre">git</span> <span class="pre">pull</span></code> inside the cloned repository.</p>
+<p>Developers contributing code can install using the <code class="docutils literal notranslate"><span class="pre">develop</span></code> command rather than <code class="docutils literal notranslate"><span class="pre">install</span></code>. Make sure you are using the latest version of the codebase by using git’s <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span></code> inside the cloned repository.</p>
 <p>To install UrbanAccess follow these steps:</p>
 <ol class="arabic simple">
 <li>Git clone the <a class="reference external" href="https://github.com/udst/urbanaccess">UrbanAccess repo</a></li>
-<li>in the cloned directory run: <code class="docutils literal"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">develop</span></code></li>
+<li>in the cloned directory run: <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">develop</span></code></li>
 </ol>
 <p>To update to the latest development version:</p>
-<p>Use <code class="docutils literal"><span class="pre">git</span> <span class="pre">pull</span></code> inside the cloned repository</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span></code> inside the cloned repository</p>
 </div>
 </div>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -252,7 +245,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2017, UrbanSim Inc..
+        &copy; Copyright 2017, UrbanSim Inc.
 
     </p>
   </div> 
@@ -270,36 +263,23 @@
 
   
 
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'0.1.0',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
 
   
 
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>
