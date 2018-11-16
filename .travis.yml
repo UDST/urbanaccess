@@ -25,18 +25,16 @@ install:
 - pip install .
 
 after_success:
-- python -V
--
 - bin/build_docs.sh
 
 script:
 - pycodestyle urbanaccess
 - py.test
-#- cd demo; jupyter nbconvert --to python simple_example.ipynb
-#- cd ../urbanaccess/tests/integration; python remove_nb_magic.py -in simple_example.py -out simple_example_clean.py
-#- cd ../../../demo; python simple_example_clean.py
-#- cd ../urbanaccess/tests/integration; python integration_madison.py
-#- python integration_sandiego.py && cd $TRAVIS_BUILD_DIR
+- cd demo; jupyter nbconvert --to python simple_example.ipynb
+- cd ../urbanaccess/tests/integration; python remove_nb_magic.py -in simple_example.py -out simple_example_clean.py
+- cd ../../../demo; python simple_example_clean.py
+- cd ../urbanaccess/tests/integration; python integration_madison.py
+- python integration_sandiego.py && cd $TRAVIS_BUILD_DIR
 
 env:
   global:

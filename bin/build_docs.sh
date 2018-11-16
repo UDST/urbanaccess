@@ -50,20 +50,20 @@ echo $TRAVIS_BUILD_NUMBER
         make clean
         make html
 
-        cd ../../
-        echo "Setting git attributes"
-        git config --global user.email "fernandez@urbansim.com"
-        git config --global user.name "udst-documentator"
+#        cd ../../
+#        echo "Setting git attributes"
+#        git config --global user.email "fernandez@urbansim.com"
+#        git config --global user.name "udst-documentator"
 
-        echo "Cloning repository"
-        git clone --quiet --single-branch --branch=gh-pages https://${GH_TOKEN}@github.com/udst/urbanaccess.git  gh-pages > /dev/null 2>&1
+#        echo "Cloning repository"
+#        git clone --quiet --single-branch --branch=gh-pages https://${GH_TOKEN}@github.com/udst/urbanaccess.git  gh-pages > /dev/null 2>&1
 
-        cd gh-pages
-        rm -rf *
-        cp -R ../urbanaccess/docs/build/html/* ./
-        git add -A .
-
-        git commit -am "Update dev docs after building $TRAVIS_BUILD_NUMBER"
-        echo "Pushing commit"
-        git push -fq origin gh-pages # > /dev/null 2>&1
+#        cd gh-pages
+#        rm -rf *
+#        cp -R ../urbanaccess/docs/build/html/* ./
+#        git add -A .
+#
+#        git commit -am "Update dev docs after building $TRAVIS_BUILD_NUMBER"
+#        echo "Pushing commit"
+#        git push -fq origin gh-pages # > /dev/null 2>&1
 #fi
