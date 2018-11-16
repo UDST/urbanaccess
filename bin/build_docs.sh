@@ -36,7 +36,7 @@ if [ "$TRAVIS_REPO_SLUG" == "UDST/urbanaccess" ] && \
         [ "$ACTUAL_TRAVIS_JOB_NUMBER" == "1" ]; then
 
         echo "Installing dependencies"
-        conda install --yes --quiet sphinx numpydoc
+        conda install --yes sphinx numpydoc
         pip install sphinx_rtd_theme
 
         echo "Building docs"
