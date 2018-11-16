@@ -29,11 +29,17 @@ set -e
 ACTUAL_TRAVIS_JOB_NUMBER=`echo $TRAVIS_JOB_NUMBER| cut -d'.' -f 2`
 
 echo "Starting docs build..."
+echo $RAVIS_REPO_SLUG
+echo $TRAVIS_BRANCH
+echo $TRAVIS_PULL_REQUEST
+echo $ACTUAL_TRAVIS_JOB_NUMBER
+echo $GH_TOKEN
+echo $TRAVIS_BUILD_NUMBER
 
-if [ "$TRAVIS_REPO_SLUG" == "UDST/urbanaccess" ] && \
-        [ "$TRAVIS_BRANCH" == "master" ] && \
-        [ "$TRAVIS_PULL_REQUEST" == "false" ] && \
-        [ "$ACTUAL_TRAVIS_JOB_NUMBER" == "1" ]; then
+#if [ "$TRAVIS_REPO_SLUG" == "UDST/urbanaccess" ] && \
+#        [ "$TRAVIS_BRANCH" == "master" ] && \
+#        [ "$TRAVIS_PULL_REQUEST" == "false" ] && \
+#        [ "$ACTUAL_TRAVIS_JOB_NUMBER" == "1" ]; then
 
         echo "Installing dependencies"
         conda install --yes sphinx numpydoc
@@ -60,4 +66,4 @@ if [ "$TRAVIS_REPO_SLUG" == "UDST/urbanaccess" ] && \
         git commit -am "Update dev docs after building $TRAVIS_BUILD_NUMBER"
         echo "Pushing commit"
         git push -fq origin gh-pages # > /dev/null 2>&1
-fi
+#fi
