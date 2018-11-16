@@ -30,8 +30,8 @@ master_doc =  'index'
 project = u'UrbanAccess'
 copyright = u'2017, UrbanSim Inc.'
 author = u'UrbanSim Inc.'
-version = u'0.1.0'
-release = u'0.1.0'
+version = u'0.2.0'
+release = u'0.2.0'
 language = None
 
 # List of patterns to ignore when looking for source files.

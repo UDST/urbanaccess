@@ -28,6 +28,8 @@ set -e
 
 ACTUAL_TRAVIS_JOB_NUMBER=`echo $TRAVIS_JOB_NUMBER| cut -d'.' -f 2`
 
+echo "Starting docs build..."
+
 if [ "$TRAVIS_REPO_SLUG" == "UDST/urbanaccess" ] && \
         [ "$TRAVIS_BRANCH" == "master" ] && \
         [ "$TRAVIS_PULL_REQUEST" == "false" ] && \

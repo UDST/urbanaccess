@@ -25,6 +25,8 @@ install:
 - pip install .
 
 after_success:
+- python -V
+-
 - bin/build_docs.sh
 
 script:
