@@ -6,7 +6,8 @@ python:
 
 matrix:
   allow_failures:
-  - python: '3.6'
+  - python: '3.6'  # travis hangs in demo notebook
+    env: PANDANA=">=0.4"
   fast_finish: true
 
 install:
@@ -19,7 +20,7 @@ install:
 - conda info -a
 - conda config --add channels udst
 - conda config --add channels conda-forge
-- conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION pip numpy pandas pytest jupyter pycodestyle matplotlib scikit-learn pyyaml basemap basemap-data-hires pandana geopy osmnet
+- conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION pip numpy pandas pytest jupyter pycodestyle matplotlib scikit-learn pyyaml basemap basemap-data-hires pandana$PANDANA geopy osmnet
 - source activate test-env
 - conda list
 - pip install .
@@ -37,5 +38,8 @@ script:
 - python integration_sandiego.py && cd $TRAVIS_BUILD_DIR
 
 env:
+  matrix:
+  - PANDANA="=0.3"
+  - PANDANA=">=0.4"
   global:
     secure: SW6dfeQen1oZUYa2pr/qMdJGDK5c3tIbJsF1POLSMtgpbYaRQvogCkCd7sFXiTkxTCaNnz/eQyT2nDyUZJyDmYpntZmRthuN1zDgNk8ziDpmy/PF1bD4eshDr3MeoI4HgNYryl5qD8brEP0up0P/rvaAMoi26w4eyk0r+sO3PDVF6Jy4MwTufY4a4B4qYpi7V8yhExExytshHOEjD8C2IqEQDkwyR9oto2Gx8EpoCJEvxETG+aqLw1xj2UnXnbWND10Ni6pkeRpjAHFv4qM0i35griG2RKu9075Dubz/6UPMvpIEy581Zx5cqaSuOSUzde1L172vLTgOH31lnFXe1flHau1wI2gxOiamSdlVTAnVtL5P1aEtm1L5FjBcPlIs9rHmNGnydByX1Qe16HRLUopgAVm+jLZqWxrlesC5ax3uJ6Q3g0ZyKfmTJ5uWDeRusMVZswBT3NJc0BhkHDq7tE+3fokBfFApJcQwoXIplvRwXPkGFtKnL2IgCMTrKbDzGEYfdm/v7eV2xYe5hrEUIC9cUhkC1Ns2azAERXSgWcyM7ciFH3r1Jz9ixT+fuw9bTXibqcMjAmxdcQAW9y/rIPRJ3GMSdT7WEzYX19naGr+oyKqVMgsHFQ+wL7U5iblAGIy8VLNpE7Aa67dyG6SVAPTGzp0RouYLY9LYiRIybrI=
