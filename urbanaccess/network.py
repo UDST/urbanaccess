@@ -9,7 +9,7 @@ from urbanaccess.utils import log, df_to_hdf5, hdf5_to_df
 from urbanaccess import config
 
 
-if int(geopy.__version__[0]) <2:
+if int(geopy.__version__[0]) < 2:
     dist_calc = distance.vincenty
 else:
     dist_calc = distance.geodesic
@@ -388,7 +388,7 @@ def _connector_edges(osm_nodes, transit_nodes, travel_speed_mph=3):
         osm_row = osm_nodes.loc[osm_node_id]
 
         distance = dist_calc((row['y'], row['x']),
-                            (osm_row['y'], osm_row['x'])).miles
+                             (osm_row['y'], osm_row['x'])).miles
         time_ped_to_transit = distance / travel_speed_mph * 60
         time_transit_to_ped = distance / travel_speed_mph * 60
 
