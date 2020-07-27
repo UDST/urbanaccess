@@ -6,6 +6,7 @@
 import sys
 import os
 import sphinx_rtd_theme
+from datetime import datetime
 
 # -- General configuration ------------------------------------------------
 
@@ -23,13 +24,12 @@ extensions = [
     'sphinx.ext.autosummary'
 ]
 
-
 templates_path = ['_templates']
 source_suffix = '.rst'
-master_doc =  'index'
+master_doc = 'index'
 project = u'UrbanAccess'
-copyright = u'2018, UrbanSim Inc.'
 author = u'UrbanSim Inc.'
+copyright = u'{}, {}'.format(datetime.now().year, author)
 version = u'0.2.0'
 release = u'0.2.0'
 language = None
