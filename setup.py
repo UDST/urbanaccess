@@ -1,13 +1,4 @@
-# Install setuptools if not installed.
-try:
-    import setuptools
-except ImportError:
-    from ez_setup import use_setuptools
-
-    use_setuptools()
-
 from setuptools import setup, find_packages
-
 
 # read README as the long description
 with open('README.rst', 'r') as f:
@@ -18,7 +9,7 @@ description = 'A tool for creating GTFS transit and OSM pedestrian networks ' \
 
 setup(
     name='urbanaccess',
-    version='0.2.0',
+    version='0.2.1',
     license='AGPL',
     description=description,
     long_description=long_description,
@@ -30,6 +21,8 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: GNU Affero General Public License v3'
     ],

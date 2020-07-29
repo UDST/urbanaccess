@@ -30,8 +30,8 @@ master_doc = 'index'
 project = u'UrbanAccess'
 author = u'UrbanSim Inc.'
 copyright = u'{}, {}'.format(datetime.now().year, author)
-version = u'0.2.0'
-release = u'0.2.0'
+version = u'0.2.1'
+release = u'0.2.1'
 language = None
 
 # List of patterns to ignore when looking for source files.
