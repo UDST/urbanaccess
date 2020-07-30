@@ -38,6 +38,7 @@ def expected_transit_nodes_neighbor_df(transit_nodes_df):
         axis=1)
     return expected_transit_nodes
 
+
 @pytest.fixture
 def expected_connector_edge_df():
     data = {'from': ['1_transit_a', 2,

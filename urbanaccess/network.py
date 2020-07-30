@@ -72,7 +72,7 @@ def _nearest_neighbor(df1, df2):
     try:
         df1_matrix = df1.to_numpy()
         df2_matrix = df2.to_numpy()
-    except:
+    except AttributeError:
         df1_matrix = df1.values
         df2_matrix = df2.values
     kdt = KDTree(df1_matrix)
