@@ -17,11 +17,6 @@ Dependencies
 * pyyaml >= 3.11
 * scikit-learn >= 0.17.1
 
-Dependencies can be installed through the ``conda-forge`` and ``udst`` channels. To add these as default installation channels for conda, run this code in a terminal::
-
-    conda config --add channels udst
-    conda config --add channels conda-forge
-
 Current status
 --------------
 
@@ -34,15 +29,19 @@ Install the latest release
 
 conda
 ~~~~~~
-UrbanAccess is available on conda and can be installed with::
+UrbanAccess is available on Conda Forge and can be installed with::
 
-    conda install -c udst urbanaccess
+    conda install urbanaccess -c conda-forge
+
+If you'd like to permanently add ``conda-forge`` as a backup channel in your Conda figuration, you can do it like this::
+
+    conda config --append channels conda-forge
 
 pip
 ~~~~~~
 UrbanAccess is available on PyPI and can be installed with::
 
-    pip install -U urbanaccess
+    pip install urbanaccess
 
 Development Installation
 ------------------------
