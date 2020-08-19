@@ -1,0 +1,11 @@
+# Additional requirements for development and testing
+
+# testing
+pytest
+pycodestyle
+jupyter
+
+# building documentation
+numpydoc
+sphinx
+sphinx_rtd_theme

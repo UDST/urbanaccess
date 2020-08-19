@@ -12,12 +12,12 @@ services:
 
 install:
   - pip install .
-  - pip install pytest pycodestyle jupyter
+  - pip install -r requirements-dev.txt
   - pip list
   - pip show urbanaccess
 
 script:
-  - pycodestyle urbanaccess
+  - pycodestyle --max-line-length=100 urbanaccess
   - py.test
   - cd demo
   - jupyter nbconvert --to python simple_example.ipynb

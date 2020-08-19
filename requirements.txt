@@ -1,0 +1,10 @@
+requests
+six
+pandas
+numpy
+osmnet
+pandana
+matplotlib
+geopy
+pyyaml
+scikit-learn
