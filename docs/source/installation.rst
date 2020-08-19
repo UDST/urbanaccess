@@ -17,13 +17,6 @@ Dependencies
 * pyyaml >= 3.11
 * scikit-learn >= 0.17.1
 
-Current status
---------------
-
-*Forthcoming improvements:*
-
-* Unit tests
-
 Install the latest release
 --------------------------
 

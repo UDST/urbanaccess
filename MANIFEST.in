@@ -1,0 +1,4 @@
+# files to include in the source distribution on pypi (setup and README are included automatically)
+
+include CHANGELOG.rst
+include License.txt
