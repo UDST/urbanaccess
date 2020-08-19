@@ -78,6 +78,10 @@ def test_connector_edges(osm_nodes_df, transit_nodes_df,
     net_connector_edges['weight'] = net_connector_edges['weight'].round(6)
     expected_connector_edge_df['weight'] = \
         expected_connector_edge_df['weight'].round(6)
+    
+    col_order = ['from', 'to', 'weight', 'net_type']
+    expected_connector_edge_df = expected_connector_edge_df[col_order]
+    net_connector_edges = net_connector_edges[col_order]
     print(expected_connector_edge_df)
     print(net_connector_edges)
     assert expected_connector_edge_df.equals(net_connector_edges)
