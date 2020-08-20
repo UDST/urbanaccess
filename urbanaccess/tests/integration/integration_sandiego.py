@@ -2,6 +2,9 @@ import os
 import time
 import pandas as pd
 
+import matplotlib
+matplotlib.use('agg')
+
 import urbanaccess
 
 start_time = time.time()

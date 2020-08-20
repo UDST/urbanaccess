@@ -1,6 +1,9 @@
 import os
 import time
 
+import matplotlib
+matplotlib.use('agg')
+
 import urbanaccess
 from urbanaccess.gtfsfeeds import feeds
 
