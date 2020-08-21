@@ -17,7 +17,7 @@ install:
   - pip show urbanaccess
 
 script:
-  - pycodestyle --max-line-length=100 urbanaccess
+  - pycodestyle urbanaccess
   - py.test
   - cd demo
   - jupyter nbconvert --to python simple_example.ipynb

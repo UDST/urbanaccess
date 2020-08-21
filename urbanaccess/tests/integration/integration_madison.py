@@ -2,10 +2,11 @@ import os
 import time
 
 import matplotlib
+matplotlib.use('agg')
+
 import urbanaccess
 from urbanaccess.gtfsfeeds import feeds
 
-matplotlib.use('agg')
 start_time = time.time()
 
 name = 'madison'

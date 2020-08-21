@@ -3,9 +3,10 @@ import time
 import pandas as pd
 
 import matplotlib
+matplotlib.use('agg')
+
 import urbanaccess
 
-matplotlib.use('agg')
 start_time = time.time()
 
 name = 'san diego'
