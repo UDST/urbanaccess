@@ -3,7 +3,10 @@
 # testing
 pytest
 pycodestyle
+
+# testing demo notebook
 jupyter
+proj
 cartopy
 
 # building documentation
