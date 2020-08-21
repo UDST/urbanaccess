@@ -4,6 +4,7 @@
 pytest
 pycodestyle
 jupyter
+cartopy
 
 # building documentation
 numpydoc
