@@ -6,7 +6,6 @@ pycodestyle
 
 # testing demo notebook
 jupyter
-geopandas
 cartopy
 
 # building documentation

@@ -11,8 +11,17 @@ services:
   - xvfb  # allows matplotlib display
 
 install:
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set show_channel_urls true
+  - conda update -n base conda
+  - conda config --prepend channels conda-forge
+  - conda create -n test-environment python=$TRAVIS_PYTHON_VERSION pyyaml --file requirements-dev.txt
+  - source activate test-environment
+  - conda info --all
   - pip install .
-  - pip install -r requirements-dev.txt
   - pip list
   - pip show urbanaccess
 
