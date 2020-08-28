@@ -1,54 +1,57 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Introduction &mdash; UrbanAccess 0.2.0 documentation</title>
+  <title>Introduction &mdash; UrbanAccess 0.2.1 documentation</title>
   
 
   
-  
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Download and Load Data" href="data_loaders.html" />
     <link rel="prev" title="Installation" href="installation.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="index.html" class="icon icon-home"> UrbanAccess
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> UrbanAccess
           
 
           
@@ -58,7 +61,7 @@
             
             
               <div class="version">
-                0.2.0
+                0.2.1
               </div>
             
           
@@ -75,6 +78,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -107,6 +111,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -145,7 +150,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Introduction</li>
     
@@ -174,23 +179,25 @@
 <p>UrbanAccess is tool for creating multi-modal graph networks for use in multi-scale (e.g. address level to the metropolitan level) transit accessibility analyses with the network analysis tool Pandana. UrbanAccess uses open data from General Transit Feed Specification (GTFS) data to represent disparate operational schedule transit networks and pedestrian OpenStreetMap (OSM) data to represent the pedestrian network. UrbanAccess provides a generalized, computationally efficient, and unified accessibility calculation framework by linking tools for: 1) network data acquisition, validation, and processing; 2) computing an integrated pedestrian and transit weighted network graph; and 3) network analysis using Pandana.</p>
 <p>UrbanAccess offers the following tools:</p>
 <ul class="simple">
-<li>GTFS and OSM network data acquisition via APIs</li>
-<li>Network data validation and regional network aggregation</li>
-<li>Compute network impedance:<ul>
-<li>by transit schedule day of the week and time of day</li>
-<li>by transit mode</li>
-<li>by including average passenger headways to approximate passenger transit stop wait time</li>
+<li><p>GTFS and OSM network data acquisition via APIs</p></li>
+<li><p>Network data validation and regional network aggregation</p></li>
+<li><p>Compute network impedance:</p>
+<ul>
+<li><p>by transit schedule day of the week and time of day</p></li>
+<li><p>by transit mode</p></li>
+<li><p>by including average passenger headways to approximate passenger transit stop wait time</p></li>
 </ul>
 </li>
-<li>Integrate pedestrian and transit networks to approximate pedestrian scale accessibility</li>
-<li>Resulting networks are designed to be used to compute accessibility metrics using the open source network analysis tool <a class="reference external" href="https://github.com/UDST/pandana">Pandana</a><ul>
-<li>Compute cumulative accessibility metrics</li>
-<li>Nearest feature analysis using POIs</li>
+<li><p>Integrate pedestrian and transit networks to approximate pedestrian scale accessibility</p></li>
+<li><p>Resulting networks are designed to be used to compute accessibility metrics using the open source network analysis tool <a class="reference external" href="https://github.com/UDST/pandana">Pandana</a></p>
+<ul>
+<li><p>Compute cumulative accessibility metrics</p></li>
+<li><p>Nearest feature analysis using POIs</p></li>
 </ul>
 </li>
 </ul>
 <p>Let us know what you are working on or if you think you have a great use case by tweeting us at <code class="docutils literal notranslate"><span class="pre">&#64;urbansim</span></code> or post on the UrbanSim <a class="reference external" href="http://discussion.urbansim.com/">forum</a>.</p>
-<p><a class="reference internal" href="_images/travel_time_net.png"><img alt="travel_time_net" src="_images/travel_time_net.png" style="width: 1265.6px; height: 1361.6px;" /></a>
+<p><a class="reference internal" href="_images/travel_time_net.png"><img alt="travel_time_net" src="_images/travel_time_net.png" style="width: 782px;" /></a>
 <em>Integrated AC Transit and BART transit and pedestrian network travel times for Oakland, CA</em></p>
 </div>
 <div class="section" id="demo">
@@ -220,46 +227,46 @@
 <h2>Contributing to UrbanAccess<a class="headerlink" href="#contributing-to-urbanaccess" title="Permalink to this headline">¶</a></h2>
 <p>If you have improvements or new features you would like to see in UrbanAccess:</p>
 <ol class="arabic simple">
-<li>Open a feature request via <a class="reference external" href="https://github.com/UDST/urbanaccess/issues">GitHub Issues</a>.</li>
-<li>Contribute your code from a fork or branch by using a Pull Request and request a review so it can be considered as an addition to the codebase.</li>
+<li><p>Open a feature request via <a class="reference external" href="https://github.com/UDST/urbanaccess/issues">GitHub Issues</a>.</p></li>
+<li><p>Contribute your code from a fork or branch by using a Pull Request and request a review so it can be considered as an addition to the codebase.</p></li>
 </ol>
 </div>
 <div class="section" id="related-udst-libraries">
 <h2>Related UDST libraries<a class="headerlink" href="#related-udst-libraries" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><a class="reference external" href="https://github.com/UDST/pandana">Pandana</a></li>
-<li><a class="reference external" href="https://github.com/UDST/osmnet">OSMnet</a></li>
+<li><p><a class="reference external" href="https://github.com/UDST/pandana">Pandana</a></p></li>
+<li><p><a class="reference external" href="https://github.com/UDST/osmnet">OSMnet</a></p></li>
 </ul>
 </div>
 <div class="section" id="general-workflow">
 <h2>General workflow<a class="headerlink" href="#general-workflow" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic simple">
-<li><strong>Download and load data</strong></li>
+<li><p><strong>Download and load data</strong></p></li>
 </ol>
 <ul class="simple">
-<li><a class="reference internal" href="data_loaders.html#gtfs-download"><span class="std std-ref">Download GTFS data</span></a></li>
-<li><a class="reference internal" href="data_loaders.html#gtfs-loader"><span class="std std-ref">Load and process GTFS data</span></a></li>
-<li><a class="reference internal" href="data_loaders.html#osm-download-load"><span class="std std-ref">Download and load OSM street network data</span></a></li>
+<li><p><a class="reference internal" href="data_loaders.html#gtfs-download"><span class="std std-ref">Download GTFS data</span></a></p></li>
+<li><p><a class="reference internal" href="data_loaders.html#gtfs-loader"><span class="std std-ref">Load and process GTFS data</span></a></p></li>
+<li><p><a class="reference internal" href="data_loaders.html#osm-download-load"><span class="std std-ref">Download and load OSM street network data</span></a></p></li>
 </ul>
 <ol class="arabic simple" start="2">
-<li><strong>Create network graphs</strong></li>
+<li><p><strong>Create network graphs</strong></p></li>
 </ol>
 <ul class="simple">
-<li><a class="reference internal" href="integrated_network.html#transit-network"><span class="std std-ref">Transit network: Create a travel time weight graph network</span></a></li>
-<li><a class="reference internal" href="integrated_network.html#street-network"><span class="std std-ref">Street network: Create a travel time weight graph network</span></a></li>
-<li><a class="reference internal" href="integrated_network.html#int-network"><span class="std std-ref">Integrate the two graph networks</span></a></li>
+<li><p><a class="reference internal" href="integrated_network.html#transit-network"><span class="std std-ref">Transit network: Create a travel time weight graph network</span></a></p></li>
+<li><p><a class="reference internal" href="integrated_network.html#street-network"><span class="std std-ref">Street network: Create a travel time weight graph network</span></a></p></li>
+<li><p><a class="reference internal" href="integrated_network.html#int-network"><span class="std std-ref">Integrate the two graph networks</span></a></p></li>
 </ul>
 <ol class="arabic simple" start="3">
-<li><strong>Plot the network</strong></li>
+<li><p><strong>Plot the network</strong></p></li>
 </ol>
 <ul class="simple">
-<li><a class="reference internal" href="plot.html#plot-section"><span class="std std-ref">Inspect the network and visualize the impedance</span></a></li>
+<li><p><a class="reference internal" href="plot.html#plot-section"><span class="std std-ref">Inspect the network and visualize the impedance</span></a></p></li>
 </ul>
 <ol class="arabic simple" start="4">
-<li><strong>Compute a network analysis</strong></li>
+<li><p><strong>Compute a network analysis</strong></p></li>
 </ol>
 <ul class="simple">
-<li><a class="reference internal" href="pandana.html#pandana-section"><span class="std std-ref">Compute an accessibility query</span></a> using <a class="reference external" href="https://github.com/UDST/pandana">Pandana</a></li>
+<li><p><a class="reference internal" href="pandana.html#pandana-section"><span class="std std-ref">Compute an accessibility query</span></a> using <a class="reference external" href="https://github.com/UDST/pandana">Pandana</a></p></li>
 </ul>
 </div>
 </div>
@@ -275,7 +282,7 @@
         <a href="data_loaders.html" class="btn btn-neutral float-right" title="Download and Load Data" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="installation.html" class="btn btn-neutral" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -284,7 +291,8 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, UrbanSim Inc.
+        
+        &copy; Copyright 2020, UrbanSim Inc.
 
     </p>
   </div> 
@@ -299,27 +307,16 @@
   </div>
   
 
-
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

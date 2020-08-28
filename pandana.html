@@ -1,54 +1,57 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Using an UrbanAccess network with Pandana &mdash; UrbanAccess 0.2.0 documentation</title>
+  <title>Using an UrbanAccess network with Pandana &mdash; UrbanAccess 0.2.1 documentation</title>
   
 
   
-  
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Network Gallery" href="gallery.html" />
     <link rel="prev" title="Utilities" href="utilities.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="index.html" class="icon icon-home"> UrbanAccess
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> UrbanAccess
           
 
           
@@ -58,7 +61,7 @@
             
             
               <div class="version">
-                0.2.0
+                0.2.1
               </div>
             
           
@@ -75,6 +78,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -100,6 +104,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -138,7 +143,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Using an UrbanAccess network with Pandana</li>
     
@@ -164,9 +169,9 @@
 <p>Pandana (Pandas Network Analysis) is a tool to compute network accessibility metrics. If you have used UrbanAccess to generate your integrated transit and pedestrian network, it has already been formatted for use with Pandana and you can use Pandana right away to compute accessibility metrics.</p>
 <p>There are a couple of important reminders about using an UrbanAccess network with Pandana:</p>
 <ul class="simple">
-<li>By default, UrbanAccess generates a one way network. One way means there is an explicit edge for each direction in the edge table. Where applicable, it is important to set any Pandana <code class="docutils literal notranslate"><span class="pre">two_way</span></code> parameters to <code class="docutils literal notranslate"><span class="pre">False</span></code> (they are <code class="docutils literal notranslate"><span class="pre">True</span></code> by default) to indicate that the network is a one way network.</li>
-<li>As of Pandana v0.3.0, <code class="docutils literal notranslate"><span class="pre">node</span> <span class="pre">ids</span></code> and <code class="docutils literal notranslate"><span class="pre">from</span></code> and <code class="docutils literal notranslate"><span class="pre">to</span></code> columns in your network must be integer type and not string. UrbanAccess automatically generates both string and integer types so use the <code class="docutils literal notranslate"><span class="pre">from_int</span></code> and <code class="docutils literal notranslate"><span class="pre">to_int</span></code> columns in edges and the index in nodes <code class="docutils literal notranslate"><span class="pre">id_int</span></code>.</li>
-<li>UrbanAccess by default will generate edge weights in the column <code class="docutils literal notranslate"><span class="pre">weight</span></code> that represent travel time in units of minutes. Even though Pandana’s impedance parameters are sometimes called <code class="docutils literal notranslate"><span class="pre">distance</span></code> you can use units of minutes here.</li>
+<li><p>By default, UrbanAccess generates a one way network. One way means there is an explicit edge for each direction in the edge table. Where applicable, it is important to set any Pandana <code class="docutils literal notranslate"><span class="pre">two_way</span></code> parameters to <code class="docutils literal notranslate"><span class="pre">False</span></code> (they are <code class="docutils literal notranslate"><span class="pre">True</span></code> by default) to indicate that the network is a one way network.</p></li>
+<li><p>As of Pandana v0.3.0, <code class="docutils literal notranslate"><span class="pre">node</span> <span class="pre">ids</span></code> and <code class="docutils literal notranslate"><span class="pre">from</span></code> and <code class="docutils literal notranslate"><span class="pre">to</span></code> columns in your network must be integer type and not string. UrbanAccess automatically generates both string and integer types so use the <code class="docutils literal notranslate"><span class="pre">from_int</span></code> and <code class="docutils literal notranslate"><span class="pre">to_int</span></code> columns in edges and the index in nodes <code class="docutils literal notranslate"><span class="pre">id_int</span></code>.</p></li>
+<li><p>UrbanAccess by default will generate edge weights in the column <code class="docutils literal notranslate"><span class="pre">weight</span></code> that represent travel time in units of minutes. Even though Pandana’s impedance parameters are sometimes called <code class="docutils literal notranslate"><span class="pre">distance</span></code> you can use units of minutes here.</p></li>
 </ul>
 <p>For reporting issues related to Pandana and for Pandana documentation see the <a class="reference external" href="https://github.com/UDST/pandana">Pandana repo</a> directly.</p>
 <div class="section" id="examples-of-using-an-urbanaccess-network-with-pandana">
@@ -194,16 +199,16 @@
 <h2>Examples of Pandana results using an UrbanAccess network<a class="headerlink" href="#examples-of-pandana-results-using-an-urbanaccess-network" title="Permalink to this headline">¶</a></h2>
 <p>Examples of a Pandana accessibility to jobs aggregation query in Oakland, CA using an UrbanAccess integrated transit and pedestrian network for three travel time thresholds 15, 30, and 45 minutes (Note: these plots are generated using Pandana’s plot functions and are plotting the network nodes.)</p>
 <p><strong>Jobs accessible within 15 minutes</strong>
-<a class="reference internal" href="_images/15_min_jobs.png"><img alt="15min" src="_images/15_min_jobs.png" style="width: 1039.2px; height: 1233.6px;" /></a></p>
+<a class="reference internal" href="_images/15_min_jobs.png"><img alt="15min" src="_images/15_min_jobs.png" style="width: 709px;" /></a></p>
 <p><strong>Jobs accessible within 30 minutes</strong>
-<a class="reference internal" href="_images/30_min_jobs.png"><img alt="30min" src="_images/30_min_jobs.png" style="width: 1046.4px; height: 1233.6px;" /></a></p>
+<a class="reference internal" href="_images/30_min_jobs.png"><img alt="30min" src="_images/30_min_jobs.png" style="width: 714px;" /></a></p>
 <p><strong>Jobs accessible within 45 minutes</strong>
-<a class="reference internal" href="_images/45_min_jobs.png"><img alt="45min" src="_images/45_min_jobs.png" style="width: 1046.4px; height: 1233.6px;" /></a></p>
+<a class="reference internal" href="_images/45_min_jobs.png"><img alt="45min" src="_images/45_min_jobs.png" style="width: 714px;" /></a></p>
 <p>Examples of a Pandana nearest POI query to hospitals and parks within a 30 minute travel time in Oakland, CA using an UrbanAccess integrated transit and pedestrian network (Note: these plots are generated using Pandana’s plot functions and are plotting the network nodes.)</p>
 <p><strong>Travel time to nearest hospital within 30 minutes</strong>
-<a class="reference internal" href="_images/hospitals_30.png"><img alt="hospitals" src="_images/hospitals_30.png" style="width: 1018.4px; height: 1233.6px;" /></a></p>
+<a class="reference internal" href="_images/hospitals_30.png"><img alt="hospitals" src="_images/hospitals_30.png" style="width: 695px;" /></a></p>
 <p><strong>Travel time to nearest park within 30 minutes</strong>
-<a class="reference internal" href="_images/parks_30.png"><img alt="parks" src="_images/parks_30.png" style="width: 1018.4px; height: 1233.6px;" /></a></p>
+<a class="reference internal" href="_images/parks_30.png"><img alt="parks" src="_images/parks_30.png" style="width: 695px;" /></a></p>
 </div>
 </div>
 
@@ -218,7 +223,7 @@
         <a href="gallery.html" class="btn btn-neutral float-right" title="Network Gallery" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="utilities.html" class="btn btn-neutral" title="Utilities" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="utilities.html" class="btn btn-neutral float-left" title="Utilities" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -227,7 +232,8 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, UrbanSim Inc.
+        
+        &copy; Copyright 2020, UrbanSim Inc.
 
     </p>
   </div> 
@@ -242,27 +248,16 @@
   </div>
   
 
-
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

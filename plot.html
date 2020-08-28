@@ -1,54 +1,57 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Plot Networks &mdash; UrbanAccess 0.2.0 documentation</title>
+  <title>Plot Networks &mdash; UrbanAccess 0.2.1 documentation</title>
   
 
   
-  
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Utilities" href="utilities.html" />
     <link rel="prev" title="Create an Integrated Transit and Street Network" href="integrated_network.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="index.html" class="icon icon-home"> UrbanAccess
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> UrbanAccess
           
 
           
@@ -58,7 +61,7 @@
             
             
               <div class="version">
-                0.2.0
+                0.2.1
               </div>
             
           
@@ -75,6 +78,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -96,6 +100,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -134,7 +139,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Plot Networks</li>
     
@@ -160,132 +165,98 @@
 <p>UrbanAccess offers some basic plotting methods to visualize your UrbanAccess network data.</p>
 <p>For example you can:</p>
 <p><strong>Plot the transit network</strong>
-<a class="reference internal" href="_images/transit_net.png"><img alt="transit_net" src="_images/transit_net.png" style="width: 1265.6px; height: 1361.6px;" /></a>
+<a class="reference internal" href="_images/transit_net.png"><img alt="transit_net" src="_images/transit_net.png" style="width: 734px;" /></a>
 <em>AC Transit and BART transit network for Oakland, CA</em></p>
 <p><strong>Plot the street network</strong>
-<a class="reference internal" href="_images/ped_net.png"><img alt="ped_net" src="_images/ped_net.png" style="width: 1265.6px; height: 1361.6px;" /></a>
+<a class="reference internal" href="_images/ped_net.png"><img alt="ped_net" src="_images/ped_net.png" style="width: 734px;" /></a>
 <em>Pedestrian network for Oakland, CA</em></p>
 <p><strong>Plot the travel times on the integrated network</strong>
-<a class="reference internal" href="_images/travel_time_net.png"><img alt="travel_time_net" src="_images/travel_time_net.png" style="width: 1265.6px; height: 1361.6px;" /></a>
+<a class="reference internal" href="_images/travel_time_net.png"><img alt="travel_time_net" src="_images/travel_time_net.png" style="width: 734px;" /></a>
 <em>Integrated AC Transit and BART transit and pedestrian network travel times for Oakland, CA</em></p>
-<dl class="function">
+<dl class="py function">
 <dt id="urbanaccess.plot.plot_net">
-<code class="descclassname">urbanaccess.plot.</code><code class="descname">plot_net</code><span class="sig-paren">(</span><em>nodes</em>, <em>edges</em>, <em>x_col=None</em>, <em>y_col=None</em>, <em>from_col=None</em>, <em>to_col=None</em>, <em>bbox=None</em>, <em>fig_height=6</em>, <em>margin=0.02</em>, <em>edge_color='#999999'</em>, <em>edge_linewidth=1</em>, <em>edge_alpha=1</em>, <em>node_color='black'</em>, <em>node_size=15</em>, <em>node_alpha=1</em>, <em>node_edgecolor='none'</em>, <em>node_zorder=3</em>, <em>nodes_only=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.plot.plot_net" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">urbanaccess.plot.</code><code class="sig-name descname">plot_net</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nodes</span></em>, <em class="sig-param"><span class="n">edges</span></em>, <em class="sig-param"><span class="n">x_col</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">y_col</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">from_col</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">to_col</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bbox</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fig_height</span><span class="o">=</span><span class="default_value">6</span></em>, <em class="sig-param"><span class="n">margin</span><span class="o">=</span><span class="default_value">0.02</span></em>, <em class="sig-param"><span class="n">edge_color</span><span class="o">=</span><span class="default_value">'#999999'</span></em>, <em class="sig-param"><span class="n">edge_linewidth</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">edge_alpha</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">node_color</span><span class="o">=</span><span class="default_value">'black'</span></em>, <em class="sig-param"><span class="n">node_size</span><span class="o">=</span><span class="default_value">15</span></em>, <em class="sig-param"><span class="n">node_alpha</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">node_edgecolor</span><span class="o">=</span><span class="default_value">'none'</span></em>, <em class="sig-param"><span class="n">node_zorder</span><span class="o">=</span><span class="default_value">3</span></em>, <em class="sig-param"><span class="n">nodes_only</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.plot.plot_net" title="Permalink to this definition">¶</a></dt>
 <dd><p>plot urbanaccess network nodes and edges</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>nodes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
-<dd></dd>
-<dt><strong>edges</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
-<dd></dd>
-<dt><strong>x_col</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">x coordinate column in nodes dataframe</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>nodes</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
+<dt><strong>edges</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
+<dt><strong>x_col</strong><span class="classifier">str, optional</span></dt><dd><p>x coordinate column in nodes dataframe</p>
 </dd>
-<dt><strong>y_col</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">y coordinate column in nodes dataframe</p>
+<dt><strong>y_col</strong><span class="classifier">str, optional</span></dt><dd><p>y coordinate column in nodes dataframe</p>
 </dd>
-<dt><strong>from_col</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">name of column to use for ‘from’ node id</p>
+<dt><strong>from_col</strong><span class="classifier">str, optional</span></dt><dd><p>name of column to use for ‘from’ node id</p>
 </dd>
-<dt><strong>to_col</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">name of column to use for ‘to’ node id</p>
+<dt><strong>to_col</strong><span class="classifier">str, optional</span></dt><dd><p>name of column to use for ‘to’ node id</p>
 </dd>
-<dt><strong>bbox</strong> <span class="classifier-delimiter">:</span> <span class="classifier">tuple, optional</span></dt>
-<dd><p class="first last">Bounding box formatted as a 4 element tuple:
+<dt><strong>bbox</strong><span class="classifier">tuple, optional</span></dt><dd><p>Bounding box formatted as a 4 element tuple:
 (lng_max, lat_min, lng_min, lat_max)
 example: (-122.304611,37.798933,-122.263412,37.822802)
 a bbox can be extracted for an area using: the CSV format
 bbox from <a class="reference external" href="http://boundingbox.klokantech.com/">http://boundingbox.klokantech.com/</a>
 if None bbox will be calculated from spatial extents of data</p>
 </dd>
-<dt><strong>fig_height</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd><p class="first last">matplotlib figure height in inches</p>
+<dt><strong>fig_height</strong><span class="classifier">int</span></dt><dd><p>matplotlib figure height in inches</p>
 </dd>
-<dt><strong>margin</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">margin around the figure</p>
+<dt><strong>margin</strong><span class="classifier">float</span></dt><dd><p>margin around the figure</p>
 </dd>
-<dt><strong>edge_color</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd><p class="first last">color of the edge lines</p>
+<dt><strong>edge_color</strong><span class="classifier">string</span></dt><dd><p>color of the edge lines</p>
 </dd>
-<dt><strong>edge_linewidth</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">width of the edge lines</p>
+<dt><strong>edge_linewidth</strong><span class="classifier">float</span></dt><dd><p>width of the edge lines</p>
 </dd>
-<dt><strong>edge_alpha</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">opacity of the edge lines</p>
+<dt><strong>edge_alpha</strong><span class="classifier">float</span></dt><dd><p>opacity of the edge lines</p>
 </dd>
-<dt><strong>node_color</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd><p class="first last">node color</p>
+<dt><strong>node_color</strong><span class="classifier">string</span></dt><dd><p>node color</p>
 </dd>
-<dt><strong>node_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd><p class="first last">node size</p>
+<dt><strong>node_size</strong><span class="classifier">int</span></dt><dd><p>node size</p>
 </dd>
-<dt><strong>node_alpha</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">node opacity</p>
+<dt><strong>node_alpha</strong><span class="classifier">float</span></dt><dd><p>node opacity</p>
 </dd>
-<dt><strong>node_edgecolor</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd><p class="first last">the color of the node border</p>
+<dt><strong>node_edgecolor</strong><span class="classifier">string</span></dt><dd><p>the color of the node border</p>
 </dd>
-<dt><strong>node_zorder</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd><p class="first last">zorder to plot nodes, edges are zorder 2. A node_zorder 1 will plot
+<dt><strong>node_zorder</strong><span class="classifier">int</span></dt><dd><p>zorder to plot nodes, edges are zorder 2. A node_zorder 1 will plot
 nodes under the edges, 3 will plot nodes on top</p>
 </dd>
-<dt><strong>nodes_only</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
-<dd><p class="first last">if true only the nodes will plot</p>
+<dt><strong>nodes_only</strong><span class="classifier">bool</span></dt><dd><p>if true only the nodes will plot</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>fig, ax</strong></dt>
-<dd></dd>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>fig, ax</dt><dd></dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="urbanaccess.plot.col_colors">
-<code class="descclassname">urbanaccess.plot.</code><code class="descname">col_colors</code><span class="sig-paren">(</span><em>df</em>, <em>col</em>, <em>num_bins=5</em>, <em>cmap='spectral'</em>, <em>start=0.1</em>, <em>stop=0.9</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.plot.col_colors" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">urbanaccess.plot.</code><code class="sig-name descname">col_colors</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">col</span></em>, <em class="sig-param"><span class="n">num_bins</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">cmap</span><span class="o">=</span><span class="default_value">'spectral'</span></em>, <em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">stop</span><span class="o">=</span><span class="default_value">0.9</span></em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.plot.col_colors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a list of colors by binning a continuous variable column
 into quantiles</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>df</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
-<dd></dd>
-<dt><strong>col</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd><p class="first last">the name of the column in the dataframe with the continuous variable</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>df</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
+<dt><strong>col</strong><span class="classifier">string</span></dt><dd><p>the name of the column in the dataframe with the continuous variable</p>
 </dd>
-<dt><strong>num_bins</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd><p class="first last">how many quantiles</p>
+<dt><strong>num_bins</strong><span class="classifier">int</span></dt><dd><p>how many quantiles</p>
 </dd>
-<dt><strong>cmap</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd><p class="first last">name of a colormap</p>
+<dt><strong>cmap</strong><span class="classifier">string</span></dt><dd><p>name of a colormap</p>
 </dd>
-<dt><strong>start</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">where to start in the colorspace</p>
+<dt><strong>start</strong><span class="classifier">float</span></dt><dd><p>where to start in the colorspace</p>
 </dd>
-<dt><strong>stop</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">where to end in the colorspace</p>
+<dt><strong>stop</strong><span class="classifier">float</span></dt><dd><p>where to end in the colorspace</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>colors</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd></dd>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>colors</strong><span class="classifier">list</span></dt><dd></dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -301,7 +272,7 @@ into quantiles</p>
         <a href="utilities.html" class="btn btn-neutral float-right" title="Utilities" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="integrated_network.html" class="btn btn-neutral" title="Create an Integrated Transit and Street Network" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="integrated_network.html" class="btn btn-neutral float-left" title="Create an Integrated Transit and Street Network" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -310,7 +281,8 @@ into quantiles</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, UrbanSim Inc.
+        
+        &copy; Copyright 2020, UrbanSim Inc.
 
     </p>
   </div> 
@@ -325,27 +297,16 @@ into quantiles</p>
   </div>
   
 
-
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

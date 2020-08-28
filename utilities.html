@@ -1,54 +1,57 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Utilities &mdash; UrbanAccess 0.2.0 documentation</title>
+  <title>Utilities &mdash; UrbanAccess 0.2.1 documentation</title>
   
 
   
-  
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Using an UrbanAccess network with Pandana" href="pandana.html" />
     <link rel="prev" title="Plot Networks" href="plot.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="index.html" class="icon icon-home"> UrbanAccess
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> UrbanAccess
           
 
           
@@ -58,7 +61,7 @@
             
             
               <div class="version">
-                0.2.0
+                0.2.1
               </div>
             
           
@@ -75,6 +78,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -96,6 +100,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -134,7 +139,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Utilities</li>
     
@@ -158,147 +163,106 @@
   <div class="section" id="utilities">
 <span id="utilities-section"></span><h1>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h1>
 <p>Global configuration settings can be changed using the settings object.</p>
-<dl class="data">
+<dl class="py data">
 <dt id="urbanaccess.config.settings">
-<code class="descclassname">urbanaccess.config.</code><code class="descname">settings</code><a class="headerlink" href="#urbanaccess.config.settings" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">urbanaccess.config.</code><code class="sig-name descname">settings</code><a class="headerlink" href="#urbanaccess.config.settings" title="Permalink to this definition">¶</a></dt>
 <dd><p>A set of configuration variables to initiate the
 configuration settings for UrbanAccess.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>data_folder</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">location to save and load data files</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data_folder</strong><span class="classifier">str</span></dt><dd><p>location to save and load data files</p>
 </dd>
-<dt><strong>logs_folder</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">location to write log files</p>
+<dt><strong>logs_folder</strong><span class="classifier">str</span></dt><dd><p>location to write log files</p>
 </dd>
-<dt><strong>log_file</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
-<dd><p class="first last">if true, save log output to a log file in logs_folder</p>
+<dt><strong>log_file</strong><span class="classifier">bool</span></dt><dd><p>if true, save log output to a log file in logs_folder</p>
 </dd>
-<dt><strong>log_console</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
-<dd><p class="first last">if true, print log output to the console</p>
+<dt><strong>log_console</strong><span class="classifier">bool</span></dt><dd><p>if true, print log output to the console</p>
 </dd>
-<dt><strong>log_name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">name of the logger</p>
+<dt><strong>log_name</strong><span class="classifier">str</span></dt><dd><p>name of the logger</p>
 </dd>
-<dt><strong>log_filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">name of the log file</p>
+<dt><strong>log_filename</strong><span class="classifier">str</span></dt><dd><p>name of the log file</p>
 </dd>
-<dt><strong>gtfs_api</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first last">dictionary of the name of the GTFS API service as the key and
+<dt><strong>gtfs_api</strong><span class="classifier">dict</span></dt><dd><p>dictionary of the name of the GTFS API service as the key and
 the GTFS API server root URL as the value to pass to the GTFS loader</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <p>By default the global configuration settings are already set, however they can be changed by using the functions in the <code class="docutils literal notranslate"><span class="pre">urbanaccess_config</span></code> class:</p>
-<dl class="class">
+<dl class="py class">
 <dt id="urbanaccess.config.urbanaccess_config">
-<em class="property">class </em><code class="descclassname">urbanaccess.config.</code><code class="descname">urbanaccess_config</code><span class="sig-paren">(</span><em>data_folder='data'</em>, <em>logs_folder='logs'</em>, <em>log_file=True</em>, <em>log_console=False</em>, <em>log_name='urbanaccess'</em>, <em>log_filename='urbanaccess'</em>, <em>gtfs_api={'gtfsdataexch': 'http://www.gtfs-data-exchange.com/api/agencies?format=csv'}</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.config.urbanaccess_config" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">urbanaccess.config.</code><code class="sig-name descname">urbanaccess_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_folder</span><span class="o">=</span><span class="default_value">'data'</span></em>, <em class="sig-param"><span class="n">logs_folder</span><span class="o">=</span><span class="default_value">'logs'</span></em>, <em class="sig-param"><span class="n">log_file</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">log_console</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">log_name</span><span class="o">=</span><span class="default_value">'urbanaccess'</span></em>, <em class="sig-param"><span class="n">log_filename</span><span class="o">=</span><span class="default_value">'urbanaccess'</span></em>, <em class="sig-param"><span class="n">gtfs_api</span><span class="o">=</span><span class="default_value">{'gtfsdataexch': 'http://www.gtfs-data-exchange.com/api/agencies?format=csv'}</span></em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.config.urbanaccess_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>A set of configuration variables to initiate the
 configuration settings for UrbanAccess.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>data_folder</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">location to save and load data files</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data_folder</strong><span class="classifier">str</span></dt><dd><p>location to save and load data files</p>
 </dd>
-<dt><strong>logs_folder</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">location to write log files</p>
+<dt><strong>logs_folder</strong><span class="classifier">str</span></dt><dd><p>location to write log files</p>
 </dd>
-<dt><strong>log_file</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
-<dd><p class="first last">if true, save log output to a log file in logs_folder</p>
+<dt><strong>log_file</strong><span class="classifier">bool</span></dt><dd><p>if true, save log output to a log file in logs_folder</p>
 </dd>
-<dt><strong>log_console</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
-<dd><p class="first last">if true, print log output to the console</p>
+<dt><strong>log_console</strong><span class="classifier">bool</span></dt><dd><p>if true, print log output to the console</p>
 </dd>
-<dt><strong>log_name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">name of the logger</p>
+<dt><strong>log_name</strong><span class="classifier">str</span></dt><dd><p>name of the logger</p>
 </dd>
-<dt><strong>log_filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">name of the log file</p>
+<dt><strong>log_filename</strong><span class="classifier">str</span></dt><dd><p>name of the log file</p>
 </dd>
-<dt><strong>gtfs_api</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first last">dictionary of the name of the GTFS API service as the key and
+<dt><strong>gtfs_api</strong><span class="classifier">dict</span></dt><dd><p>dictionary of the name of the GTFS API service as the key and
 the GTFS API server root URL as the value to pass to the GTFS loader</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="classmethod">
-<dt id="urbanaccess.config.urbanaccess_config.from_yaml">
-<em class="property">classmethod </em><code class="descname">from_yaml</code><span class="sig-paren">(</span><em>configdir='configs'</em>, <em>yamlname='urbanaccess_config.yaml'</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.config.urbanaccess_config.from_yaml" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a urbanaccess_config instance from a saved YAML configuration.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>configdir</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">Directory to load a YAML file.</p>
 </dd>
-<dt><strong>yamlname</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or file like, optional</span></dt>
-<dd><p class="first last">File name from which to load a YAML file.</p>
-</dd>
-<dt><strong>Returns</strong></dt>
-<dd></dd>
-<dt><strong>——-</strong></dt>
-<dd></dd>
-<dt><strong>urbanaccess_config</strong></dt>
-<dd></dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+<dl class="py method">
+<dt id="urbanaccess.config.urbanaccess_config.from_yaml">
+<em class="property">classmethod </em><code class="sig-name descname">from_yaml</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">configdir</span><span class="o">=</span><span class="default_value">'configs'</span></em>, <em class="sig-param"><span class="n">yamlname</span><span class="o">=</span><span class="default_value">'urbanaccess_config.yaml'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.config.urbanaccess_config.from_yaml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a urbanaccess_config instance from a saved YAML configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>configdir</strong><span class="classifier">str, optional</span></dt><dd><p>Directory to load a YAML file.</p>
+</dd>
+<dt><strong>yamlname</strong><span class="classifier">str or file like, optional</span></dt><dd><p>File name from which to load a YAML file.</p>
+</dd>
+<dt><strong>Returns</strong></dt><dd></dd>
+<dt><strong>——-</strong></dt><dd></dd>
+<dt><strong>urbanaccess_config</strong></dt><dd></dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="urbanaccess.config.urbanaccess_config.to_dict">
-<code class="descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.config.urbanaccess_config.to_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.config.urbanaccess_config.to_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a dict representation of an urbanaccess_config instance.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="urbanaccess.config.urbanaccess_config.to_yaml">
-<code class="descname">to_yaml</code><span class="sig-paren">(</span><em>configdir='configs'</em>, <em>yamlname='urbanaccess_config.yaml'</em>, <em>overwrite=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.config.urbanaccess_config.to_yaml" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_yaml</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">configdir</span><span class="o">=</span><span class="default_value">'configs'</span></em>, <em class="sig-param"><span class="n">yamlname</span><span class="o">=</span><span class="default_value">'urbanaccess_config.yaml'</span></em>, <em class="sig-param"><span class="n">overwrite</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.config.urbanaccess_config.to_yaml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save a urbanaccess_config representation to a YAML file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>configdir</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">Directory to save a YAML file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>configdir</strong><span class="classifier">str, optional</span></dt><dd><p>Directory to save a YAML file.</p>
 </dd>
-<dt><strong>yamlname</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or file like, optional</span></dt>
-<dd><p class="first last">File name to which to save a YAML file.</p>
+<dt><strong>yamlname</strong><span class="classifier">str or file like, optional</span></dt><dd><p>File name to which to save a YAML file.</p>
 </dd>
-<dt><strong>overwrite</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">if true, overwrite an existing same name YAML
+<dt><strong>overwrite</strong><span class="classifier">bool, optional</span></dt><dd><p>if true, overwrite an existing same name YAML
 file in specified directory</p>
 </dd>
-<dt><strong>Returns</strong></dt>
-<dd></dd>
-<dt><strong>——-</strong></dt>
-<dd></dd>
-<dt><strong>Nothing</strong></dt>
-<dd></dd>
+<dt><strong>Returns</strong></dt><dd></dd>
+<dt><strong>——-</strong></dt><dd></dd>
+<dt><strong>Nothing</strong></dt><dd></dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -316,7 +280,7 @@ file in specified directory</p>
         <a href="pandana.html" class="btn btn-neutral float-right" title="Using an UrbanAccess network with Pandana" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="plot.html" class="btn btn-neutral" title="Plot Networks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="plot.html" class="btn btn-neutral float-left" title="Plot Networks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -325,7 +289,8 @@ file in specified directory</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, UrbanSim Inc.
+        
+        &copy; Copyright 2020, UrbanSim Inc.
 
     </p>
   </div> 
@@ -340,27 +305,16 @@ file in specified directory</p>
   </div>
   
 
-
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

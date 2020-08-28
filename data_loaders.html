@@ -1,54 +1,57 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Download and Load Data &mdash; UrbanAccess 0.2.0 documentation</title>
+  <title>Download and Load Data &mdash; UrbanAccess 0.2.1 documentation</title>
   
 
   
-  
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Create an Integrated Transit and Street Network" href="integrated_network.html" />
     <link rel="prev" title="Introduction" href="introduction.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="index.html" class="icon icon-home"> UrbanAccess
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> UrbanAccess
           
 
           
@@ -58,7 +61,7 @@
             
             
               <div class="version">
-                0.2.0
+                0.2.1
               </div>
             
           
@@ -75,6 +78,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -104,6 +108,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -142,7 +147,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Download and Load Data</li>
     
@@ -167,75 +172,59 @@
 <span id="dataloader-section"></span><h1>Download and Load Data<a class="headerlink" href="#download-and-load-data" title="Permalink to this headline">¶</a></h1>
 <p>UrbanAccess has data downloaders and data loaders that can be used to acquire and load transit and street network datasets:</p>
 <ol class="arabic simple">
-<li>Transit Network: General Transit Feed Specification (GTFS)</li>
+<li><p>Transit Network: General Transit Feed Specification (GTFS)</p></li>
 </ol>
 <ul class="simple">
-<li><a class="reference internal" href="#gtfs-download"><span class="std std-ref">Download</span></a></li>
-<li><a class="reference internal" href="#gtfs-loader"><span class="std std-ref">Load</span></a></li>
+<li><p><a class="reference internal" href="#gtfs-download"><span class="std std-ref">Download</span></a></p></li>
+<li><p><a class="reference internal" href="#gtfs-loader"><span class="std std-ref">Load</span></a></p></li>
 </ul>
 <ol class="arabic simple" start="2">
-<li>Street Network: OpenStreetMap (OSM)</li>
+<li><p>Street Network: OpenStreetMap (OSM)</p></li>
 </ol>
 <ul class="simple">
-<li><a class="reference internal" href="#osm-download-load"><span class="std std-ref">Download and Load</span></a></li>
+<li><p><a class="reference internal" href="#osm-download-load"><span class="std std-ref">Download and Load</span></a></p></li>
 </ul>
 <div class="section" id="the-gtfs-data-object">
 <span id="gtfs-data-object"></span><h2>The GTFS Data Object<a class="headerlink" href="#the-gtfs-data-object" title="Permalink to this headline">¶</a></h2>
 <p>The GTFS data object stores the processed and aggregated GTFS feed data in Pandas DataFrames.</p>
-<dl class="data">
+<dl class="py data">
 <dt id="urbanaccess.gtfs.gtfsfeeds_dataframe.gtfsfeeds_dfs">
-<code class="descclassname">urbanaccess.gtfs.gtfsfeeds_dataframe.</code><code class="descname">gtfsfeeds_dfs</code><a class="headerlink" href="#urbanaccess.gtfs.gtfsfeeds_dataframe.gtfsfeeds_dfs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">urbanaccess.gtfs.gtfsfeeds_dataframe.</code><code class="sig-name descname">gtfsfeeds_dfs</code><a class="headerlink" href="#urbanaccess.gtfs.gtfsfeeds_dataframe.gtfsfeeds_dfs" title="Permalink to this definition">¶</a></dt>
 <dd><p>A collection of dataframes representing the standardized and
 merged metropolitan-wide transit network from multiple
 GTFS feeds.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>gtfsfeeds_dfs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
-<dd><p class="first last">processed dataframes of corresponding GTFS feed text files</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>gtfsfeeds_dfs</strong><span class="classifier">object</span></dt><dd><p>processed dataframes of corresponding GTFS feed text files</p>
 </dd>
-<dt><strong>gtfsfeeds_dfs.stops</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
-<dd></dd>
-<dt><strong>gtfsfeeds_dfs.routes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
-<dd></dd>
-<dt><strong>gtfsfeeds_dfs.trips</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
-<dd></dd>
-<dt><strong>gtfsfeeds_dfs.stop_times</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
-<dd></dd>
-<dt><strong>gtfsfeeds_dfs.calendar</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
-<dd></dd>
-<dt><strong>gtfsfeeds_dfs.calendar_dates</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
-<dd></dd>
-<dt><strong>gtfsfeeds_dfs.stop_times_int</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
-<dd></dd>
-<dt><strong>gtfsfeeds_dfs.headways</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
-<dd></dd>
+<dt><strong>gtfsfeeds_dfs.stops</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
+<dt><strong>gtfsfeeds_dfs.routes</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
+<dt><strong>gtfsfeeds_dfs.trips</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
+<dt><strong>gtfsfeeds_dfs.stop_times</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
+<dt><strong>gtfsfeeds_dfs.calendar</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
+<dt><strong>gtfsfeeds_dfs.calendar_dates</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
+<dt><strong>gtfsfeeds_dfs.stop_times_int</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
+<dt><strong>gtfsfeeds_dfs.headways</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
 <div class="section" id="downloading-gtfs-data">
 <span id="gtfs-download"></span><h2>Downloading GTFS Data<a class="headerlink" href="#downloading-gtfs-data" title="Permalink to this headline">¶</a></h2>
 <p>Manage and download multiple feeds at once using the <code class="docutils literal notranslate"><span class="pre">feeds</span></code> object.</p>
-<dl class="data">
+<dl class="py data">
 <dt id="urbanaccess.gtfsfeeds.feeds">
-<code class="descclassname">urbanaccess.gtfsfeeds.</code><code class="descname">feeds</code><a class="headerlink" href="#urbanaccess.gtfsfeeds.feeds" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">urbanaccess.gtfsfeeds.</code><code class="sig-name descname">feeds</code><a class="headerlink" href="#urbanaccess.gtfsfeeds.feeds" title="Permalink to this definition">¶</a></dt>
 <dd><p>A dict of GTFS feeds as {name of GTFS feed or transit service/agency :
 URL of feed} to request and
 download in the gtfs downloader.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>gtfs_feeds</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first last">dictionary of the name of the transit service or agency GTFS feed
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>gtfs_feeds</strong><span class="classifier">dict</span></dt><dd><p>dictionary of the name of the transit service or agency GTFS feed
 as the key -note: this name will be used as the feed folder name.
 If the GTFS feed does not have a agency name in the agency.txt file
 this key will be used to name the agency- and
@@ -243,26 +232,21 @@ the GTFS feed URL as the value to pass to the GTFS downloader as:
 {unique name of GTFS feed or transit service/agency : URL of feed}</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <p>The <code class="docutils literal notranslate"><span class="pre">feeds</span></code> object is an instance of the <code class="docutils literal notranslate"><span class="pre">urbanaccess_gtfsfeeds</span></code> class with the following functions:</p>
-<dl class="class">
+<dl class="py class">
 <dt id="urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds">
-<em class="property">class </em><code class="descclassname">urbanaccess.gtfsfeeds.</code><code class="descname">urbanaccess_gtfsfeeds</code><span class="sig-paren">(</span><em>gtfs_feeds={}</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">urbanaccess.gtfsfeeds.</code><code class="sig-name descname">urbanaccess_gtfsfeeds</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gtfs_feeds</span><span class="o">=</span><span class="default_value">{}</span></em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds" title="Permalink to this definition">¶</a></dt>
 <dd><p>A dict of GTFS feeds as {name of GTFS feed or transit service/agency :
 URL of feed} to request and
 download in the gtfs downloader.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>gtfs_feeds</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first last">dictionary of the name of the transit service or agency GTFS feed
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>gtfs_feeds</strong><span class="classifier">dict</span></dt><dd><p>dictionary of the name of the transit service or agency GTFS feed
 as the key -note: this name will be used as the feed folder name.
 If the GTFS feed does not have a agency name in the agency.txt file
 this key will be used to name the agency- and
@@ -270,224 +254,165 @@ the GTFS feed URL as the value to pass to the GTFS downloader as:
 {unique name of GTFS feed or transit service/agency : URL of feed}</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
+</dd>
+</dl>
+<dl class="py method">
 <dt id="urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds.add_feed">
-<code class="descname">add_feed</code><span class="sig-paren">(</span><em>add_dict</em>, <em>replace=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds.add_feed" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_feed</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">add_dict</span></em>, <em class="sig-param"><span class="n">replace</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds.add_feed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a dictionary to the urbanaccess_gtfsfeeds instance.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>add_dict</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first last">Dictionary to add to existing urbanaccess_gtfsfeeds with the name
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>add_dict</strong><span class="classifier">dict</span></dt><dd><p>Dictionary to add to existing urbanaccess_gtfsfeeds with the name
 of the transit service or agency GTFS feed as the key and the
 GTFS feed URL as the value to pass to the GTFS downloader
 as:
 {unique name of GTFS feed or transit service/agency : URL of feed}</p>
 </dd>
-<dt><strong>replace</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">If key of dict is already in the UrbanAccess replace
+<dt><strong>replace</strong><span class="classifier">bool, optional</span></dt><dd><p>If key of dict is already in the UrbanAccess replace
 the existing dict value with the value passed</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="classmethod">
-<dt id="urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds.from_yaml">
-<em class="property">classmethod </em><code class="descname">from_yaml</code><span class="sig-paren">(</span><em>gtfsfeeddir='data/gtfsfeeds'</em>, <em>yamlname='gtfsfeeds.yaml'</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds.from_yaml" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a urbanaccess_gtfsfeeds instance from a saved YAML.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>gtfsfeeddir</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">Directory to load a YAML file.</p>
 </dd>
-<dt><strong>yamlname</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or file like, optional</span></dt>
-<dd><p class="first last">File name from which to load a YAML file.</p>
-</dd>
-<dt><strong>Returns</strong></dt>
-<dd></dd>
-<dt><strong>——-</strong></dt>
-<dd></dd>
-<dt><strong>urbanaccess_gtfsfeeds</strong></dt>
-<dd></dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
+<dt id="urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds.from_yaml">
+<em class="property">classmethod </em><code class="sig-name descname">from_yaml</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gtfsfeeddir</span><span class="o">=</span><span class="default_value">'data/gtfsfeeds'</span></em>, <em class="sig-param"><span class="n">yamlname</span><span class="o">=</span><span class="default_value">'gtfsfeeds.yaml'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds.from_yaml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a urbanaccess_gtfsfeeds instance from a saved YAML.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>gtfsfeeddir</strong><span class="classifier">str, optional</span></dt><dd><p>Directory to load a YAML file.</p>
+</dd>
+<dt><strong>yamlname</strong><span class="classifier">str or file like, optional</span></dt><dd><p>File name from which to load a YAML file.</p>
+</dd>
+<dt><strong>Returns</strong></dt><dd></dd>
+<dt><strong>——-</strong></dt><dd></dd>
+<dt><strong>urbanaccess_gtfsfeeds</strong></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds.remove_feed">
-<code class="descname">remove_feed</code><span class="sig-paren">(</span><em>del_key=None</em>, <em>remove_all=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds.remove_feed" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">remove_feed</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">del_key</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">remove_all</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds.remove_feed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove GTFS feeds from the existing urbanaccess_gtfsfeeds instance</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>del_key</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or list, optional</span></dt>
-<dd><p class="first last">dict keys as a single string or list of
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>del_key</strong><span class="classifier">str or list, optional</span></dt><dd><p>dict keys as a single string or list of
 strings to remove from existing</p>
 </dd>
-<dt><strong>remove_all</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">if true, remove all keys from existing
+<dt><strong>remove_all</strong><span class="classifier">bool, optional</span></dt><dd><p>if true, remove all keys from existing
 urbanaccess_gtfsfeeds instance</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds.to_dict">
-<code class="descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds.to_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds.to_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a dict representation of an urbanaccess_gtfsfeeds instance.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds.to_yaml">
-<code class="descname">to_yaml</code><span class="sig-paren">(</span><em>gtfsfeeddir='data/gtfsfeeds'</em>, <em>yamlname='gtfsfeeds.yaml'</em>, <em>overwrite=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds.to_yaml" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_yaml</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gtfsfeeddir</span><span class="o">=</span><span class="default_value">'data/gtfsfeeds'</span></em>, <em class="sig-param"><span class="n">yamlname</span><span class="o">=</span><span class="default_value">'gtfsfeeds.yaml'</span></em>, <em class="sig-param"><span class="n">overwrite</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.urbanaccess_gtfsfeeds.to_yaml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save a urbanaccess_gtfsfeeds representation to a YAML file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>gtfsfeeddir</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">Directory to save a YAML file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>gtfsfeeddir</strong><span class="classifier">str, optional</span></dt><dd><p>Directory to save a YAML file.</p>
 </dd>
-<dt><strong>yamlname</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or file like, optional</span></dt>
-<dd><p class="first last">File name to which to save a YAML file.</p>
+<dt><strong>yamlname</strong><span class="classifier">str or file like, optional</span></dt><dd><p>File name to which to save a YAML file.</p>
 </dd>
-<dt><strong>overwrite</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">if true, overwrite an existing same name YAML file in specified
+<dt><strong>overwrite</strong><span class="classifier">bool, optional</span></dt><dd><p>if true, overwrite an existing same name YAML file in specified
 directory</p>
 </dd>
-<dt><strong>Returns</strong></dt>
-<dd></dd>
-<dt><strong>——-</strong></dt>
-<dd></dd>
-<dt><strong>Nothing</strong></dt>
-<dd></dd>
+<dt><strong>Returns</strong></dt><dd></dd>
+<dt><strong>——-</strong></dt><dd></dd>
+<dt><strong>Nothing</strong></dt><dd></dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
 <p>Search for feeds on the GTFS Data Exchange (Note the GTFS Data Exchange is no longer being maintained as of Summer 2016 so feeds here may be out of date).</p>
-<dl class="function">
+<dl class="py function">
 <dt id="urbanaccess.gtfsfeeds.search">
-<code class="descclassname">urbanaccess.gtfsfeeds.</code><code class="descname">search</code><span class="sig-paren">(</span><em>api='gtfsdataexch'</em>, <em>search_text=None</em>, <em>search_field=None</em>, <em>match='contains'</em>, <em>add_feed=False</em>, <em>overwrite_feed=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.search" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">urbanaccess.gtfsfeeds.</code><code class="sig-name descname">search</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">api</span><span class="o">=</span><span class="default_value">'gtfsdataexch'</span></em>, <em class="sig-param"><span class="n">search_text</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">search_field</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">match</span><span class="o">=</span><span class="default_value">'contains'</span></em>, <em class="sig-param"><span class="n">add_feed</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">overwrite_feed</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.search" title="Permalink to this definition">¶</a></dt>
 <dd><p>Connect to a GTFS feed repository API and search for GTFS feeds that exist
 in a remote GTFS repository and whether or not to add the GTFS feed name
 and download URL to the urbanaccess_gtfsfeeds instance.
 Currently only supports access to the GTFS Data Exchange API.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>api</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{‘gtfsdataexch’}, optional</span></dt>
-<dd><p class="first last">name of GTFS feed repository to search in. name corresponds to the
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>api</strong><span class="classifier">{‘gtfsdataexch’}, optional</span></dt><dd><p>name of GTFS feed repository to search in. name corresponds to the
 dict specified in the urbanacess_config instance. Currently only
 supports access to the GTFS Data Exchange repository.</p>
 </dd>
-<dt><strong>search_text</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">string pattern to search for</p>
+<dt><strong>search_text</strong><span class="classifier">str, optional</span></dt><dd><p>string pattern to search for</p>
 </dd>
-<dt><strong>search_field</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string or list, optional</span></dt>
-<dd><p class="first last">name of the field or column to search for string</p>
+<dt><strong>search_field</strong><span class="classifier">string or list, optional</span></dt><dd><p>name of the field or column to search for string</p>
 </dd>
-<dt><strong>match</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{‘contains’, ‘exact’}, optional</span></dt>
-<dd><p class="first last">search string matching method as either: contains or exact</p>
+<dt><strong>match</strong><span class="classifier">{‘contains’, ‘exact’}, optional</span></dt><dd><p>search string matching method as either: contains or exact</p>
 </dd>
-<dt><strong>add_feed</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">add search results to existing urbanaccess_gtfsfeeds instance using
+<dt><strong>add_feed</strong><span class="classifier">bool, optional</span></dt><dd><p>add search results to existing urbanaccess_gtfsfeeds instance using
 the name field as the key and the URL as the value</p>
 </dd>
-<dt><strong>overwrite_feed</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">If true the existing urbanaccess_gtfsfeeds instance will be replaced
+<dt><strong>overwrite_feed</strong><span class="classifier">bool, optional</span></dt><dd><p>If true the existing urbanaccess_gtfsfeeds instance will be replaced
 with the records returned in the search results.
 All existing records will be removed.</p>
 </dd>
-<dt><strong>Returns</strong></dt>
-<dd></dd>
-<dt><strong>——-</strong></dt>
-<dd></dd>
-<dt><strong>search_result_df</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
-<dd><p class="first last">Dataframe of search results displaying full feed metadata</p>
+<dt><strong>Returns</strong></dt><dd></dd>
+<dt><strong>——-</strong></dt><dd></dd>
+<dt><strong>search_result_df</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Dataframe of search results displaying full feed metadata</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <p>Download data from feeds in your <code class="docutils literal notranslate"><span class="pre">feeds</span></code> object or from custom feed URLs.</p>
-<dl class="function">
+<dl class="py function">
 <dt id="urbanaccess.gtfsfeeds.download">
-<code class="descclassname">urbanaccess.gtfsfeeds.</code><code class="descname">download</code><span class="sig-paren">(</span><em>data_folder='data'</em>, <em>feed_name=None</em>, <em>feed_url=None</em>, <em>feed_dict=None</em>, <em>error_pause_duration=5</em>, <em>delete_zips=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.download" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">urbanaccess.gtfsfeeds.</code><code class="sig-name descname">download</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_folder</span><span class="o">=</span><span class="default_value">'data'</span></em>, <em class="sig-param"><span class="n">feed_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">feed_url</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">feed_dict</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">error_pause_duration</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">delete_zips</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfsfeeds.download" title="Permalink to this definition">¶</a></dt>
 <dd><p>Connect to the URLs passed in function or the URLs stored in the
 urbanaccess_gtfsfeeds instance and download the GTFS feed zipfile(s)
 then unzip inside a local root directory. Resulting GTFS feed text files
 will be located in the root folder: gtfsfeed_text unless otherwise
 specified</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>data_folder</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">directory to download GTFS feed data to</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data_folder</strong><span class="classifier">str, optional</span></dt><dd><p>directory to download GTFS feed data to</p>
 </dd>
-<dt><strong>feed_name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">name of transit agency or service to use to name downloaded zipfile</p>
+<dt><strong>feed_name</strong><span class="classifier">str, optional</span></dt><dd><p>name of transit agency or service to use to name downloaded zipfile</p>
 </dd>
-<dt><strong>feed_url</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">corresponding URL to the feed_name to use to download GTFS feed zipfile</p>
+<dt><strong>feed_url</strong><span class="classifier">str, optional</span></dt><dd><p>corresponding URL to the feed_name to use to download GTFS feed zipfile</p>
 </dd>
-<dt><strong>feed_dict</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict, optional</span></dt>
-<dd><p class="first last">Dictionary specifying the name of the transit service or
+<dt><strong>feed_dict</strong><span class="classifier">dict, optional</span></dt><dd><p>Dictionary specifying the name of the transit service or
 agency GTFS feed as the key and the GTFS feed URL as the value:
 {unique name of GTFS feed or transit service/agency : URL of feed}</p>
 </dd>
-<dt><strong>error_pause_duration</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
-<dd><p class="first last">how long to pause in seconds before re-trying requests if error</p>
+<dt><strong>error_pause_duration</strong><span class="classifier">int, optional</span></dt><dd><p>how long to pause in seconds before re-trying requests if error</p>
 </dd>
-<dt><strong>delete_zips</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">if true the downloaded zipfiles will be removed</p>
+<dt><strong>delete_zips</strong><span class="classifier">bool, optional</span></dt><dd><p>if true the downloaded zipfiles will be removed</p>
 </dd>
-<dt><strong>Returns</strong></dt>
-<dd></dd>
-<dt><strong>——-</strong></dt>
-<dd></dd>
-<dt><strong>nothing</strong></dt>
-<dd></dd>
+<dt><strong>Returns</strong></dt><dd></dd>
+<dt><strong>——-</strong></dt><dd></dd>
+<dt><strong>nothing</strong></dt><dd></dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -495,240 +420,186 @@ agency GTFS feed as the key and the GTFS feed URL as the value:
 <span id="gtfs-loader"></span><h2>Loading GTFS Data<a class="headerlink" href="#loading-gtfs-data" title="Permalink to this headline">¶</a></h2>
 <p>Load raw GTFS data (from multiple feeds) into a UrbanAccess transit data object and run data through the validation and formatting sequence.</p>
 <p>GTFS feeds are assumed to either be a single feed designated by the feed folder or multiple feeds designated as the root folder that holds all individual feed folders.</p>
-<dl class="function">
+<dl class="py function">
 <dt id="urbanaccess.gtfs.load.gtfsfeed_to_df">
-<code class="descclassname">urbanaccess.gtfs.load.</code><code class="descname">gtfsfeed_to_df</code><span class="sig-paren">(</span><em>gtfsfeed_path=None</em>, <em>validation=False</em>, <em>verbose=True</em>, <em>bbox=None</em>, <em>remove_stops_outsidebbox=None</em>, <em>append_definitions=False</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.load.gtfsfeed_to_df" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">urbanaccess.gtfs.load.</code><code class="sig-name descname">gtfsfeed_to_df</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gtfsfeed_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">validation</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">bbox</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">remove_stops_outsidebbox</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">append_definitions</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.load.gtfsfeed_to_df" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read all GTFS feed components as a dataframe in a gtfsfeeds_dfs object and
 merge all individual GTFS feeds into a regional metropolitan data table.
 Optionally, data can also be validated before its use.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>gtfsfeed_path</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">root path where all gtfs feeds that make up a contiguous metropolitan
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>gtfsfeed_path</strong><span class="classifier">str, optional</span></dt><dd><p>root path where all gtfs feeds that make up a contiguous metropolitan
 area are stored</p>
 </dd>
-<dt><strong>validation</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
-<dd><p class="first last">if true, the validation check on stops checking for stops outside
+<dt><strong>validation</strong><span class="classifier">bool</span></dt><dd><p>if true, the validation check on stops checking for stops outside
 of a bounding box and stop coordinate
 hemisphere will be run. this is required to remove stops outside of
 a bbox</p>
 </dd>
-<dt><strong>verbose</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
-<dd><p class="first last">if true and stops are found outside of the bbox, the stops that are
+<dt><strong>verbose</strong><span class="classifier">bool</span></dt><dd><p>if true and stops are found outside of the bbox, the stops that are
 outside will be printed for your reference</p>
 </dd>
-<dt><strong>bbox</strong> <span class="classifier-delimiter">:</span> <span class="classifier">tuple</span></dt>
-<dd><p class="first last">Bounding box formatted as a 4 element tuple:
+<dt><strong>bbox</strong><span class="classifier">tuple</span></dt><dd><p>Bounding box formatted as a 4 element tuple:
 (lng_max, lat_min, lng_min, lat_max)
 example: (-122.304611,37.798933,-122.263412,37.822802)
 a bbox can be extracted for an area using: the CSV format bbox
 from <a class="reference external" href="http://boundingbox.klokantech.com/">http://boundingbox.klokantech.com/</a></p>
 </dd>
-<dt><strong>remove_stops_outsidebbox</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
-<dd><p class="first last">if true stops that are outside the bbox will be removed</p>
+<dt><strong>remove_stops_outsidebbox</strong><span class="classifier">bool</span></dt><dd><p>if true stops that are outside the bbox will be removed</p>
 </dd>
-<dt><strong>append_definitions</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
-<dd><p class="first last">if true, columns that use the GTFS data schema for their attribute
+<dt><strong>append_definitions</strong><span class="classifier">bool</span></dt><dd><p>if true, columns that use the GTFS data schema for their attribute
 codes will have the corresponding GTFS definition information of
 that code appended to the resulting dataframes for reference</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>gtfsfeeds_dfs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
-<dd><p class="first last">processed dataframes of corresponding GTFS feed text files</p>
 </dd>
-<dt><strong>gtfsfeeds_dfs.stops</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
-<dd></dd>
-<dt><strong>gtfsfeeds_dfs.routes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
-<dd></dd>
-<dt><strong>gtfsfeeds_dfs.trips</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
-<dd></dd>
-<dt><strong>gtfsfeeds_dfs.stop_times</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
-<dd></dd>
-<dt><strong>gtfsfeeds_dfs.calendar</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
-<dd></dd>
-<dt><strong>gtfsfeeds_dfs.calendar_dates</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
-<dd></dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>gtfsfeeds_dfs</strong><span class="classifier">object</span></dt><dd><p>processed dataframes of corresponding GTFS feed text files</p>
+</dd>
+<dt><strong>gtfsfeeds_dfs.stops</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
+<dt><strong>gtfsfeeds_dfs.routes</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
+<dt><strong>gtfsfeeds_dfs.trips</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
+<dt><strong>gtfsfeeds_dfs.stop_times</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
+<dt><strong>gtfsfeeds_dfs.calendar</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
+<dt><strong>gtfsfeeds_dfs.calendar_dates</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <p id="headways">Computing route-stop level headways is optional but required if you wish to use headways in your network integration step <a class="reference internal" href="integrated_network.html#int-network"><span class="std std-ref">here</span></a>.</p>
-<dl class="function">
+<dl class="py function">
 <dt id="urbanaccess.gtfs.headways.headways">
-<code class="descclassname">urbanaccess.gtfs.headways.</code><code class="descname">headways</code><span class="sig-paren">(</span><em>gtfsfeeds_df</em>, <em>headway_timerange</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.headways.headways" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">urbanaccess.gtfs.headways.</code><code class="sig-name descname">headways</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gtfsfeeds_df</span></em>, <em class="sig-param"><span class="n">headway_timerange</span></em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.headways.headways" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate headways by route stop for a specific time range</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>gtfsfeeds_df</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
-<dd><p class="first last">gtfsfeeds_dfs object with all processed GTFS data tables</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>gtfsfeeds_df</strong><span class="classifier">object</span></dt><dd><p>gtfsfeeds_dfs object with all processed GTFS data tables</p>
 </dd>
-<dt><strong>headway_timerange</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd><p class="first last">time range for which to calculate headways between as a list of
+<dt><strong>headway_timerange</strong><span class="classifier">list</span></dt><dd><p>time range for which to calculate headways between as a list of
 time 1 and time 2 where times are 24 hour clock strings such as:
 [‘07:00:00’, ‘10:00:00’]</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>gtfsfeeds_dfs.headways</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
-<dd><p class="first last">gtfsfeeds_dfs object for the headways dataframe with statistics of
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>gtfsfeeds_dfs.headways</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>gtfsfeeds_dfs object for the headways dataframe with statistics of
 route stop headways in units of minutes
 with relevant route and stop information</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
 <div class="section" id="saving-processed-gtfs-data">
 <span id="save-gtfs"></span><h2>Saving Processed GTFS data<a class="headerlink" href="#saving-processed-gtfs-data" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
+<dl class="py function">
 <dt id="urbanaccess.gtfs.network.save_processed_gtfs_data">
-<code class="descclassname">urbanaccess.gtfs.network.</code><code class="descname">save_processed_gtfs_data</code><span class="sig-paren">(</span><em>gtfsfeeds_dfs</em>, <em>filename</em>, <em>dir='data'</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.network.save_processed_gtfs_data" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">urbanaccess.gtfs.network.</code><code class="sig-name descname">save_processed_gtfs_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gtfsfeeds_dfs</span></em>, <em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">dir</span><span class="o">=</span><span class="default_value">'data'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.network.save_processed_gtfs_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write dataframes in a gtfsfeeds_dfs object to a hdf5 file</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>gtfsfeeds_dfs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
-<dd><p class="first last">gtfsfeeds_dfs object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>gtfsfeeds_dfs</strong><span class="classifier">object</span></dt><dd><p>gtfsfeeds_dfs object</p>
 </dd>
-<dt><strong>filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd><p class="first last">name of the hdf5 file to save with .h5 extension</p>
+<dt><strong>filename</strong><span class="classifier">string</span></dt><dd><p>name of the hdf5 file to save with .h5 extension</p>
 </dd>
-<dt><strong>dir</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, optional</span></dt>
-<dd><p class="first last">directory to save hdf5 file</p>
+<dt><strong>dir</strong><span class="classifier">string, optional</span></dt><dd><p>directory to save hdf5 file</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>None</strong></dt>
-<dd></dd>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>None</dt><dd></dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
 <div class="section" id="loading-processed-gtfs-data">
 <span id="load-gtfs"></span><h2>Loading Processed GTFS data<a class="headerlink" href="#loading-processed-gtfs-data" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
+<dl class="py function">
 <dt id="urbanaccess.gtfs.network.load_processed_gtfs_data">
-<code class="descclassname">urbanaccess.gtfs.network.</code><code class="descname">load_processed_gtfs_data</code><span class="sig-paren">(</span><em>filename</em>, <em>dir='data'</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.network.load_processed_gtfs_data" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">urbanaccess.gtfs.network.</code><code class="sig-name descname">load_processed_gtfs_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">dir</span><span class="o">=</span><span class="default_value">'data'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.gtfs.network.load_processed_gtfs_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read data from a hdf5 file to a gtfsfeeds_dfs object</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd><p class="first last">name of the hdf5 file to read with .h5 extension</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>filename</strong><span class="classifier">string</span></dt><dd><p>name of the hdf5 file to read with .h5 extension</p>
 </dd>
-<dt><strong>dir</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, optional</span></dt>
-<dd><p class="first last">directory to read hdf5 file</p>
+<dt><strong>dir</strong><span class="classifier">string, optional</span></dt><dd><p>directory to read hdf5 file</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>gtfsfeeds_dfs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
-<dd></dd>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>gtfsfeeds_dfs</strong><span class="classifier">object</span></dt><dd></dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
 <div class="section" id="downloading-and-loading-openstreetmap-data">
 <span id="osm-download-load"></span><h2>Downloading and Loading OpenStreetMap Data<a class="headerlink" href="#downloading-and-loading-openstreetmap-data" title="Permalink to this headline">¶</a></h2>
 <p>Download OSM street network nodes and edges.</p>
-<dl class="function">
+<dl class="py function">
 <dt id="urbanaccess.osm.load.ua_network_from_bbox">
-<code class="descclassname">urbanaccess.osm.load.</code><code class="descname">ua_network_from_bbox</code><span class="sig-paren">(</span><em>lat_min=None</em>, <em>lng_min=None</em>, <em>lat_max=None</em>, <em>lng_max=None</em>, <em>bbox=None</em>, <em>network_type='walk'</em>, <em>timeout=180</em>, <em>memory=None</em>, <em>max_query_area_size=2500000000</em>, <em>remove_lcn=True</em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.osm.load.ua_network_from_bbox" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">urbanaccess.osm.load.</code><code class="sig-name descname">ua_network_from_bbox</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lat_min</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">lng_min</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">lat_max</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">lng_max</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bbox</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">network_type</span><span class="o">=</span><span class="default_value">'walk'</span></em>, <em class="sig-param"><span class="n">timeout</span><span class="o">=</span><span class="default_value">180</span></em>, <em class="sig-param"><span class="n">memory</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_query_area_size</span><span class="o">=</span><span class="default_value">2500000000</span></em>, <em class="sig-param"><span class="n">remove_lcn</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.osm.load.ua_network_from_bbox" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a graph network (nodes and edges) from a bounding lat/lon box that
 is compatible with the network analysis tool Pandana</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>lat_min</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">southern latitude of bounding box</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>lat_min</strong><span class="classifier">float</span></dt><dd><p>southern latitude of bounding box</p>
 </dd>
-<dt><strong>lng_min</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">eastern longitude of bounding box</p>
+<dt><strong>lng_min</strong><span class="classifier">float</span></dt><dd><p>eastern longitude of bounding box</p>
 </dd>
-<dt><strong>lat_max</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">northern latitude of bounding box</p>
+<dt><strong>lat_max</strong><span class="classifier">float</span></dt><dd><p>northern latitude of bounding box</p>
 </dd>
-<dt><strong>lng_max</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">western longitude of bounding box</p>
+<dt><strong>lng_max</strong><span class="classifier">float</span></dt><dd><p>western longitude of bounding box</p>
 </dd>
-<dt><strong>bbox</strong> <span class="classifier-delimiter">:</span> <span class="classifier">tuple</span></dt>
-<dd><p class="first last">Bounding box formatted as a 4 element tuple:
+<dt><strong>bbox</strong><span class="classifier">tuple</span></dt><dd><p>Bounding box formatted as a 4 element tuple:
 (lng_max, lat_min, lng_min, lat_max)
 example: (-122.304611,37.798933,-122.263412,37.822802)
 a bbox can be extracted for an area using: the CSV format
 bbox from <a class="reference external" href="http://boundingbox.klokantech.com/">http://boundingbox.klokantech.com/</a></p>
 </dd>
-<dt><strong>network_type</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{‘walk’, ‘drive’}, optional</span></dt>
-<dd><p class="first last">Specify the network type where value of ‘walk’ includes roadways
+<dt><strong>network_type</strong><span class="classifier">{‘walk’, ‘drive’}, optional</span></dt><dd><p>Specify the network type where value of ‘walk’ includes roadways
 where pedestrians are allowed and pedestrian
 pathways and ‘drive’ includes driveable roadways. Default is walk.</p>
 </dd>
-<dt><strong>timeout</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
-<dd><p class="first last">the timeout interval for requests and to pass to Overpass API</p>
+<dt><strong>timeout</strong><span class="classifier">int, optional</span></dt><dd><p>the timeout interval for requests and to pass to Overpass API</p>
 </dd>
-<dt><strong>memory</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
-<dd><p class="first last">server memory allocation size for the query, in bytes. If none,
+<dt><strong>memory</strong><span class="classifier">int, optional</span></dt><dd><p>server memory allocation size for the query, in bytes. If none,
 server will use its default allocation size</p>
 </dd>
-<dt><strong>max_query_area_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
-<dd><p class="first last">max area for any part of the geometry, in the units the geometry
+<dt><strong>max_query_area_size</strong><span class="classifier">float, optional</span></dt><dd><p>max area for any part of the geometry, in the units the geometry
 is in: any polygon bigger will get divided up
 for multiple queries to Overpass API
 (default is 50,000 * 50,000 units
 (ie, 50km x 50km in area, if units are meters))</p>
 </dd>
-<dt><strong>remove_lcn</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">remove low connectivity nodes from the resulting network.
+<dt><strong>remove_lcn</strong><span class="classifier">bool, optional</span></dt><dd><p>remove low connectivity nodes from the resulting network.
 this ensures the resulting network does
 not have nodes that are unconnected
 from the rest of the larger network</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>nodesfinal, edgesfinal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
-<dd></dd>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>nodesfinal, edgesfinal</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -745,7 +616,7 @@ from the rest of the larger network</p>
         <a href="integrated_network.html" class="btn btn-neutral float-right" title="Create an Integrated Transit and Street Network" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="introduction.html" class="btn btn-neutral" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="introduction.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -754,7 +625,8 @@ from the rest of the larger network</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, UrbanSim Inc.
+        
+        &copy; Copyright 2020, UrbanSim Inc.
 
     </p>
   </div> 
@@ -769,27 +641,16 @@ from the rest of the larger network</p>
   </div>
   
 
-
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>
