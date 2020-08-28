@@ -63,12 +63,12 @@ Examples of a Pandana nearest POI query to hospitals and parks within a 30 minut
 
 
 .. |15min| image:: _images/15_min_jobs.png
-	:scale: 80%
+    :width: 709px
 .. |30min| image:: _images/30_min_jobs.png
-	:scale: 80%
+    :width: 714px
 .. |45min| image:: _images/45_min_jobs.png
-	:scale: 80%
+    :width: 714px
 .. |hospitals| image:: _images/hospitals_30.png
-	:scale: 80%
+    :width: 695px
 .. |parks| image:: _images/parks_30.png
-	:scale: 80%
+    :width: 695px

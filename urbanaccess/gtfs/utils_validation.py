@@ -83,7 +83,7 @@ def _boundingbox_check(df, feed_folder, lat_min=None, lng_min=None,
                 len(df), (len(outside_boundingbox) / len(df)) * 100),
             level=lg.WARNING)
         if verbose:
-            log('Records: {}')
+            log('Records:')
             log('{}'.format(outside_boundingbox))
         if remove:
             df_subset = df.drop(outside_boundingbox.index)
