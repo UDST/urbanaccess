@@ -3,7 +3,7 @@ UrbanAccess
 
 A tool for computing GTFS transit and OSM pedestrian networks for accessibility analysis.
 
-v0.2.1, released August 17, 2020.
+v0.2.1, released August 28, 2020.
 
 Contents
 --------
