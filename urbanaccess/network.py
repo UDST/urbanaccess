@@ -1,10 +1,18 @@
 import time
+import geopy
+from geopy import distance
+
 from sklearn.neighbors import KDTree
 import pandas as pd
-from geopy.distance import vincenty
 
 from urbanaccess.utils import log, df_to_hdf5, hdf5_to_df
 from urbanaccess import config
+
+
+if int(geopy.__version__[0]) < 2:
+    dist_calc = distance.vincenty
+else:
+    dist_calc = distance.geodesic
 
 
 class urbanaccess_network(object):
@@ -61,9 +69,14 @@ def _nearest_neighbor(df1, df2):
     df1.index.values[indexes] : pandas.Series
         index of records in df1 that are nearest to the coordinates in df2
     """
-
-    kdt = KDTree(df1.as_matrix())
-    indexes = kdt.query(df2.as_matrix(), k=1, return_distance=False)
+    try:
+        df1_matrix = df1.to_numpy()
+        df2_matrix = df2.to_numpy()
+    except AttributeError:
+        df1_matrix = df1.values
+        df2_matrix = df2.values
+    kdt = KDTree(df1_matrix)
+    indexes = kdt.query(df2_matrix, k=1, return_distance=False)
     return df1.index.values[indexes]
 
 
@@ -379,8 +392,8 @@ def _connector_edges(osm_nodes, transit_nodes, travel_speed_mph=3):
         osm_node_id = int(row['nearest_osm_node'])
         osm_row = osm_nodes.loc[osm_node_id]
 
-        distance = vincenty((row['y'], row['x']),
-                            (osm_row['y'], osm_row['x'])).miles
+        distance = dist_calc((row['y'], row['x']),
+                             (osm_row['y'], osm_row['x'])).miles
         time_ped_to_transit = distance / travel_speed_mph * 60
         time_transit_to_ped = distance / travel_speed_mph * 60
 

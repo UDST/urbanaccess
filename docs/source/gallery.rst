@@ -24,10 +24,10 @@ Here are some examples of GTFS and OSM networks that have been created using Urb
 If you have interesting examples and would like us to share them here please contact us.
 
 .. |oakland| image:: _images/travel_time_net.png
-	:scale: 80%
+    :width: 782px
 .. |madison| image:: _images/madison.png
-	:scale: 80%
+    :width: 955px
 .. |sandiego| image:: _images/sandiego.png
-	:scale: 80%
+    :width: 956px
 .. |uk_rail| image:: _images/uk_rail.png
-	:scale: 80%
+    :width: 778px

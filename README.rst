@@ -55,13 +55,6 @@ To cite this tool and for a complete description of the UrbanAccess methodology 
 
 For other related literature see `here <https://udst.github.io/urbanaccess/introduction.html#citation-and-academic-literature>`__.
 
-Current status
---------------
-
-*Forthcoming improvements:*
-
-- Unit tests
-
 Reporting bugs
 --------------
 
@@ -82,15 +75,15 @@ Install the latest release
 
 conda
 ~~~~~~
-UrbanAccess is available on conda and can be installed with::
+UrbanAccess is available on Conda Forge and can be installed with::
 
-    conda install -c udst urbanaccess
+    conda install urbanaccess -c conda-forge
 
 pip
 ~~~~~~
 UrbanAccess is available on PyPI and can be installed with::
 
-    pip install -U urbanaccess
+    pip install urbanaccess
 
 Development Installation
 ------------------------

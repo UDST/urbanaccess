@@ -1,3 +1,11 @@
+v0.2.1
+======
+
+2020/08/28
+
+* Support for GeoPy 2.0+
+* Support for Pandas 1.0+
+
 v0.2.0
 ======
 

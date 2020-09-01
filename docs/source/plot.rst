@@ -26,8 +26,8 @@ For example you can:
 
 
 .. |transit_net| image:: _images/transit_net.png
-	:scale: 80%
+    :width: 734px
 .. |ped_net| image:: _images/ped_net.png
-	:scale: 80%
+    :width: 734px
 .. |travel_time_net| image:: _images/travel_time_net.png
-	:scale: 80%
+    :width: 734px

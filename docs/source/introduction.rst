@@ -98,6 +98,6 @@ General workflow
 
 
 .. |travel_time_net| image:: _images/travel_time_net.png
-	:scale: 80%
+    :width: 782px
 
 .. _forum: http://discussion.urbansim.com/

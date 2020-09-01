@@ -1,45 +1,39 @@
 language: python
-sudo: false
-python:
-- '2.7'
-- '3.6'
 
-matrix:
-  allow_failures:
-  - python: '3.6'  # travis hangs in demo notebook
-    env: PANDANA=">=0.4"
-  fast_finish: true
+python:
+  - '2.7'
+  - '3.5'
+  - '3.6'
+  - '3.7'
+  - '3.8'
+
+services:
+  - xvfb  # allows matplotlib display
 
 install:
-- wget http://bit.ly/miniconda -O miniconda.sh
-- bash miniconda.sh -b -p $HOME/miniconda
-- export PATH="$HOME/miniconda/bin:$PATH"
-- hash -r
-- conda config --set always_yes yes --set changeps1 no
-- conda update -q conda
-- conda info -a
-- conda config --add channels udst
-- conda config --add channels conda-forge
-- conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION pip numpy pandas pytest jupyter pycodestyle matplotlib scikit-learn pyyaml basemap basemap-data-hires pandana$PANDANA geopy osmnet
-- source activate test-env
-- conda list
-- pip install .
-
-after_success:
-- bin/build_docs.sh
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set show_channel_urls true
+  - conda update -n base conda
+  - conda config --prepend channels conda-forge
+  - conda create -n test-environment python=$TRAVIS_PYTHON_VERSION pyyaml --file requirements-dev.txt
+  - source activate test-environment
+  - conda info --all
+  - pip install .
+  - pip list
+  - pip show urbanaccess
 
 script:
-- pycodestyle urbanaccess
-- py.test
-- cd demo; jupyter nbconvert --to python simple_example.ipynb
-- cd ../urbanaccess/tests/integration; python remove_nb_magic.py -in simple_example.py -out simple_example_clean.py
-- cd ../../../demo; python simple_example_clean.py
-- cd ../urbanaccess/tests/integration; python integration_madison.py
-- python integration_sandiego.py && cd $TRAVIS_BUILD_DIR
-
-env:
-  matrix:
-  - PANDANA="=0.3"
-  - PANDANA=">=0.4"
-  global:
-    secure: SW6dfeQen1oZUYa2pr/qMdJGDK5c3tIbJsF1POLSMtgpbYaRQvogCkCd7sFXiTkxTCaNnz/eQyT2nDyUZJyDmYpntZmRthuN1zDgNk8ziDpmy/PF1bD4eshDr3MeoI4HgNYryl5qD8brEP0up0P/rvaAMoi26w4eyk0r+sO3PDVF6Jy4MwTufY4a4B4qYpi7V8yhExExytshHOEjD8C2IqEQDkwyR9oto2Gx8EpoCJEvxETG+aqLw1xj2UnXnbWND10Ni6pkeRpjAHFv4qM0i35griG2RKu9075Dubz/6UPMvpIEy581Zx5cqaSuOSUzde1L172vLTgOH31lnFXe1flHau1wI2gxOiamSdlVTAnVtL5P1aEtm1L5FjBcPlIs9rHmNGnydByX1Qe16HRLUopgAVm+jLZqWxrlesC5ax3uJ6Q3g0ZyKfmTJ5uWDeRusMVZswBT3NJc0BhkHDq7tE+3fokBfFApJcQwoXIplvRwXPkGFtKnL2IgCMTrKbDzGEYfdm/v7eV2xYe5hrEUIC9cUhkC1Ns2azAERXSgWcyM7ciFH3r1Jz9ixT+fuw9bTXibqcMjAmxdcQAW9y/rIPRJ3GMSdT7WEzYX19naGr+oyKqVMgsHFQ+wL7U5iblAGIy8VLNpE7Aa67dyG6SVAPTGzp0RouYLY9LYiRIybrI=
+  - pycodestyle urbanaccess
+  - py.test
+  - cd demo
+  - jupyter nbconvert --to python simple_example.ipynb
+  - cd ../urbanaccess/tests/integration
+  - python remove_nb_magic.py -in simple_example.py -out simple_example_clean.py
+  - cd ../../../demo
+  - python simple_example_clean.py
+  - cd ../urbanaccess/tests/integration
+  - python integration_madison.py
+  - python integration_sandiego.py

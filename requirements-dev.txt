@@ -1,0 +1,14 @@
+# Additional requirements for development and testing
+
+# testing
+pytest
+pycodestyle
+
+# testing demo notebook
+jupyter
+cartopy  # requires conda
+
+# building documentation
+numpydoc
+sphinx
+sphinx_rtd_theme
