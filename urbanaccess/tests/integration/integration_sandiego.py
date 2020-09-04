@@ -3,7 +3,11 @@ import time
 import pandas as pd
 
 import matplotlib
+
 matplotlib.use('agg')
+import matplotlib.pyplot as plt
+
+import cartopy.crs as ccrs
 
 import urbanaccess
 
@@ -56,6 +60,12 @@ transit_net = urbanaccess.gtfs.network.create_transit_net(
                            'schedule_type': 'WD'},
     timerange=['07:00:00', '10:00:00'])
 
+# This is the standard map projection for California
+teale_albers = ccrs.AlbersEqualArea(false_northing=-4000000.0, false_easting=0,
+                                    central_longitude=-120.0, central_latitude=0,
+                                    standard_parallels=(34.0, 40.5))
+teale_albers_ax = plt.axes(projection=teale_albers)
+
 urbanaccess.plot.plot_net(nodes=transit_net.transit_nodes,
                           edges=transit_net.transit_edges,
                           bbox=bbox,
@@ -68,7 +78,8 @@ urbanaccess.plot.plot_net(nodes=transit_net.transit_nodes,
                           node_alpha=1,
                           node_edgecolor='none',
                           node_zorder=3,
-                          nodes_only=False)
+                          nodes_only=False,
+                          ax=teale_albers_ax)
 
 print('{} integration test completed successfully. Took {:,'
       '.2f} seconds'.format(name, time.time() - start_time))
