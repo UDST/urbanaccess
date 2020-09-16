@@ -277,13 +277,16 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
                 calendar_df = utils_format._read_gtfs_calendar(
                     textfile_path=os.path.join(gtfsfeed_path, folder),
                     textfile=textfile)
-                calendar_dates_df = pd.DataFrame()
+                if len(calendar_files)==1:
+                    calendar_dates_df = pd.DataFrame(columns=['service_id', 'dates', 'exception_type'])
 
             else:  # otherwise, use calendar_dates and set the other as blank
                 calendar_dates_df = utils_format._read_gtfs_calendar_dates(
                         textfile_path=os.path.join(gtfsfeed_path, folder),
                         textfile=textfile)
-                calendar_df = pd.DataFrame(columns=['service_id'])
+                if len(calendar_files)==1:
+                    calendar_df = pd.DataFrame(columns=['service_id', 'monday', 'tuesday', 'wednesday', 'thursday',
+                                                    'friday', 'saturday', 'sunday', 'start_date', 'end_date'])
 
         for textfile in optional_gtfsfiles:
             if textfile == 'agency.txt':
