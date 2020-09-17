@@ -240,9 +240,10 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
         optional_gtfsfiles = ['agency.txt']
 
         calendar_files = [i for i in ['calendar.txt', 'calendar_dates.txt'] if i in textfilelist]
-        if len(calendar_files)==0:
+        if len(calendar_files) == 0:
             raise ValueError(
-                'at least one of `calendar.txt` or `calendar_dates.txt` is required to complete a GTFS dataset but neither was found in '
+                'at least one of `calendar.txt` or `calendar_dates.txt` is required to complete a '
+                'GTFS dataset but neither was found in '
                 'folder {}'.format(
                     os.path.join(gtfsfeed_path, folder)))
 
@@ -277,16 +278,19 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
                 calendar_df = utils_format._read_gtfs_calendar(
                     textfile_path=os.path.join(gtfsfeed_path, folder),
                     textfile=textfile)
-                if len(calendar_files)==1:
-                    calendar_dates_df = pd.DataFrame(columns=['service_id', 'dates', 'exception_type'])
+                if len(calendar_files) == 1:
+                    calendar_dates_df = pd.DataFrame(columns=['service_id', 'dates',
+                                                              'exception_type'])
 
             else:  # otherwise, use calendar_dates and set the other as blank
                 calendar_dates_df = utils_format._read_gtfs_calendar_dates(
-                        textfile_path=os.path.join(gtfsfeed_path, folder),
-                        textfile=textfile)
-                if len(calendar_files)==1:
-                    calendar_df = pd.DataFrame(columns=['service_id', 'monday', 'tuesday', 'wednesday', 'thursday',
-                                                    'friday', 'saturday', 'sunday', 'start_date', 'end_date'])
+                    textfile_path=os.path.join(gtfsfeed_path, folder),
+                    textfile=textfile)
+                if len(calendar_files) == 1:
+                    calendar_df = pd.DataFrame(columns=['service_id', 'monday',
+                                                        'tuesday', 'wednesday', 'thursday',
+                                                        'friday', 'saturday', 'sunday',
+                                                        'start_date', 'end_date'])
 
         for textfile in optional_gtfsfiles:
             if textfile == 'agency.txt':
