@@ -472,7 +472,8 @@ def download(data_folder=os.path.join(config.settings.data_folder),
             try:
                 req = urllib.request.Request(feed_url_value)
                 req.add_header('Referer', 'http://www.github.com/udst/urbanaccess')
-                req.add_header('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36')
+                req.add_header('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) '
+                               'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36')
                 status_code = urlopen(req).getcode()
                 if status_code == 200:
                     file = urlopen(req)
