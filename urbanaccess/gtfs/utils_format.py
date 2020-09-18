@@ -217,7 +217,7 @@ def _read_gtfs_calendar_dates(textfile_path, textfile):
     df = pd.read_csv(os.path.join(textfile_path, textfile),
                      dtype={'service_id': object}, low_memory=False)
     if len(df) == 0:
-        raise ValueError('{} has no records'.format(os.path.join(
+        log('{} has no records'.format(os.path.join(
             textfile_path, textfile)))
     # remove any extra whitespace in column names
     df.rename(columns=lambda x: x.strip(), inplace=True)

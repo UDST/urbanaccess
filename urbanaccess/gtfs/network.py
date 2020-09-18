@@ -97,9 +97,9 @@ def create_transit_net(gtfsfeeds_dfs, day,
             level=lg.WARNING)
     if gtfsfeeds_dfs is None:
         raise ValueError('gtfsfeeds_dfs is None')
-    if gtfsfeeds_dfs.trips.empty or gtfsfeeds_dfs.calendar.empty or \
+    if gtfsfeeds_dfs.trips.empty or \
             gtfsfeeds_dfs.stop_times.empty or gtfsfeeds_dfs.stops.empty:
-        raise ValueError('one of the gtfsfeeds_dfs object trips, calendar, '
+        raise ValueError('one of the gtfsfeeds_dfs object trips, '
                          'stops, or stop_times were found to be empty.')
     if not isinstance(overwrite_existing_stop_times_int, bool):
         raise ValueError('overwrite_existing_stop_times_int must be bool')
