@@ -511,9 +511,13 @@ def download(data_folder=os.path.join(config.settings.data_folder),
                         'Unable to connect. URL at {} returned status code {} '
                         'and no data'.format(
                             feed_url_value, status_code), level=lg.ERROR)
-            except Exception:
-                log('Unable to connect to URL at {}'.format(feed_url_value),
-                    level=lg.ERROR)
+                else:
+                    log(
+                        'Unable to connect. URL at {} returned status code {} '
+                        'and no data'.format(
+                            feed_url_value, status_code), level=lg.ERROR)
+            except Exception as e:
+                log(f'Unable to connect. URL at {feed_url_value} returned {str(e)}', level=lg.ERROR)
 
         else:
             try:
