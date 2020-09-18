@@ -6,6 +6,7 @@ import os
 import logging as lg
 import time
 from six.moves.urllib.request import urlopen
+import urllib.request
 
 from urbanaccess.utils import log
 from urbanaccess import config
@@ -469,10 +470,12 @@ def download(data_folder=os.path.join(config.settings.data_folder),
 
         if 'http' in feed_url_value:
             try:
-                status_code = urlopen(feed_url_value).getcode()
-
+                req = urllib.request.Request(feed_url_value)
+                req.add_header('Referer', 'http://www.github.com/udst/urbanaccess')
+                req.add_header('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36')
+                status_code = urlopen(req).getcode()
                 if status_code == 200:
-                    file = urlopen(feed_url_value)
+                    file = urlopen(req)
 
                     _zipfile_type_check(file=file,
                                         feed_url_value=feed_url_value)
@@ -503,13 +506,14 @@ def download(data_folder=os.path.join(config.settings.data_folder),
                         log('Unable to connect. URL at {} returned status code '
                             '{} and no data'.format(feed_url_value, status_code),
                             level=lg.ERROR)
-                else:
                     log(
                         'Unable to connect. URL at {} returned status code {} '
                         'and no data'.format(
                             feed_url_value, status_code), level=lg.ERROR)
             except Exception:
-                log(f'Unable to connect to URL at {feed_url_value}')
+                log('Unable to connect to URL at {}'.format(feed_url_value),
+                    level=lg.ERROR)
+
         else:
             try:
                 file = urlopen(feed_url_value)
@@ -527,7 +531,6 @@ def download(data_folder=os.path.join(config.settings.data_folder),
             except Exception:
                 log('Unable to connect: {}'.format(traceback.format_exc()),
                     level=lg.ERROR)
-
 
     log('GTFS feed download completed. Took {:,.2f} seconds'.format(
         time.time() - start_time1))
