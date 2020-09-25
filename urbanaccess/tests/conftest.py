@@ -692,7 +692,7 @@ def agency_a_feed_on_disk_wo_calendar_dates(
                       'routes': routes_feed_1,
                       'trips': trips_feed_1,
                       'calendar': calendar_feed_1}
-    feed_path = os.path.join(tmpdir, 'agency_a_wo_calendar_dates')
+    feed_path = os.path.join(tmpdir.strpath, 'agency_a_wo_calendar_dates')
     os.makedirs(feed_path)
     print('writing test data to dir: {}'.format(feed_path))
     for feed_file, feed_df in feed_file_dict.items():
@@ -712,7 +712,7 @@ def agency_a_feed_on_disk_wo_calendar(
                       'routes': routes_feed_1,
                       'trips': trips_feed_1,
                       'calendar_dates': calendar_dates_feed_1}
-    feed_path = os.path.join(tmpdir, 'agency_a_wo_calendar')
+    feed_path = os.path.join(tmpdir.strpath, 'agency_a_wo_calendar')
     os.makedirs(feed_path)
     print('writing test data to dir: {}'.format(feed_path))
     for feed_file, feed_df in feed_file_dict.items():
@@ -733,7 +733,7 @@ def agency_a_feed_on_disk_w_calendar_and_calendar_dates(
                       'trips': trips_feed_1,
                       'calendar': calendar_feed_1,
                       'calendar_dates': calendar_dates_feed_1}
-    feed_path = os.path.join(tmpdir, 'agency_a_w_both_calendars')
+    feed_path = os.path.join(tmpdir.strpath, 'agency_a_w_both_calendars')
     os.makedirs(feed_path)
     print('writing test data to dir: {}'.format(feed_path))
     for feed_file, feed_df in feed_file_dict.items():
@@ -752,7 +752,7 @@ def agency_a_feed_on_disk_wo_calendar_and_calendar_dates(
                       'stops': stops_feed_1,
                       'routes': routes_feed_1,
                       'trips': trips_feed_1}
-    feed_path = os.path.join(tmpdir, 'agency_a_wo_both_calendar')
+    feed_path = os.path.join(tmpdir.strpath, 'agency_a_wo_both_calendar')
     os.makedirs(feed_path)
     print('writing test data to dir: {}'.format(feed_path))
     for feed_file, feed_df in feed_file_dict.items():
@@ -771,7 +771,7 @@ def agency_a_feed_on_disk_wo_req_file(
                       'stops': stops_feed_1,
                       'routes': routes_feed_1,
                       'calendar': calendar_feed_1}
-    feed_path = os.path.join(tmpdir, 'agency_a_wo_req_file')
+    feed_path = os.path.join(tmpdir.strpath, 'agency_a_wo_req_file')
     os.makedirs(feed_path)
     print('writing test data to dir: {}'.format(feed_path))
     for feed_file, feed_df in feed_file_dict.items():
@@ -790,7 +790,7 @@ def agency_a_feed_on_disk_wo_agency(
                       'routes': routes_feed_1,
                       'trips': trips_feed_1,
                       'calendar': calendar_feed_1}
-    feed_path = os.path.join(tmpdir, 'agency_a_wo_agency')
+    feed_path = os.path.join(tmpdir.strpath, 'agency_a_wo_agency')
     os.makedirs(feed_path)
     print('writing test data to dir: {}'.format(feed_path))
     for feed_file, feed_df in feed_file_dict.items():
