@@ -1,6 +1,5 @@
 import os
 import time
-import pandas as pd
 
 import matplotlib
 
@@ -25,19 +24,6 @@ data_path = os.path.join(root_path, 'gtfsfeed_text')
 urbanaccess.gtfsfeeds.search(search_text=name, add_feed=True)
 
 urbanaccess.gtfsfeeds.download(data_folder=root_path)
-
-# create dummy calendar.txt file because
-dummy_txt_file = os.path.join(root_path,
-                              'gtfsfeed_text',
-                              'MTS',
-                              'calendar.txt')
-
-data = {'service_id': -99, 'monday': 0, 'tuesday': 0, 'wednesday': 0,
-        'thursday': 0, 'friday': 0, 'saturday': 0, 'sunday': 0}
-
-index = range(1)
-
-pd.DataFrame(data, index).to_csv(dummy_txt_file, index=False)
 
 validation = True
 verbose = True
