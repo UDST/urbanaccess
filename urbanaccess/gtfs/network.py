@@ -379,8 +379,8 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
                     for index, id in enumerate(feed_id_list):
                         feed_id_list[index] = ' '.join(id.split('_')[:-1])
 
-                    log('Found {:,} records that matched query: column: {} and '
-                        'string: {} for GTFS feed(s): {}'.format(len(
+                    log('Found {:,} records that matched query: column: {} '
+                        'and string: {} for GTFS feed(s): {}'.format(len(
                             subset_result),
                             col_name_key,
                             text,
