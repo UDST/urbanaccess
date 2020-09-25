@@ -374,18 +374,19 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
                 subset_result = input_calendar_dates_df[
                     input_calendar_dates_df[col_name_key].str.match(
                         text, case=False, na=False)]
-                feed_id_list = subset_result['unique_feed_id'].unique()
-                for index, id in enumerate(feed_id_list):
-                    feed_id_list[index] = ' '.join(id.split('_')[:-1])
+                if len(subset_result) != 0:
+                    feed_id_list = subset_result['unique_feed_id'].unique()
+                    for index, id in enumerate(feed_id_list):
+                        feed_id_list[index] = ' '.join(id.split('_')[:-1])
 
-                log('Found {:,} records that matched query: column: {} and '
-                    'string: {} for GTFS feed(s): {}'.format(len(
-                        subset_result),
-                        col_name_key,
-                        text,
-                        feed_id_list))
+                    log('Found {:,} records that matched query: column: {} and '
+                        'string: {} for GTFS feed(s): {}'.format(len(
+                            subset_result),
+                            col_name_key,
+                            text,
+                            feed_id_list))
 
-                subset_result_df = subset_result_df.append(subset_result)
+                    subset_result_df = subset_result_df.append(subset_result)
 
         subset_result_df.drop_duplicates(inplace=True)
         subset_result_df = subset_result_df[['unique_service_id']]
