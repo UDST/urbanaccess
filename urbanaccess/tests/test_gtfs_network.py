@@ -82,7 +82,7 @@ def stop_times_interpolated():
 
 
 def test_interpolator(stop_times, calendar):
-    df = network._interpolate_stop_times(stop_times, calendar, day='monday')
+    df = gtfs_network._interpolate_stop_times(stop_times, calendar)
 
     # unique_trip_id should be generated
     assert df.loc[1, 'unique_trip_id'] == 'a_citytrains'
@@ -121,7 +121,7 @@ def test_skip_interpolator(stop_times, calendar):
 
     stop_times['departure_time_sec'] = series
 
-    df = network._interpolate_stop_times(stop_times, calendar, day='monday')
+    df = gtfs_network._interpolate_stop_times(stop_times, calendar)
 
     # everything should be the same,
     # with one row dropped for calendar day filter
@@ -132,7 +132,7 @@ def test_skip_interpolator(stop_times, calendar):
 
 
 def test_edge_reformatter(stop_times_interpolated):
-    df = network._format_transit_net_edge(stop_times_interpolated)
+    df = gtfs_network._format_transit_net_edge(stop_times_interpolated)
 
     # length of edge df should be 16
     assert len(df) == 16
