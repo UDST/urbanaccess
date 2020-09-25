@@ -1,7 +1,31 @@
 import pytest
 import pandas as pd
 import numpy as np
-from urbanaccess.gtfs import network
+
+import urbanaccess.gtfs.network as gtfs_network
+import urbanaccess.gtfs.load as gtfs_load
+from urbanaccess.network import urbanaccess_network
+
+
+@pytest.fixture
+def expected_urbanaccess_network_keys():
+    expected_keys = ['transit_nodes', 'transit_edges', 'net_connector_edges',
+                     'osm_nodes', 'osm_edges', 'net_nodes', 'net_edges']
+    return expected_keys.sort()
+
+
+@pytest.fixture
+def gtfs_feed_wo_calendar_dates(
+        tmpdir, agency_a_feed_on_disk_wo_calendar_dates):
+    feed_dir = agency_a_feed_on_disk_wo_calendar_dates
+    loaded_feeds = gtfs_load.gtfsfeed_to_df(
+        gtfsfeed_path=feed_dir,
+        validation=False,
+        verbose=True,
+        bbox=None,
+        remove_stops_outsidebbox=False,
+        append_definitions=False)
+    return loaded_feeds
 
 
 @pytest.fixture
@@ -79,6 +103,71 @@ def stop_times_interpolated():
 
     df = pd.DataFrame(data, index)
     return df
+
+
+def test_create_transit_net_wo_calendar_dates(
+        tmpdir, gtfs_feed_wo_calendar_dates,
+        expected_urbanaccess_network_keys):
+    transit_net = gtfs_network.create_transit_net(
+        gtfs_feed_wo_calendar_dates, day='monday',
+        timerange=['07:00:00', '10:00:00'],
+        calendar_dates_lookup=None,
+        overwrite_existing_stop_times_int=False,
+        use_existing_stop_times_int=False,
+        save_processed_gtfs=False,
+        save_dir=tmpdir,
+        save_filename=None)
+    assert isinstance(transit_net, urbanaccess_network)
+    urbanaccess_network_info = vars(transit_net)
+    expected_dfs = ['transit_nodes', 'transit_edges']
+    assert expected_urbanaccess_network_keys == list(
+        urbanaccess_network_info.keys()).sort()
+    for key, value in urbanaccess_network_info.items():
+        assert isinstance(value, pd.core.frame.DataFrame)
+        # check that df is not empty
+        if key in expected_dfs:
+            assert value.empty is False
+
+
+def test_create_transit_net_wo_req_file(
+        tmpdir, gtfs_feed_wo_calendar_dates):
+    # set trips df to blank df for test
+    gtfs_feed_wo_calendar_dates.trips = pd.DataFrame()
+    with pytest.raises(ValueError) as excinfo:
+        transit_net = gtfs_network.create_transit_net(
+            gtfs_feed_wo_calendar_dates, day='monday',
+            timerange=['07:00:00', '10:00:00'],
+            calendar_dates_lookup=None,
+            overwrite_existing_stop_times_int=False,
+            use_existing_stop_times_int=False,
+            save_processed_gtfs=False,
+            save_dir=tmpdir,
+            save_filename=None)
+    expected_error = (
+        "one of the following gtfsfeeds_dfs objects trips, stops, "
+        "or stop_times were found to be empty.")
+    assert expected_error in str(excinfo.value)
+
+
+def test_create_transit_net_wo_calendar_and_calendar_dates(
+        tmpdir, gtfs_feed_wo_calendar_dates):
+    # set calendar_dates and calendar dfs to blank df for test
+    gtfs_feed_wo_calendar_dates.calendar_dates = pd.DataFrame()
+    gtfs_feed_wo_calendar_dates.calendar = pd.DataFrame()
+    with pytest.raises(ValueError) as excinfo:
+        transit_net = gtfs_network.create_transit_net(
+            gtfs_feed_wo_calendar_dates, day='monday',
+            timerange=['07:00:00', '10:00:00'],
+            calendar_dates_lookup=None,
+            overwrite_existing_stop_times_int=False,
+            use_existing_stop_times_int=False,
+            save_processed_gtfs=False,
+            save_dir=tmpdir,
+            save_filename=None)
+    expected_error = (
+        "one of the following gtfsfeeds_dfs objects calendar or "
+        "calendar_dates were found to be empty.")
+    assert expected_error in str(excinfo.value)
 
 
 def test_interpolator(stop_times, calendar):
