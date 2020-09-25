@@ -293,7 +293,7 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
                 calendar_dates_df = utils_format._read_gtfs_calendar_dates(
                     textfile_path=os.path.join(gtfsfeed_path, folder),
                     textfile=textfile)
-                # if only calendar_files, set calendar as blank
+                # if only calendar_dates, set calendar as blank
                 # with default required columns
                 if len(calendar_files) == 1:
                     calendar_df = pd.DataFrame(
