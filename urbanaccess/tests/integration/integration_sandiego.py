@@ -1,6 +1,5 @@
 import os
 import time
-import pandas as pd
 
 import matplotlib
 
@@ -26,19 +25,6 @@ urbanaccess.gtfsfeeds.search(search_text=name, add_feed=True)
 
 urbanaccess.gtfsfeeds.download(data_folder=root_path)
 
-# create dummy calendar.txt file because
-dummy_txt_file = os.path.join(root_path,
-                              'gtfsfeed_text',
-                              'MTS',
-                              'calendar.txt')
-
-data = {'service_id': -99, 'monday': 0, 'tuesday': 0, 'wednesday': 0,
-        'thursday': 0, 'friday': 0, 'saturday': 0, 'sunday': 0}
-
-index = range(1)
-
-pd.DataFrame(data, index).to_csv(dummy_txt_file, index=False)
-
 validation = True
 verbose = True
 # small bbox for testing purposes
@@ -61,9 +47,10 @@ transit_net = urbanaccess.gtfs.network.create_transit_net(
     timerange=['07:00:00', '10:00:00'])
 
 # This is the standard map projection for California
-teale_albers = ccrs.AlbersEqualArea(false_northing=-4000000.0, false_easting=0,
-                                    central_longitude=-120.0, central_latitude=0,
-                                    standard_parallels=(34.0, 40.5))
+teale_albers = ccrs.AlbersEqualArea(
+    false_northing=-4000000.0, false_easting=0,
+    central_longitude=-120.0, central_latitude=0,
+    standard_parallels=(34.0, 40.5))
 teale_albers_ax = plt.axes(projection=teale_albers)
 
 urbanaccess.plot.plot_net(nodes=transit_net.transit_nodes,

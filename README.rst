@@ -113,9 +113,8 @@ Minimum GTFS data requirements
 
 The minimum `GTFS data
 types <https://developers.google.com/transit/gtfs/>`__ required to use
-UrbanAccess are: ``stop_times``, ``stops``, ``routes``, ``calendar``,
-and ``trips`` however if there is no ``calendar``, ``calendar_dates``
-can be used as a replacement.
+UrbanAccess are: ``stop_times``, ``stops``, ``routes`` and ``trips`` and
+one of either ``calendar`` or ``calendar_dates``.
 
 Related UDST libraries
 ----------------------

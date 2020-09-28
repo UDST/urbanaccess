@@ -238,14 +238,17 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
         required_gtfsfiles = ['stops.txt', 'routes.txt', 'trips.txt',
                               'stop_times.txt']
         optional_gtfsfiles = ['agency.txt']
+        # either calendar or calendar_dates is required
+        calendar_gtfsfiles = ['calendar.txt', 'calendar_dates.txt']
 
-        calendar_files = [i for i in ['calendar.txt', 'calendar_dates.txt'] if i in textfilelist]
+        calendar_files = [i for i in calendar_gtfsfiles if i in textfilelist]
         if len(calendar_files) == 0:
-            raise ValueError(
-                'at least one of `calendar.txt` or `calendar_dates.txt` is required to complete a '
-                'GTFS dataset but neither was found in '
-                'folder {}'.format(
-                    os.path.join(gtfsfeed_path, folder)))
+            error_msg = (
+                'at least one of `calendar.txt` or `calendar_dates.txt` is '
+                'required to complete a GTFS dataset but neither was found in '
+                'folder {}')
+            raise ValueError(error_msg.format(os.path.join(
+                gtfsfeed_path, folder)))
 
         for required_file in required_gtfsfiles:
             if required_file not in textfilelist:
@@ -274,23 +277,30 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
                     textfile=textfile)
 
         for textfile in calendar_files:
-            if textfile == 'calendar.txt':  # if calendar, use that and set the other as blank
+            # use both calendar and calendar_dates if they exist, otherwise
+            # if only one of them exists use the one that exists and set the
+            # other one that does not exist to a blank df
+            if textfile == 'calendar.txt':
                 calendar_df = utils_format._read_gtfs_calendar(
                     textfile_path=os.path.join(gtfsfeed_path, folder),
                     textfile=textfile)
+                # if only calendar, set calendar_dates as blank
+                # with default required columns
                 if len(calendar_files) == 1:
-                    calendar_dates_df = pd.DataFrame(columns=['service_id', 'dates',
-                                                              'exception_type'])
-
-            else:  # otherwise, use calendar_dates and set the other as blank
+                    calendar_dates_df = pd.DataFrame(
+                        columns=['service_id', 'dates', 'exception_type'])
+            else:
                 calendar_dates_df = utils_format._read_gtfs_calendar_dates(
                     textfile_path=os.path.join(gtfsfeed_path, folder),
                     textfile=textfile)
+                # if only calendar_dates, set calendar as blank
+                # with default required columns
                 if len(calendar_files) == 1:
-                    calendar_df = pd.DataFrame(columns=['service_id', 'monday',
-                                                        'tuesday', 'wednesday', 'thursday',
-                                                        'friday', 'saturday', 'sunday',
-                                                        'start_date', 'end_date'])
+                    calendar_df = pd.DataFrame(
+                        columns=['service_id', 'monday',
+                                 'tuesday', 'wednesday', 'thursday',
+                                 'friday', 'saturday', 'sunday',
+                                 'start_date', 'end_date'])
 
         for textfile in optional_gtfsfiles:
             if textfile == 'agency.txt':

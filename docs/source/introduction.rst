@@ -39,7 +39,7 @@ A `demo <https://github.com/UDST/urbanaccess/tree/master/demo>`__ is available a
 Minimum GTFS data requirements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The minimum `GTFS data types <https://developers.google.com/transit/gtfs/>`__ required to use UrbanAccess are: ``stop_times``, ``stops``, ``routes``, ``calendar``, and ``trips``. If you are using a feed that does not have or utilize a calendar you may use the ``calendar_dates`` file instead of ``calendar`` with the ``calendar_dates_lookup`` parameter :ref:`here <transit-network>`.
+The minimum `GTFS data types <https://developers.google.com/transit/gtfs/>`__ required to use UrbanAccess are: ``stop_times``, ``stops``, ``routes``, and ``trips`` and either ``calendar`` or ``calendar_dates``. If you are using a feed that does not have or utilize a calendar you may use the ``calendar_dates`` file instead of ``calendar`` with the ``calendar_dates_lookup`` parameter :ref:`here <transit-network>`.
 
 License
 ~~~~~~~~
