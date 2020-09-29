@@ -5,7 +5,7 @@ import zipfile
 import os
 import logging as lg
 import time
-from six.moves.urllib.request import urlopen
+from six.moves.urllib import request
 
 from urbanaccess.utils import log
 from urbanaccess import config
@@ -462,66 +462,77 @@ def download(data_folder=os.path.join(config.settings.data_folder),
         len(feeds.gtfs_feeds), download_folder))
 
     start_time1 = time.time()
+    msg_no_connection_w_status = ('Unable to connect. URL at {} returned '
+                                  'status code {} and no data')
+    msg_no_connection = 'Unable to connect to: {}. Error: {}'
+    msg_download_succeed = ('{} GTFS feed downloaded successfully. '
+                            'Took {:,.2f} seconds for {:,.1f}KB')
     # TODO: add file counter and print number to user
     for feed_name_key, feed_url_value in feeds.gtfs_feeds.items():
         start_time2 = time.time()
         zipfile_path = ''.join([download_folder, '/', feed_name_key, '.zip'])
 
+        # add default user-agent header in request to avoid 403 Errors
+        opener = request.build_opener()
+        opener.addheaders = [('User-agent', '')]
+        request.install_opener(opener)
+
         if 'http' in feed_url_value:
-            status_code = urlopen(feed_url_value).getcode()
-            if status_code == 200:
-                file = urlopen(feed_url_value)
-
-                _zipfile_type_check(file=file,
-                                    feed_url_value=feed_url_value)
-
-                with open(zipfile_path, "wb") as local_file:
-                    local_file.write(file.read())
-                log(
-                    '{} GTFS feed downloaded successfully. Took {:,'
-                    '.2f} seconds for {:,.1f}KB'.format(
-                        feed_name_key, time.time() - start_time2,
-                        os.path.getsize(zipfile_path)))
-            elif status_code in [429, 504]:
-                log(
-                    'URL at {} returned status code {} and no data. '
-                    'Re-trying request in {:.2f} seconds.'.format(
-                        feed_url_value, status_code, error_pause_duration),
-                    level=lg.WARNING)
-                time.sleep(error_pause_duration)
-                try:
-                    file = urlopen(feed_url_value)
+            try:
+                status_code = request.urlopen(feed_url_value).getcode()
+                if status_code == 200:
+                    file = request.urlopen(feed_url_value)
 
                     _zipfile_type_check(file=file,
                                         feed_url_value=feed_url_value)
 
                     with open(zipfile_path, "wb") as local_file:
                         local_file.write(file.read())
-                except Exception:
-                    log('Unable to connect. URL at {} returned status code '
-                        '{} and no data'.format(feed_url_value, status_code),
-                        level=lg.ERROR)
-            else:
-                log(
-                    'Unable to connect. URL at {} returned status code {} '
-                    'and no data'.format(
-                        feed_url_value, status_code), level=lg.ERROR)
-        else:
-            try:
-                file = urlopen(feed_url_value)
-                _zipfile_type_check(file=file,
-                                    feed_url_value=feed_url_value)
-                with open(
-                        ''.join([download_folder, '/', feed_name_key, '.zip']),
-                        "wb") as local_file:
-                    local_file.write(file.read())
-                log(
-                    '{} GTFS feed downloaded successfully. Took {:,'
-                    '.2f} seconds for {:,.1f}KB'.format(
+                    log(msg_download_succeed.format(
                         feed_name_key, time.time() - start_time2,
                         os.path.getsize(zipfile_path)))
+                elif status_code in [429, 504]:
+                    msg = ('URL at {} returned status code {} and no data. '
+                           'Re-trying request in {:.2f} seconds.')
+                    log(msg.format(feed_url_value, status_code,
+                                   error_pause_duration),
+                        level=lg.WARNING)
+                    time.sleep(error_pause_duration)
+                    try:
+                        file = request.urlopen(feed_url_value)
+
+                        _zipfile_type_check(file=file,
+                                            feed_url_value=feed_url_value)
+
+                        with open(zipfile_path, "wb") as local_file:
+                            local_file.write(file.read())
+                    except Exception:
+                        log(msg_no_connection_w_status.format(
+                            feed_url_value, status_code),
+                            level=lg.ERROR)
+                else:
+                    log(msg_no_connection_w_status.format(
+                        feed_url_value, status_code),
+                        level=lg.ERROR)
             except Exception:
-                log('Unable to connect: {}'.format(traceback.format_exc()),
+                log(msg_no_connection.format(
+                    feed_url_value, traceback.format_exc()),
+                    level=lg.ERROR)
+        else:
+            try:
+                file = request.urlopen(feed_url_value)
+                _zipfile_type_check(file=file,
+                                    feed_url_value=feed_url_value)
+                file_path = ''.join(
+                    [download_folder, '/', feed_name_key, '.zip'])
+                with open(file_path, "wb") as local_file:
+                    local_file.write(file.read())
+                log(msg_download_succeed.format(
+                    feed_name_key, time.time() - start_time2,
+                    os.path.getsize(zipfile_path)))
+            except Exception:
+                log(msg_no_connection.format(
+                    feed_url_value, traceback.format_exc()),
                     level=lg.ERROR)
 
     log('GTFS feed download completed. Took {:,.2f} seconds'.format(
