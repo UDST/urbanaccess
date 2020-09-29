@@ -124,7 +124,7 @@ def test_search_contains_gtfs_data_exchange():
     col_list = ['dataexchange_url', 'dataexchange_id', 'name']
     for col in col_list:
         assert col in search_result.columns
-        assert search_result[col].isnull().all() == False # noqa
+        assert search_result[col].isnull().all() == False  # noqa
 
     value_list = ['ac-transit', 'santa-rosa-citybus']
     for value in value_list:
