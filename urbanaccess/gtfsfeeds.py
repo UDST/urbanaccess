@@ -78,9 +78,11 @@ class urbanaccess_gtfsfeeds(object):
             for value in yaml_config['gtfs_feeds'][key]:
                 if not isinstance(value, str):
                     raise ValueError('{} must be a string'.format(value))
-
-        if (pd.Series(
-                yaml_config['gtfs_feeds'].values()).value_counts() != 1).all():
+        unique_url_count = len(
+            pd.DataFrame.from_dict(yaml_config['gtfs_feeds'], orient='index')[
+                0].unique())
+        url_count = len(yaml_config['gtfs_feeds'])
+        if unique_url_count != url_count:
             raise ValueError(
                 'duplicate values were found when the passed add_dict '
                 'dictionary was added to the existing dictionary. Feed URL '
@@ -439,7 +441,7 @@ def download(data_folder=os.path.join(config.settings.data_folder),
                     raise ValueError('{} must be a string'.format(value))
 
         for key, value in feed_dict.items():
-            if value in feed_dict.gtfs_feeds.values():
+            if value in feeds.gtfs_feeds.values():
                 raise ValueError(
                     'duplicate values were found when the passed add_dict '
                     'dictionary was added to the existing dictionary. Feed '
