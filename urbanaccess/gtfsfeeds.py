@@ -460,7 +460,7 @@ def download(data_folder=os.path.join(config.settings.data_folder),
     if not os.path.exists(download_folder):
         os.makedirs(download_folder)
         log('{} does not exist. Directory was created'.format(download_folder))
-    log('{} GTFS feeds will be downloaded here: {}'.format(
+    log('{:,} GTFS feed(s) will be downloaded here: {}'.format(
         len(feeds.gtfs_feeds), download_folder))
 
     start_time1 = time.time()
