@@ -51,11 +51,11 @@ Citation and academic literature
 
 To cite this tool and for a complete description of the UrbanAccess methodology see the paper below:
 
-`Samuel D. Blanchard and Paul Waddell. 2017. "UrbanAccess: Generalized Methodology for Measuring Regional Accessibility with an Integrated Pedestrian and Transit Network." Transportation Research Record: Journal of the Transportation Research Board. No. 2653. pp. 35–44. <http://trrjournalonline.trb.org/doi/pdf/10.3141/2653-05>`__
+`Samuel D. Blanchard and Paul Waddell. 2017. "UrbanAccess: Generalized Methodology for Measuring Regional Accessibility with an Integrated Pedestrian and Transit Network." Transportation Research Record: Journal of the Transportation Research Board. No. 2653. pp. 35–44. <https://journals.sagepub.com/doi/pdf/10.3141/2653-05>`__
 
 For a detailed use case of the tool see the following paper:
 
-`Samuel D. Blanchard and Paul Waddell. 2017. "Assessment of Regional Transit Accessibility in the San Francisco Bay Area of California with UrbanAccess." Transportation Research Record: Journal of the Transportation Research Board. No. 2654. pp. 45–54. <http://trrjournalonline.trb.org/doi/abs/10.3141/2654-06>`__
+`Samuel D. Blanchard and Paul Waddell. 2017. "Assessment of Regional Transit Accessibility in the San Francisco Bay Area of California with UrbanAccess." Transportation Research Record: Journal of the Transportation Research Board. No. 2654. pp. 45–54. <https://journals.sagepub.com/doi/pdf/10.3141/2654-06>`__
 
 Reporting bugs
 ~~~~~~~~~~~~~~~~~~~~~~~~
