@@ -63,7 +63,7 @@ def log(message, level=None, name=None, filename=None):
 
         # convert message to ascii for proper console display in windows
         # terminals
-        message = unicodedata.normalize('NFKD', unicode(message)).encode(
+        message = unicodedata.normalize('NFKD', str(message)).encode(
             'ascii', errors='replace').decode()
         print(message)
         sys.stdout = standard_out
