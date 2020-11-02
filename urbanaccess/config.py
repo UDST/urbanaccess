@@ -51,8 +51,9 @@ class urbanaccess_config(object):
     log_filename : str
         name of the log file
     txt_encoding : str
-        default encoding to use to read and write GTFS txt files. Must be
-        a valid encoding recognized by Python codecs.
+        default text encoding used by the GTFS files, to be passed to
+        Python's open() function. Must be a valid encoding recognized by
+        Python codecs.
     gtfs_api : dict
         dictionary of the name of the GTFS API service as the key and
         the GTFS API server root URL as the value to pass to the GTFS loader
