@@ -115,6 +115,11 @@ def _txt_header_whitespace_check(gtfsfiles_to_use,
     """
     start_time = time.time()
 
+    txt_encoding = config.settings.txt_encoding
+    msg = ('Checking GTFS text file header whitespace... '
+           'Reading files using encoding: {} set in configuration.')
+    log(msg.format(txt_encoding))
+
     folderlist = [foldername for foldername in os.listdir(csv_rootpath) if
                   os.path.isdir(os.path.join(csv_rootpath, foldername))]
 
@@ -128,25 +133,41 @@ def _txt_header_whitespace_check(gtfsfiles_to_use,
 
         for textfile in textfilelist:
             if textfile in gtfsfiles_to_use:
+                file_path = os.path.join(csv_rootpath, folder, textfile)
                 # Read from file
-                with open(os.path.join(csv_rootpath, folder, textfile)) as f:
-                    lines = f.readlines()
-                lines[0] = re.sub(r'\s+', '', lines[0]) + '\n'
-                # Write to file
                 try:
-                    with open(os.path.join(csv_rootpath, folder, textfile),
-                              'w') as f:
-                        f.writelines(lines)
-                except Exception:
-                    log('Unable to read {}. Check that file is not currently'
-                        'being read or is not already in memory as this is '
-                        'likely the cause of the error.'
-                        ''.format(os.path.join(csv_rootpath,
-                                               folder, textfile)))
-    log(
-        'GTFS text file header whitespace check completed. Took {:,'
-        '.2f} seconds'.format(
-            time.time() - start_time))
+                    if six.PY2:
+                        with open(file_path) as f:
+                            lines = f.readlines()
+                    else:
+                        # read with default 'utf-8' encoding
+                        with open(
+                                file_path,
+                                encoding=txt_encoding) as f:
+                            lines = f.readlines()
+                    line_wo_whitespace = re.sub(r'\s+', '', lines[0]) + '\n'
+                    # only write the file if there are changes to be made
+                    if lines[0] != line_wo_whitespace:
+                        msg = 'Removing whitespace from header(s) in: {}...'
+                        log(msg.format(file_path))
+                        lines[0] = line_wo_whitespace
+                        # Write to file
+                        if six.PY2:
+                            with open(
+                                    file_path, 'w') as f:
+                                f.writelines(lines)
+                        else:
+                            # write with default 'utf-8' encoding
+                            with open(
+                                    file_path, 'w',
+                                    encoding=txt_encoding) as f:
+                                f.writelines(lines)
+                except Exception as e:
+                    msg = 'Unable to process: {}. Exception: {}'
+                    raise Exception(log(msg.format(file_path, e),
+                                        level=lg.ERROR))
+    log('GTFS text file header whitespace check completed. '
+        'Took {:,.2f} seconds'.format(time.time() - start_time))
 
 
 def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
