@@ -4,6 +4,7 @@ import re
 import time
 import pandas as pd
 import six
+import logging as lg
 
 from urbanaccess import config
 from urbanaccess.utils import log
@@ -59,6 +60,7 @@ def _txt_encoder_check(gtfsfiles_to_use,
     """
     # UnicodeDecodeError
     start_time = time.time()
+    log('Checking GTFS text file for encoding issues...')
 
     folderlist = [foldername for foldername in os.listdir(csv_rootpath) if
                   os.path.isdir(os.path.join(csv_rootpath, foldername))]
@@ -74,14 +76,16 @@ def _txt_encoder_check(gtfsfiles_to_use,
         for textfile in textfilelist:
             if textfile in gtfsfiles_to_use:
                 # Read from file
-                file_open = open(os.path.join(csv_rootpath, folder, textfile))
+                file_path = os.path.join(csv_rootpath, folder, textfile)
+                file_open = open(file_path)
                 raw = file_open.read()
                 file_open.close()
                 if raw.startswith(codecs.BOM_UTF8):
+                    msg = 'Correcting encoding issue in: {}...'
+                    log(msg.format(file_path))
                     raw = raw.replace(codecs.BOM_UTF8, '', 1)
                     # Write to file
-                    file_open = open(
-                        os.path.join(csv_rootpath, folder, textfile), 'w')
+                    file_open = open(file_path, 'w')
                     file_open.write(raw)
                     file_open.close()
 
