@@ -21,7 +21,7 @@ def _format_check(settings):
 
     for key in settings.keys():
         if key not in valid_keys:
-            raise ValueError('{} not found in list of valid configuation '
+            raise ValueError('{} not found in list of valid configuration '
                              'keys'.format(key))
         if not isinstance(key, str):
             raise ValueError('{} must be a string'.format(key))
@@ -43,9 +43,9 @@ class urbanaccess_config(object):
     logs_folder : str
         location to write log files
     log_file : bool
-        if true, save log output to a log file in logs_folder
+        if True, save log output to a log file in logs_folder
     log_console : bool
-        if true, print log output to the console
+        if True, print log output to the console
     log_name : str
         name of the logger
     log_filename : str

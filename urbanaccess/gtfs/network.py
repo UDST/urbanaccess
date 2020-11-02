@@ -58,7 +58,7 @@ def create_transit_net(gtfsfeeds_dfs, day,
         DataFrame for the same time period stored in the
         gtfsfeeds_dfs object it will be used instead of re-calculated
     save_processed_gtfs : bool, optional
-        if true, all processed gtfs DataFrames will
+        if true, all processed GTFS DataFrames will
         be stored to disk in a hdf5 file
     save_dir : str, optional
         directory to save the hdf5 file
@@ -216,7 +216,7 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
         day in the GTFS calendar
     calendar_dates_lookup : dict, optional
         dictionary of the lookup column (key) as a string and corresponding
-        string (value) a s string or list of strings to use to subset trips
+        string (value) as string or list of strings to use to subset trips
         using the calendar_dates DataFrame. Search will be exact. If none,
         then the calendar_dates DataFrame will not be used to select trips
         that are not in the calendar DataFrame. Note search will select all

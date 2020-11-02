@@ -20,7 +20,7 @@ def _standardize_txt(csv_rootpath=os.path.join(config.settings.data_folder,
     Parameters
     ----------
     csv_rootpath : str, optional
-        root path where all gtfs feeds that make up a contiguous metropolitan
+        root path where all GTFS feeds that make up a contiguous metropolitan
         area are stored
 
     Returns
@@ -100,9 +100,9 @@ def _txt_header_whitespace_check(gtfsfiles_to_use,
     Parameters
     ----------
     gtfsfiles_to_use : list
-        list of gtfs feed txt files to utilize
+        list of GTFS feed txt files to utilize
     csv_rootpath : str, optional
-        root path where all gtfs feeds that make up a contiguous metropolitan
+        root path where all GTFS feeds that make up a contiguous metropolitan
         area are stored
 
     Returns
@@ -156,7 +156,7 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
     Parameters
     ----------
     gtfsfeed_path : str, optional
-        root path where all gtfs feeds that make up a contiguous metropolitan
+        root path where all GTFS feeds that make up a contiguous metropolitan
         area are stored
     validation : bool
         if true, the validation check on stops checking for stops outside
