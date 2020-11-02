@@ -16,7 +16,8 @@ def _format_check(settings):
     """
 
     valid_keys = ['data_folder', 'logs_folder', 'log_file',
-                  'log_console', 'log_name', 'log_filename', 'gtfs_api']
+                  'log_console', 'log_name', 'log_filename',
+                  'txt_encoding', 'gtfs_api']
 
     for key in settings.keys():
         if key not in valid_keys:
@@ -49,6 +50,9 @@ class urbanaccess_config(object):
         name of the logger
     log_filename : str
         name of the log file
+    txt_encoding : str
+        default encoding to use to read and write GTFS txt files. Must be
+        a valid encoding recognized by Python codecs.
     gtfs_api : dict
         dictionary of the name of the GTFS API service as the key and
         the GTFS API server root URL as the value to pass to the GTFS loader
@@ -61,6 +65,7 @@ class urbanaccess_config(object):
                  log_console=False,
                  log_name='urbanaccess',
                  log_filename='urbanaccess',
+                 txt_encoding='utf-8',
                  gtfs_api={'gtfsdataexch': (
                          'http://www.gtfs-data-exchange.com/'
                          'api/agencies?format=csv')}):
@@ -71,6 +76,7 @@ class urbanaccess_config(object):
         self.log_console = log_console
         self.log_name = log_name
         self.log_filename = log_filename
+        self.txt_encoding = txt_encoding
         self.gtfs_api = gtfs_api
 
     @classmethod
@@ -110,6 +116,7 @@ class urbanaccess_config(object):
                        log_name=yaml_config.get('log_name', 'urbanaccess'),
                        log_filename=yaml_config.get('log_filename',
                                                     'urbanaccess'),
+                       txt_encoding=yaml_config.get('txt_encoding', 'utf-8'),
                        gtfs_api=yaml_config.get('gtfs_api', {
                            'gtfsdataexch':
                                ('http://www.gtfs-data-exchange.com/'
@@ -128,6 +135,7 @@ class urbanaccess_config(object):
                 'log_console': self.log_console,
                 'log_name': self.log_name,
                 'log_filename': self.log_filename,
+                'txt_encoding': self.txt_encoding,
                 'gtfs_api': self.gtfs_api,
                 }
 
