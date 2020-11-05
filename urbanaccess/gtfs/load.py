@@ -4,6 +4,7 @@ import re
 import time
 import pandas as pd
 import six
+import logging as lg
 
 from urbanaccess import config
 from urbanaccess.utils import log
@@ -20,7 +21,7 @@ def _standardize_txt(csv_rootpath=os.path.join(config.settings.data_folder,
     Parameters
     ----------
     csv_rootpath : str, optional
-        root path where all gtfs feeds that make up a contiguous metropolitan
+        root path where all GTFS feeds that make up a contiguous metropolitan
         area are stored
 
     Returns
@@ -59,6 +60,7 @@ def _txt_encoder_check(gtfsfiles_to_use,
     """
     # UnicodeDecodeError
     start_time = time.time()
+    log('Checking GTFS text file for encoding issues...')
 
     folderlist = [foldername for foldername in os.listdir(csv_rootpath) if
                   os.path.isdir(os.path.join(csv_rootpath, foldername))]
@@ -74,14 +76,16 @@ def _txt_encoder_check(gtfsfiles_to_use,
         for textfile in textfilelist:
             if textfile in gtfsfiles_to_use:
                 # Read from file
-                file_open = open(os.path.join(csv_rootpath, folder, textfile))
+                file_path = os.path.join(csv_rootpath, folder, textfile)
+                file_open = open(file_path)
                 raw = file_open.read()
                 file_open.close()
                 if raw.startswith(codecs.BOM_UTF8):
+                    msg = 'Correcting encoding issue in: {}...'
+                    log(msg.format(file_path))
                     raw = raw.replace(codecs.BOM_UTF8, '', 1)
                     # Write to file
-                    file_open = open(
-                        os.path.join(csv_rootpath, folder, textfile), 'w')
+                    file_open = open(file_path, 'w')
                     file_open.write(raw)
                     file_open.close()
 
@@ -100,9 +104,9 @@ def _txt_header_whitespace_check(gtfsfiles_to_use,
     Parameters
     ----------
     gtfsfiles_to_use : list
-        list of gtfs feed txt files to utilize
+        list of GTFS feed txt files to utilize
     csv_rootpath : str, optional
-        root path where all gtfs feeds that make up a contiguous metropolitan
+        root path where all GTFS feeds that make up a contiguous metropolitan
         area are stored
 
     Returns
@@ -110,6 +114,11 @@ def _txt_header_whitespace_check(gtfsfiles_to_use,
     None
     """
     start_time = time.time()
+
+    txt_encoding = config.settings.txt_encoding
+    msg = ('Checking GTFS text file header whitespace... '
+           'Reading files using encoding: {} set in configuration.')
+    log(msg.format(txt_encoding))
 
     folderlist = [foldername for foldername in os.listdir(csv_rootpath) if
                   os.path.isdir(os.path.join(csv_rootpath, foldername))]
@@ -124,25 +133,41 @@ def _txt_header_whitespace_check(gtfsfiles_to_use,
 
         for textfile in textfilelist:
             if textfile in gtfsfiles_to_use:
+                file_path = os.path.join(csv_rootpath, folder, textfile)
                 # Read from file
-                with open(os.path.join(csv_rootpath, folder, textfile)) as f:
-                    lines = f.readlines()
-                lines[0] = re.sub(r'\s+', '', lines[0]) + '\n'
-                # Write to file
                 try:
-                    with open(os.path.join(csv_rootpath, folder, textfile),
-                              'w') as f:
-                        f.writelines(lines)
-                except Exception:
-                    log('Unable to read {}. Check that file is not currently'
-                        'being read or is not already in memory as this is '
-                        'likely the cause of the error.'
-                        ''.format(os.path.join(csv_rootpath,
-                                               folder, textfile)))
-    log(
-        'GTFS text file header whitespace check completed. Took {:,'
-        '.2f} seconds'.format(
-            time.time() - start_time))
+                    if six.PY2:
+                        with open(file_path) as f:
+                            lines = f.readlines()
+                    else:
+                        # read with default 'utf-8' encoding
+                        with open(
+                                file_path,
+                                encoding=txt_encoding) as f:
+                            lines = f.readlines()
+                    line_wo_whitespace = re.sub(r'\s+', '', lines[0]) + '\n'
+                    # only write the file if there are changes to be made
+                    if lines[0] != line_wo_whitespace:
+                        msg = 'Removing whitespace from header(s) in: {}...'
+                        log(msg.format(file_path))
+                        lines[0] = line_wo_whitespace
+                        # Write to file
+                        if six.PY2:
+                            with open(
+                                    file_path, 'w') as f:
+                                f.writelines(lines)
+                        else:
+                            # write with default 'utf-8' encoding
+                            with open(
+                                    file_path, 'w',
+                                    encoding=txt_encoding) as f:
+                                f.writelines(lines)
+                except Exception as e:
+                    msg = 'Unable to process: {}. Exception: {}'
+                    raise Exception(log(msg.format(file_path, e),
+                                        level=lg.ERROR))
+    log('GTFS text file header whitespace check completed. '
+        'Took {:,.2f} seconds'.format(time.time() - start_time))
 
 
 def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
@@ -156,7 +181,7 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
     Parameters
     ----------
     gtfsfeed_path : str, optional
-        root path where all gtfs feeds that make up a contiguous metropolitan
+        root path where all GTFS feeds that make up a contiguous metropolitan
         area are stored
     validation : bool
         if true, the validation check on stops checking for stops outside

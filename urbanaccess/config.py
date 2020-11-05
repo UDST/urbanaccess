@@ -16,11 +16,12 @@ def _format_check(settings):
     """
 
     valid_keys = ['data_folder', 'logs_folder', 'log_file',
-                  'log_console', 'log_name', 'log_filename', 'gtfs_api']
+                  'log_console', 'log_name', 'log_filename',
+                  'txt_encoding', 'gtfs_api']
 
     for key in settings.keys():
         if key not in valid_keys:
-            raise ValueError('{} not found in list of valid configuation '
+            raise ValueError('{} not found in list of valid configuration '
                              'keys'.format(key))
         if not isinstance(key, str):
             raise ValueError('{} must be a string'.format(key))
@@ -42,13 +43,17 @@ class urbanaccess_config(object):
     logs_folder : str
         location to write log files
     log_file : bool
-        if true, save log output to a log file in logs_folder
+        if True, save log output to a log file in logs_folder
     log_console : bool
-        if true, print log output to the console
+        if True, print log output to the console
     log_name : str
         name of the logger
     log_filename : str
         name of the log file
+    txt_encoding : str
+        default text encoding used by the GTFS files, to be passed to
+        Python's open() function. Must be a valid encoding recognized by
+        Python codecs.
     gtfs_api : dict
         dictionary of the name of the GTFS API service as the key and
         the GTFS API server root URL as the value to pass to the GTFS loader
@@ -61,6 +66,7 @@ class urbanaccess_config(object):
                  log_console=False,
                  log_name='urbanaccess',
                  log_filename='urbanaccess',
+                 txt_encoding='utf-8',
                  gtfs_api={'gtfsdataexch': (
                          'http://www.gtfs-data-exchange.com/'
                          'api/agencies?format=csv')}):
@@ -71,6 +77,7 @@ class urbanaccess_config(object):
         self.log_console = log_console
         self.log_name = log_name
         self.log_filename = log_filename
+        self.txt_encoding = txt_encoding
         self.gtfs_api = gtfs_api
 
     @classmethod
@@ -110,6 +117,7 @@ class urbanaccess_config(object):
                        log_name=yaml_config.get('log_name', 'urbanaccess'),
                        log_filename=yaml_config.get('log_filename',
                                                     'urbanaccess'),
+                       txt_encoding=yaml_config.get('txt_encoding', 'utf-8'),
                        gtfs_api=yaml_config.get('gtfs_api', {
                            'gtfsdataexch':
                                ('http://www.gtfs-data-exchange.com/'
@@ -128,6 +136,7 @@ class urbanaccess_config(object):
                 'log_console': self.log_console,
                 'log_name': self.log_name,
                 'log_filename': self.log_filename,
+                'txt_encoding': self.txt_encoding,
                 'gtfs_api': self.gtfs_api,
                 }
 

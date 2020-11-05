@@ -7,6 +7,7 @@ pycodestyle
 # testing demo notebook
 jupyter
 cartopy  # requires conda
+pyepsg
 
 # building documentation
 numpydoc
