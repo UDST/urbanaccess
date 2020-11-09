@@ -3,7 +3,7 @@ v0.2.2
 
 2020/11/09
 
-* allows passing matplotlib axes to pandana.plot.plot_net()
+* allows passing matplotlib axes to urbanaccess.plot.plot_net()
 * adds flexibility to calendar/date handling (calendar_dates.txt now supported)
 * improves GTFS downloading (solves issue where requests were rejected due to missing user agent header)
 * improves text encoding support
