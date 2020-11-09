@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Utilities &mdash; UrbanAccess 0.2.1 documentation</title>
+  <title>Utilities &mdash; UrbanAccess 0.2.2 documentation</title>
   
 
   
@@ -61,7 +61,7 @@
             
             
               <div class="version">
-                0.2.1
+                0.2.2
               </div>
             
           
@@ -175,13 +175,17 @@ configuration settings for UrbanAccess.</p>
 </dd>
 <dt><strong>logs_folder</strong><span class="classifier">str</span></dt><dd><p>location to write log files</p>
 </dd>
-<dt><strong>log_file</strong><span class="classifier">bool</span></dt><dd><p>if true, save log output to a log file in logs_folder</p>
+<dt><strong>log_file</strong><span class="classifier">bool</span></dt><dd><p>if True, save log output to a log file in logs_folder</p>
 </dd>
-<dt><strong>log_console</strong><span class="classifier">bool</span></dt><dd><p>if true, print log output to the console</p>
+<dt><strong>log_console</strong><span class="classifier">bool</span></dt><dd><p>if True, print log output to the console</p>
 </dd>
 <dt><strong>log_name</strong><span class="classifier">str</span></dt><dd><p>name of the logger</p>
 </dd>
 <dt><strong>log_filename</strong><span class="classifier">str</span></dt><dd><p>name of the log file</p>
+</dd>
+<dt><strong>txt_encoding</strong><span class="classifier">str</span></dt><dd><p>default text encoding used by the GTFS files, to be passed to
+Python’s open() function. Must be a valid encoding recognized by
+Python codecs.</p>
 </dd>
 <dt><strong>gtfs_api</strong><span class="classifier">dict</span></dt><dd><p>dictionary of the name of the GTFS API service as the key and
 the GTFS API server root URL as the value to pass to the GTFS loader</p>
@@ -194,7 +198,7 @@ the GTFS API server root URL as the value to pass to the GTFS loader</p>
 <p>By default the global configuration settings are already set, however they can be changed by using the functions in the <code class="docutils literal notranslate"><span class="pre">urbanaccess_config</span></code> class:</p>
 <dl class="py class">
 <dt id="urbanaccess.config.urbanaccess_config">
-<em class="property">class </em><code class="sig-prename descclassname">urbanaccess.config.</code><code class="sig-name descname">urbanaccess_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_folder</span><span class="o">=</span><span class="default_value">'data'</span></em>, <em class="sig-param"><span class="n">logs_folder</span><span class="o">=</span><span class="default_value">'logs'</span></em>, <em class="sig-param"><span class="n">log_file</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">log_console</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">log_name</span><span class="o">=</span><span class="default_value">'urbanaccess'</span></em>, <em class="sig-param"><span class="n">log_filename</span><span class="o">=</span><span class="default_value">'urbanaccess'</span></em>, <em class="sig-param"><span class="n">gtfs_api</span><span class="o">=</span><span class="default_value">{'gtfsdataexch': 'http://www.gtfs-data-exchange.com/api/agencies?format=csv'}</span></em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.config.urbanaccess_config" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">urbanaccess.config.</code><code class="sig-name descname">urbanaccess_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_folder</span><span class="o">=</span><span class="default_value">'data'</span></em>, <em class="sig-param"><span class="n">logs_folder</span><span class="o">=</span><span class="default_value">'logs'</span></em>, <em class="sig-param"><span class="n">log_file</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">log_console</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">log_name</span><span class="o">=</span><span class="default_value">'urbanaccess'</span></em>, <em class="sig-param"><span class="n">log_filename</span><span class="o">=</span><span class="default_value">'urbanaccess'</span></em>, <em class="sig-param"><span class="n">txt_encoding</span><span class="o">=</span><span class="default_value">'utf-8'</span></em>, <em class="sig-param"><span class="n">gtfs_api</span><span class="o">=</span><span class="default_value">{'gtfsdataexch': 'http://www.gtfs-data-exchange.com/api/agencies?format=csv'}</span></em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.config.urbanaccess_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>A set of configuration variables to initiate the
 configuration settings for UrbanAccess.</p>
 <dl class="field-list simple">
@@ -204,13 +208,17 @@ configuration settings for UrbanAccess.</p>
 </dd>
 <dt><strong>logs_folder</strong><span class="classifier">str</span></dt><dd><p>location to write log files</p>
 </dd>
-<dt><strong>log_file</strong><span class="classifier">bool</span></dt><dd><p>if true, save log output to a log file in logs_folder</p>
+<dt><strong>log_file</strong><span class="classifier">bool</span></dt><dd><p>if True, save log output to a log file in logs_folder</p>
 </dd>
-<dt><strong>log_console</strong><span class="classifier">bool</span></dt><dd><p>if true, print log output to the console</p>
+<dt><strong>log_console</strong><span class="classifier">bool</span></dt><dd><p>if True, print log output to the console</p>
 </dd>
 <dt><strong>log_name</strong><span class="classifier">str</span></dt><dd><p>name of the logger</p>
 </dd>
 <dt><strong>log_filename</strong><span class="classifier">str</span></dt><dd><p>name of the log file</p>
+</dd>
+<dt><strong>txt_encoding</strong><span class="classifier">str</span></dt><dd><p>default text encoding used by the GTFS files, to be passed to
+Python’s open() function. Must be a valid encoding recognized by
+Python codecs.</p>
 </dd>
 <dt><strong>gtfs_api</strong><span class="classifier">dict</span></dt><dd><p>dictionary of the name of the GTFS API service as the key and
 the GTFS API server root URL as the value to pass to the GTFS loader</p>

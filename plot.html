@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Plot Networks &mdash; UrbanAccess 0.2.1 documentation</title>
+  <title>Plot Networks &mdash; UrbanAccess 0.2.2 documentation</title>
   
 
   
@@ -61,7 +61,7 @@
             
             
               <div class="version">
-                0.2.1
+                0.2.2
               </div>
             
           
@@ -175,7 +175,7 @@
 <em>Integrated AC Transit and BART transit and pedestrian network travel times for Oakland, CA</em></p>
 <dl class="py function">
 <dt id="urbanaccess.plot.plot_net">
-<code class="sig-prename descclassname">urbanaccess.plot.</code><code class="sig-name descname">plot_net</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nodes</span></em>, <em class="sig-param"><span class="n">edges</span></em>, <em class="sig-param"><span class="n">x_col</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">y_col</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">from_col</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">to_col</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bbox</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fig_height</span><span class="o">=</span><span class="default_value">6</span></em>, <em class="sig-param"><span class="n">margin</span><span class="o">=</span><span class="default_value">0.02</span></em>, <em class="sig-param"><span class="n">edge_color</span><span class="o">=</span><span class="default_value">'#999999'</span></em>, <em class="sig-param"><span class="n">edge_linewidth</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">edge_alpha</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">node_color</span><span class="o">=</span><span class="default_value">'black'</span></em>, <em class="sig-param"><span class="n">node_size</span><span class="o">=</span><span class="default_value">15</span></em>, <em class="sig-param"><span class="n">node_alpha</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">node_edgecolor</span><span class="o">=</span><span class="default_value">'none'</span></em>, <em class="sig-param"><span class="n">node_zorder</span><span class="o">=</span><span class="default_value">3</span></em>, <em class="sig-param"><span class="n">nodes_only</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.plot.plot_net" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">urbanaccess.plot.</code><code class="sig-name descname">plot_net</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nodes</span></em>, <em class="sig-param"><span class="n">edges</span></em>, <em class="sig-param"><span class="n">x_col</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">y_col</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">from_col</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">to_col</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bbox</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fig_height</span><span class="o">=</span><span class="default_value">6</span></em>, <em class="sig-param"><span class="n">margin</span><span class="o">=</span><span class="default_value">0.02</span></em>, <em class="sig-param"><span class="n">edge_color</span><span class="o">=</span><span class="default_value">'#999999'</span></em>, <em class="sig-param"><span class="n">edge_linewidth</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">edge_alpha</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">node_color</span><span class="o">=</span><span class="default_value">'black'</span></em>, <em class="sig-param"><span class="n">node_size</span><span class="o">=</span><span class="default_value">15</span></em>, <em class="sig-param"><span class="n">node_alpha</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">node_edgecolor</span><span class="o">=</span><span class="default_value">'none'</span></em>, <em class="sig-param"><span class="n">node_zorder</span><span class="o">=</span><span class="default_value">3</span></em>, <em class="sig-param"><span class="n">nodes_only</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">ax</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#urbanaccess.plot.plot_net" title="Permalink to this definition">¶</a></dt>
 <dd><p>plot urbanaccess network nodes and edges</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -219,6 +219,9 @@ if None bbox will be calculated from spatial extents of data</p>
 nodes under the edges, 3 will plot nodes on top</p>
 </dd>
 <dt><strong>nodes_only</strong><span class="classifier">bool</span></dt><dd><p>if true only the nodes will plot</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes._subplots.AxesSubplot, optional</span></dt><dd><p>matplotlib axes, as given by, for example, plt.subplot.
+Use to specify the projection.</p>
 </dd>
 </dl>
 </dd>
