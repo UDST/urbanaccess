@@ -4,8 +4,8 @@ v0.2.2
 2020/11/09
 
 * allows passing matplotlib axes to pandana.plot_net()
-* adds flexibility to calendar/date handling
-* improves GTFS downloading
+* adds flexibility to calendar/date handling (calendar_dates.txt now supported)
+* improves GTFS downloading (solves issue where requests were rejected due to missing user agent header)
 * improves text encoding support
 
 v0.2.1
