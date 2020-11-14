@@ -9,11 +9,11 @@ def bbox1():
 
 
 def test_column_names(bbox1):
-    nodes, edges = ua_network_from_bbox(bbox=bbox1, network_type='walk',
-                                        timeout=180, memory=None,
-                                        max_query_area_size=50 * 1000 * 50 *
-                                                            1000,
-                                        remove_lcn=False)  # noqa
+    nodes, edges = ua_network_from_bbox(
+        bbox=bbox1, network_type='walk',
+        timeout=180, memory=None,
+        max_query_area_size=50 * 1000 * 50 * 1000,
+        remove_lcn=False)
     col_list = ['x', 'y', 'id']
     for col in col_list:
         assert col in nodes.columns

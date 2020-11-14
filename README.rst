@@ -51,7 +51,7 @@ Citation and academic literature
 
 To cite this tool and for a complete description of the UrbanAccess methodology see the paper below:
 
-`Samuel D. Blanchard and Paul Waddell. 2017. "UrbanAccess: Generalized Methodology for Measuring Regional Accessibility with an Integrated Pedestrian and Transit Network." Transportation Research Record: Journal of the Transportation Research Board. No. 2653. pp. 35–44. <http://trrjournalonline.trb.org/doi/pdf/10.3141/2653-05>`__
+`Samuel D. Blanchard and Paul Waddell. 2017. "UrbanAccess: Generalized Methodology for Measuring Regional Accessibility with an Integrated Pedestrian and Transit Network." Transportation Research Record: Journal of the Transportation Research Board. No. 2653. pp. 35–44. <https://journals.sagepub.com/doi/pdf/10.3141/2653-05>`__
 
 For other related literature see `here <https://udst.github.io/urbanaccess/introduction.html#citation-and-academic-literature>`__.
 
@@ -113,9 +113,8 @@ Minimum GTFS data requirements
 
 The minimum `GTFS data
 types <https://developers.google.com/transit/gtfs/>`__ required to use
-UrbanAccess are: ``stop_times``, ``stops``, ``routes``, ``calendar``,
-and ``trips`` however if there is no ``calendar``, ``calendar_dates``
-can be used as a replacement.
+UrbanAccess are: ``stop_times``, ``stops``, ``routes`` and ``trips`` and
+one of either ``calendar`` or ``calendar_dates``.
 
 Related UDST libraries
 ----------------------

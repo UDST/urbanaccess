@@ -58,7 +58,7 @@ def create_transit_net(gtfsfeeds_dfs, day,
         DataFrame for the same time period stored in the
         gtfsfeeds_dfs object it will be used instead of re-calculated
     save_processed_gtfs : bool, optional
-        if true, all processed gtfs DataFrames will
+        if true, all processed GTFS DataFrames will
         be stored to disk in a hdf5 file
     save_dir : str, optional
         directory to save the hdf5 file
@@ -97,10 +97,15 @@ def create_transit_net(gtfsfeeds_dfs, day,
             level=lg.WARNING)
     if gtfsfeeds_dfs is None:
         raise ValueError('gtfsfeeds_dfs is None')
-    if gtfsfeeds_dfs.trips.empty or gtfsfeeds_dfs.calendar.empty or \
-            gtfsfeeds_dfs.stop_times.empty or gtfsfeeds_dfs.stops.empty:
-        raise ValueError('one of the gtfsfeeds_dfs object trips, calendar, '
-                         'stops, or stop_times were found to be empty.')
+    error_msg = ('one of the following gtfsfeeds_dfs objects {} were '
+                 'found to be empty.')
+    if gtfsfeeds_dfs.trips.empty or gtfsfeeds_dfs.stop_times.empty or \
+            gtfsfeeds_dfs.stops.empty:
+        error_msg_case_1 = 'trips, stops, or stop_times'
+        raise ValueError(error_msg.format(error_msg_case_1))
+    if gtfsfeeds_dfs.calendar.empty and gtfsfeeds_dfs.calendar_dates.empty:
+        error_msg_case_2 = 'calendar or calendar_dates'
+        raise ValueError(error_msg.format(error_msg_case_2))
     if not isinstance(overwrite_existing_stop_times_int, bool):
         raise ValueError('overwrite_existing_stop_times_int must be bool')
     if not isinstance(use_existing_stop_times_int, bool):
@@ -117,6 +122,9 @@ def create_transit_net(gtfsfeeds_dfs, day,
     if 'direction_id' not in gtfsfeeds_dfs.trips.columns:
         columns.remove('direction_id')
 
+    # TODO: support use case where only calendar_dates is in use: make 'day'
+    #  optional as None but require either day or calendar_dates_lookup
+    #  to exist but both are not required
     calendar_selected_trips_df = _trip_schedule_selector(
         input_trips_df=gtfsfeeds_dfs.trips[columns],
         input_calendar_df=gtfsfeeds_dfs.calendar,
@@ -129,8 +137,7 @@ def create_transit_net(gtfsfeeds_dfs, day,
             is False:
         gtfsfeeds_dfs.stop_times_int = _interpolate_stop_times(
             stop_times_df=gtfsfeeds_dfs.stop_times,
-            calendar_selected_trips_df=calendar_selected_trips_df,
-            day=day)
+            calendar_selected_trips_df=calendar_selected_trips_df)
 
         gtfsfeeds_dfs.stop_times_int = _time_difference(
             stop_times_df=gtfsfeeds_dfs.stop_times_int)
@@ -209,7 +216,7 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
         day in the GTFS calendar
     calendar_dates_lookup : dict, optional
         dictionary of the lookup column (key) as a string and corresponding
-        string (value) a s string or list of strings to use to subset trips
+        string (value) as string or list of strings to use to subset trips
         using the calendar_dates DataFrame. Search will be exact. If none,
         then the calendar_dates DataFrame will not be used to select trips
         that are not in the calendar DataFrame. Note search will select all
@@ -369,18 +376,19 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
                 subset_result = input_calendar_dates_df[
                     input_calendar_dates_df[col_name_key].str.match(
                         text, case=False, na=False)]
-                feed_id_list = subset_result['unique_feed_id'].unique()
-                for index, id in enumerate(feed_id_list):
-                    feed_id_list[index] = ' '.join(id.split('_')[:-1])
+                if len(subset_result) != 0:
+                    feed_id_list = subset_result['unique_feed_id'].unique()
+                    for index, id in enumerate(feed_id_list):
+                        feed_id_list[index] = ' '.join(id.split('_')[:-1])
 
-                log('Found {:,} records that matched query: column: {} and '
-                    'string: {} for GTFS feed(s): {}'.format(len(
-                        subset_result),
-                        col_name_key,
-                        text,
-                        feed_id_list))
+                    log('Found {:,} records that matched query: column: {} '
+                        'and string: {} for GTFS feed(s): {}'.format(len(
+                            subset_result),
+                            col_name_key,
+                            text,
+                            feed_id_list))
 
-                subset_result_df = subset_result_df.append(subset_result)
+                    subset_result_df = subset_result_df.append(subset_result)
 
         subset_result_df.drop_duplicates(inplace=True)
         subset_result_df = subset_result_df[['unique_service_id']]
@@ -428,7 +436,7 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
     return calendar_selected_trips_df
 
 
-def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df, day):
+def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df):
     """
     Interpolate missing stop times using a linear
     interpolator between known stop times
@@ -439,10 +447,6 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df, day):
         stop times DataFrame
     calendar_selected_trips_df : pandas.DataFrame
         DataFrame of trips that run on specific day
-    day : {'friday','monday','saturday','sunday','thursday','tuesday',
-    'wednesday'}
-        day of the week to extract transit schedule from that corresponds
-        to the day in the GTFS calendar
 
     Returns
     -------
@@ -480,7 +484,7 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df, day):
         'unique_trip_id'].unique().tolist()
     # select trip ids that match the trips in the
     # calendar_selected_trips_df -- resulting df will be stop times
-    # only for trips that run on the service day of interest
+    # only for trips that run on the service day or dates of interest
     stop_times_df = stop_times_df[
         stop_times_df['unique_trip_id'].isin(uniquetriplist)]
 
@@ -498,10 +502,10 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df, day):
             level=lg.WARNING)
         log('Starting departure stop time interpolation...')
         log(
-            'Departure time records missing from trips following {} '
-            'schedule: {:,} ({:.2f} percent of {:,} total '
+            'Departure time records missing from trips following the '
+            'specified schedule: {:,} ({:.2f} percent of {:,} total '
             'records)'.format(
-                day, missing_stop_times_count,
+                missing_stop_times_count,
                 (missing_stop_times_count / len(stop_times_df)) * 100,
                 len(stop_times_df['departure_time_sec'])))
 
@@ -510,8 +514,8 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df, day):
     else:
 
         log('There are no departure time records missing from trips '
-            'following {} schedule. There are no records to '
-            'interpolate.'.format(day))
+            'following the specified schedule. There are no records to '
+            'interpolate.')
 
     # Find trips with more than one missing time
     # Note: all trip ids have at least 1 null departure time because the

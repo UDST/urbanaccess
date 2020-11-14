@@ -39,7 +39,7 @@ A `demo <https://github.com/UDST/urbanaccess/tree/master/demo>`__ is available a
 Minimum GTFS data requirements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The minimum `GTFS data types <https://developers.google.com/transit/gtfs/>`__ required to use UrbanAccess are: ``stop_times``, ``stops``, ``routes``, ``calendar``, and ``trips``. If you are using a feed that does not have or utilize a calendar you may use the ``calendar_dates`` file instead of ``calendar`` with the ``calendar_dates_lookup`` parameter :ref:`here <transit-network>`.
+The minimum `GTFS data types <https://developers.google.com/transit/gtfs/>`__ required to use UrbanAccess are: ``stop_times``, ``stops``, ``routes``, and ``trips`` and either ``calendar`` or ``calendar_dates``. If you are using a feed that does not have or utilize a calendar you may use the ``calendar_dates`` file instead of ``calendar`` with the ``calendar_dates_lookup`` parameter :ref:`here <transit-network>`.
 
 License
 ~~~~~~~~
@@ -51,11 +51,11 @@ Citation and academic literature
 
 To cite this tool and for a complete description of the UrbanAccess methodology see the paper below:
 
-`Samuel D. Blanchard and Paul Waddell. 2017. "UrbanAccess: Generalized Methodology for Measuring Regional Accessibility with an Integrated Pedestrian and Transit Network." Transportation Research Record: Journal of the Transportation Research Board. No. 2653. pp. 35–44. <http://trrjournalonline.trb.org/doi/pdf/10.3141/2653-05>`__
+`Samuel D. Blanchard and Paul Waddell. 2017. "UrbanAccess: Generalized Methodology for Measuring Regional Accessibility with an Integrated Pedestrian and Transit Network." Transportation Research Record: Journal of the Transportation Research Board. No. 2653. pp. 35–44. <https://journals.sagepub.com/doi/pdf/10.3141/2653-05>`__
 
 For a detailed use case of the tool see the following paper:
 
-`Samuel D. Blanchard and Paul Waddell. 2017. "Assessment of Regional Transit Accessibility in the San Francisco Bay Area of California with UrbanAccess." Transportation Research Record: Journal of the Transportation Research Board. No. 2654. pp. 45–54. <http://trrjournalonline.trb.org/doi/abs/10.3141/2654-06>`__
+`Samuel D. Blanchard and Paul Waddell. 2017. "Assessment of Regional Transit Accessibility in the San Francisco Bay Area of California with UrbanAccess." Transportation Research Record: Journal of the Transportation Research Board. No. 2654. pp. 45–54. <https://journals.sagepub.com/doi/pdf/10.3141/2654-06>`__
 
 Reporting bugs
 ~~~~~~~~~~~~~~~~~~~~~~~~

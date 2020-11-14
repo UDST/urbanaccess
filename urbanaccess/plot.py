@@ -13,7 +13,8 @@ def plot_net(nodes, edges, x_col=None, y_col=None, from_col=None,
              fig_height=6, margin=0.02,
              edge_color='#999999', edge_linewidth=1, edge_alpha=1,
              node_color='black', node_size=15, node_alpha=1,
-             node_edgecolor='none', node_zorder=3, nodes_only=False):
+             node_edgecolor='none', node_zorder=3, nodes_only=False,
+             ax=None):
     """
     plot urbanaccess network nodes and edges
 
@@ -59,6 +60,9 @@ def plot_net(nodes, edges, x_col=None, y_col=None, from_col=None,
         nodes under the edges, 3 will plot nodes on top
     nodes_only : bool
         if true only the nodes will plot
+    ax :  matplotlib.axes._subplots.AxesSubplot, optional
+        matplotlib axes, as given by, for example, plt.subplot.
+        Use to specify the projection.
 
     Returns
     -------
@@ -117,8 +121,11 @@ def plot_net(nodes, edges, x_col=None, y_col=None, from_col=None,
                           'in a negative value or 0'))
     bbox_aspect_ratio = (y_max - y_min) / (x_max - x_min)
 
-    fig, ax = plt.subplots(figsize=(fig_height / bbox_aspect_ratio,
-                                    fig_height))
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(fig_height / bbox_aspect_ratio,
+                                        fig_height))
+    else:
+        fig = ax.figure
 
     if nodes_only is False:
         # TODO: optimize for speed by calculating only for edges that are

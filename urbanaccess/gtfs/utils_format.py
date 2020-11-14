@@ -179,13 +179,11 @@ def _read_gtfs_calendar(textfile_path, textfile):
 
     df = pd.read_csv(os.path.join(textfile_path, textfile),
                      dtype={'service_id': object}, low_memory=False)
-
     if len(df) == 0:
-        error_msg = ('{} has no records. This could indicate that this feed '
-                     'is using calendar_dates.txt for service_ids. If so, '
-                     'make a dummy row in calendar.txt to proceed.')
-        raise ValueError(error_msg.format(os.path.join(textfile_path,
-                                                       textfile)))
+        warning_msg = ('{} has no records. This could indicate that this feed '
+                       'is using calendar_dates.txt for service_ids.')
+        log(warning_msg.format(os.path.join(
+            textfile_path, textfile)), level=lg.WARNING)
 
     columnlist = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday',
                   'saturday', 'sunday']
@@ -217,8 +215,11 @@ def _read_gtfs_calendar_dates(textfile_path, textfile):
     df = pd.read_csv(os.path.join(textfile_path, textfile),
                      dtype={'service_id': object}, low_memory=False)
     if len(df) == 0:
-        raise ValueError('{} has no records'.format(os.path.join(
-            textfile_path, textfile)))
+        warning_msg = ('{} has no records. This could indicate that this feed '
+                       'is using calendar.txt for service_ids.')
+        log(warning_msg.format(os.path.join(
+            textfile_path, textfile)), level=lg.WARNING)
+
     # remove any extra whitespace in column names
     df.rename(columns=lambda x: x.strip(), inplace=True)
     return df
