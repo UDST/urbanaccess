@@ -13,6 +13,7 @@ pd.options.mode.chained_assignment = None
 
 def create_transit_net(gtfsfeeds_dfs, day,
                        timerange,
+                       timerange_pad=None,
                        calendar_dates_lookup=None,
                        overwrite_existing_stop_times_int=False,
                        use_existing_stop_times_int=False,
@@ -697,11 +698,13 @@ def _time_selector(df, starttime, endtime):
     end_m = int(str(endtime[3:5]))
     end_s = int(str(endtime[6:8]))
     endtime_sec = (end_h * 60 * 60) + (end_m * 60) + end_s
-
+    
+    # define variable for including stops active after end of timerange
+    pad = int(0 if timerange_pad is None else timerange_pad)
     # create df of stops times that are within the requested range
     selected_stop_timesdf = df[(
-        (starttime_sec < df["departure_time_sec_interpolate"]) & (
-            df["departure_time_sec_interpolate"] < endtime_sec))]
+        (starttime_sec <= df["departure_time_sec_interpolate"]) & (
+            df["departure_time_sec_interpolate"] <= endtime_sec + (pad * 3600))]
 
     log(
         'Stop times from {} to {} successfully selected {:,} records out of '
