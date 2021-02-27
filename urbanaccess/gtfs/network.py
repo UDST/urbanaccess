@@ -704,7 +704,7 @@ def _time_selector(df, starttime, endtime):
     # create df of stops times that are within the requested range
     selected_stop_timesdf = df[(
         (starttime_sec <= df["departure_time_sec_interpolate"]) & (
-            df["departure_time_sec_interpolate"] <= endtime_sec + (pad * 3600))]
+            df["departure_time_sec_interpolate"] <= endtime_sec + (pad * 3600)))]
 
     log(
         'Stop times from {} to {} successfully selected {:,} records out of '
