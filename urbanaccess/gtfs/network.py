@@ -15,6 +15,7 @@ def create_transit_net(gtfsfeeds_dfs, day,
                        timerange,
                        timerange_pad=None,
                        calendar_dates_lookup=None,
+                       time_aware=False,
                        overwrite_existing_stop_times_int=False,
                        use_existing_stop_times_int=False,
                        save_processed_gtfs=False,
@@ -178,7 +179,8 @@ def create_transit_net(gtfsfeeds_dfs, day,
     transit_nodes = _format_transit_net_nodes(df=final_selected_stops)
 
     transit_edges = _route_type_to_edge(transit_edge_df=transit_edges,
-                                        stop_time_df=gtfsfeeds_dfs.stop_times)
+                                        stop_time_df=gtfsfeeds_dfs.stop_times,
+                                       time_aware=time_aware)
 
     transit_edges = _route_id_to_edge(transit_edge_df=transit_edges,
                                       trips_df=gtfsfeeds_dfs.trips)
@@ -899,7 +901,7 @@ def _format_transit_net_nodes(df):
     return final_node_df
 
 
-def _route_type_to_edge(transit_edge_df, stop_time_df):
+def _route_type_to_edge(transit_edge_df, stop_time_df, time_aware=False):
     """
     Append route type information to transit edge table
 
@@ -922,18 +924,35 @@ def _route_type_to_edge(transit_edge_df, stop_time_df):
         stop_time_df['trip_id'].str.cat(
             stop_time_df['unique_agency_id'].astype('str'), sep='_'))
 
-    # join route_id to the edge table
-    merged_df = pd.merge(transit_edge_df,
+    if time_aware:
+      # join route_id to the edge table
+      merged_df = pd.merge(transit_edge_df,
+                         stop_time_df[['unique_trip_id', 'route_type',
+                                      'arrival_time','departure_time']],
+                         how='left', on='unique_trip_id', sort=False,
+                         copy=False)
+      merged_df.drop_duplicates(subset='unique_trip_id',
+                              keep='first',
+                              inplace=True)
+      # need to get unique records here to have a one to one join -
+      # this serves as the look up table
+      # join the look up table created above to the table of interest
+      transit_edge_df_w_routetype = pd.merge(transit_edge_df, merged_df[
+        ['route_type', 'unique_trip_id',
+         'arrival_time','departure_time']], how='left', on='unique_trip_id',
+                                           sort=False, copy=False)
+    else:
+      merged_df = pd.merge(transit_edge_df,
                          stop_time_df[['unique_trip_id', 'route_type']],
                          how='left', on='unique_trip_id', sort=False,
                          copy=False)
-    merged_df.drop_duplicates(subset='unique_trip_id',
+      merged_df.drop_duplicates(subset='unique_trip_id',
                               keep='first',
                               inplace=True)
-    # need to get unique records here to have a one to one join -
-    # this serves as the look up table
-    # join the look up table created above to the table of interest
-    transit_edge_df_w_routetype = pd.merge(transit_edge_df, merged_df[
+      # need to get unique records here to have a one to one join -
+      # this serves as the look up table
+      # join the look up table created above to the table of interest
+      transit_edge_df_w_routetype = pd.merge(transit_edge_df, merged_df[
         ['route_type', 'unique_trip_id']], how='left', on='unique_trip_id',
                                            sort=False, copy=False)
 
