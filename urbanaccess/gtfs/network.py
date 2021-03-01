@@ -43,6 +43,9 @@ def create_transit_net(gtfsfeeds_dfs, day,
         to represent a relevant travel time period such as a 3 hour window
         for the AM Peak period. Must follow format
         of a 24 hour clock for example: 08:00:00 or 17:00:00
+    timerange_pad: int
+        integer indicating the number of hours to pad
+        after the end of the the time interval
     calendar_dates_lookup : dict, optional
         dictionary of the lookup column (key) as a string and corresponding
         string (value) as string or list of strings to use to subset trips
@@ -51,6 +54,9 @@ def create_transit_net(gtfsfeeds_dfs, day,
         that are not in the calendar DataFrame. Note search will select all
         records that meet each key value pair criteria.
         Example: {'schedule_type' : 'WD'} or {'schedule_type' : ['WD', 'SU']}
+    time_aware: boolean
+        Boolean to indicate whether the transit network should include
+        time information.
     overwrite_existing_stop_times_int : bool, optional
         if true, and if there is an existing stop_times_int
         DataFrame stored in the gtfsfeeds_dfs object it will be
@@ -157,7 +163,8 @@ def create_transit_net(gtfsfeeds_dfs, day,
     selected_interpolated_stop_times_df = _time_selector(
         df=gtfsfeeds_dfs.stop_times_int,
         starttime=timerange[0],
-        endtime=timerange[1])
+        endtime=timerange[1],
+        timerange_pad=timerange_pad)
 
     final_edge_table = _format_transit_net_edge(
         stop_times_df=selected_interpolated_stop_times_df[['unique_trip_id',
@@ -180,7 +187,7 @@ def create_transit_net(gtfsfeeds_dfs, day,
 
     transit_edges = _route_type_to_edge(transit_edge_df=transit_edges,
                                         stop_time_df=gtfsfeeds_dfs.stop_times,
-                                       time_aware=time_aware)
+                                        time_aware=time_aware)
 
     transit_edges = _route_id_to_edge(transit_edge_df=transit_edges,
                                       trips_df=gtfsfeeds_dfs.trips)
@@ -664,7 +671,7 @@ def _time_difference(stop_times_df):
     return stop_times_df
 
 
-def _time_selector(df, starttime, endtime):
+def _time_selector(df, starttime, endtime, timerange_pad=None):
     """
     Select stop times that fall within a specified time range
 
@@ -676,6 +683,9 @@ def _time_selector(df, starttime, endtime):
         24 hour clock formatted time 1
     endtime : str
         24 hour clock formatted time 2
+    timerange_pad: int
+        integer indicating the number of hours to pad
+        after the end of the the time interval
     Returns
     -------
     selected_stop_timesdf : pandas.DataFrame
@@ -911,6 +921,8 @@ def _route_type_to_edge(transit_edge_df, stop_time_df, time_aware=False):
         transit edge dataframe
     stop_time_df : pandas.DataFrame
         stop time dataframe
+    time_aware: boolean
+        whether the transit network should include time
 
     Returns
     -------
