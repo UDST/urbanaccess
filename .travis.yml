@@ -17,7 +17,7 @@ install:
   - hash -r
   - conda config --set always_yes yes --set show_channel_urls true
   - conda update -n base conda
-  - conda config --prepend channels conda-forge
+  - conda config --append channels conda-forge
   - conda create -n test-environment python=$TRAVIS_PYTHON_VERSION pyyaml --file requirements-dev.txt
   - source activate test-environment
   - conda info --all
