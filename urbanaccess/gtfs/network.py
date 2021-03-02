@@ -943,7 +943,7 @@ def _route_type_to_edge(transit_edge_df, stop_time_df, time_aware=False):
                                            'arrival_time', 'departure_time']],
                              how='left',
                              left_on=['unique_trip_id', 'sequence'],
-                             right_on=['unique_trip_id', 'stop_sequence'] sort=False,
+                             right_on=['unique_trip_id', 'stop_sequence'], sort=False,
                              copy=False)
 
     else:
