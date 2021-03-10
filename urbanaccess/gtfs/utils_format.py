@@ -14,7 +14,7 @@ def _read_gtfs_agency(textfile_path, textfile):
     Parameters
     ----------
     textfile_path : str
-        director of text file
+        directory of text file
     textfile : str
         name of text file
 
@@ -41,7 +41,7 @@ def _read_gtfs_stops(textfile_path, textfile):
     Parameters
     ----------
     textfile_path : str
-        director of text file
+        directory of text file
     textfile : str
         name of text file
 
@@ -74,7 +74,7 @@ def _read_gtfs_routes(textfile_path, textfile):
     Parameters
     ----------
     textfile_path : str
-        director of text file
+        directory of text file
     textfile : str
         name of text file
 
@@ -102,7 +102,7 @@ def _read_gtfs_trips(textfile_path, textfile):
     Parameters
     ----------
     textfile_path : str
-        director of text file
+        directory of text file
     textfile : str
         name of text file
 
@@ -135,7 +135,7 @@ def _read_gtfs_stop_times(textfile_path, textfile):
     Parameters
     ----------
     textfile_path : str
-        director of text file
+        directory of text file
     textfile : str
         name of text file
 
@@ -166,7 +166,7 @@ def _read_gtfs_calendar(textfile_path, textfile):
     Parameters
     ----------
     textfile_path : str
-        director of text file
+        directory of text file
     textfile : str
         name of text file
 
@@ -201,7 +201,7 @@ def _read_gtfs_calendar_dates(textfile_path, textfile):
     Parameters
     ----------
     textfile_path : str
-        director of text file
+        directory of text file
     textfile : str
         name of text file
 
