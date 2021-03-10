@@ -29,8 +29,10 @@ def _read_gtfs_agency(textfile_path, textfile):
     if len(df) == 0:
         raise ValueError('{} has no records'.format(os.path.join(
             textfile_path, textfile)))
+
     # remove any extra whitespace in column names
-    df.rename(columns=lambda x: x.strip(), inplace=True)
+    df = _remove_whitespace(df=df, textfile=textfile, col_list=None)
+
     return df
 
 
@@ -62,8 +64,10 @@ def _read_gtfs_stops(textfile_path, textfile):
     df['stop_lat'] = pd.to_numeric(df['stop_lat'])
     df['stop_lon'] = pd.to_numeric(df['stop_lon'])
 
-    # remove any extra whitespace in column names
-    df.rename(columns=lambda x: x.strip(), inplace=True)
+    # remove extra whitespace that may exist in col names or before and
+    # after the value for columns that are used across different GTFS files
+    df = _remove_whitespace(df=df, textfile=textfile, col_list=['stop_id'])
+
     return df
 
 
@@ -90,8 +94,11 @@ def _read_gtfs_routes(textfile_path, textfile):
     if len(df) == 0:
         raise ValueError('{} has no records'.format(os.path.join(
             textfile_path, textfile)))
-    # remove any extra whitespace in column names
-    df.rename(columns=lambda x: x.strip(), inplace=True)
+
+    # remove extra whitespace that may exist in col names or before and
+    # after the value for columns that are used across different GTFS files
+    df = _remove_whitespace(df=df, textfile=textfile, col_list=['route_id'])
+
     return df
 
 
@@ -118,13 +125,18 @@ def _read_gtfs_trips(textfile_path, textfile):
                             'service_id': object,
                             'route_id': object,
                             7: object}, low_memory=False)
-    # 7 is placeholder for shape id
-    # which may not exist in some txt files
+    # 7 is placeholder for shape id which may not exist in some txt files
     if len(df) == 0:
         raise ValueError('{} has no records'.format(os.path.join(
             textfile_path, textfile)))
-    # remove any extra whitespace in column names
-    df.rename(columns=lambda x: x.strip(), inplace=True)
+
+    # remove extra whitespace that may exist in col names or before and
+    # after the value for columns that are used across different GTFS files
+    df = _remove_whitespace(
+        df=df,
+        textfile=textfile,
+        col_list=['trip_id', 'service_id', 'route_id'])
+
     return df
 
 
@@ -154,8 +166,12 @@ def _read_gtfs_stop_times(textfile_path, textfile):
     if len(df) == 0:
         raise ValueError('{} has no records'.format(os.path.join(
             textfile_path, textfile)))
-    # remove any extra whitespace in column names
-    df.rename(columns=lambda x: x.strip(), inplace=True)
+
+    # remove extra whitespace that may exist in col names or before and
+    # after the value for columns that are used across different GTFS files
+    df = _remove_whitespace(
+        df=df, textfile=textfile, col_list=['trip_id', 'stop_id'])
+
     return df
 
 
@@ -189,8 +205,11 @@ def _read_gtfs_calendar(textfile_path, textfile):
                   'saturday', 'sunday']
     for col in columnlist:
         df[col] = pd.to_numeric(df[col])
-    # remove any extra whitespace in column names
-    df.rename(columns=lambda x: x.strip(), inplace=True)
+
+    # remove extra whitespace that may exist in col names or before and
+    # after the value for columns that are used across different GTFS files
+    df = _remove_whitespace(df=df, textfile=textfile, col_list=['service_id'])
+
     return df
 
 
@@ -220,8 +239,10 @@ def _read_gtfs_calendar_dates(textfile_path, textfile):
         log(warning_msg.format(os.path.join(
             textfile_path, textfile)), level=lg.WARNING)
 
-    # remove any extra whitespace in column names
-    df.rename(columns=lambda x: x.strip(), inplace=True)
+    # remove extra whitespace that may exist in col names or before and
+    # after the value for columns that are used across different GTFS files
+    df = _remove_whitespace(df=df, textfile=textfile, col_list=['service_id'])
+
     return df
 
 
@@ -1090,3 +1111,49 @@ def _generate_unique_feed_id(feed_folder):
                                                                       'and')
 
     return folder_snake_case_no_amps.lower()
+
+
+def _remove_whitespace(df, textfile, col_list=None):
+    """
+    Remove leading and trailing spaces in values in specified DataFrame
+    columns and or also remove spaces in column names.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        DataFrame to process
+    textfile : str
+        name of text file
+    col_list : list, optional
+        If specified, list of column names as strings to check for
+        whitespaces in values
+
+    Returns
+    -------
+    df : pandas.DataFrame
+    """
+
+    # remove leading and trailing spaces in column names
+    before_cols = sorted(list(df.columns))
+    df.rename(columns=lambda x: x.strip(), inplace=True)
+    after_cols = sorted(list(df.columns))
+    if before_cols != after_cols:
+        cols_with_spaces = list(set(before_cols) - set(after_cols))
+        log('GTFS file: {} column(s): {} had leading and or trailing '
+            'whitespace in column names. Spaces have been removed.'.format(
+             textfile, cols_with_spaces))
+
+    # remove leading and trailing spaces in values for columns in list
+    if col_list:
+        df_copy = df.copy()
+        for col in col_list:
+            before_count = df_copy[col].str.len().sum()
+            df_copy[col] = df_copy[col].str.rstrip().str.lstrip()
+            after_count = df_copy[col].str.len().sum()
+            # only perform whitespace strip on columns that need it
+            if before_count != after_count:
+                df[col] = df[col].str.rstrip().str.lstrip()
+                log('GTFS file: {} column: {} had leading and or trailing '
+                    'whitespace in its values. Spaces have been '
+                    'removed.'.format(textfile, col))
+    return df
