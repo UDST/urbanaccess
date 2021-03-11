@@ -21,6 +21,50 @@ def folder_feed_4():
     return r'/data/gtfs_feeds/city'
 
 
+@pytest.fixture()
+def trips_feed_w_invalid_values(tmpdir):
+    # create df with ints instead of str, col names with spaces, and
+    # values with spaces before and after the value for relational columns
+    data = {
+        'route_id': ['10-101', '10-101', '10-101', '10-101',
+                     111, '00111', '12-101', '12-101',
+                     '13-101', '13-101'],
+        'trip_id': ['a1   ', '   a2', '   a3   ', 'a   4',
+                    'b1', 'b2', 'c1', 'c2', 'd1', 'd2'],
+        'service_id  ': ['weekday   -1', 'weekday-1   ', 'weekday-1',
+                         'weekday-1', 'weekday-2', 'weekday-2',
+                         'weekday-3', 'weekday-3', 'weekend-1', 'weekend-1'],
+        '    direction_id    ': [1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+        'wheelchair_    accessible': [1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+        'bikes_allowed': [1, 1, 1, 1, 0, 0, 0, 0, 0, 0]
+    }
+    index = range(10)
+    raw_df = pd.DataFrame(data, index)
+
+    feed_path = os.path.join(tmpdir.strpath, 'test_trips_invalid_values')
+    os.makedirs(feed_path)
+    print('writing test data to dir: {}'.format(feed_path))
+    feed_file_name = '{}.txt'.format('trips')
+    raw_df.to_csv(os.path.join(feed_path, feed_file_name), index=False)
+
+    data = {
+        'route_id': ['10-101', '10-101', '10-101', '10-101',
+                     '111', '00111', '12-101', '12-101', '13-101', '13-101'],
+        'trip_id': ['a1', 'a2', 'a3', 'a   4',
+                    'b1', 'b2', 'c1', 'c2', 'd1', 'd2'],
+        'service_id': ['weekday   -1', 'weekday-1', 'weekday-1',
+                       'weekday-1', 'weekday-2', 'weekday-2',
+                       'weekday-3', 'weekday-3', 'weekend-1', 'weekend-1'],
+        'direction_id': [1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+        'wheelchair_    accessible': [1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+        'bikes_allowed': [1, 1, 1, 1, 0, 0, 0, 0, 0, 0]
+    }
+    index = range(10)
+    expected_df = pd.DataFrame(data, index)
+
+    return raw_df, expected_df, feed_path
+
+
 def test_calendar_dates_agencyid_feed_1(calendar_dates_feed_1,
                                         routes_feed_1,
                                         trips_feed_1,
@@ -866,3 +910,36 @@ def test_add_unique_gtfsfeed_id(stops_feed_1, routes_feed_1, trips_feed_1,
         # identical to the cols in input df
         original_cols = df_dict[df][1].columns
         assert df_dict[df][1].equals(df_dict[df][0][original_cols])
+
+
+def test_remove_whitespace_from_values(trips_feed_w_invalid_values):
+    raw_df, expected_df, feed_path = trips_feed_w_invalid_values
+
+    # convert the one int record to str to match dtype of what would be read by
+    # read_gtfs function
+    raw_df['route_id'] = raw_df['route_id'].astype('str')
+
+    # test when col_list is used
+    result = utils_format._remove_whitespace(
+        df=raw_df,
+        textfile='trips.txt',
+        col_list=['trip_id', 'service_id', 'route_id'])
+    assert result.equals(expected_df)
+
+    # test when no col_list is used
+    result_no_col_list = utils_format._remove_whitespace(
+        df=raw_df,
+        textfile='trips.txt',
+        col_list=None)
+    # spaces in cols should be removed
+    assert list(result_no_col_list.columns) == list(expected_df.columns)
+    # spaces in values should remain
+    assert result_no_col_list['trip_id'].str.len().sum() == raw_df[
+        'trip_id'].str.len().sum()
+
+
+def test_read_gtfs_trips_w_invalid_values(trips_feed_w_invalid_values):
+    raw_df, expected_df, feed_path = trips_feed_w_invalid_values
+    result = utils_format._read_gtfs_trips(
+        textfile_path=feed_path, textfile='trips.txt')
+    assert result.equals(expected_df)

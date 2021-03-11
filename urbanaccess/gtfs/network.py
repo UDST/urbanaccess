@@ -488,6 +488,12 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df):
     stop_times_df = stop_times_df[
         stop_times_df['unique_trip_id'].isin(uniquetriplist)]
 
+    # if there were no records that match then do not proceed and throw error
+    if len(stop_times_df) == 0:
+        raise ValueError('No matching trip_ids where found. Suggest checking '
+                         'for differences between trip_id values in '
+                         'stop_times and trips GTFS files.')
+
     # count missing stop times
     missing_stop_times_count = stop_times_df[
         'departure_time_sec'].isnull().sum()
