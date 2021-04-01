@@ -159,7 +159,7 @@ def create_hdf5(dir=None, filename=None, overwrite_hdf5=False):
         if not isinstance(filename, str):
             raise ValueError('Filename must be a string.')
 
-    hdf5_save_path = '{}/{}'.format(dir, filename)
+    hdf5_save_path = os.path.join(dir, filename)
     if not filename.endswith('.h5'):
         raise ValueError('HDF5 filename extension must be "h5".')
 
@@ -257,7 +257,7 @@ def hdf5_to_df(dir=None, filename=None, key=None):
         if not isinstance(filename, str):
             raise ValueError('Filename must be a string.')
 
-    hdf5_load_path = '{}/{}'.format(dir, filename)
+    hdf5_load_path = os.path.join(dir, filename)
 
     if not filename.endswith('.h5'):
         raise ValueError('HDF5 filename extension must be "h5".')
