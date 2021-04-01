@@ -555,7 +555,11 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df):
         # b/c col already exists will occur)
         drop_bool = False
         if _check_if_index_name_in_cols(df_for_interpolation):
-            # move the current index to own col named 'index'
+            # move the current index to its own col named 'index'
+            log('stop_times index name: {} is also a column name. '
+                'Index will be dropped for interpolation and re-created '
+                'afterwards to continue.'.format(
+                 df_for_interpolation.index.name))
             col_name_to_copy = df_for_interpolation.index.name
             col_to_copy = df_for_interpolation[col_name_to_copy].copy()
             df_for_interpolation['index'] = col_to_copy
@@ -563,10 +567,14 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df):
         df_for_interpolation.reset_index(inplace=True, drop=drop_bool)
 
         # Merge back into original index
-        interpolated_df = pd.merge(df_for_interpolation, melted, 'left',
-                                   on=['stop_sequence_merge',
-                                       'unique_trip_id'])
-        interpolated_df.set_index('index', inplace=True)
+        interpolated_df = pd.merge(
+            df_for_interpolation, melted, how='left',
+            on=['stop_sequence_merge', 'unique_trip_id'])
+
+        # set index back to what it was if it was removed above before merge
+        if drop_bool is False:
+            interpolated_df.set_index('index', inplace=True)
+
         interpolated_times = (
             interpolated_df[['departure_time_sec_interpolate']])
 
