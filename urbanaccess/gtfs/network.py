@@ -1198,16 +1198,17 @@ def load_processed_gtfs_data(filename, dir=config.settings.data_folder):
 
 def _check_if_index_name_in_cols(df):
     """
-    Check if existing index is in the passed dataframe list of column names
+    Check if specified Dataframe has an index name that is also a column name
 
     Parameters
     ----------
     df : pandas.DataFrame
-        interpolated stop_time dataframe
+        Dataframe to check index and columns
 
     Returns
     -------
-    iname : tuple
+    iname : boolean
+        True if index name is also a column name, else False
     """
     cols = df.columns.values
     iname = df.index.name
