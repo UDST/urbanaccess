@@ -82,7 +82,7 @@ def ua_network_from_bbox(lat_min=None, lng_min=None, lat_max=None,
 
     # remove low connectivity nodes and return cleaned nodes and edges
     if remove_lcn:
-        log('checking for low connectivity nodes...')
+        log('Checking for low connectivity nodes...')
         pandana_net = Network(nodes['x'], nodes['y'],
                               edges['from'], edges['to'], edges[['distance']])
         lcn = pandana_net.low_connectivity_nodes(impedance=10000, count=10,
