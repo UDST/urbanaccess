@@ -4,6 +4,7 @@ import time
 import logging as lg
 
 from urbanaccess.utils import log
+from urbanaccess.gtfs.utils_validation import _check_time_range_format
 from urbanaccess.gtfs.network import _time_selector
 
 warnings.simplefilter(action="ignore", category=FutureWarning)
@@ -163,31 +164,7 @@ def headways(gtfsfeeds_df, headway_timerange):
         route stop headways in units of minutes
         with relevant route and stop information
     """
-
-    time_error_statement = (
-        '{} starttime and endtime are not in the correct format. '
-        'Format should be a 24 hour clock in following format: 08:00:00 '
-        'or 17:00:00'.format(headway_timerange))
-    if not isinstance(headway_timerange, list) or len(headway_timerange) != 2:
-        raise ValueError('timerange must be a list of length 2')
-    if headway_timerange[0].split(':')[0] > headway_timerange[1].split(':')[0]:
-        raise ValueError('starttime is greater than endtime')
-
-    for t in headway_timerange:
-        if not isinstance(t, str):
-            raise ValueError(time_error_statement)
-        if len(t) != 8:
-            raise ValueError(time_error_statement)
-    if int(headway_timerange[1].split(':')[0]) - int(
-            headway_timerange[0].split(':')[0]) > 3:
-        long_time_range_msg = (
-            'WARNING: Time range passed: {} is a {} hour period. Long periods '
-            'over 3 hours may take a significant amount of time to process.')
-        log(long_time_range_msg.format(headway_timerange,
-                                       int(str(
-                                           headway_timerange[1][0:2])) - int(
-                                           str(headway_timerange[0][0:2]))),
-            level=lg.WARNING)
+    _check_time_range_format(headway_timerange)
 
     if gtfsfeeds_df is None:
         raise ValueError('gtfsfeeds_df cannot be None.')

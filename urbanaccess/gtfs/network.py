@@ -4,6 +4,7 @@ import time
 import logging as lg
 
 from urbanaccess.utils import log, df_to_hdf5, hdf5_to_df
+from urbanaccess.gtfs.utils_validation import _check_time_range_format
 from urbanaccess.network import ua_network
 from urbanaccess import config
 from urbanaccess.gtfs.gtfsfeeds_dataframe import gtfsfeeds_dfs
@@ -75,31 +76,11 @@ def create_transit_net(
     """
     start_time = time.time()
 
-    time_error_statement = (
-        '{} starttime and endtime are not in the correct format. '
-        'Format should be a 24 hour clock in the following format: 08:00:00 '
-        'or 17:00:00'.format(
-            timerange))
-    if not isinstance(timerange, list) or len(timerange) != 2:
-        raise ValueError(time_error_statement)
-    if timerange[0] > timerange[1]:
-        raise ValueError(time_error_statement)
-    for t in timerange:
-        if not isinstance(t, str):
-            raise ValueError(time_error_statement)
-        if len(t) != 8:
-            raise ValueError(time_error_statement)
-    if int(str(timerange[1][0:2])) - int(str(timerange[0][0:2])) > 3:
-        log(
-            'WARNING: Time range passed: {} is a {} hour period. Long '
-            'periods over 3 hours may take a significant amount of time to '
-            'process.'.format(
-                timerange,
-                int(str(timerange[1][0:2])) - int(str(timerange[0][0:2]))),
-            level=lg.WARNING)
-    if gtfsfeeds_dfs is None:
-        raise ValueError('gtfsfeeds_dfs is None')
-    error_msg = ('one of the following gtfsfeeds_dfs objects {} were '
+    _check_time_range_format(timerange)
+    if not isinstance(gtfsfeeds_dfs, urbanaccess_gtfs_df):
+        raise ValueError('gtfsfeeds_dfs must be an urbanaccess_gtfs_df '
+                         'object.')
+    error_msg = ('One of the following gtfsfeeds_dfs objects: {} were '
                  'found to be empty.')
     if gtfsfeeds_dfs.trips.empty or gtfsfeeds_dfs.stop_times.empty or \
             gtfsfeeds_dfs.stops.empty:
