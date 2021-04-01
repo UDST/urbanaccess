@@ -924,6 +924,9 @@ def test_remove_whitespace_from_values(trips_feed_w_invalid_values):
         df=raw_df,
         textfile='trips.txt',
         col_list=['trip_id', 'service_id', 'route_id'])
+    # re-sort cols so they are in same order for test
+    expected_df.sort_index(axis=1, inplace=True)
+    result.sort_index(axis=1, inplace=True)
     assert result.equals(expected_df)
 
     # test when no col_list is used
@@ -942,4 +945,7 @@ def test_read_gtfs_trips_w_invalid_values(trips_feed_w_invalid_values):
     raw_df, expected_df, feed_path = trips_feed_w_invalid_values
     result = utils_format._read_gtfs_trips(
         textfile_path=feed_path, textfile='trips.txt')
+    # re-sort cols so they are in same order for test
+    expected_df.sort_index(axis=1, inplace=True)
+    result.sort_index(axis=1, inplace=True)
     assert result.equals(expected_df)
