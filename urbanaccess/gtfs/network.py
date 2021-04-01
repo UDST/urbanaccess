@@ -1,4 +1,5 @@
 from __future__ import division
+import os
 import pandas as pd
 import time
 import logging as lg
@@ -7,7 +8,8 @@ from urbanaccess.utils import log, df_to_hdf5, hdf5_to_df
 from urbanaccess.gtfs.utils_validation import _check_time_range_format
 from urbanaccess.network import ua_network
 from urbanaccess import config
-from urbanaccess.gtfs.gtfsfeeds_dataframe import gtfsfeeds_dfs
+from urbanaccess.gtfs.gtfsfeeds_dataframe import gtfsfeeds_dfs, \
+    urbanaccess_gtfs_df
 
 pd.options.mode.chained_assignment = None
 
@@ -1091,62 +1093,64 @@ def edge_impedance_by_route_type(
     log('Transit edge impedance mode type penalty calculation complete.')
     return transit_edge_df
 
-    return ua_network
 
-
-def save_processed_gtfs_data(gtfsfeeds_dfs,
-                             filename,
-                             dir=config.settings.data_folder):
+def save_processed_gtfs_data(
+        gtfsfeeds_dfs, filename, dir=config.settings.data_folder):
     """
-    Write dataframes in a gtfsfeeds_dfs object to a hdf5 file
+    Write dataframes in an urbanaccess_gtfs_df object to a HDF5 file
 
     Parameters
     ----------
     gtfsfeeds_dfs : object
-        gtfsfeeds_dfs object
+        urbanaccess_gtfs_df object
     filename : string
-        name of the hdf5 file to save with .h5 extension
+        name of the HDF5 file to save with .h5 extension
     dir : string, optional
-        directory to save hdf5 file
+        directory to save HDF5 file
 
     Returns
     -------
     None
     """
-    # TODO: refactor check below to use any() for readability
-    if gtfsfeeds_dfs is None or gtfsfeeds_dfs.stops.empty or \
-            gtfsfeeds_dfs.routes.empty or gtfsfeeds_dfs.trips.empty \
-            or gtfsfeeds_dfs.stop_times.empty or \
-            gtfsfeeds_dfs.calendar.empty or \
-            gtfsfeeds_dfs.stop_times_int.empty:
-        raise ValueError('gtfsfeeds_dfs is missing one of the required '
-                         'dataframes.')
+    log('Writing HDF5 store...')
+    if not isinstance(gtfsfeeds_dfs, urbanaccess_gtfs_df):
+        raise ValueError('gtfsfeeds_dfs must be an urbanaccess_gtfs_df '
+                         'object.')
 
-    df_to_hdf5(data=gtfsfeeds_dfs.stops, key='stops', overwrite_key=False,
-               dir=dir, filename=filename, overwrite_hdf5=False)
-    df_to_hdf5(data=gtfsfeeds_dfs.routes, key='routes', overwrite_key=False,
-               dir=dir, filename=filename, overwrite_hdf5=False)
-    df_to_hdf5(data=gtfsfeeds_dfs.trips, key='trips', overwrite_key=False,
-               dir=dir, filename=filename, overwrite_hdf5=False)
-    df_to_hdf5(data=gtfsfeeds_dfs.stop_times, key='stop_times',
-               overwrite_key=False, dir=dir, filename=filename,
-               overwrite_hdf5=False)
-    df_to_hdf5(data=gtfsfeeds_dfs.calendar, key='calendar',
-               overwrite_key=False, dir=dir, filename=filename,
-               overwrite_hdf5=False)
-    df_to_hdf5(data=gtfsfeeds_dfs.stop_times_int, key='stop_times_int',
-               overwrite_key=False, dir=dir, filename=filename,
-               overwrite_hdf5=False)
+    req_df_dict = {'stops': gtfsfeeds_dfs.stops,
+                   'routes': gtfsfeeds_dfs.routes,
+                   'trips': gtfsfeeds_dfs.trips,
+                   'stop_times': gtfsfeeds_dfs.stop_times,
+                   'stop_times_int': gtfsfeeds_dfs.stop_times_int}
+    # calendar or calendar_dates are required but not both
+    optional_df_dict = {'headways': gtfsfeeds_dfs.headways,
+                        'calendar': gtfsfeeds_dfs.calendar,
+                        'calendar_dates': gtfsfeeds_dfs.calendar_dates}
 
-    if gtfsfeeds_dfs.headways.empty is False:
-        df_to_hdf5(data=gtfsfeeds_dfs.headways, key='headways',
+    for name, gtfs_df in req_df_dict.items():
+        if gtfs_df.empty:
+            raise ValueError('gtfsfeeds_dfs is missing required '
+                             'DataFrame: {}.'.format(name))
+    if gtfsfeeds_dfs.calendar.empty and gtfsfeeds_dfs.calendar_dates.empty:
+        raise ValueError('gtfsfeeds_dfs is missing either the calendar or '
+                         'calendar_dates DataFrame.')
+
+    tables_saved = []
+    for name, gtfs_df in req_df_dict.items():
+        df_to_hdf5(data=gtfs_df, key=name,
                    overwrite_key=False, dir=dir, filename=filename,
                    overwrite_hdf5=False)
+        tables_saved.extend([name])
 
-    if gtfsfeeds_dfs.calendar_dates.empty is False:
-        df_to_hdf5(data=gtfsfeeds_dfs.calendar_dates, key='calendar_dates',
-                   overwrite_key=False, dir=dir, filename=filename,
-                   overwrite_hdf5=False)
+    for name, gtfs_df in optional_df_dict.items():
+        if gtfs_df.empty is False:
+            df_to_hdf5(data=gtfs_df, key=name,
+                       overwrite_key=False, dir=dir, filename=filename,
+                       overwrite_hdf5=False)
+            tables_saved.extend([name])
+
+    log('Saved HDF5 store: {} with tables: {}.'.format(
+        os.path.join(dir, filename), tables_saved))
 
 
 def load_processed_gtfs_data(filename, dir=config.settings.data_folder):
