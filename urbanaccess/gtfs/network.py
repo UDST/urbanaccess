@@ -600,7 +600,6 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df):
     final_stop_times_df['departure_time_sec_interpolate'].fillna(
         final_stop_times_df['departure_time_sec'], inplace=True)
 
-    # TODO: refine this count so it refers to only the data that matters
     num_not_interpolated = final_stop_times_df[
         'departure_time_sec_interpolate'].isnull().sum()
     if num_not_interpolated > 0:
