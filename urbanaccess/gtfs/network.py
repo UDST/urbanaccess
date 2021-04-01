@@ -473,8 +473,8 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df):
     # if there are stop times missing that need interpolation notify user
     if missing_stop_times_count > 0:
 
-        log('Note: Processing may take a long time depending'
-            ' on the number of records. '
+        log('Note: Processing may take a long time depending '
+            'on the number of records. '
             'Total unique trips to assess: {:,}.'.format(
              len(stop_times_df['unique_trip_id'].unique())),
             level=lg.WARNING)
@@ -493,6 +493,11 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df):
             'following the specified schedule. There are no records to '
             'interpolate.')
 
+    # TODO: for the rare and unlikely case when there is 1 null record and
+    #  its not the first or last stop in the stop sequence, that value
+    #  should be interpolated and its trip id should be added to those to be
+    #  interpolated - this additional case would have to be benchmarked
+    #  for speed to ensure it doesnt slow down existing process
     # Find trips with more than one missing time
     # Note: all trip ids have at least 1 null departure time because the
     # last stop in a trip is always null
@@ -599,8 +604,11 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df):
     num_not_interpolated = final_stop_times_df[
         'departure_time_sec_interpolate'].isnull().sum()
     if num_not_interpolated > 0:
-        log('WARNING: Number of records unable to interpolate: {:,}. '
-            'These records have been removed.'.format(num_not_interpolated),
+        log('WARNING: Number of stop_time records unable to interpolate: {:,}.'
+            ' These records likely had stops in either the start or '
+            'end sequence that did not have time information avaiable to '
+            'interpolate between. These records have been removed.'.format(
+             num_not_interpolated),
             level=lg.WARNING)
 
     # convert the interpolated times (float) to integer so all times are
