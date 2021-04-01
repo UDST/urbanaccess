@@ -1155,40 +1155,50 @@ def save_processed_gtfs_data(
 
 def load_processed_gtfs_data(filename, dir=config.settings.data_folder):
     """
-    Read data from a hdf5 file to a gtfsfeeds_dfs object
+    Read data from a HDF5 file to an urbanaccess_gtfs_df object
 
     Parameters
     ----------
     filename : string
-        name of the hdf5 file to read with .h5 extension
+        name of the HDF5 file to read with .h5 extension
     dir : string, optional
-        directory to read hdf5 file
+        directory to read HDF5 file
 
     Returns
     -------
     gtfsfeeds_dfs : object
+        urbanaccess_gtfs_df object
     """
-    gtfsfeeds_dfs.stops = hdf5_to_df(dir=dir, filename=filename, key='stops')
-    gtfsfeeds_dfs.routes = hdf5_to_df(dir=dir, filename=filename, key='routes')
-    gtfsfeeds_dfs.trips = hdf5_to_df(dir=dir, filename=filename, key='trips')
-    gtfsfeeds_dfs.stop_times = hdf5_to_df(dir=dir, filename=filename,
-                                          key='stop_times')
-    gtfsfeeds_dfs.calendar = hdf5_to_df(dir=dir, filename=filename,
-                                        key='calendar')
-    gtfsfeeds_dfs.stop_times_int = hdf5_to_df(dir=dir, filename=filename,
-                                              key='stop_times_int')
+    log('Loading HDF5 store...')
+    req_df_dict = {'stops': gtfsfeeds_dfs.stops,
+                   'routes': gtfsfeeds_dfs.routes,
+                   'trips': gtfsfeeds_dfs.trips,
+                   'stop_times': gtfsfeeds_dfs.stop_times,
+                   'stop_times_int': gtfsfeeds_dfs.stop_times_int}
+    # calendar or calendar_dates are required but not both
+    optional_df_dict = {'headways': gtfsfeeds_dfs.headways,
+                        'calendar': gtfsfeeds_dfs.calendar,
+                        'calendar_dates': gtfsfeeds_dfs.calendar_dates}
 
-    hdf5_load_path = '{}/{}'.format(dir, filename)
+    tables_read = []
+    for name, gtfs_df in req_df_dict.items():
+        vars(gtfsfeeds_dfs)[name] = hdf5_to_df(
+            dir=dir, filename=filename, key=name)
+        tables_read.extend([name])
+
+    # open HDF5 to read keys
+    hdf5_load_path = os.path.join(dir, filename)
     with pd.HDFStore(hdf5_load_path) as store:
-
-        if 'headways' in store.keys():
-            gtfsfeeds_dfs.headways = hdf5_to_df(dir=dir,
-                                                filename=filename,
-                                                key='headways')
-        if 'calendar_dates' in store.keys():
-            gtfsfeeds_dfs.calendar_dates = hdf5_to_df(dir=dir,
-                                                      filename=filename,
-                                                      key='calendar_dates')
+        hdf5_keys = store.keys()
+    hdf5_keys = [item.replace('/', '') for item in hdf5_keys]
+    for name, gtfs_df in optional_df_dict.items():
+        # if optional key exists, read it
+        if name in hdf5_keys:
+            vars(gtfsfeeds_dfs)[name] = hdf5_to_df(
+                dir=dir, filename=filename, key=name)
+            tables_read.extend([name])
+    log('Read HDF5 store: {} tables: {}.'.format(
+        hdf5_load_path, tables_read))
 
     return gtfsfeeds_dfs
 
