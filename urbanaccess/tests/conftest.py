@@ -373,7 +373,8 @@ def calendar_dates_feed_1():
                        'weekday-3',
                        'weekend-1'],
         'date': [20161224, 20170318, 20160424, 20161230],
-        'exception_type': [1, 2, 1, 1]}
+        'exception_type': [1, 2, 1, 1],
+        'schedule_type': ['WD', 'WD', 'WD', 'WE']}
 
     index = range(4)
 
