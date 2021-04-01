@@ -68,21 +68,20 @@ def _headway_handler(interpolated_stop_times_df, trips_df,
     Parameters
     ----------
     interpolated_stop_times_df : pandas.DataFrame
-        interpolated stop times dataframe for stop times within the time range
+        interpolated stop times DataFrame for stop times within the time range
     trips_df : pandas.DataFrame
-        trips dataframe
+        trips DataFrame
     routes_df : pandas.DataFrame
-        routes dataframe
+        routes DataFrame
     headway_timerange : list
-        time range for which to calculate headways between as a
-        list of time 1 and time 2 where times are 24 hour clock strings
-        such as:
-        ['07:00:00', '10:00:00']
+        time range for which to calculate headways between in a list with time
+        1 and time 2 as strings. Must follow format of a 24 hour clock for
+        example: 08:00:00 or 17:00:00
 
     Returns
     -------
     headway_by_routestop_df : pandas.DataFrame
-        dataframe of statistics of route stop headways in units of minutes
+        DataFrame of statistics of route stop headways in units of minutes
         with relevant route and stop information
     """
     start_time = time.time()
@@ -138,7 +137,7 @@ def _headway_handler(interpolated_stop_times_df, trips_df,
         headway_by_routestop_df['unique_stop_id'].str.cat(
             headway_by_routestop_df['unique_route_id'].astype('str'), sep='_'))
 
-    log('headway calculation complete. Took {:,.2f} seconds'.format(
+    log('Headway calculation complete. Took {:,.2f} seconds.'.format(
         time.time() - start_time))
 
     return headway_by_routestop_df
@@ -153,9 +152,9 @@ def headways(gtfsfeeds_df, headway_timerange):
     gtfsfeeds_df : object
         gtfsfeeds_dfs object with all processed GTFS data tables
     headway_timerange : list
-        time range for which to calculate headways between as a list of
-        time 1 and time 2 where times are 24 hour clock strings such as:
-        ['07:00:00', '10:00:00']
+        time range for which to calculate headways between in a list with time
+        1 and time 2 as strings. Must follow format of a 24 hour clock for
+        example: 08:00:00 or 17:00:00
 
     Returns
     -------
@@ -191,12 +190,12 @@ def headways(gtfsfeeds_df, headway_timerange):
             level=lg.WARNING)
 
     if gtfsfeeds_df is None:
-        raise ValueError('gtfsfeeds_df cannot be None')
+        raise ValueError('gtfsfeeds_df cannot be None.')
     if gtfsfeeds_df.stop_times_int.empty or gtfsfeeds_df.trips.empty or \
             gtfsfeeds_df.routes.empty:
         raise ValueError(
-            'one of the gtfsfeeds_dfs objects: stop_times_int, trips, '
-            'or routes were found to be empty.')
+            'One of the following gtfsfeeds_dfs objects: stop_times_int, '
+            'trips, or routes were found to be empty.')
 
     headways_df = _headway_handler(
         interpolated_stop_times_df=gtfsfeeds_df.stop_times_int,
