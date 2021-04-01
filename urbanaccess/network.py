@@ -1,4 +1,5 @@
 import time
+import os
 import geopy
 from geopy import distance
 
@@ -483,27 +484,28 @@ def save_network(urbanaccess_network, filename,
                  overwrite_key=False, overwrite_hdf5=False):
     """
     Write a urbanaccess_network integrated nodes and edges to a node and edge
-    table in a hdf5 file
+    table in a HDF5 file
 
     Parameters
     ----------
     urbanaccess_network : object
         urbanaccess_network object with net_edges and net_nodes DataFrames
     filename : string
-        name of the hdf5 file to save with .h5 extension
+        name of the HDF5 file to save with .h5 extension
     dir : string, optional
-        directory to save hdf5 file
+        directory to save HDF5 file
     overwrite_key : bool, optional
         if true any existing table with the specified key name will be
         overwritten
     overwrite_hdf5 : bool, optional
-        if true any existing hdf5 file with the specified name in the
+        if true any existing HDF5 file with the specified name in the
         specified directory will be overwritten
 
     Returns
     -------
     None
     """
+    log('Writing HDF5 store...')
     if urbanaccess_network is None or urbanaccess_network.net_edges.empty or \
             urbanaccess_network.net_nodes.empty:
         raise ValueError('Either no urbanaccess_network specified or '
@@ -515,19 +517,21 @@ def save_network(urbanaccess_network, filename,
     df_to_hdf5(data=urbanaccess_network.net_nodes, key='nodes',
                overwrite_key=overwrite_key, dir=dir, filename=filename,
                overwrite_hdf5=overwrite_hdf5)
+    log("Saved HDF5 store: {} with tables: ['net_edges', 'net_nodes'].".format(
+        os.path.join(dir, filename)))
 
 
 def load_network(dir=config.settings.data_folder, filename=None):
     """
-    Read an integrated network node and edge data from a hdf5 file to
-    a urbanaccess_network object
+    Read an integrated network node and edge data from a HDF5 file to
+    an urbanaccess_network object
 
     Parameters
     ----------
     dir : string, optional
-        directory to read hdf5 file
+        directory to read HDF5 file
     filename : string
-        name of the hdf5 file to read with .h5 extension
+        name of the HDF5 file to read with .h5 extension
 
     Returns
     -------
@@ -536,7 +540,10 @@ def load_network(dir=config.settings.data_folder, filename=None):
     ua_network.net_edges : object
     ua_network.net_nodes : object
     """
+    log('Loading HDF5 store...')
     ua_network.net_edges = hdf5_to_df(dir=dir, filename=filename, key='edges')
     ua_network.net_nodes = hdf5_to_df(dir=dir, filename=filename, key='nodes')
+    log("Read HDF5 store: {} tables: ['net_edges', 'net_nodes'].".format(
+        os.path.join(dir, filename)))
 
     return ua_network
