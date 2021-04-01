@@ -959,23 +959,33 @@ def _route_id_to_edge(transit_edge_df, trips_df):
     return transit_edge_df_with_routes
 
 
-def edge_impedance_by_route_type(transit_edge_df,
-                                 street_level_rail=None,
-                                 underground_rail=None,
-                                 intercity_rail=None,
-                                 bus=None,
-                                 ferry=None,
-                                 cable_car=None,
-                                 gondola=None,
-                                 funicular=None):
+def edge_impedance_by_route_type(
+        transit_edge_df,
+        travel_time_col_name='weight',
+        street_level_rail=None,
+        underground_rail=None,
+        intercity_rail=None,
+        bus=None,
+        ferry=None,
+        cable_car=None,
+        gondola=None,
+        funicular=None,
+        trolleybus=None,
+        monorail=None
+):
     """
     Penalize transit edge travel time based on transit mode type
 
     Parameters
     ----------
     transit_edge_df : pandas.DataFrame
-        transit edge dataframe
+        transit edge DataFrame
+    travel_time_col_name : str, optional
+        name of travel time column to apply multiplier factor,
+        default column name is 'weight'
     street_level_rail : float, optional
+        factor between -1 to 1 to multiply against travel time
+    underground_rail : float, optional
         factor between -1 to 1 to multiply against travel time
     intercity_rail : float, optional
         factor between -1 to 1 to multiply against travel time
@@ -989,114 +999,97 @@ def edge_impedance_by_route_type(transit_edge_df,
         factor between -1 to 1 to multiply against travel time
     funicular : float, optional
         factor between -1 to 1 to multiply against travel time
+    trolleybus : float, optional
+        factor between -1 to 1 to multiply against travel time
+    monorail : float, optional
+        factor between -1 to 1 to multiply against travel time
 
     Returns
     -------
-    ua_network : object
-    ua_network.transit_edges : pandas.DataFrame
-
+    transit_edge_df : pandas.DataFrame
+        Returns transit_edge_df with travel_time_col_name column weighted by
+        specified coefficients by route type
     """
-    if 'route_type' not in transit_edge_df.columns:
-        raise ValueError('No route_type column was found in dataframe')
+    req_cols = [travel_time_col_name, 'route_type']
+    if not isinstance(travel_time_col_name, str):
+        raise ValueError('travel_time_col_name must be a string.')
+    for col in req_cols:
+        if col in transit_edge_df.columns:
+            if not pd.api.types.is_numeric_dtype(transit_edge_df[col]):
+                raise ValueError('{} must be a number.'.format(col))
+        else:
+            raise ValueError('Column: {} was not found in transit_edge_df '
+                             'DataFrame and is required.'.format(col))
 
     # check count of records for each route type
-    route_type_desc = {0: 'Street Level Rail: Tram Streetcar Light rail',
-                       1: 'Underground rail: Subway or Metro',
-                       2: 'Rail: intercity or long-distance ', 3: 'Bus',
-                       4: 'Ferry', 5: 'Cable Car',
-                       6: 'Gondola or Suspended cable car',
-                       7: 'Steep incline: Funicular'}
-    log('Route type distribution as percentage of transit mode: {:.2f}'.format(
-        transit_edge_df['route_type'].map(route_type_desc.get).value_counts(
-            normalize=True, dropna=False) * 100))
+    # route types taken from 'route_type' definition on route.txt GTFS file:
+    # https://developers.google.com/transit/gtfs/reference#routestxt
+    route_type_dict = {
+        0: {'name': 'Street Level Rail: Tram, Streetcar, or Light rail',
+            'multiplier': street_level_rail},
+        1: {'name': 'Underground rail: Subway or Metro',
+            'multiplier': underground_rail},
+        2: {'name': 'Rail: intercity or long-distance ',
+            'multiplier': intercity_rail},
+        3: {'name': 'Bus',
+            'multiplier': bus},
+        4: {'name': 'Ferry',
+            'multiplier': ferry},
+        5: {'name': 'Cable tram or car',
+            'multiplier': cable_car},
+        6: {'name': 'Aerial lift: Gondola or Suspended cable car',
+            'multiplier': gondola},
+        7: {'name': 'Steep incline: Funicular',
+            'multiplier': funicular},
+        11: {'name': 'Trolleybus',
+             'multiplier': trolleybus},
+        12: {'name': 'Monorail',
+             'multiplier': monorail}}
+    # create the dict to pass to value_counts()
+    route_type_desc = route_type_dict.copy()
+    for key, val in route_type_dict.items():
+        route_type_desc[key] = val['name']
 
-    var_list = [street_level_rail, underground_rail, intercity_rail, bus,
-                ferry, cable_car, gondola, funicular]
+    log('Route type distribution as percentage of transit mode:')
+    summary_stat = transit_edge_df['route_type'].map(
+        route_type_desc.get).value_counts(normalize=True, dropna=False) * 100
+    log(summary_stat)
 
-    for var in var_list:
-        if var is not None:
-            if not isinstance(var, float):
-                raise ValueError('One or more variables are not float')
-
-    travel_time_col_name = 'weight'
     travel_time_col = transit_edge_df[travel_time_col_name]
 
-    if street_level_rail is not None and len(
-            transit_edge_df[transit_edge_df['route_type'] == 0]) > 0:
-        transit_edge_df[travel_time_col_name][
-            transit_edge_df['route_type'] == 0] = travel_time_col + (
-            travel_time_col * street_level_rail)
-        log(
-            'Adjusted Street Level Rail transit edge impedance based on mode'
-            ' type penalty coefficient: {}'.format(
-                street_level_rail))
-    if underground_rail is not None and len(
-            transit_edge_df[transit_edge_df['route_type'] == 1]) > 0:
-        transit_edge_df[travel_time_col_name][
-            transit_edge_df['route_type'] == 1] = travel_time_col + (
-            travel_time_col * underground_rail)
-        log(
-            'Adjusted Underground rail transit edge impedance based on mode '
-            'type penalty coefficient: {}'.format(
-                underground_rail))
-    if intercity_rail is not None and len(
-            transit_edge_df[transit_edge_df['route_type'] == 2]) > 0:
-        transit_edge_df[travel_time_col_name][
-            transit_edge_df['route_type'] == 2] = travel_time_col + (
-            travel_time_col * intercity_rail)
-        log(
-            'Adjusted Rail transit edge impedance based on mode type penalty '
-            'coefficient: {}'.format(
-                intercity_rail))
-    if bus is not None and len(
-            transit_edge_df[transit_edge_df['route_type'] == 3]) > 0:
-        transit_edge_df[travel_time_col_name][
-            transit_edge_df['route_type'] == 3] = travel_time_col + (
-            travel_time_col * bus)
-        log(
-            'Adjusted Bus transit edge impedance based on mode type penalty '
-            'coefficient: {}'.format(
-                bus))
-    if ferry is not None and len(
-            transit_edge_df[transit_edge_df['route_type'] == 4]) > 0:
-        transit_edge_df[travel_time_col_name][
-            transit_edge_df['route_type'] == 4] = travel_time_col + (
-            travel_time_col * ferry)
-        log(
-            'Adjusted Ferry transit edge impedance based on mode type '
-            'penalty coefficient: {}'.format(
-                ferry))
-    if cable_car is not None and len(
-            transit_edge_df[transit_edge_df['route_type'] == 5]) > 0:
-        transit_edge_df[travel_time_col_name][
-            transit_edge_df['route_type'] == 5] = travel_time_col + (
-            travel_time_col * cable_car)
-        log(
-            'Adjusted Cable Car transit edge impedance based on mode type '
-            'penalty coefficient: {}'.format(
-                cable_car))
-    if gondola is not None and len(
-            transit_edge_df[transit_edge_df['route_type'] == 6]) > 0:
-        transit_edge_df[travel_time_col_name][
-            transit_edge_df['route_type'] == 6] = travel_time_col + (
-            travel_time_col * gondola)
-        log(
-            'Adjusted Gondola or Suspended cable car transit edge impedance '
-            'based on mode type penalty coefficient: {}'.format(
-                gondola))
-    if funicular is not None and len(
-            transit_edge_df[transit_edge_df['route_type'] == 7]) > 0:
-        transit_edge_df[travel_time_col_name][
-            transit_edge_df['route_type'] == 7] = travel_time_col + (
-            travel_time_col * funicular)
-        log(
-            'Adjusted Funicular transit edge impedance based on mode type '
-            'penalty coefficient: {}'.format(
-                funicular))
+    for route_type, route_vals in route_type_dict.items():
+        if route_vals['multiplier'] is not None:
+            if not isinstance(route_vals['multiplier'], float):
+                raise ValueError('One or more multiplier variables are not '
+                                 'float.')
 
-    ua_network.transit_edges = transit_edge_df
+            # warn if multiplier is not within optimal range
+            if not -1 <= route_vals['multiplier'] <= 1:
+                log('WARNING: Multiplier value of: {} should be a '
+                    'value between -1 and 1.'.format(route_vals['multiplier']),
+                    level=lg.WARNING)
+            route_type_cnt = len(
+                transit_edge_df[transit_edge_df['route_type'] == route_type])
 
-    log('Transit edge impedance mode type penalty calculation complete')
+            # warn if route type is not found in DataFrame
+            if route_type_cnt == 0 and route_vals['multiplier'] is not None:
+                log('WARNING: Route type: {} with specified multiplier value '
+                    'of: {} was not found in the specified edge '
+                    'DataFrame.'.format(
+                     route_vals['name'], route_vals['multiplier']),
+                    level=lg.WARNING)
+
+            if route_type_cnt > 0:
+                transit_edge_df[travel_time_col_name][
+                    transit_edge_df['route_type'] == route_type] = \
+                    travel_time_col + (
+                            travel_time_col * route_vals['multiplier'])
+                log('Adjusted {} transit edge impedance based on mode '
+                    'type penalty coefficient: {}.'.format(
+                        route_vals['name'], route_vals['multiplier']))
+
+    log('Transit edge impedance mode type penalty calculation complete.')
+    return transit_edge_df
 
     return ua_network
 
