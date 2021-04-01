@@ -504,6 +504,17 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df):
         stop_times_df.unique_trip_id.isin(trips_with_more_than_one_null)]
 
     if len(df_for_interpolation) > 0:
+        # check for duplicate stop_sequence and unique_trip_id combination,
+        # if dups are found this will throw an error during the pivot()
+        # operation so catch and return to user instead
+        dup_df = df_for_interpolation[df_for_interpolation.duplicated(
+            subset=['stop_sequence', 'unique_trip_id'], keep='first')]
+        if len(dup_df) != 0:
+            dup_values = list(dup_df['unique_trip_id'].unique())
+            raise ValueError('Found duplicate values when values from '
+                             'stop_sequence and unique_trip_id are combined. '
+                             'Check values in these columns for '
+                             'trip_id(s): {}.'.format(dup_values))
 
         # Pivot to DataFrame where each unique trip has its own column
         # Index is stop_sequence
