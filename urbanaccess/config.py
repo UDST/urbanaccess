@@ -108,7 +108,7 @@ class urbanaccess_config(object):
         yaml_file = os.path.join(configdir, yamlname)
 
         with open(yaml_file, 'r') as f:
-            yaml_config = yaml.load(f)
+            yaml_config = yaml.safe_load(f)
 
         settings = cls(data_folder=yaml_config.get('data_folder', 'data'),
                        logs_folder=yaml_config.get('logs_folder', 'logs'),

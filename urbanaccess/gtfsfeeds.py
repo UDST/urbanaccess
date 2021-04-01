@@ -63,7 +63,7 @@ class urbanaccess_gtfsfeeds(object):
         yaml_file = os.path.join(gtfsfeeddir, yamlname)
 
         with open(yaml_file, 'r') as f:
-            yaml_config = yaml.load(f)
+            yaml_config = yaml.safe_load(f)
 
         if not isinstance(yaml_config, dict):
             raise ValueError('{} yamlname is not a dict'.format(yamlname))
