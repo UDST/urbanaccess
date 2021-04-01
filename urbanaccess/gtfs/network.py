@@ -94,7 +94,10 @@ def create_transit_net(
     if not isinstance(use_existing_stop_times_int, bool):
         raise ValueError('use_existing_stop_times_int must be bool.')
     if not isinstance(save_processed_gtfs, bool):
-        raise ValueError('save_processed_gtfs must be bool')
+        raise ValueError('save_processed_gtfs must be bool.')
+    if overwrite_existing_stop_times_int and use_existing_stop_times_int:
+        raise ValueError('overwrite_existing_stop_times_int and '
+                         'use_existing_stop_times_int cannot both be True.')
 
     columns = ['route_id',
                'direction_id',
