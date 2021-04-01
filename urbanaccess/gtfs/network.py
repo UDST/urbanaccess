@@ -118,9 +118,13 @@ def create_transit_net(
         day=day,
         calendar_dates_lookup=calendar_dates_lookup)
 
+    # proceed to calc stop_times_int if stop_times_int is already empty, or
+    # overwrite existing is True, or use existing is False
     if gtfsfeeds_dfs.stop_times_int.empty or \
             overwrite_existing_stop_times_int or use_existing_stop_times_int \
             is False:
+        if overwrite_existing_stop_times_int:
+            log('   Overwriting existing stop_times_int DataFrame...')
         gtfsfeeds_dfs.stop_times_int = _interpolate_stop_times(
             stop_times_df=gtfsfeeds_dfs.stop_times,
             calendar_selected_trips_df=calendar_selected_trips_df)
@@ -133,10 +137,7 @@ def create_transit_net(
                                      dir=save_dir, filename=save_filename)
 
     if use_existing_stop_times_int:
-        if gtfsfeeds_dfs.stop_times_int.empty:
-            raise ValueError('existing stop_times_int is empty. Set '
-                             'use_existing_stop_times_int to False to create '
-                             'it.')
+        log('   Using existing stop_times_int DataFrame...')
 
     selected_interpolated_stop_times_df = _time_selector(
         df=gtfsfeeds_dfs.stop_times_int,
