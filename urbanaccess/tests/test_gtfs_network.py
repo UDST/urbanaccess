@@ -358,6 +358,10 @@ def test_create_transit_net_wo_calendar_dates(
         sorted(expected_result.columns), axis=1)
     print(result_edge.head())
     print(expected_result.head())
+    print(result_edge.dtypes)
+    print(expected_result.dtypes)
+    print(result_edge['weight'][0])
+    print(expected_result['weight'][0])
     assert result_edge.equals(expected_result)
 
 
