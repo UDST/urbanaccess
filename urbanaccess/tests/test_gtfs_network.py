@@ -1,5 +1,6 @@
 import pytest
 import os
+import time
 import glob
 import pandas as pd
 import numpy as np
@@ -355,6 +356,8 @@ def test_create_transit_net_wo_calendar_dates(
         sorted(result_edge.columns), axis=1)
     expected_result = expected_result.reindex(
         sorted(expected_result.columns), axis=1)
+    print(result_edge.head())
+    print(expected_result.head())
     assert result_edge.equals(expected_result)
 
 
@@ -393,6 +396,8 @@ def test_create_transit_net_wo_direction_id(
         sorted(result_edge.columns), axis=1)
     expected_result = expected_result.reindex(
         sorted(expected_result.columns), axis=1)
+    print(result_edge.head())
+    print(expected_result.head())
     assert result_edge.equals(expected_result)
 
 
@@ -641,7 +646,11 @@ def test_create_transit_net_save_processed_gtfs_True(
 
 
 def test_interpolator(stop_times, calendar):
+    # profile run times as _interpolate_stop_times() is a
+    # function that is critical to have fast run times
+    start_time = time.time()
     df = gtfs_network._interpolate_stop_times(stop_times, calendar)
+    print('Run time: {}'.format(time.time() - start_time))
 
     # unique_trip_id should be generated
     assert df.loc[1, 'unique_trip_id'] == 'a_citytrains'
@@ -1042,6 +1051,8 @@ def test_format_transit_net_edge_test_2(
         sorted(result.columns), axis=1)
     expected_result = expected_result.reindex(
         sorted(expected_result.columns), axis=1)
+    print(result.head())
+    print(expected_result.head())
     assert result.equals(expected_result)
 
 
