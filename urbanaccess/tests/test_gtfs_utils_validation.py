@@ -2,6 +2,7 @@ import pytest
 
 import urbanaccess.gtfs.utils_validation as utils_validation
 
+
 def test_check_time_range_format():
     utils_validation._check_time_range_format(['07:00:00', '10:00:00'])
 

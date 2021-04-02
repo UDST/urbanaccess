@@ -726,8 +726,8 @@ def test_skip_interpolator(stop_times, calendar):
                              1, 2, 3, 4, 5,
                              1, 2, 3, 4, 5,
                              1, 2, 3, 4, 5],
-                             index = range(35),
-                                     name = 'departure_time_sec')
+                       index=range(35),
+                       name='departure_time_sec')
     stop_times['departure_time_sec'] = series
     df = gtfs_network._interpolate_stop_times(stop_times, calendar)
 
