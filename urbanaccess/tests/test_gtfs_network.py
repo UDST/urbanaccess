@@ -356,12 +356,9 @@ def test_create_transit_net_wo_calendar_dates(
         sorted(result_edge.columns), axis=1)
     expected_result = expected_result.reindex(
         sorted(expected_result.columns), axis=1)
-    print(result_edge.head())
-    print(expected_result.head())
-    print(result_edge.dtypes)
-    print(expected_result.dtypes)
-    print(result_edge['weight'][0])
-    print(expected_result['weight'][0])
+    # ensure 'sequence' is int32 for test as other OS sometimes reads this as
+    # int64 and will cause tests to fail when using equals()
+    result_edge['sequence'] = result_edge['sequence'].astype('int32')
     assert result_edge.equals(expected_result)
 
 
@@ -400,8 +397,9 @@ def test_create_transit_net_wo_direction_id(
         sorted(result_edge.columns), axis=1)
     expected_result = expected_result.reindex(
         sorted(expected_result.columns), axis=1)
-    print(result_edge.head())
-    print(expected_result.head())
+    # ensure 'sequence' is int32 for test as other OS sometimes reads this as
+    # int64 and will cause tests to fail when using equals()
+    result_edge['sequence'] = result_edge['sequence'].astype('int32')
     assert result_edge.equals(expected_result)
 
 
@@ -1055,8 +1053,9 @@ def test_format_transit_net_edge_test_2(
         sorted(result.columns), axis=1)
     expected_result = expected_result.reindex(
         sorted(expected_result.columns), axis=1)
-    print(result.head())
-    print(expected_result.head())
+    # ensure 'sequence' is int32 for test as other OS sometimes reads this as
+    # int64 and will cause tests to fail when using equals()
+    result['sequence'] = result['sequence'].astype('int32')
     assert result.equals(expected_result)
 
 
