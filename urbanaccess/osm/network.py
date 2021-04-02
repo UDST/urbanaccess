@@ -18,7 +18,7 @@ def create_osm_net(osm_edges, osm_nodes,
         osm node dataframe
     travel_speed_mph : int, optional
         travel speed to use to calculate travel time across a
-        distance on a edge. units are in miles per hour (MPH)
+        distance on an edge. units are in miles per hour (MPH)
         for pedestrian travel this is assumed to be 3 MPH
     network_type : str, optional
         default is 'walk' for the osm pedestrian network.

@@ -27,9 +27,9 @@ def plot_net(nodes, edges, x_col=None, y_col=None, from_col=None,
     y_col : str, optional
         y coordinate column in nodes dataframe
     from_col : str, optional
-        name of column to use for 'from' node id
+        name of column to use for 'from' node ID
     to_col : str, optional
-        name of column to use for 'to' node id
+        name of column to use for 'to' node ID
     bbox : tuple, optional
         Bounding box formatted as a 4 element tuple:
         (lng_max, lat_min, lng_min, lat_max)
@@ -248,9 +248,9 @@ def _prep_edges(edges, nodes, from_col, to_col,
     nodes : pandas.DataFrame
     edges : pandas.DataFrame
     from_col : string
-        name of column to use for 'from' node id
+        name of column to use for 'from' node ID
     to_col : string
-        name of column to use for 'to' node id
+        name of column to use for 'to' node ID
     x_col : string
         name of column to use for 'x' node coordinates
     y_col : string
@@ -259,8 +259,8 @@ def _prep_edges(edges, nodes, from_col, to_col,
     Returns
     -------
     edges_wline : pandas.DataFrame
-        the edge dataframe with from and to x y coordinates and
-        ids to build lines
+        the edge dataframe with from and to x and y coordinates and
+        IDs to build lines
     """
 
     if x_col not in nodes.columns or y_col not in nodes.columns:

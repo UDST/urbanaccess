@@ -87,7 +87,7 @@ def _headway_handler(interpolated_stop_times_df, trips_df,
     """
     start_time = time.time()
 
-    # add unique trip and route id
+    # add unique trip and route ID
     trips_df['unique_trip_id'] = (
         trips_df['trip_id'].str.cat(
             trips_df['unique_agency_id'].astype('str'), sep='_'))
@@ -105,7 +105,7 @@ def _headway_handler(interpolated_stop_times_df, trips_df,
 
     trips_df = trips_df[columns]
 
-    # add unique route id
+    # add unique route ID
     routes_df['unique_route_id'] = (
         routes_df['route_id'].str.cat(
             routes_df['unique_agency_id'].astype('str'), sep='_'))

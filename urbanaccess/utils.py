@@ -181,12 +181,12 @@ def create_hdf5(dir=None, filename=None, overwrite_hdf5=False):
 def df_to_hdf5(data=None, key=None, overwrite_key=False, dir=None,
                filename=None, overwrite_hdf5=False):
     """
-    Write a pandas dataframe to a table in a HDF5 file
+    Write a Pandas dataframe to a table in a HDF5 file
 
     Parameters
     ----------
     data : pandas.DataFrame
-        pandas dataframe to save to a HDF5 table
+        Pandas dataframe to save to a HDF5 table
     key : string
         name of table to save dataframe as in the HDF5 file
     overwrite_key : bool, optional
@@ -230,7 +230,7 @@ def df_to_hdf5(data=None, key=None, overwrite_key=False, dir=None,
 
 def hdf5_to_df(dir=None, filename=None, key=None):
     """
-    Read data from a HDF5 file to a pandas dataframe
+    Read data from a HDF5 file to a Pandas dataframe
 
     Parameters
     ----------
@@ -239,7 +239,7 @@ def hdf5_to_df(dir=None, filename=None, key=None):
     filename : string
         name of the HDF5 file with .h5 extension to read from
     key : string
-        table inside the HDF5 file to return as a pandas dataframe
+        table inside the HDF5 file to return as a Pandas dataframe
 
     Returns
     -------

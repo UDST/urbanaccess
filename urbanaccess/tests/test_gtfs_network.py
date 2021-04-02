@@ -997,7 +997,7 @@ def test_format_transit_net_edge_test_1(stop_times_interpolated):
     # length of edge df should be 16
     assert len(df) == 16
 
-    # sequence id should be numeric starting at 1 and end at 4 for each trip
+    # sequence ID should be numeric starting at 1 and end at 4 for each trip
     assert df['sequence'][0] == 1 and df['sequence'][3] == 4
 
     # edge df should have these columns and no null values
@@ -1005,7 +1005,7 @@ def test_format_transit_net_edge_test_1(stop_times_interpolated):
         assert col in df.columns and df[
             col].isnull().values.any() == False  # noqa
 
-    # there should be 4 edges per trip id
+    # there should be 4 edges per trip ID
     for i, row in df.groupby('unique_trip_id').size().iteritems():
         assert row == 4
 

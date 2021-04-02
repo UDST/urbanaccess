@@ -18,7 +18,7 @@ else:
 
 class urbanaccess_network(object):
     """
-    A urbanaccess object of Pandas DataFrames representing
+    An urbanaccess object of Pandas DataFrames representing
     the components of a graph network
 
     Parameters
@@ -301,7 +301,7 @@ def _route_id_to_node(stops_df, edges_w_routes):
     stops_df : pandas.DataFrame
         processed gtfs stops DataFrame
     edges_w_routes : pandas.DataFrame
-        transit edge DataFrame that has route id information
+        transit edge DataFrame that has route ID information
 
     Returns
     -------
@@ -310,7 +310,7 @@ def _route_id_to_node(stops_df, edges_w_routes):
     """
     start_time = time.time()
 
-    # create unique stop ids
+    # create unique stop IDs
     stops_df['unique_stop_id'] = (
         stops_df['stop_id'].str.cat(
             stops_df['unique_agency_id'].astype('str'), sep='_'))
@@ -346,7 +346,7 @@ def _route_id_to_node(stops_df, edges_w_routes):
     transit_nodes_wroutes.drop_duplicates(subset='node_id_route',
                                           keep='first',
                                           inplace=True)
-    # set node index to be unique stop id
+    # set node index to be unique stop ID
     transit_nodes_wroutes = transit_nodes_wroutes.set_index('node_id_route')
 
     log(
@@ -370,7 +370,7 @@ def _connector_edges(osm_nodes, transit_nodes, travel_speed_mph=3):
         transit nodes DataFrame
     travel_speed_mph : int, optional
         travel speed to use to calculate travel time across a
-        distance on a edge. units are in miles per hour (MPH)
+        distance on an edge. units are in miles per hour (MPH)
         for pedestrian travel this is assumed to be 3 MPH
 
     Returns
@@ -422,9 +422,8 @@ def _connector_edges(osm_nodes, transit_nodes, travel_speed_mph=3):
 def _format_pandana_edges_nodes(edge_df, node_df):
     """
     Perform final formatting on nodes and edge DataFrames to prepare them
-    for use in Pandana.
-    Formatting mainly consists of creating a unique node id and edge from
-    and to id that is an integer
+    for use in Pandana. Formatting mainly consists of creating an unique
+    node ID and edge from and to ID that is an integer
     per Pandana requirements.
 
     Parameters
@@ -441,7 +440,7 @@ def _format_pandana_edges_nodes(edge_df, node_df):
     """
     start_time = time.time()
 
-    # pandana requires ids that are integer: for nodes - make it the index,
+    # Pandana requires IDs that are integer: for nodes - make it the index,
     # for edges make it the from and to columns
     node_df['id_int'] = range(1, len(node_df) + 1)
 
@@ -461,7 +460,7 @@ def _format_pandana_edges_nodes(edge_df, node_df):
         try:
             edge_df_wnumericid[col] = edge_df_wnumericid[col].astype(str)
         # deal with edge cases where typically the name of a street is not
-        # in a uniform string encoding such as names with accents
+        # in an uniform string encoding such as names with accents
         except UnicodeEncodeError:
             log('Fixed unicode error in {} column'.format(col))
             edge_df_wnumericid[col] = edge_df_wnumericid[col].str.encode(
@@ -473,7 +472,7 @@ def _format_pandana_edges_nodes(edge_df, node_df):
     if 'nearest_osm_node' in node_df.columns:
         node_df.drop(['nearest_osm_node'], axis=1, inplace=True)
 
-    log('Edge and node tables formatted for Pandana with integer node ids: '
+    log('Edge and node tables formatted for Pandana with integer node IDs: '
         'id_int, to_int, and from_int. Took {:,.2f} seconds'.format(
             time.time() - start_time))
     return edge_df_wnumericid, node_df
@@ -483,7 +482,7 @@ def save_network(urbanaccess_network, filename,
                  dir=config.settings.data_folder,
                  overwrite_key=False, overwrite_hdf5=False):
     """
-    Write a urbanaccess_network integrated nodes and edges to a node and edge
+    Write urbanaccess_network integrated nodes and edges to a node and edge
     table in a HDF5 file
 
     Parameters

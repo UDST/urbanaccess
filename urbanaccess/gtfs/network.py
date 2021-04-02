@@ -248,7 +248,7 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
                     raise ValueError('calendar_dates_lookup value: {} '
                                      'must contain strings.'.format(value))
 
-    # create unique service ids
+    # create unique service IDs
     df_list = [input_trips_df, input_calendar_df]
     # if input_calendar_dates_df is not empty then add it to processing
     if input_calendar_dates_df.empty is False:
@@ -259,7 +259,7 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
                 df['unique_agency_id'].astype('str'), sep='_'))
         df_list[index] = df
 
-    # select service ids where day specified has a 1 = service runs on that day
+    # select service IDs where day specified has a 1 = service runs on that day
     log('Using calendar to extract service_ids to select trips...')
     input_calendar_df = input_calendar_df[(input_calendar_df[day] == 1)]
     input_calendar_df = input_calendar_df[['unique_service_id']]
@@ -380,8 +380,8 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
         input_calendar_df = input_calendar_df.append(subset_result_df)
         input_calendar_df.drop_duplicates(inplace=True)
 
-    # select and create df of trips that match the service ids for the day of
-    # the week specified merge calendar df that has service ids for
+    # select and create df of trips that match the service IDs for the day of
+    # the week specified merge calendar df that has service IDs for
     # specified day with trips df
     calendar_selected_trips_df = input_trips_df.loc[
         input_trips_df['unique_service_id'].isin(
@@ -430,7 +430,7 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df):
 
     start_time = time.time()
 
-    # create unique trip ids
+    # create unique trip IDs
     df_list = [calendar_selected_trips_df, stop_times_df]
 
     for index, df in enumerate(df_list):
@@ -451,10 +451,10 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df):
 
     stop_times_df.sort_values(by=['unique_trip_id', 'stop_sequence'],
                               inplace=True)
-    # make list of unique trip ids from the calendar_selected_trips_df
+    # make list of unique trip IDs from the calendar_selected_trips_df
     uniquetriplist = calendar_selected_trips_df[
         'unique_trip_id'].unique().tolist()
-    # select trip ids that match the trips in the
+    # select trip IDs that match the trips in the
     # calendar_selected_trips_df -- resulting df will be stop times
     # only for trips that run on the service day or dates of interest
     stop_times_df = stop_times_df[
@@ -495,11 +495,11 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df):
 
     # TODO: for the rare and unlikely case when there is 1 null record and
     #  its not the first or last stop in the stop sequence, that value
-    #  should be interpolated and its trip id should be added to those to be
+    #  should be interpolated and its trip ID should be added to those to be
     #  interpolated - this additional case would have to be benchmarked
     #  for speed to ensure it doesnt slow down existing process
     # Find trips with more than one missing time
-    # Note: all trip ids have at least 1 null departure time because the
+    # Note: all trip IDs have at least 1 null departure time because the
     # last stop in a trip is always null
     null_times = stop_times_df[stop_times_df.departure_time_sec.isnull()]
     trips_with_null = null_times.unique_trip_id.value_counts()
@@ -620,7 +620,7 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df):
     final_stop_times_df['departure_time_sec_interpolate'] = \
         final_stop_times_df['departure_time_sec_interpolate'].astype(int)
 
-    # add unique stop id
+    # add unique stop ID
     final_stop_times_df['unique_stop_id'] = (
         final_stop_times_df['stop_id'].str.cat(
             final_stop_times_df['unique_agency_id'].astype('str'), sep='_'))
@@ -649,7 +649,7 @@ def _time_difference(stop_times_df):
     """
     start_time = time.time()
 
-    # calculate difference between consecutive records grouping by trip id.
+    # calculate difference between consecutive records grouping by trip ID
     stop_times_df['timediff'] = stop_times_df.groupby('unique_trip_id')[
         'departure_time_sec_interpolate'].diff()
     log('Difference between stop times has been successfully calculated. '
@@ -746,11 +746,11 @@ def _format_transit_net_edge(stop_times_df):
             "weight": tmp_trip_df['timediff'].iloc[1:].values,
             "unique_agency_id": tmp_trip_df[
                                     'unique_agency_id'].iloc[1:].values,
-            # set unique trip id without edge order to join other data later
+            # set unique trip ID without edge order to join other data later
             "unique_trip_id": trip
         })
 
-        # Set current trip id to edge id column adding edge order at
+        # Set current trip ID to edge ID column adding edge order at
         # end of string
         edge_df['sequence'] = (edge_df.index + 1).astype(int)
 
@@ -824,12 +824,12 @@ def _stops_in_edge_table_selector(input_stops_df, input_stop_times_df):
     """
     start_time = time.time()
 
-    # add unique stop id
+    # add unique stop ID
     input_stops_df['unique_stop_id'] = (
         input_stops_df['stop_id'].str.cat(
             input_stops_df['unique_agency_id'].astype('str'), sep='_'))
 
-    # Select stop ids that match stop ids in the subset stop time data that
+    # Select stop IDs that match stop IDs in the subset stop time data that
     # match day and time selection
     selected_stops_df = input_stops_df.loc[
         input_stops_df['unique_stop_id'].isin(
@@ -859,7 +859,7 @@ def _format_transit_net_nodes(df):
     """
     start_time = time.time()
 
-    # add unique stop id
+    # add unique stop ID
     if 'unique_stop_id' not in df.columns:
         df['unique_stop_id'] = (
             df['stop_id'].str.cat(
@@ -880,7 +880,7 @@ def _format_transit_net_nodes(df):
             col_list.append(item)
 
     final_node_df = pd.concat([final_node_df, df[col_list]], axis=1)
-    # set node index to be unique stop id
+    # set node index to be unique stop ID
     final_node_df = final_node_df.set_index('node_id')
 
     log('Stop time table transformation to Pandana format node table '
@@ -907,7 +907,7 @@ def _route_type_to_edge(transit_edge_df, stop_time_df):
     """
     start_time = time.time()
 
-    # create unique trip ids
+    # create unique trip IDs
     stop_time_df['unique_trip_id'] = (
         stop_time_df['trip_id'].str.cat(
             stop_time_df['unique_agency_id'].astype('str'), sep='_'))
@@ -933,7 +933,7 @@ def _route_type_to_edge(transit_edge_df, stop_time_df):
 
 def _route_id_to_edge(transit_edge_df, trips_df):
     """
-    Append route ids to transit edge table
+    Append route IDs to transit edge table
 
     Parameters
     ----------
@@ -950,7 +950,7 @@ def _route_id_to_edge(transit_edge_df, trips_df):
     start_time = time.time()
 
     if 'unique_route_id' not in transit_edge_df.columns:
-        # create unique trip and route ids
+        # create unique trip and route IDs
         trips_df['unique_trip_id'] = (
             trips_df['trip_id'].str.cat(
                 trips_df['unique_agency_id'].astype('str'), sep='_'))
@@ -962,7 +962,7 @@ def _route_id_to_edge(transit_edge_df, trips_df):
             transit_edge_df, trips_df[['unique_trip_id', 'unique_route_id']],
             how='left', on='unique_trip_id', sort=False, copy=False)
 
-    log('Route id successfully joined to transit edges. '
+    log('Route ID successfully joined to transit edges. '
         'Took {:,.2f} seconds.'.format(time.time() - start_time))
 
     return transit_edge_df_with_routes
