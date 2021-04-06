@@ -144,7 +144,8 @@ def create_transit_net(
     selected_interpolated_stop_times_df = _time_selector(
         df=gtfsfeeds_dfs.stop_times_int,
         starttime=timerange[0],
-        endtime=timerange[1])
+        endtime=timerange[1],
+        timerange_pad=timerange_pad)
 
     final_edge_table = _format_transit_net_edge(
         stop_times_df=selected_interpolated_stop_times_df[
@@ -658,7 +659,7 @@ def _time_difference(stop_times_df):
     return stop_times_df
 
 
-def _time_selector(df, starttime, endtime):
+def _time_selector(df, starttime, endtime, timerange_pad=None):
     """
     Select stop times that fall within a specified time range
 
@@ -669,7 +670,10 @@ def _time_selector(df, starttime, endtime):
     starttime : str
         24 hour clock formatted time 1
     endtime : str
-        24 hour clock formatted time 2
+        24 hour clock formatted time 2,
+    timerange_pad: int, optional
+        integer indicating the number of hours to pad after the end of the
+        time interval specified in 'endtime'
     Returns
     -------
     selected_stop_timesdf : pandas.DataFrame
@@ -695,19 +699,39 @@ def _time_selector(df, starttime, endtime):
     end_s = int(str(endtime[6:8]))
     endtime_sec = (end_h * 60 * 60) + (end_m * 60) + end_s
 
+    # define timepad in seconds to include stops active after specified endtime
+    if timerange_pad:
+        end_h_wpad = str(end_h + timerange_pad)
+        end_h_wpad = end_h_wpad.zfill(2)
+        pad_str = '{}:{}:{}'.format(end_h_wpad, endtime[3:5], endtime[6:8])
+        log('   Additional stop times active between the specified end time: '
+            '{} with timerange_pad of: {} hour(s) (padded end time: {}) '
+            'will be selected...'.format(
+             endtime, timerange_pad, pad_str))
+    pad = int(0 if timerange_pad is None else timerange_pad) * 3600
+
     # create df of stops times that are within the requested range
     selected_stop_timesdf = df[(
-                (starttime_sec < df["departure_time_sec_interpolate"]) & (
-                    df["departure_time_sec_interpolate"] < endtime_sec))]
+            (starttime_sec <= df["departure_time_sec_interpolate"]) & (
+             df["departure_time_sec_interpolate"] <= endtime_sec + pad))]
 
     subset_df_count = len(selected_stop_timesdf)
     df_count = len(df)
-    log('Stop times from {} to {} successfully selected {:,} records out of '
-        '{:,} total records ({:.2f} percent of total). '
-        'Took {:,.2f} seconds.'.format(
-            starttime, endtime, subset_df_count, df_count,
-            (subset_df_count / df_count) * 100,
-            time.time() - start_time))
+    if timerange_pad:
+        log('Stop times from {} to {} (with time_pad end time: {}) '
+            'successfully selected {:,} records out of {:,} total records '
+            '({:.2f} percent of total). '
+            'Took {:,.2f} seconds.'.format(
+                starttime, endtime, pad_str, subset_df_count, df_count,
+                (subset_df_count / df_count) * 100,
+                time.time() - start_time))
+    else:
+        log('Stop times from {} to {} successfully selected {:,} records '
+            'out of {:,} total records ({:.2f} percent of total). '
+            'Took {:,.2f} seconds.'.format(
+                starttime, endtime, subset_df_count, df_count,
+                (subset_df_count / df_count) * 100,
+                time.time() - start_time))
 
     return selected_stop_timesdf
 
