@@ -23,7 +23,9 @@ def create_transit_net(
         use_existing_stop_times_int=False,
         save_processed_gtfs=False,
         save_dir=config.settings.data_folder,
-        save_filename=None):
+        save_filename=None,
+        timerange_pad=None,
+        time_aware=False):
     """
     Create a travel time weight network graph in units of
     minutes from GTFS data
@@ -69,6 +71,13 @@ def create_transit_net(
         directory to save the HDF5 file
     save_filename : str, optional
         name to save the HDF5 file as
+    timerange_pad: int, optional
+        integer indicating the number of hours to pad after the end of the
+        time interval specified in 'timerange'
+    time_aware: bool, optional
+        boolean to indicate whether the transit network should include
+        time information. If True, 'arrival_time' and 'departure_time' columns
+        from the stop_times table will be included in the transit edge table
 
     Returns
     -------
@@ -97,6 +106,10 @@ def create_transit_net(
         raise ValueError('use_existing_stop_times_int must be bool.')
     if not isinstance(save_processed_gtfs, bool):
         raise ValueError('save_processed_gtfs must be bool.')
+    if timerange_pad and not isinstance(timerange_pad, int):
+        raise ValueError('timerange_pad must be int.')
+    if not isinstance(time_aware, bool):
+        raise ValueError('time_aware must be bool.')
     if overwrite_existing_stop_times_int and use_existing_stop_times_int:
         raise ValueError('overwrite_existing_stop_times_int and '
                          'use_existing_stop_times_int cannot both be True.')
@@ -148,9 +161,8 @@ def create_transit_net(
         timerange_pad=timerange_pad)
 
     final_edge_table = _format_transit_net_edge(
-        stop_times_df=selected_interpolated_stop_times_df[
-            ['unique_trip_id', 'stop_id', 'unique_stop_id', 'timediff',
-             'stop_sequence', 'unique_agency_id', 'trip_id']])
+        stop_times_df=selected_interpolated_stop_times_df,
+        time_aware=time_aware)
 
     transit_edges = _convert_imp_time_units(
         df=final_edge_table, time_col='weight', convert_to='minutes')
@@ -761,18 +773,26 @@ def _format_transit_net_edge(stop_times_df, time_aware=False):
     log('Starting transformation process for {:,} '
         'total trips...'.format(len(stop_times_df['unique_trip_id'].unique())))
 
+    # subset to only columns needed for processing
+    cols_of_interest = ['unique_trip_id', 'stop_id', 'unique_stop_id',
+                        'timediff', 'stop_sequence', 'unique_agency_id',
+                        'trip_id', 'arrival_time', 'departure_time']
+    stop_times_df = stop_times_df[cols_of_interest]
+
     # set columns for new df for data needed by Pandana for edges
     merged_edge = []
 
     stop_times_df.sort_values(by=['unique_trip_id', 'stop_sequence'],
                               inplace=True)
 
+    if time_aware:
+        log('   time_aware is True, also adding arrival and departure '
+            'stop times to edges...')
+
     for trip, tmp_trip_df in stop_times_df.groupby(['unique_trip_id']):
         # if 'time_aware', also create from and to arrival and departure time
         # cols
         if time_aware:
-            log('   time_aware is True, adding arrival and departure '
-                'stop times to edges...')
             edge_df = pd.DataFrame({
                 "node_id_from": tmp_trip_df['unique_stop_id'].iloc[:-1].values,
                 "node_id_to": tmp_trip_df['unique_stop_id'].iloc[1:].values,
@@ -783,11 +803,14 @@ def _format_transit_net_edge(stop_times_df, time_aware=False):
                 # later
                 "unique_trip_id": trip,
                 # create from and to arrival and departure time cols
-                "arrival_from": tmp_trip_df['arrival_time'].iloc[:-1].values,
-                "arrival_to": tmp_trip_df['arrival_time'].iloc[1:].values,
-                "departure_from":
+                "arrival_time_from":
+                    tmp_trip_df['arrival_time'].iloc[:-1].values,
+                "arrival_time_to":
+                    tmp_trip_df['arrival_time'].iloc[1:].values,
+                "departure_time_from":
                     tmp_trip_df['departure_time'].iloc[:-1].values,
-                "departure_to": tmp_trip_df['departure_time'].iloc[1:].values
+                "departure_time_to":
+                    tmp_trip_df['departure_time'].iloc[1:].values
             })
         else:
             edge_df = pd.DataFrame({
