@@ -736,7 +736,7 @@ def _time_selector(df, starttime, endtime, timerange_pad=None):
     return selected_stop_timesdf
 
 
-def _format_transit_net_edge(stop_times_df):
+def _format_transit_net_edge(stop_times_df, time_aware=False):
     """
     Format transit network data table to match the format required for edges
     in Pandana graph networks edges
@@ -746,6 +746,10 @@ def _format_transit_net_edge(stop_times_df):
     stop_times_df : pandas.DataFrame
         interpolated stop times with travel time between stops for the subset
         time and day
+    time_aware: bool, optional
+        boolean to indicate whether the transit network should include
+        time information. If True, 'arrival_time' and 'departure_time' columns
+        from the stop_times table will be included in the transit edge table
 
     Returns
     -------
@@ -764,15 +768,38 @@ def _format_transit_net_edge(stop_times_df):
                               inplace=True)
 
     for trip, tmp_trip_df in stop_times_df.groupby(['unique_trip_id']):
-        edge_df = pd.DataFrame({
-            "node_id_from": tmp_trip_df['unique_stop_id'].iloc[:-1].values,
-            "node_id_to": tmp_trip_df['unique_stop_id'].iloc[1:].values,
-            "weight": tmp_trip_df['timediff'].iloc[1:].values,
-            "unique_agency_id": tmp_trip_df[
-                                    'unique_agency_id'].iloc[1:].values,
-            # set unique trip ID without edge order to join other data later
-            "unique_trip_id": trip
-        })
+        # if 'time_aware', also create from and to arrival and departure time
+        # cols
+        if time_aware:
+            log('   time_aware is True, adding arrival and departure '
+                'stop times to edges...')
+            edge_df = pd.DataFrame({
+                "node_id_from": tmp_trip_df['unique_stop_id'].iloc[:-1].values,
+                "node_id_to": tmp_trip_df['unique_stop_id'].iloc[1:].values,
+                "weight": tmp_trip_df['timediff'].iloc[1:].values,
+                "unique_agency_id":
+                    tmp_trip_df['unique_agency_id'].iloc[1:].values,
+                # set unique trip ID without edge order to join other data
+                # later
+                "unique_trip_id": trip,
+                # create from and to arrival and departure time cols
+                "arrival_from": tmp_trip_df['arrival_time'].iloc[:-1].values,
+                "arrival_to": tmp_trip_df['arrival_time'].iloc[1:].values,
+                "departure_from":
+                    tmp_trip_df['departure_time'].iloc[:-1].values,
+                "departure_to": tmp_trip_df['departure_time'].iloc[1:].values
+            })
+        else:
+            edge_df = pd.DataFrame({
+                "node_id_from": tmp_trip_df['unique_stop_id'].iloc[:-1].values,
+                "node_id_to": tmp_trip_df['unique_stop_id'].iloc[1:].values,
+                "weight": tmp_trip_df['timediff'].iloc[1:].values,
+                "unique_agency_id":
+                    tmp_trip_df['unique_agency_id'].iloc[1:].values,
+                # set unique trip ID without edge order to join other data
+                # later
+                "unique_trip_id": trip
+            })
 
         # Set current trip ID to edge ID column adding edge order at
         # end of string
@@ -784,6 +811,8 @@ def _format_transit_net_edge(stop_times_df):
     merged_edge_df = pd.concat(merged_edge, ignore_index=True)
     merged_edge_df['sequence'] = merged_edge_df['sequence'].astype(
         int, copy=False)
+    # create a unique sequential edge ID
+    # TODO: consider changing col name to 'edge_id' for clarity
     merged_edge_df['id'] = (
         merged_edge_df['unique_trip_id'].str.cat(
             merged_edge_df['sequence'].astype('str'), sep='_'))
