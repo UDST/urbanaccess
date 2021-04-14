@@ -1,0 +1,36 @@
+name: Coverage
+
+# This workflow generates a coverage report (how much of the codebase is covered by the
+# unit tests) and posts headline metrics to the PR thread.
+
+on:
+  push:  # disable
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Install UrbanAccess
+      run: |
+        pip install .
+        pip list
+    - name: Coverage report
+      run: |
+        pip install pytest coverage
+        coverage run --source urbanaccess --module pytest --verbose
+        coverage report --show-missing
+        echo "coverage=$(coverage report | grep '^TOTAL' | grep -oE '[^ ]+$')" >> $GITHUB_ENV
+    - name: Post to PR thread
+      uses: unsplash/comment-on-pr@master
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        msg: "Test coverage is ${{ env.coverage }}"
+        check_for_duplicate_msg: true
