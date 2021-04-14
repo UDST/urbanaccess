@@ -1,0 +1,26 @@
+name: Unit tests
+
+# This workflow runs the unit tests in a single generic environment.
+
+on:
+  push:
+  # pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Install UrbanAccess
+      run: |
+        pip install .
+        pip list
+    - name: Unit tests
+      run: |
+        pip install pytest
+        pytest -s
