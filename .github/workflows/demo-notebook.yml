@@ -1,0 +1,35 @@
+name: Demo notebook
+
+# This workflow runs the UrbanAccess demo notebook.
+
+on:
+  push:  # disable
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}  # needed for conda persistence
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: conda-incubator/setup-miniconda@v2
+      with:
+        python-version: 3.8
+    - name: Install UrbanAccess
+      run: |
+        pip install .
+        pip list
+    - name: Demo notebook
+      run: |
+        # cartopy is easiest to install with conda
+        conda install jupyter cartopy --channel epsg
+        cd demo
+        jupyter nbconvert --to python simple_example.ipynb
+        cd ../urbanaccess/tests/integration
+        python remove_nb_magic.py -in simple_example.py -out simple_example_clean.py
+        cd ../../../demo
+        python simple_example_clean.py
