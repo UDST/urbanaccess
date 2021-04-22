@@ -26,7 +26,10 @@ jobs:
     - name: Demo notebook
       run: |
         # cartopy is easiest to install with conda
-        conda install nbconvert cartopy --channel conda-forge
+        # installing only ipython and nbconvert (which are components of jupyter) is more
+        # efficient than installing all of jupyter
+        
+        conda install ipython nbconvert cartopy --channel conda-forge
         cd demo
         jupyter nbconvert --to python simple_example.ipynb
         cd ../urbanaccess/tests/integration
