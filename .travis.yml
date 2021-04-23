@@ -21,7 +21,6 @@ install:
   - conda create -n test-environment python=$TRAVIS_PYTHON_VERSION pyyaml --file requirements-dev.txt
   - source activate test-environment
   - conda info --all
-  - pip install 'numpy>=1.18'
   - pip install .
   - pip list
   - pip show urbanaccess
