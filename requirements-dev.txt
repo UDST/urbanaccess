@@ -6,6 +6,7 @@ pycodestyle
 
 # testing demo notebook
 jupyter
+fiona <= 1.8.18  # fixes issue with travis
 cartopy  # requires conda
 pyepsg
 
