@@ -39,7 +39,7 @@ class urbanaccess_gtfsfeeds(object):
                                                 'gtfsfeeds'),
                   yamlname='gtfsfeeds.yaml'):
         """
-        Create a urbanaccess_gtfsfeeds instance from a saved YAML.
+        Create an urbanaccess_gtfsfeeds instance from a saved YAML.
 
         Parameters
         ----------
@@ -63,7 +63,7 @@ class urbanaccess_gtfsfeeds(object):
         yaml_file = os.path.join(gtfsfeeddir, yamlname)
 
         with open(yaml_file, 'r') as f:
-            yaml_config = yaml.load(f)
+            yaml_config = yaml.safe_load(f)
 
         if not isinstance(yaml_config, dict):
             raise ValueError('{} yamlname is not a dict'.format(yamlname))
@@ -206,7 +206,7 @@ class urbanaccess_gtfsfeeds(object):
                 yamlname='gtfsfeeds.yaml',
                 overwrite=False):
         """
-        Save a urbanaccess_gtfsfeeds representation to a YAML file.
+        Save an urbanaccess_gtfsfeeds representation to a YAML file.
 
         Parameters
         ----------

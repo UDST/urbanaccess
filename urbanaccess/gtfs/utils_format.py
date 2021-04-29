@@ -125,7 +125,7 @@ def _read_gtfs_trips(textfile_path, textfile):
                             'service_id': object,
                             'route_id': object,
                             7: object}, low_memory=False)
-    # 7 is placeholder for shape id which may not exist in some txt files
+    # 7 is placeholder for shape ID which may not exist in some txt files
     if len(df) == 0:
         raise ValueError('{} has no records'.format(os.path.join(
             textfile_path, textfile)))
@@ -249,7 +249,7 @@ def _read_gtfs_calendar_dates(textfile_path, textfile):
 def _calendar_dates_agencyid(calendar_dates_df, routes_df,
                              trips_df, agency_df, feed_folder):
     """
-    Assign unique agency id to calendar dates dataframe
+    Assign unique agency ID to calendar dates dataframe
 
     Parameters
     ----------
@@ -312,7 +312,7 @@ def _calendar_dates_agencyid(calendar_dates_df, routes_df,
 def _calendar_agencyid(calendar_df, routes_df, trips_df,
                        agency_df, feed_folder):
     """
-    Assign unique agency id to calendar dataframe
+    Assign unique agency ID to calendar dataframe
 
     Parameters
     ----------
@@ -335,7 +335,7 @@ def _calendar_agencyid(calendar_df, routes_df, trips_df,
                     sort=False, copy=False)
     tmp2 = pd.merge(trips_df, tmp1, how='left', on='route_id', sort=False,
                     copy=False)
-    # do another merge to account for service ids that may not be utilized
+    # do another merge to account for service IDs that may not be utilized
     # across all GTFS files for accounting purposes so we keep those that
     # dont show up after merge
     merged_df = pd.merge(calendar_df[['service_id']], tmp2, how='left',
@@ -377,7 +377,7 @@ def _calendar_agencyid(calendar_df, routes_df, trips_df,
 
 def _trips_agencyid(trips_df, routes_df, agency_df):
     """
-    Assign unique agency id to trips dataframe
+    Assign unique agency ID to trips dataframe
 
     Parameters
     ----------
@@ -409,7 +409,7 @@ def _trips_agencyid(trips_df, routes_df, agency_df):
 def _stops_agencyid(stops_df, trips_df, routes_df,
                     stop_times_df, agency_df, feed_folder):
     """
-    Assign unique agency id to stops dataframe
+    Assign unique agency ID to stops dataframe
 
     Parameters
     ----------
@@ -475,7 +475,7 @@ def _stops_agencyid(stops_df, trips_df, routes_df,
 
 def _routes_agencyid(routes_df, agency_df):
     """
-    Assign unique agency id to routes dataframe
+    Assign unique agency ID to routes dataframe
 
     Parameters
     ----------
@@ -503,7 +503,7 @@ def _routes_agencyid(routes_df, agency_df):
 def _stop_times_agencyid(stop_times_df, routes_df, trips_df,
                          agency_df):
     """
-    Assign unique agency id to stop times dataframe
+    Assign unique agency ID to stop times dataframe
 
     Parameters
     ----------
@@ -541,7 +541,7 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
                          trips_df, stop_times_df, calendar_df, feed_folder,
                          calendar_dates_df, nulls_as_folder=True):
     """
-    Create a unique agency id for all gtfs feed dataframes to enable unique
+    Create an unique agency ID for all gtfs feed dataframes to enable unique
     relational table keys
 
     Parameters
@@ -563,8 +563,8 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
     calendar_dates_df : pandas:DataFrame
         calendar dates dataframe
     nulls_as_folder : bool, optional
-        if true, gtfs feeds where the agency id is null, the gtfs folder
-        name will be used as the unique agency id
+        if true, gtfs feeds where the agency ID is null, the gtfs folder
+        name will be used as the unique agency ID
     Returns
     -------
     stops_df, routes_df, trips_df, stop_times_df, calendar_df,
@@ -589,7 +589,7 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
             df_list[index] = df
 
         log('The agency.txt or agency_id column was not found. The unique '
-            'agency id: {} was generated using the name of the folder '
+            'agency ID: {} was generated using the name of the folder '
             'containing the GTFS feed text files.'.format(
                 unique_agency_id))
 
@@ -623,7 +623,7 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
                 df['unique_agency_id'] = unique_agency_id
                 df_list[index] = df
             log(
-                'The unique agency id: {} was generated using the name of '
+                'The unique agency ID: {} was generated using the name of '
                 'the agency in the agency.txt file.'.format(
                     unique_agency_id))
 
@@ -693,7 +693,7 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
 
             log(
                 'agency.txt agency_name column has more than one agency name '
-                'listed. Unique agency id was assigned using the agency id '
+                'listed. Unique agency ID was assigned using the agency ID '
                 'and associated agency name.')
 
     for index, df in enumerate(df_list):
@@ -706,7 +706,7 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
                 inplace=True)
             log(
                 'There are {:,} null values ({:,.2f}% of {:,} total) without '
-                'a unique agency id. These records will be labeled as '
+                'a unique agency ID. These records will be labeled as '
                 'multiple_operators_ with the GTFS file folder '
                 'name'.format(df['unique_agency_id'].isnull().sum(),
                               len(df),
@@ -718,7 +718,7 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
     if calendar_dates_df.empty:
         df_list.extend([calendar_dates_df])
 
-    log('Unique agency id operation complete. Took {:,.2f} seconds'.format(
+    log('Unique agency ID operation complete. Took {:,.2f} seconds'.format(
         time.time() - start_time))
     return df_list
 
@@ -727,7 +727,7 @@ def _add_unique_gtfsfeed_id(stops_df, routes_df, trips_df,
                             stop_times_df, calendar_df, calendar_dates_df,
                             feed_folder, feed_number):
     """
-    Create a unique GTFS feed specific id for all gtfs feed dataframes to
+    Create an unique GTFS feed specific ID for all gtfs feed dataframes to
     enable tracking of specific feeds
 
     Parameters
@@ -776,7 +776,7 @@ def _add_unique_gtfsfeed_id(stops_df, routes_df, trips_df,
     if calendar_dates_df.empty:
         df_list.extend([calendar_dates_df])
 
-    log('Unique GTFS feed id operation complete. Took {:,.2f} seconds'.format(
+    log('Unique GTFS feed ID operation complete. Took {:,.2f} seconds'.format(
         time.time() - start_time))
     return df_list
 
@@ -1069,7 +1069,7 @@ def _append_route_type(stops_df, stop_times_df, routes_df,
 
 def _generate_unique_agency_id(df, col_name):
     """
-    Generate unique agency id
+    Generate unique agency ID
 
     Parameters
     ----------
@@ -1092,7 +1092,7 @@ def _generate_unique_agency_id(df, col_name):
 
 def _generate_unique_feed_id(feed_folder):
     """
-    Generate unique feed id
+    Generate unique feed ID
 
     Parameters
     ----------

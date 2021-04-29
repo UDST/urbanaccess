@@ -15,7 +15,7 @@ def expected_urbanaccess_gtfs_df_keys():
     expected_keys = ['stops', 'routes', 'trips', 'stop_times',
                      'calendar', 'calendar_dates', 'stop_times_int',
                      'headways']
-    return expected_keys.sort()
+    return sorted(expected_keys)
 
 
 @pytest.fixture
@@ -119,8 +119,8 @@ def test_loadgtfsfeed_to_df_wo_calendar(
     urbanaccess_gtfs_df_info = vars(loaded_feeds)
     expected_dfs = ['stops', 'routes', 'trips', 'stop_times',
                     'calendar_dates']
-    assert expected_urbanaccess_gtfs_df_keys == list(
-        urbanaccess_gtfs_df_info.keys()).sort()
+    assert expected_urbanaccess_gtfs_df_keys == sorted(list(
+        urbanaccess_gtfs_df_info.keys()))
     for key, value in urbanaccess_gtfs_df_info.items():
         assert isinstance(value, pd.core.frame.DataFrame)
         # check that df is not empty
@@ -143,8 +143,8 @@ def test_loadgtfsfeed_to_df_wo_calendar_dates(
     urbanaccess_gtfs_df_info = vars(loaded_feeds)
     expected_dfs = ['stops', 'routes', 'trips', 'stop_times',
                     'calendar']
-    assert expected_urbanaccess_gtfs_df_keys == list(
-        urbanaccess_gtfs_df_info.keys()).sort()
+    assert expected_urbanaccess_gtfs_df_keys == sorted(list(
+        urbanaccess_gtfs_df_info.keys()))
     for key, value in urbanaccess_gtfs_df_info.items():
         assert isinstance(value, pd.core.frame.DataFrame)
         # check that df is not empty
@@ -167,8 +167,8 @@ def test_loadgtfsfeed_to_df_w_calendar_and_calendar_dates(
     urbanaccess_gtfs_df_info = vars(loaded_feeds)
     expected_dfs = ['stops', 'routes', 'trips', 'stop_times',
                     'calendar', 'calendar_dates']
-    assert expected_urbanaccess_gtfs_df_keys == list(
-        urbanaccess_gtfs_df_info.keys()).sort()
+    assert expected_urbanaccess_gtfs_df_keys == sorted(list(
+        urbanaccess_gtfs_df_info.keys()))
     for key, value in urbanaccess_gtfs_df_info.items():
         assert isinstance(value, pd.core.frame.DataFrame)
         # check that df is not empty
@@ -222,10 +222,9 @@ def test_loadgtfsfeed_to_df_wo_agency(
         append_definitions=False)
     assert isinstance(loaded_feeds, urbanaccess_gtfs_df)
     urbanaccess_gtfs_df_info = vars(loaded_feeds)
-    expected_dfs = ['stops', 'routes', 'trips', 'stop_times',
-                    'calendar']
-    assert expected_urbanaccess_gtfs_df_keys == list(
-        urbanaccess_gtfs_df_info.keys()).sort()
+    expected_dfs = ['stops', 'routes', 'trips', 'stop_times', 'calendar']
+    assert expected_urbanaccess_gtfs_df_keys == sorted(list(
+        urbanaccess_gtfs_df_info.keys()))
     for key, value in urbanaccess_gtfs_df_info.items():
         assert isinstance(value, pd.core.frame.DataFrame)
         # check that df is not empty

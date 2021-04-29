@@ -1,4 +1,5 @@
 import time
+import os
 import geopy
 from geopy import distance
 
@@ -17,7 +18,7 @@ else:
 
 class urbanaccess_network(object):
     """
-    A urbanaccess object of Pandas DataFrames representing
+    An urbanaccess object of Pandas DataFrames representing
     the components of a graph network
 
     Parameters
@@ -300,7 +301,7 @@ def _route_id_to_node(stops_df, edges_w_routes):
     stops_df : pandas.DataFrame
         processed gtfs stops DataFrame
     edges_w_routes : pandas.DataFrame
-        transit edge DataFrame that has route id information
+        transit edge DataFrame that has route ID information
 
     Returns
     -------
@@ -309,7 +310,7 @@ def _route_id_to_node(stops_df, edges_w_routes):
     """
     start_time = time.time()
 
-    # create unique stop ids
+    # create unique stop IDs
     stops_df['unique_stop_id'] = (
         stops_df['stop_id'].str.cat(
             stops_df['unique_agency_id'].astype('str'), sep='_'))
@@ -345,7 +346,7 @@ def _route_id_to_node(stops_df, edges_w_routes):
     transit_nodes_wroutes.drop_duplicates(subset='node_id_route',
                                           keep='first',
                                           inplace=True)
-    # set node index to be unique stop id
+    # set node index to be unique stop ID
     transit_nodes_wroutes = transit_nodes_wroutes.set_index('node_id_route')
 
     log(
@@ -369,7 +370,7 @@ def _connector_edges(osm_nodes, transit_nodes, travel_speed_mph=3):
         transit nodes DataFrame
     travel_speed_mph : int, optional
         travel speed to use to calculate travel time across a
-        distance on a edge. units are in miles per hour (MPH)
+        distance on an edge. units are in miles per hour (MPH)
         for pedestrian travel this is assumed to be 3 MPH
 
     Returns
@@ -421,9 +422,8 @@ def _connector_edges(osm_nodes, transit_nodes, travel_speed_mph=3):
 def _format_pandana_edges_nodes(edge_df, node_df):
     """
     Perform final formatting on nodes and edge DataFrames to prepare them
-    for use in Pandana.
-    Formatting mainly consists of creating a unique node id and edge from
-    and to id that is an integer
+    for use in Pandana. Formatting mainly consists of creating an unique
+    node ID and edge from and to ID that is an integer
     per Pandana requirements.
 
     Parameters
@@ -440,7 +440,7 @@ def _format_pandana_edges_nodes(edge_df, node_df):
     """
     start_time = time.time()
 
-    # pandana requires ids that are integer: for nodes - make it the index,
+    # Pandana requires IDs that are integer: for nodes - make it the index,
     # for edges make it the from and to columns
     node_df['id_int'] = range(1, len(node_df) + 1)
 
@@ -460,7 +460,7 @@ def _format_pandana_edges_nodes(edge_df, node_df):
         try:
             edge_df_wnumericid[col] = edge_df_wnumericid[col].astype(str)
         # deal with edge cases where typically the name of a street is not
-        # in a uniform string encoding such as names with accents
+        # in an uniform string encoding such as names with accents
         except UnicodeEncodeError:
             log('Fixed unicode error in {} column'.format(col))
             edge_df_wnumericid[col] = edge_df_wnumericid[col].str.encode(
@@ -472,7 +472,7 @@ def _format_pandana_edges_nodes(edge_df, node_df):
     if 'nearest_osm_node' in node_df.columns:
         node_df.drop(['nearest_osm_node'], axis=1, inplace=True)
 
-    log('Edge and node tables formatted for Pandana with integer node ids: '
+    log('Edge and node tables formatted for Pandana with integer node IDs: '
         'id_int, to_int, and from_int. Took {:,.2f} seconds'.format(
             time.time() - start_time))
     return edge_df_wnumericid, node_df
@@ -482,28 +482,29 @@ def save_network(urbanaccess_network, filename,
                  dir=config.settings.data_folder,
                  overwrite_key=False, overwrite_hdf5=False):
     """
-    Write a urbanaccess_network integrated nodes and edges to a node and edge
-    table in a hdf5 file
+    Write urbanaccess_network integrated nodes and edges to a node and edge
+    table in a HDF5 file
 
     Parameters
     ----------
     urbanaccess_network : object
         urbanaccess_network object with net_edges and net_nodes DataFrames
     filename : string
-        name of the hdf5 file to save with .h5 extension
+        name of the HDF5 file to save with .h5 extension
     dir : string, optional
-        directory to save hdf5 file
+        directory to save HDF5 file
     overwrite_key : bool, optional
         if true any existing table with the specified key name will be
         overwritten
     overwrite_hdf5 : bool, optional
-        if true any existing hdf5 file with the specified name in the
+        if true any existing HDF5 file with the specified name in the
         specified directory will be overwritten
 
     Returns
     -------
     None
     """
+    log('Writing HDF5 store...')
     if urbanaccess_network is None or urbanaccess_network.net_edges.empty or \
             urbanaccess_network.net_nodes.empty:
         raise ValueError('Either no urbanaccess_network specified or '
@@ -515,19 +516,21 @@ def save_network(urbanaccess_network, filename,
     df_to_hdf5(data=urbanaccess_network.net_nodes, key='nodes',
                overwrite_key=overwrite_key, dir=dir, filename=filename,
                overwrite_hdf5=overwrite_hdf5)
+    log("Saved HDF5 store: {} with tables: ['net_edges', 'net_nodes'].".format(
+        os.path.join(dir, filename)))
 
 
 def load_network(dir=config.settings.data_folder, filename=None):
     """
-    Read an integrated network node and edge data from a hdf5 file to
-    a urbanaccess_network object
+    Read an integrated network node and edge data from a HDF5 file to
+    an urbanaccess_network object
 
     Parameters
     ----------
     dir : string, optional
-        directory to read hdf5 file
+        directory to read HDF5 file
     filename : string
-        name of the hdf5 file to read with .h5 extension
+        name of the HDF5 file to read with .h5 extension
 
     Returns
     -------
@@ -536,7 +539,10 @@ def load_network(dir=config.settings.data_folder, filename=None):
     ua_network.net_edges : object
     ua_network.net_nodes : object
     """
+    log('Loading HDF5 store...')
     ua_network.net_edges = hdf5_to_df(dir=dir, filename=filename, key='edges')
     ua_network.net_nodes = hdf5_to_df(dir=dir, filename=filename, key='nodes')
+    log("Read HDF5 store: {} tables: ['net_edges', 'net_nodes'].".format(
+        os.path.join(dir, filename)))
 
     return ua_network

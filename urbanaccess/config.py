@@ -4,7 +4,7 @@ import yaml
 
 def _format_check(settings):
     """
-    Check the format of a urbanaccess_config object.
+    Check the format of an urbanaccess_config object.
 
     Parameters
     ----------
@@ -84,7 +84,7 @@ class urbanaccess_config(object):
     def from_yaml(cls, configdir='configs',
                   yamlname='urbanaccess_config.yaml'):
         """
-        Create a urbanaccess_config instance from a saved YAML configuration.
+        Create an urbanaccess_config instance from a saved YAML configuration.
 
         Parameters
         ----------
@@ -108,7 +108,7 @@ class urbanaccess_config(object):
         yaml_file = os.path.join(configdir, yamlname)
 
         with open(yaml_file, 'r') as f:
-            yaml_config = yaml.load(f)
+            yaml_config = yaml.safe_load(f)
 
         settings = cls(data_folder=yaml_config.get('data_folder', 'data'),
                        logs_folder=yaml_config.get('logs_folder', 'logs'),
@@ -143,7 +143,7 @@ class urbanaccess_config(object):
     def to_yaml(self, configdir='configs', yamlname='urbanaccess_config.yaml',
                 overwrite=False):
         """
-        Save a urbanaccess_config representation to a YAML file.
+        Save an urbanaccess_config representation to a YAML file.
 
         Parameters
         ----------

@@ -175,3 +175,40 @@ def _validate_gtfs(stops_df, feed_folder,
     _checkcoordinates(df=stops_df, feed_folder=feed_folder)
 
     return stops_df
+
+
+def _check_time_range_format(timerange):
+    """
+    Check time range value format for expected schema
+
+    Parameters
+    ----------
+    timerange : list
+        time range as a list with time 1 and time 2 as strings.
+        Must follow format of a 24 hour clock for example:
+        08:00:00 or 17:00:00
+
+    Returns
+    -------
+    None
+    """
+    time_error_statement = (
+        '{} starttime and endtime are not in the correct format. '
+        'Format should be a 24 hour clock in the following format: 08:00:00 '
+        'or 17:00:00.'.format(timerange))
+    if not isinstance(timerange, list) or len(timerange) != 2:
+        raise ValueError(time_error_statement)
+    if timerange[0] > timerange[1]:
+        raise ValueError(time_error_statement)
+    for t in timerange:
+        if not isinstance(t, str):
+            raise ValueError(time_error_statement)
+        if len(t) != 8:
+            raise ValueError(time_error_statement)
+    timerange_hr_1 = int(str(timerange[0][0:2]))
+    timerange_hr_2 = int(str(timerange[1][0:2]))
+    if timerange_hr_2 - timerange_hr_1 > 3:
+        log('WARNING: Time range passed: {} is a {} hour period. Long '
+            'periods over 3 hours may take a significant amount of time to '
+            'process.'.format(timerange, timerange_hr_2 - timerange_hr_1),
+            level=lg.WARNING)

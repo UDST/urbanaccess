@@ -87,7 +87,7 @@ def test_to_yaml_feed(tmpdir, feed_dict3):
 
     yaml_path = os.path.join(tmpdir.strpath, 'gtfsfeeds.yaml')
     with open(yaml_path, 'r') as f:
-        yaml_config = yaml.load(f)
+        yaml_config = yaml.safe_load(f)
     assert yaml_config['gtfs_feeds'] == feed_dict3
     # clear feeds from global memory
     feeds.remove_feed(remove_all=True)
