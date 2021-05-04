@@ -311,7 +311,7 @@ def _calendar_dates_agencyid(calendar_dates_df, routes_df,
                              how='left',
                              on='service_id', sort=False, copy=False)
 
-        return merged_df
+    return merged_df
 
 
 def _calendar_agencyid(calendar_df, routes_df, trips_df,
@@ -374,7 +374,7 @@ def _calendar_agencyid(calendar_df, routes_df, trips_df,
                              how='left',
                              on='service_id', sort=False, copy=False)
 
-        return merged_df
+    return merged_df
 
 
 def _trips_agencyid(trips_df, routes_df, agency_df):
