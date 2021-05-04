@@ -23,13 +23,14 @@ def _read_gtfs_agency(textfile_path, textfile):
     -------
     df : pandas.DataFrame
     """
-    if textfile != 'agency.txt':
-        raise ValueError('{} is not a proper GTFS file name'.format(textfile))
-
-    df = pd.read_csv(os.path.join(textfile_path, textfile), low_memory=False)
+    expected_textfile = 'agency.txt'
+    if textfile != expected_textfile:
+        raise ValueError('{} is not an expected GTFS file name. '
+                         'Expected: {}.'.format(textfile, expected_textfile))
+    file = os.path.join(textfile_path, textfile)
+    df = pd.read_csv(file, low_memory=False)
     if len(df) == 0:
-        raise ValueError('{} has no records'.format(os.path.join(
-            textfile_path, textfile)))
+        raise ValueError('{} has no records.'.format(file))
 
     # remove any extra whitespace in column names
     df = _remove_whitespace(df=df, textfile=textfile, col_list=None)
@@ -52,22 +53,22 @@ def _read_gtfs_stops(textfile_path, textfile):
     -------
     df : pandas.DataFrame
     """
-    if textfile != 'stops.txt':
-        raise ValueError('{} is not a proper GTFS file name'.format(textfile))
-
-    df = pd.read_csv(os.path.join(textfile_path, textfile),
-                     dtype={'stop_id': object}, low_memory=False)
+    expected_textfile = 'stops.txt'
+    if textfile != expected_textfile:
+        raise ValueError('{} is not an expected GTFS file name. '
+                         'Expected: {}.'.format(textfile, expected_textfile))
+    file = os.path.join(textfile_path, textfile)
+    df = pd.read_csv(file, dtype={'stop_id': object}, low_memory=False)
 
     if len(df) == 0:
-        raise ValueError('{} has no records'.format(os.path.join(
-            textfile_path, textfile)))
-
-    df['stop_lat'] = pd.to_numeric(df['stop_lat'])
-    df['stop_lon'] = pd.to_numeric(df['stop_lon'])
+        raise ValueError('{} has no records.'.format(file))
 
     # remove extra whitespace that may exist in col names or before and
     # after the value for columns that are used across different GTFS files
     df = _remove_whitespace(df=df, textfile=textfile, col_list=['stop_id'])
+
+    df['stop_lat'] = pd.to_numeric(df['stop_lat'])
+    df['stop_lon'] = pd.to_numeric(df['stop_lon'])
 
     return df
 
@@ -87,14 +88,14 @@ def _read_gtfs_routes(textfile_path, textfile):
     -------
     df : pandas.DataFrame
     """
-    if textfile != 'routes.txt':
-        raise ValueError('{} is not a proper GTFS file name'.format(textfile))
-
-    df = pd.read_csv(os.path.join(textfile_path, textfile),
-                     dtype={'route_id': object}, low_memory=False)
+    expected_textfile = 'routes.txt'
+    if textfile != expected_textfile:
+        raise ValueError('{} is not an expected GTFS file name. '
+                         'Expected: {}.'.format(textfile, expected_textfile))
+    file = os.path.join(textfile_path, textfile)
+    df = pd.read_csv(file, dtype={'route_id': object}, low_memory=False)
     if len(df) == 0:
-        raise ValueError('{} has no records'.format(os.path.join(
-            textfile_path, textfile)))
+        raise ValueError('{} has no records.'.format(file))
 
     # remove extra whitespace that may exist in col names or before and
     # after the value for columns that are used across different GTFS files
@@ -118,18 +119,23 @@ def _read_gtfs_trips(textfile_path, textfile):
     -------
     df : pandas.DataFrame
     """
-    if textfile != 'trips.txt':
-        raise ValueError('{} is not a proper GTFS file name'.format(textfile))
+    expected_textfile = 'trips.txt'
+    if textfile != expected_textfile:
+        raise ValueError('{} is not an expected GTFS file name. '
+                         'Expected: {}.'.format(textfile, expected_textfile))
 
-    df = pd.read_csv(os.path.join(textfile_path, textfile),
-                     dtype={'trip_id': object,
-                            'service_id': object,
-                            'route_id': object,
-                            7: object}, low_memory=False)
-    # 7 is placeholder for shape ID which may not exist in some txt files
+    file = os.path.join(textfile_path, textfile)
+    dtype_dict = {'trip_id': object,
+                  'service_id': object,
+                  'route_id': object}
+    col_list = _list_raw_txt_columns(file)
+    # if optional 'shape_id' col exists include it in dtype dict
+    if 'shape_id' in col_list:
+        dtype_dict.update({'shape_id': object})
+    df = pd.read_csv(file, dtype=dtype_dict, low_memory=False)
+
     if len(df) == 0:
-        raise ValueError('{} has no records'.format(os.path.join(
-            textfile_path, textfile)))
+        raise ValueError('{} has no records.'.format(file))
 
     # remove extra whitespace that may exist in col names or before and
     # after the value for columns that are used across different GTFS files
@@ -156,17 +162,18 @@ def _read_gtfs_stop_times(textfile_path, textfile):
     -------
     df : pandas.DataFrame
     """
-    if textfile != 'stop_times.txt':
-        raise ValueError('{} is not a proper GTFS file name'.format(textfile))
-
-    df = pd.read_csv(os.path.join(textfile_path, textfile),
+    expected_textfile = 'stop_times.txt'
+    if textfile != expected_textfile:
+        raise ValueError('{} is not an expected GTFS file name. '
+                         'Expected: {}.'.format(textfile, expected_textfile))
+    file = os.path.join(textfile_path, textfile)
+    df = pd.read_csv(file,
                      dtype={'trip_id': object,
                             'stop_id': object,
                             'departure_time': object,
                             'arrival_time': object}, low_memory=False)
     if len(df) == 0:
-        raise ValueError('{} has no records'.format(os.path.join(
-            textfile_path, textfile)))
+        raise ValueError('{} has no records.'.format(file))
 
     # remove extra whitespace that may exist in col names or before and
     # after the value for columns that are used across different GTFS files
@@ -191,25 +198,25 @@ def _read_gtfs_calendar(textfile_path, textfile):
     -------
     df : pandas.DataFrame
     """
-    if textfile != 'calendar.txt':
-        raise ValueError('{} is not a proper GTFS file name'.format(textfile))
-
-    df = pd.read_csv(os.path.join(textfile_path, textfile),
-                     dtype={'service_id': object}, low_memory=False)
+    expected_textfile = 'calendar.txt'
+    if textfile != expected_textfile:
+        raise ValueError('{} is not an expected GTFS file name. '
+                         'Expected: {}.'.format(textfile, expected_textfile))
+    file = os.path.join(textfile_path, textfile)
+    df = pd.read_csv(file, dtype={'service_id': object}, low_memory=False)
     if len(df) == 0:
         warning_msg = ('{} has no records. This could indicate that this feed '
                        'is using calendar_dates.txt for service_ids.')
-        log(warning_msg.format(os.path.join(
-            textfile_path, textfile)), level=lg.WARNING)
+        log(warning_msg.format(file), level=lg.WARNING)
+
+    # remove extra whitespace that may exist in col names or before and
+    # after the value for columns that are used across different GTFS files
+    df = _remove_whitespace(df=df, textfile=textfile, col_list=['service_id'])
 
     columnlist = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday',
                   'saturday', 'sunday']
     for col in columnlist:
         df[col] = pd.to_numeric(df[col])
-
-    # remove extra whitespace that may exist in col names or before and
-    # after the value for columns that are used across different GTFS files
-    df = _remove_whitespace(df=df, textfile=textfile, col_list=['service_id'])
 
     return df
 
@@ -229,16 +236,16 @@ def _read_gtfs_calendar_dates(textfile_path, textfile):
     -------
     df : pandas.DataFrame
     """
-    if textfile != 'calendar_dates.txt':
-        raise ValueError('{} is not a proper GTFS file name'.format(textfile))
-
-    df = pd.read_csv(os.path.join(textfile_path, textfile),
-                     dtype={'service_id': object}, low_memory=False)
+    expected_textfile = 'calendar_dates.txt'
+    if textfile != expected_textfile:
+        raise ValueError('{} is not an expected GTFS file name. '
+                         'Expected: {}.'.format(textfile, expected_textfile))
+    file = os.path.join(textfile_path, textfile)
+    df = pd.read_csv(file, dtype={'service_id': object}, low_memory=False)
     if len(df) == 0:
         warning_msg = ('{} has no records. This could indicate that this feed '
                        'is using calendar.txt for service_ids.')
-        log(warning_msg.format(os.path.join(
-            textfile_path, textfile)), level=lg.WARNING)
+        log(warning_msg.format(file), level=lg.WARNING)
 
     # remove extra whitespace that may exist in col names or before and
     # after the value for columns that are used across different GTFS files
@@ -1094,3 +1101,21 @@ def _remove_whitespace(df, textfile, col_list=None):
                     'whitespace in its values. Spaces have been '
                     'removed.'.format(textfile, col))
     return df
+
+
+def _list_raw_txt_columns(file):
+    """
+    Return a list of columns names that exist in txt file.
+
+    Parameters
+    ----------
+    file : str
+        full path and filename of file to read
+
+    Returns
+    -------
+    df : list
+        list of columns in txt file
+    """
+    df = pd.read_csv(file)
+    return list(df.columns)
