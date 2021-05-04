@@ -1056,8 +1056,7 @@ def edge_impedance_by_route_type(
         gondola=None,
         funicular=None,
         trolleybus=None,
-        monorail=None
-):
+        monorail=None):
     """
     Penalize transit edge travel time based on transit mode type
 
@@ -1106,35 +1105,34 @@ def edge_impedance_by_route_type(
             raise ValueError('Column: {} was not found in transit_edge_df '
                              'DataFrame and is required.'.format(col))
 
-    # check count of records for each route type
-    # route types taken from 'route_type' definition on route.txt GTFS file:
-    # https://developers.google.com/transit/gtfs/reference#routestxt
-    route_type_dict = {
-        0: {'name': 'Street Level Rail: Tram, Streetcar, or Light rail',
-            'multiplier': street_level_rail},
-        1: {'name': 'Underground rail: Subway or Metro',
-            'multiplier': underground_rail},
-        2: {'name': 'Rail: intercity or long-distance ',
-            'multiplier': intercity_rail},
-        3: {'name': 'Bus',
-            'multiplier': bus},
-        4: {'name': 'Ferry',
-            'multiplier': ferry},
-        5: {'name': 'Cable tram or car',
-            'multiplier': cable_car},
-        6: {'name': 'Aerial lift: Gondola or Suspended cable car',
-            'multiplier': gondola},
-        7: {'name': 'Steep incline: Funicular',
-            'multiplier': funicular},
-        11: {'name': 'Trolleybus',
-             'multiplier': trolleybus},
-        12: {'name': 'Monorail',
-             'multiplier': monorail}}
+    # build route type lookup dict
+    route_type_dict = config._ROUTES_MODE_TYPE_LOOKUP.copy()
+    var_mode_id_lookup = {0: street_level_rail,
+                          1: underground_rail,
+                          2: intercity_rail,
+                          3: bus,
+                          4: ferry,
+                          5: cable_car,
+                          6: gondola,
+                          7: funicular,
+                          11: trolleybus,
+                          12: monorail}
+    # ensure consistency btw the keys in the config obj and the keys
+    # used in this function in case changes are made in the config obj
+    if set(sorted(route_type_dict.keys())) != set(
+            sorted(var_mode_id_lookup.keys())):
+        ValueError('ROUTES_MODE_TYPE_LOOKUP keys do not match keys in '
+                   'var_mode_id_lookup. Keys must match.')
+    for key, value in route_type_dict.items():
+        route_type_dict[key] = {'name': value,
+                                'multiplier': var_mode_id_lookup[key]}
+
     # create the dict to pass to value_counts()
     route_type_desc = route_type_dict.copy()
     for key, val in route_type_dict.items():
         route_type_desc[key] = val['name']
 
+    # check count of records for each route type
     log('Route type distribution as percentage of transit mode:')
     summary_stat = transit_edge_df['route_type'].map(
         route_type_desc.get).value_counts(normalize=True, dropna=False) * 100

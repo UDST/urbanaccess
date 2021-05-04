@@ -5,6 +5,7 @@ from re import sub
 import logging as lg
 
 from urbanaccess.utils import log
+from urbanaccess import config
 
 
 def _read_gtfs_agency(textfile_path, textfile):
@@ -863,127 +864,42 @@ def _timetoseconds(df, time_cols):
     return final_df
 
 
-def _stops_definitions(df):
+def _apply_gtfs_definition(df, desc_dict):
     """
-    Append GTFS definitions for stop columns to stop dataframe
+    Helper function to apply a dictionary with value to description mappings
+    for columns in a DataFrame
 
     Parameters
     ----------
     df : pandas:DataFrame
-        stops dataframe
+        DataFrame to add description column to
+    desc_dict : dict
+        dictionary with mapping between df values and description values
+        in desc_dict where: {keys are values found in df columns: values
+         are string descriptions of those values}
 
     Returns
     -------
     df : pandas.DataFrame
     """
-    if 'location_type' in df.columns:
-        stops_location_type = {0: 'stop', 1: 'station', 2: 'station entrance'}
-        df['location_type_desc'] = df['location_type'].map(
-            stops_location_type.get)
-
-    if 'wheelchair_boarding' in df.columns:
-        stops_wheelchair_boardings = {
-            0: 'No accessibility information available for the stop',
-            1: 'At least some vehicles at this stop can be boarded by a '
-               'rider in a wheelchair',
-            2: 'Wheelchair boarding is not possible at this stop'}
-        df['wheelchair_boarding_desc'] = df['wheelchair_boarding'].map(
-            stops_wheelchair_boardings.get)
-
-    return df
-
-
-def _routes_definitions(df):
-    """
-    Append GTFS definitions for route columns to route dataframe
-
-    Parameters
-    ----------
-    df : pandas:DataFrame
-        routes dataframe
-
-    Returns
-    -------
-    df : pandas.DataFrame
-    """
-    if 'route_type' in df.columns:
-        routes_route_type = {0: 'Street Level Rail: Tram Streetcar Light rail',
-                             1: 'Underground rail: Subway or Metro',
-                             2: 'Rail: intercity or long-distance ',
-                             3: 'Bus',
-                             4: 'Ferry',
-                             5: 'Cable Car',
-                             6: 'Gondola or Suspended cable car',
-                             7: 'Steep incline: Funicular'}
-        df['route_type_desc'] = df['route_type'].map(routes_route_type.get)
-
-    return df
-
-
-def _stop_times_definitions(df):
-    """
-    Append GTFS definitions for stop time columns to stop time dataframe
-
-    Parameters
-    ----------
-    df : pandas:DataFrame
-        stop time dataframe
-
-    Returns
-    -------
-    df : pandas.DataFrame
-    """
-    if 'pickup_type' in df.columns:
-        stop_times_pickup_type = {0: 'Regularly Scheduled',
-                                  1: 'Not available',
-                                  2: 'Phone arrangement only',
-                                  3: 'Driver arrangement only'}
-        df['pickup_type_desc'] = df['pickup_type'].map(
-            stop_times_pickup_type.get)
-
-    if 'drop_off_type' in df.columns:
-        stop_times_drop_off_type = {0: 'Regularly Scheduled',
-                                    1: 'Not available',
-                                    2: 'Phone arrangement only',
-                                    3: 'Driver arrangement only'}
-        df['drop_off_type_desc'] = df['drop_off_type'].map(
-            stop_times_drop_off_type.get)
-
-    if 'timepoint' in df.columns:
-        stop_times_timepoint = {'': 'Exact times',
-                                0: 'Approximate times',
-                                1: 'Exact times'}
-        df['timepoint_desc'] = df['timepoint'].map(stop_times_timepoint.get)
-
-    return df
-
-
-def _trips_definitions(df):
-    """
-    Append GTFS definitions for trip columns to trip dataframe
-
-    Parameters
-    ----------
-    df : pandas:DataFrame
-        trip dataframe
-
-    Returns
-    -------
-    df : pandas.DataFrame
-    """
-    if 'bikes_allowed' in df.columns:
-        trips_bikes_allowed = {1: 'can accommodate at least one bicycle',
-                               2: 'no bicycles are allowed on this trip'}
-        df['bikes_allowed_desc'] = df['bikes_allowed'].map(
-            trips_bikes_allowed.get)
-
-    if 'wheelchair_accessible' in df.columns:
-        trips_wheelchair_accessible = {
-            1: 'can accommodate at least one rider in a wheelchair',
-            2: 'no riders in wheelchairs can be accommodated on this trip'}
-        df['wheelchair_accessible_desc'] = df['wheelchair_accessible'].map(
-            trips_wheelchair_accessible.get)
-
+    for col_name, value_map in desc_dict.items():
+        if col_name in df.columns:
+            desc_col = '{}_desc'.format(col_name)
+            if np.nan in value_map.keys():
+                df[desc_col] = df[col_name].map(value_map.get)
+                df.loc[df[col_name].isnull(), desc_col] = value_map[np.nan]
+            else:
+                df[desc_col] = df[col_name].map(value_map.get)
+            missing_values = [item for item in df[col_name].dropna().unique()
+                              if item not in value_map.keys()]
+            # if there are values in df that config has no mapping for,
+            # warn the user of this
+            if len(missing_values):
+                warning_msg = (
+                    'Value(s): {} in {} are missing from configuration '
+                    'description mapping and will not be defined.')
+                log(warning_msg.format(missing_values, col_name),
+                    level=lg.WARNING)
     return df
 
 
@@ -1007,14 +923,28 @@ def _add_txt_definitions(stops_df, routes_df, stop_times_df,
     -------
     stops_df, routes_df, stop_times_df, trips_df : pandas.DataFrame
     """
-    stops_df = _stops_definitions(df=stops_df)
-    routes_df = _routes_definitions(df=routes_df)
-    stop_times_df = _stop_times_definitions(df=stop_times_df)
-    trips_df = _trips_definitions(df=trips_df)
+    # define description value mappings from config
+    stops_desc = {'location_type': config._STOPS_LOCATION_TYPE_LOOKUP,
+                  'wheelchair_boarding': config._STOPS_WHEELCHAIR_BOARDINGS}
+    routes_desc = {'route_type': config._ROUTES_MODE_TYPE_LOOKUP}
+    stop_times_desc = {'pickup_type': config._STOP_TIMES_PICKUP_TYPE,
+                       'drop_off_type': config._STOP_TIMES_DROP_OFF_TYPE,
+                       'timepoint': config._STOP_TIMES_TIMEPOINT}
+    trips_desc = {'bikes_allowed': config._TRIPS_BIKES_ALLOWED,
+                  'wheelchair_accessible': config._TRIPS_WHEELCHAIR_ACCESSIBLE}
 
-    log(
-        'Added descriptive definitions to stops, routes, stop_times, '
-        'and trips tables')
+    # apply value mappings to dfs
+    stops_df = _apply_gtfs_definition(
+        df=stops_df, desc_dict=stops_desc)
+    routes_df = _apply_gtfs_definition(
+        df=routes_df, desc_dict=routes_desc)
+    stop_times_df = _apply_gtfs_definition(
+        df=stop_times_df, desc_dict=stop_times_desc)
+    trips_df = _apply_gtfs_definition(
+        df=trips_df, desc_dict=trips_desc)
+
+    log('Added descriptive definitions to stops, routes, stop_times, '
+        'and trips tables.')
 
     return stops_df, routes_df, stop_times_df, trips_df
 

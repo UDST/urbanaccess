@@ -1,5 +1,6 @@
 import os
 import yaml
+import numpy as np
 
 
 def _format_check(settings):
@@ -175,6 +176,89 @@ class urbanaccess_config(object):
         else:
             with open(yaml_file, 'w') as f:
                 yaml.dump(self.to_dict(), f, default_flow_style=False)
+
+
+# set global variables
+# route types taken from 'route_type' definition on route.txt GTFS file:
+# https://developers.google.com/transit/gtfs/reference#routestxt
+_ROUTES_MODE_TYPE_LOOKUP = {
+    0: 'Street Level Rail: Tram, Streetcar, or Light rail',
+    1: 'Underground rail: Subway or Metro',
+    2: 'Rail: intercity or long-distance',
+    3: 'Bus',
+    4: 'Ferry',
+    5: 'Cable tram or car',
+    6: 'Aerial lift: Gondola or Suspended cable car',
+    7: 'Steep incline: Funicular',
+    11: 'Trolleybus',
+    12: 'Monorail'}
+
+# location type taken from 'location_type' definition on stops.txt GTFS
+# file: https://developers.google.com/transit/gtfs/reference#stopstxt
+_STOPS_LOCATION_TYPE_LOOKUP = {
+    np.nan: 'stop',
+    0: 'stop',
+    1: 'station',
+    2: 'station entrance or exit',
+    3: 'generic node',
+    4: 'boarding area'}
+
+# wheelchair boarding taken from 'wheelchair_boarding' definition on
+# stops.txt GTFS file:
+# https://developers.google.com/transit/gtfs/reference#stopstxt
+_STOPS_WHEELCHAIR_BOARDINGS = {
+    0: 'No accessibility information available for the stop',
+    1: 'At least some vehicles at this stop can be boarded by a '
+       'rider in a wheelchair',
+    2: 'Wheelchair boarding is not possible at this stop'}
+
+# pickup type taken from 'pickup_type' definition on
+# stops_times.txt GTFS file:
+# https://developers.google.com/transit/gtfs/reference#stop_timestxt
+_STOP_TIMES_PICKUP_TYPE = {
+    np.nan: 'Regularly scheduled pickup',
+    0: 'Regularly scheduled pickup',
+    1: 'No pickup available',
+    2: 'Must phone agency to arrange pickup',
+    3: 'Must coordinate with driver to arrange pickup'}
+
+# dropoff type taken from 'dropoff_type' definition on
+# stops_times.txt GTFS file:
+# https://developers.google.com/transit/gtfs/reference#stop_timestxt
+_STOP_TIMES_DROP_OFF_TYPE = {
+    np.nan: 'Regularly scheduled drop off',
+    0: 'Regularly Scheduled',
+    1: 'No drop off available',
+    2: 'Must phone agency to arrange drop off',
+    3: 'Must coordinate with driver to arrange drop off'}
+
+# timepoint taken from 'timepoint' definition on
+# stops_times.txt GTFS file:
+# https://developers.google.com/transit/gtfs/reference#stop_timestxt
+_STOP_TIMES_TIMEPOINT = {
+    0: 'Times are considered approximate',
+    1: 'Times are considered exact',
+    np.nan: 'Times are considered exact'}
+
+# bikes allowed taken from 'bikes_allowed' definition on
+# trips.txt GTFS file:
+# https://developers.google.com/transit/gtfs/reference#tripstxt
+_TRIPS_BIKES_ALLOWED = {
+    np.nan: 'No bike information for the trip',
+    0: 'No bike information for the trip',
+    1: 'Vehicle being used on this particular trip can accommodate at least '
+       'one bicycle.',
+    2: 'No bicycles are allowed on this trip'}
+
+# wheelchair accessible taken from 'wheelchair_accessible' definition on
+# trips.txt GTFS file:
+# https://developers.google.com/transit/gtfs/reference#tripstxt
+_TRIPS_WHEELCHAIR_ACCESSIBLE = {
+    np.nan: 'No accessibility information for the trip',
+    0: 'No accessibility information for the trip',
+    1: 'Vehicle being used on this particular trip can accommodate at least '
+       'one rider in a wheelchair',
+    2: 'No riders in wheelchairs can be accommodated on this trip'}
 
 
 # instantiate the UrbanAccess configuration object and check format
