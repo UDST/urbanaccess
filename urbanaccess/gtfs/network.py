@@ -197,7 +197,9 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
                             input_calendar_dates_df, day,
                             calendar_dates_lookup=None):
     """
-    Select trips that run on a specific day
+    Select trips that correspond to a specific schedule in either calendar.txt
+    and or calendar_dates.txt by finding service_ids that correspond to the
+    specified search parameters and the trips related to those service_ids
 
     Parameters
     ----------
@@ -364,7 +366,7 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
                 string_value = [string_value]
 
             for text in string_value:
-                # TODO: modify this in order to allow subset based on gtfs
+                # TODO: modify this in order to allow subset based on GTFS
                 #  feed name or a or/and condition
                 subset_result = input_calendar_dates_df[
                     input_calendar_dates_df[col_name_key].str.match(
@@ -891,7 +893,7 @@ def _stops_in_edge_table_selector(input_stops_df, input_stop_times_df):
     input_stops_df : pandas.DataFrame
         stops DataFrame
     input_stop_times_df : pandas.DataFrame
-        stop_times dataframe
+        stop_times DataFrame
 
     Returns
     -------
@@ -921,12 +923,12 @@ def _stops_in_edge_table_selector(input_stops_df, input_stop_times_df):
 
 def _format_transit_net_nodes(df):
     """
-    Create transit node table from stops dataframe and perform final formatting
+    Create transit node table from stops DataFrame and perform final formatting
 
     Parameters
     ----------
     df : pandas.DataFrame
-        transit node dataframe
+        transit node DataFrame
 
     Returns
     -------
@@ -972,9 +974,9 @@ def _route_type_to_edge(transit_edge_df, stop_time_df):
     Parameters
     ----------
     transit_edge_df : pandas.DataFrame
-        transit edge dataframe
+        transit edge DataFrame
     stop_time_df : pandas.DataFrame
-        stop time dataframe
+        stop time DataFrame
 
     Returns
     -------
@@ -1014,9 +1016,9 @@ def _route_id_to_edge(transit_edge_df, trips_df):
     Parameters
     ----------
     transit_edge_df : pandas.DataFrame
-        transit edge dataframe
+        transit edge DataFrame
     trips_df : pandas.DataFrame
-        trips dataframe
+        trips DataFrame
 
     Returns
     -------
@@ -1180,7 +1182,7 @@ def edge_impedance_by_route_type(
 def save_processed_gtfs_data(
         gtfsfeeds_dfs, filename, dir=config.settings.data_folder):
     """
-    Write dataframes in an urbanaccess_gtfs_df object to a HDF5 file
+    Write DataFrames in an urbanaccess_gtfs_df object to a HDF5 file
 
     Parameters
     ----------

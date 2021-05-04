@@ -49,9 +49,9 @@ def _txt_encoder_check(gtfsfiles_to_use,
     Parameters
     ----------
     gtfsfiles_to_use : list
-        list of gtfs feed txt files to utilize
+        list of GTFS feed txt files to utilize
     csv_rootpath : str, optional
-        root path where all gtfs feeds that make up a contiguous metropolitan
+        root path where all GTFS feeds that make up a contiguous metropolitan
         area are stored
 
     Returns
@@ -174,7 +174,7 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
                    bbox=None, remove_stops_outsidebbox=None,
                    append_definitions=False):
     """
-    Read all GTFS feed components as a dataframe in a gtfsfeeds_dfs object and
+    Read all GTFS feed components as a DataFrame in a gtfsfeeds_dfs object and
     merge all individual GTFS feeds into a regional metropolitan data table.
     Optionally, data can also be validated before its use.
 
@@ -183,12 +183,12 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
     gtfsfeed_path : str, optional
         root path where all GTFS feeds that make up a contiguous metropolitan
         area are stored
-    validation : bool
+    validation : bool, optional
         if true, the validation check on stops checking for stops outside
         of a bounding box and stop coordinate
         hemisphere will be run. this is required to remove stops outside of
         a bbox
-    verbose : bool
+    verbose : bool, optional
         if true and stops are found outside of the bbox, the stops that are
         outside will be printed for your reference
     bbox : tuple
@@ -199,15 +199,15 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
         from http://boundingbox.klokantech.com/
     remove_stops_outsidebbox : bool
         if true stops that are outside the bbox will be removed
-    append_definitions : bool
+    append_definitions : bool, optional
         if true, columns that use the GTFS data schema for their attribute
         codes will have the corresponding GTFS definition information of
-        that code appended to the resulting dataframes for reference
+        that code appended to the resulting DataFrames for reference
 
     Returns
     -------
     gtfsfeeds_dfs : object
-        processed dataframes of corresponding GTFS feed text files
+        processed DataFrames of corresponding GTFS feed text files
     gtfsfeeds_dfs.stops : pandas.DataFrame
     gtfsfeeds_dfs.routes : pandas.DataFrame
     gtfsfeeds_dfs.trips : pandas.DataFrame
@@ -253,7 +253,7 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
 
     for index, folder in enumerate(folderlist):
 
-        # print break to visually separate each gtfs feed log
+        # print break to visually separate each GTFS feed log
         log('--------------------------------')
         log('Processing GTFS feed: {!s}'.format(os.path.split(folder)[1]))
 
@@ -424,8 +424,8 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
     gtfsfeeds_dfs.calendar = merged_calendar_df
     gtfsfeeds_dfs.calendar_dates = merged_calendar_dates_df
 
-    # TODO: add to print the list of gtfs feed txt files read in for each feed
-    log('{:,} GTFS feed file(s) successfully read as dataframes:'.format(
+    # TODO: add to print the list of GTFS feed txt files read in for each feed
+    log('{:,} GTFS feed file(s) successfully read as DataFrames:'.format(
         len(folderlist)))
     for folder in folderlist:
         log('     {}'.format(os.path.split(folder)[1]))

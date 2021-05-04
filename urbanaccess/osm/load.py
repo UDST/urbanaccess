@@ -69,7 +69,7 @@ def ua_network_from_bbox(lat_min=None, lng_min=None, lat_max=None,
 
     start_time = time.time()
 
-    # returned osm data allows travel in both directions
+    # returned OSM data allows travel in both directions
     # so that all edges in integrated network are all one way edges
     two_way = False
 

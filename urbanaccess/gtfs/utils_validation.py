@@ -15,18 +15,19 @@ def _boundingbox_check(df, feed_folder, lat_min=None, lng_min=None,
     Parameters
     ----------
     df : pandas.DataFrame
-        stops dataframe
+        stops DataFrame
     feed_folder : str
-        name of originating gtfs feed folder
-    lat_min : float
+        name of originating GTFS feed folder, will be the basename
+        directory folder for the GTFS feed
+    lat_min : float, optional
         southern latitude of bounding box
-    lng_min : float
+    lng_min : float, optional
         eastern longitude of bounding box
-    lat_max : float
+    lat_max : float, optional
         northern latitude of bounding box
-    lng_max : float
+    lng_max : float, optional
         western longitude of bounding box
-    bbox : tuple
+    bbox : tuple, optional
         Bounding box formatted as a 4 element tuple: (lng_max, lat_min,
         lng_min, lat_max)
         example: (-122.304611, 37.798933, -122.263412, 37.822802)
@@ -41,6 +42,8 @@ def _boundingbox_check(df, feed_folder, lat_min=None, lng_min=None,
     Returns
     -------
     df : pandas.DataFrame
+        stops DataFrame. If remove=True, DataFrame will contain only stops
+        that are located within the bbox coordinates specified
 
     """
     if not isinstance(verbose, bool):
@@ -103,9 +106,10 @@ def _checkcoordinates(df, feed_folder):
     Parameters
     ----------
     df : pandas.DataFrame
-        stops dataframe
+        stops DataFrame
     feed_folder : str
-        name of originating gtfs feed folder
+        name of originating GTFS feed folder, will be the basename
+        directory folder for the GTFS feed
 
     Returns
     -------
@@ -142,9 +146,9 @@ def _validate_gtfs(stops_df, feed_folder,
     Parameters
     ----------
     stops_df : pandas.DataFrame
-        stop times dataframe
+        stop times DataFrame
     feed_folder : str
-        name of originating gtfs feed folder
+        name of originating GTFS feed folder
     verbose : bool
         if true and stops are found outside of the bbox, the stops that are
         outside will be printed for your reference
@@ -160,6 +164,9 @@ def _validate_gtfs(stops_df, feed_folder,
     Returns
     -------
     stops_df : pandas.DataFrame
+        stops DataFrame. If remove_stops_outsidebbox=True, DataFrame will
+        contain only stops that are located within the bbox coordinates
+        specified
     """
 
     stops_df = _boundingbox_check(df=stops_df,

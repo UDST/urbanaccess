@@ -9,7 +9,7 @@ from urbanaccess.utils import log
 
 def _read_gtfs_agency(textfile_path, textfile):
     """
-    Read gtfs agency.txt as a pandas dataframe
+    Read GTFS agency.txt as a pandas.DataFrame
 
     Parameters
     ----------
@@ -38,7 +38,7 @@ def _read_gtfs_agency(textfile_path, textfile):
 
 def _read_gtfs_stops(textfile_path, textfile):
     """
-    Read gtfs stops.txt as a pandas dataframe
+    Read GTFS stops.txt as a pandas.DataFrame
 
     Parameters
     ----------
@@ -73,7 +73,7 @@ def _read_gtfs_stops(textfile_path, textfile):
 
 def _read_gtfs_routes(textfile_path, textfile):
     """
-    Read gtfs routes.txt as a pandas dataframe
+    Read GTFS routes.txt as a pandas.DataFrame
 
     Parameters
     ----------
@@ -104,7 +104,7 @@ def _read_gtfs_routes(textfile_path, textfile):
 
 def _read_gtfs_trips(textfile_path, textfile):
     """
-    Read gtfs trips.txt as a pandas dataframe
+    Read GTFS trips.txt as a pandas.DataFrame
 
     Parameters
     ----------
@@ -142,7 +142,7 @@ def _read_gtfs_trips(textfile_path, textfile):
 
 def _read_gtfs_stop_times(textfile_path, textfile):
     """
-    Read stop_times.txt as a pandas dataframe
+    Read stop_times.txt as a pandas.DataFrame
 
     Parameters
     ----------
@@ -177,7 +177,7 @@ def _read_gtfs_stop_times(textfile_path, textfile):
 
 def _read_gtfs_calendar(textfile_path, textfile):
     """
-    Read gtfs calendar.txt as a pandas dataframe
+    Read GTFS calendar.txt as a pandas.DataFrame
 
     Parameters
     ----------
@@ -215,7 +215,7 @@ def _read_gtfs_calendar(textfile_path, textfile):
 
 def _read_gtfs_calendar_dates(textfile_path, textfile):
     """
-    Read gtfs calendar_dates.txt as a pandas dataframe
+    Read GTFS calendar_dates.txt as a pandas.DataFrame
 
     Parameters
     ----------
@@ -249,20 +249,20 @@ def _read_gtfs_calendar_dates(textfile_path, textfile):
 def _calendar_dates_agencyid(calendar_dates_df, routes_df,
                              trips_df, agency_df, feed_folder):
     """
-    Assign unique agency ID to calendar dates dataframe
+    Assign unique agency ID to calendar dates DataFrame
 
     Parameters
     ----------
     calendar_dates_df : pandas:DataFrame
-        calendar dates dataframe
+        calendar dates DataFrame
     routes_df : pandas:DataFrame
-        routes dataframe
+        routes DataFrame
     trips_df : pandas:DataFrame
-        trips dataframe
+        trips DataFrame
     agency_df : pandas:DataFrame
-        agency dataframe
+        agency DataFrame
     feed_folder : str
-        name of gtfs feed folder
+        name of GTFS feed folder
 
     Returns
     -------
@@ -312,20 +312,20 @@ def _calendar_dates_agencyid(calendar_dates_df, routes_df,
 def _calendar_agencyid(calendar_df, routes_df, trips_df,
                        agency_df, feed_folder):
     """
-    Assign unique agency ID to calendar dataframe
+    Assign unique agency ID to calendar DataFrame
 
     Parameters
     ----------
     calendar_df : pandas:DataFrame
-        calendar dataframe
+        calendar DataFrame
     routes_df : pandas:DataFrame
-        routes dataframe
+        routes DataFrame
     trips_df : pandas:DataFrame
-        trips dataframe
+        trips DataFrame
     agency_df : pandas:DataFrame
-        agency dataframe
+        agency DataFrame
     feed_folder : str
-        name of gtfs feed folder
+        name of GTFS feed folder
 
     Returns
     -------
@@ -377,16 +377,16 @@ def _calendar_agencyid(calendar_df, routes_df, trips_df,
 
 def _trips_agencyid(trips_df, routes_df, agency_df):
     """
-    Assign unique agency ID to trips dataframe
+    Assign unique agency ID to trips DataFrame
 
     Parameters
     ----------
     trips_df : pandas:DataFrame
-        trips dataframe
+        trips DataFrame
     routes_df : pandas:DataFrame
-        routes dataframe
+        routes DataFrame
     agency_df : pandas:DataFrame
-        agency dataframe
+        agency DataFrame
 
     Returns
     -------
@@ -409,22 +409,22 @@ def _trips_agencyid(trips_df, routes_df, agency_df):
 def _stops_agencyid(stops_df, trips_df, routes_df,
                     stop_times_df, agency_df, feed_folder):
     """
-    Assign unique agency ID to stops dataframe
+    Assign unique agency ID to stops DataFrame
 
     Parameters
     ----------
     stops_df : pandas:DataFrame
-        stops dataframe
+        stops DataFrame
     trips_df : pandas:DataFrame
-        trips dataframe
+        trips DataFrame
     routes_df : pandas:DataFrame
-        routes dataframe
+        routes DataFrame
     stop_times_df : pandas:DataFrame
-        stop times dataframe
+        stop times DataFrame
     agency_df : pandas:DataFrame
-        agency dataframe
+        agency DataFrame
     feed_folder : str
-        name of gtfs feed folder
+        name of GTFS feed folder
 
     Returns
     -------
@@ -475,14 +475,14 @@ def _stops_agencyid(stops_df, trips_df, routes_df,
 
 def _routes_agencyid(routes_df, agency_df):
     """
-    Assign unique agency ID to routes dataframe
+    Assign unique agency ID to routes DataFrame
 
     Parameters
     ----------
     routes_df : pandas:DataFrame
-        routes dataframe
+        routes DataFrame
     agency_df : pandas:DataFrame
-        agency dataframe
+        agency DataFrame
 
     Returns
     -------
@@ -503,18 +503,18 @@ def _routes_agencyid(routes_df, agency_df):
 def _stop_times_agencyid(stop_times_df, routes_df, trips_df,
                          agency_df):
     """
-    Assign unique agency ID to stop times dataframe
+    Assign unique agency ID to stop times DataFrame
 
     Parameters
     ----------
     stop_times_df : pandas:DataFrame
-        stop times dataframe
+        stop times DataFrame
     routes_df : pandas:DataFrame
-        routes dataframe
+        routes DataFrame
     trips_df : pandas:DataFrame
-        trips dataframe
+        trips DataFrame
     agency_df : pandas:DataFrame
-        agency dataframe
+        agency DataFrame
 
     Returns
     -------
@@ -541,34 +541,53 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
                          trips_df, stop_times_df, calendar_df, feed_folder,
                          calendar_dates_df, nulls_as_folder=True):
     """
-    Create an unique agency ID for all gtfs feed dataframes to enable unique
-    relational table keys
+    Create an unique agency ID for all GTFS feed DataFrames to enable unique
+    relational table keys. Pathways to create the unique agency ID are:
+    1) GTFS feed has no agency.txt file or the agency.txt file has no
+    'agency_id' column: If true, unique agency ID will be generated using
+    the GTFS feed directory folder name; 2) If GTFS feed has an agency.txt
+    file and it has only one agency (it must have an 'agency_id' column and
+    value): If true, unique agency ID will be generated using the 'agency_id';
+    3) If GTFS feed has an agency.txt file and it has more than one agency
+    (it must have an 'agency_id' and 'agency_name' column and values):
+    If true, unique agency ID will be generated using the 'agency_id' and
+    'agency_name' using relational key 'agency_id' in the routes.txt table
+    to broadcast all the correct unique agency ID values to all other GTFS
+    tables; 4) If GTFS feed has an agency.txt file and it has more than
+    one agency (it must have an 'agency_id' and 'agency_name' column and
+    values), however if there is also a mismatch between the 'agency_id'
+    in aganecy.txt and routes.txt, then assume records tied to the mismatched
+    'agency_id'(s) are from multiple agencies and label the unique agency ID
+    as such by concatenating 'multiple_operators_' and the GTFS feed directory
+    folder name.
 
     Parameters
     ----------
     agency_df : pandas:DataFrame
-        agency dataframe
+        agency DataFrame
     stops_df : pandas:DataFrame
-        stops dataframe
+        stops DataFrame
     routes_df : pandas:DataFrame
-        routes dataframe
+        routes DataFrame
     trips_df : pandas:DataFrame
-        trips dataframe
+        trips DataFrame
     stop_times_df : pandas:DataFrame
-        stop times dataframe
+        stop times DataFrame
     calendar_df : pandas:DataFrame
-        calendar dataframe
-    feed_folder : str
-        name of gtfs feed folder
+        calendar DataFrame
     calendar_dates_df : pandas:DataFrame
-        calendar dates dataframe
+        calendar dates DataFrame
+    feed_folder : str
+        name of GTFS feed folder
     nulls_as_folder : bool, optional
-        if true, gtfs feeds where the agency ID is null, the gtfs folder
+        if true, GTFS feeds where the agency ID is null, the GTFS folder
         name will be used as the unique agency ID
     Returns
     -------
     stops_df, routes_df, trips_df, stop_times_df, calendar_df,
     calendar_dates_df : pandas.DataFrame
+        Returns all input GTFS DataFrames with a unique agency ID column
+        and value for all tables and records.
     """
     start_time = time.time()
 
@@ -727,27 +746,27 @@ def _add_unique_gtfsfeed_id(stops_df, routes_df, trips_df,
                             stop_times_df, calendar_df, calendar_dates_df,
                             feed_folder, feed_number):
     """
-    Create an unique GTFS feed specific ID for all gtfs feed dataframes to
+    Create an unique GTFS feed specific ID for all GTFS feed DataFrames to
     enable tracking of specific feeds
 
     Parameters
     ----------
     stops_df : pandas:DataFrame
-        stops dataframe
+        stops DataFrame
     routes_df : pandas:DataFrame
-        routes dataframe
+        routes DataFrame
     trips_df : pandas:DataFrame
-        trips dataframe
+        trips DataFrame
     stop_times_df : pandas:DataFrame
-        stop times dataframe
+        stop times DataFrame
     calendar_df : pandas:DataFrame
-        calendar dataframe
+        calendar DataFrame
     calendar_dates_df : pandas:DataFrame
-        calendar dates dataframe
+        calendar dates DataFrame
     feed_folder : str
-        name of gtfs feed folder
+        name of GTFS feed folder
     feed_number : int
-        current number iteration of gtfs feed being read in root directory
+        current number iteration of GTFS feed being read in root directory
     Returns
     -------
     stops_df, routes_df, trips_df, stop_times_df, calendar_df,
@@ -789,7 +808,7 @@ def _timetoseconds(df, time_cols):
     Parameters
     ----------
     df : pandas:DataFrame
-        stop time dataframe
+        stop time DataFrame
     time_cols : list
         list of columns to convert from 24 hour clock to seconds past
         midnight. Default column is 'departure_time'.
@@ -983,18 +1002,18 @@ def _trips_definitions(df):
 def _add_txt_definitions(stops_df, routes_df, stop_times_df,
                          trips_df):
     """
-    Append GTFS definitions to stops, routes, stop times, and trips dataframes
+    Append GTFS definitions to stops, routes, stop times, and trips DataFrames
 
     Parameters
     ----------
     stops_df : pandas:DataFrame
-        stops dataframe
+        stops DataFrame
     routes_df : pandas:DataFrame
-        routes dataframe
+        routes DataFrame
     stop_times_df : pandas:DataFrame
-        stop times dataframe
+        stop times DataFrame
     trips_df : pandas:DataFrame
-        trip dataframe
+        trip DataFrame
 
     Returns
     -------
@@ -1015,18 +1034,18 @@ def _add_txt_definitions(stops_df, routes_df, stop_times_df,
 def _append_route_type(stops_df, stop_times_df, routes_df,
                        trips_df, info_to_append):
     """
-    Append GTFS route type definitions to stops and stop times dataframes
+    Append GTFS route type definitions to stops and stop times DataFrames
 
     Parameters
     ----------
     stops_df : pandas:DataFrame
-        stops dataframe
+        stops DataFrame
     stop_times_df : pandas:DataFrame
-        stop times dataframe
+        stop times DataFrame
     routes_df : pandas:DataFrame
-        routes dataframe
+        routes DataFrame
     trips_df : pandas:DataFrame
-        trip dataframe
+        trip DataFrame
     info_to_append : {'route_type_to_stops', 'route_type_to_stop_times'}
         the type of information to append
 
@@ -1092,16 +1111,16 @@ def _generate_unique_agency_id(df, col_name):
 
 def _generate_unique_feed_id(feed_folder):
     """
-    Generate unique feed ID
+    Generate unique feed ID from a GTFS feed directory
 
     Parameters
     ----------
     feed_folder : str
-        typically will be the path ot the feed folder
+        full directory path for the GTFS feed folder
 
     Returns
     -------
-    col_snake_no_amps : str
+    folder_snake_case_no_amps : str
     """
 
     folder_name = os.path.split(feed_folder)[1]

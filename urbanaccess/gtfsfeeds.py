@@ -16,7 +16,7 @@ class urbanaccess_gtfsfeeds(object):
     """
     A dict of GTFS feeds as {name of GTFS feed or transit service/agency :
     URL of feed} to request and
-    download in the gtfs downloader.
+    download in the GTFS downloader.
 
     Parameters
     ----------
@@ -243,7 +243,7 @@ class urbanaccess_gtfsfeeds(object):
             log('{} file successfully created'.format(yaml_file))
 
 
-# instantiate the UrbanAccess gtfs feed object
+# instantiate the UrbanAccess GTFS feed object
 feeds = urbanaccess_gtfsfeeds()
 
 

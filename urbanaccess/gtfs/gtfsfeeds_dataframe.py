@@ -4,14 +4,14 @@ import pandas as pd
 # TODO: make class CamelCase
 class urbanaccess_gtfs_df(object):
     """
-    A collection of dataframes representing the standardized and
+    A collection of DataFrames representing the standardized and
     merged metropolitan-wide transit network from multiple
     GTFS feeds.
 
     Parameters
     ----------
     gtfsfeeds_dfs : object
-        processed dataframes of corresponding GTFS feed text files
+        processed DataFrames of corresponding GTFS feed text files
     gtfsfeeds_dfs.stops : pandas.DataFrame
     gtfsfeeds_dfs.routes : pandas.DataFrame
     gtfsfeeds_dfs.trips : pandas.DataFrame
@@ -41,5 +41,5 @@ class urbanaccess_gtfs_df(object):
         self.headways = headways
 
 
-# instantiate the UrbanAccess gtfs feed dataframe object
+# instantiate the UrbanAccess GTFS feed DataFrame object
 gtfsfeeds_dfs = urbanaccess_gtfs_df()
