@@ -275,27 +275,24 @@ def _calendar_dates_agencyid(calendar_dates_df, routes_df,
     merged_df = pd.merge(calendar_dates_df, tmp2, how='left', on='service_id',
                          sort=False, copy=False)
 
-    merged_df['unique_agency_id'] = _generate_unique_agency_id(merged_df,
-                                                               'agency_name')
+    merged_df['unique_agency_id'] = _generate_unique_agency_id(
+        merged_df, 'agency_name')
 
     group = merged_df[['service_id', 'unique_agency_id']].groupby([
         'service_id', 'unique_agency_id']).size()
     group_counts = group.reset_index(level=1)
     # check if service_ids are associated with more than one agency
+
     if any(group_counts.index.value_counts().values > 1):
+        feed_name = os.path.split(feed_folder)[1]
         log('GTFS feed: {!s}, calendar_dates uses the same service_id across '
             'multiple agency_ids. This feed calendar_dates table will be '
             'modified from its original format to provide service_ids for '
-            'each agency using a one to many join'.format(os.path.split(
-                feed_folder)[1]))
+            'each agency using a one to many join.'.format(feed_name))
 
-        tmp = merged_df[
-            ['service_id', 'unique_agency_id']].drop_duplicates(
+        tmp = merged_df[['service_id', 'unique_agency_id']].drop_duplicates(
             ['service_id', 'unique_agency_id'], inplace=False)
-        merged_df = tmp.merge(calendar_dates_df, 'left',
-                              on='service_id')
-
-        return merged_df
+        merged_df = tmp.merge(calendar_dates_df, 'left', on='service_id')
 
     else:
 
@@ -340,27 +337,24 @@ def _calendar_agencyid(calendar_df, routes_df, trips_df,
     # dont show up after merge
     merged_df = pd.merge(calendar_df[['service_id']], tmp2, how='left',
                          on='service_id', sort=False, copy=False)
-    merged_df['unique_agency_id'] = _generate_unique_agency_id(merged_df,
-                                                               'agency_name')
+    merged_df['unique_agency_id'] = _generate_unique_agency_id(
+        merged_df, 'agency_name')
 
     group = merged_df[['service_id', 'unique_agency_id']].groupby([
         'service_id', 'unique_agency_id']).size()
     group_counts = group.reset_index(level=1)
     # check if service_ids are associated with more than one agency
     if any(group_counts.index.value_counts().values > 1):
+        feed_name = os.path.split(feed_folder)[1]
         log('GTFS feed: {!s}, calendar uses the same service_id across '
             'multiple agency_ids. This feed calendar table will be '
             'modified from its original format to provide service_ids for '
-            'each agency using a one to many join'.format(os.path.split(
-                feed_folder)[1]))
+            'each agency using a one to many join.'.format(feed_name))
 
         tmp = merged_df[
             ['service_id', 'unique_agency_id']].drop_duplicates(
             ['service_id', 'unique_agency_id'], inplace=False)
-        merged_df = tmp.merge(calendar_df, 'left',
-                              on='service_id')
-
-        return merged_df
+        merged_df = tmp.merge(calendar_df, 'left', on='service_id')
 
     else:
 
@@ -396,8 +390,8 @@ def _trips_agencyid(trips_df, routes_df, agency_df):
                     sort=False, copy=False)
     merged_df = pd.merge(trips_df[['trip_id', 'route_id']], tmp1, how='left',
                          on='route_id', sort=False, copy=False)
-    merged_df['unique_agency_id'] = _generate_unique_agency_id(merged_df,
-                                                               'agency_name')
+    merged_df['unique_agency_id'] = _generate_unique_agency_id(
+        merged_df, 'agency_name')
     merged_df.drop_duplicates(subset='trip_id', keep='first', inplace=True)
 
     merged_df = pd.merge(trips_df, merged_df[['unique_agency_id', 'trip_id']],
@@ -441,8 +435,8 @@ def _stops_agencyid(stops_df, trips_df, routes_df,
     # after merge
     merged_df = pd.merge(stops_df[['stop_id']], tmp3, how='left', on='stop_id',
                          sort=False, copy=False)
-    merged_df['unique_agency_id'] = _generate_unique_agency_id(merged_df,
-                                                               'agency_name')
+    merged_df['unique_agency_id'] = _generate_unique_agency_id(
+        merged_df, 'agency_name')
 
     group = merged_df[['stop_id', 'unique_agency_id']].groupby([
         'stop_id', 'unique_agency_id']).size()
@@ -490,8 +484,8 @@ def _routes_agencyid(routes_df, agency_df):
     """
     merged_df = pd.merge(routes_df[['route_id', 'agency_id']], agency_df,
                          how='left', on='agency_id', sort=False, copy=False)
-    merged_df['unique_agency_id'] = _generate_unique_agency_id(merged_df,
-                                                               'agency_name')
+    merged_df['unique_agency_id'] = _generate_unique_agency_id(
+        merged_df, 'agency_name')
 
     merged_df = pd.merge(routes_df,
                          merged_df[['unique_agency_id', 'route_id']],
@@ -526,8 +520,8 @@ def _stop_times_agencyid(stop_times_df, routes_df, trips_df,
                     on='route_id', sort=False, copy=False)
     merged_df = pd.merge(stop_times_df, tmp2, how='left', on='trip_id',
                          sort=False, copy=False)
-    merged_df['unique_agency_id'] = _generate_unique_agency_id(merged_df,
-                                                               'agency_name')
+    merged_df['unique_agency_id'] = _generate_unique_agency_id(
+        merged_df, 'agency_name')
     merged_df.drop_duplicates(subset='trip_id', keep='first', inplace=True)
 
     merged_df = pd.merge(stop_times_df,
@@ -538,8 +532,9 @@ def _stop_times_agencyid(stop_times_df, routes_df, trips_df,
 
 
 def _add_unique_agencyid(agency_df, stops_df, routes_df,
-                         trips_df, stop_times_df, calendar_df, feed_folder,
-                         calendar_dates_df, nulls_as_folder=True):
+                         trips_df, stop_times_df, calendar_df,
+                         calendar_dates_df, feed_folder,
+                         nulls_as_folder=True):
     """
     Create an unique agency ID for all GTFS feed DataFrames to enable unique
     relational table keys. Pathways to create the unique agency ID are:
@@ -650,7 +645,7 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
             if agency_df[['agency_id',
                           'agency_name']].isnull().values.any():
                 raise ValueError(
-                    'null values were found in agency_id and agency_name')
+                    'Null values found in agency_id and agency_name.')
 
             # subset dataframes
             subset_agency_df = agency_df[['agency_id', 'agency_name']]
@@ -710,8 +705,7 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
             if calendar_dates_df.empty is False:
                 df_list.extend([calendar_dates_replacement_df])
 
-            log(
-                'agency.txt agency_name column has more than one agency name '
+            log('agency.txt agency_name column has more than one agency name '
                 'listed. Unique agency ID was assigned using the agency ID '
                 'and associated agency name.')
 
@@ -719,7 +713,6 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
         if df['unique_agency_id'].isnull().values.any():
 
             unique_agency_id = _generate_unique_feed_id(feed_folder)
-
             df['unique_agency_id'].fillna(
                 ''.join(['multiple_operators_', unique_agency_id]),
                 inplace=True)
@@ -774,11 +767,7 @@ def _add_unique_gtfsfeed_id(stops_df, routes_df, trips_df,
     """
     start_time = time.time()
 
-    df_list = [stops_df,
-               routes_df,
-               trips_df,
-               stop_times_df,
-               calendar_df]
+    df_list = [stops_df, routes_df, trips_df, stop_times_df, calendar_df]
     # if calendar_dates_df is not empty then add it to the processing list
     if calendar_dates_df.empty is False:
         df_list.extend([calendar_dates_df])
@@ -795,8 +784,8 @@ def _add_unique_gtfsfeed_id(stops_df, routes_df, trips_df,
     if calendar_dates_df.empty:
         df_list.extend([calendar_dates_df])
 
-    log('Unique GTFS feed ID operation complete. Took {:,.2f} seconds'.format(
-        time.time() - start_time))
+    log('Unique GTFS feed ID operation complete. '
+        'Took {:,.2f} seconds.'.format(time.time() - start_time))
     return df_list
 
 
@@ -821,10 +810,9 @@ def _timetoseconds(df, time_cols):
 
     concat_series_df = pd.DataFrame()
     if not isinstance(time_cols, list):
-        raise ValueError('{} is not a list'.format(time_cols))
+        raise ValueError('{} is not a list.'.format(time_cols))
 
     for col in time_cols:
-
         time_list = df[col].fillna('').tolist()
         for n, i in enumerate(time_list):
             if len(i) == 7:
@@ -832,8 +820,8 @@ def _timetoseconds(df, time_cols):
             if (len(i) != 8) & (len(i) != 0) & (len(i) != 7):
                 raise ValueError(
                     'Check formatting of value: {} as it is in the incorrect '
-                    'format and should be 8 character string 00:00:00.'.format(
-                        i))
+                    'format and should be 8 character '
+                    'string 00:00:00.'.format(i))
         df_fixed = pd.DataFrame(time_list, columns=[col])
 
         df[col] = df_fixed[col]
@@ -860,7 +848,7 @@ def _timetoseconds(df, time_cols):
         if series_df.values.any() < 0:
             log('Warning: Some stop times in {} column are negative. '
                 'Time should be positive. Suggest checking original '
-                'GTFS feed stop_time file before proceeding'.format(col),
+                'GTFS feed stop_time file before proceeding.'.format(col),
                 level=lg.WARNING)
 
         concat_series_df = pd.concat([concat_series_df, series_df], axis=1)
@@ -869,8 +857,8 @@ def _timetoseconds(df, time_cols):
                         right_index=True, sort=False, copy=False)
 
     log('Successfully converted {} to seconds past midnight and appended new '
-        'columns to stop_times. Took {:,.2f} seconds'.format(
-            time_cols, time.time() - start_time))
+        'columns to stop_times. '
+        'Took {:,.2f} seconds.'.format(time_cols, time.time() - start_time))
 
     return final_df
 
@@ -1055,7 +1043,7 @@ def _append_route_type(stops_df, stop_times_df, routes_df,
     """
     valid_info_to_append = ['route_type_to_stops', 'route_type_to_stop_times']
     if info_to_append not in valid_info_to_append:
-        raise ValueError('{} is not a valid parameter'.format(info_to_append))
+        raise ValueError('{} is not a valid parameter.'.format(info_to_append))
 
     if info_to_append == 'route_type_to_stops':
         tmp1 = pd.merge(trips_df, routes_df, how='left', on='route_id',
@@ -1067,7 +1055,7 @@ def _append_route_type(stops_df, stop_times_df, routes_df,
         stops_df = pd.merge(stops_df, merged_df[['route_type', 'stop_id']],
                             how='left', on='stop_id', sort=False, copy=False)
 
-        log('Appended route type to stops')
+        log('Appended route type to stops.')
 
         return stops_df
 
@@ -1081,7 +1069,7 @@ def _append_route_type(stops_df, stop_times_df, routes_df,
                                  how='left', on='trip_id', sort=False,
                                  copy=False)
 
-        log('Appended route type to stop_times')
+        log('Appended route type to stop_times.')
 
         return stop_times_df
 
@@ -1126,8 +1114,8 @@ def _generate_unique_feed_id(feed_folder):
     folder_name = os.path.split(feed_folder)[1]
     # replace all runs of spaces with a single underscore and replace all
     # ampersands
-    folder_snake_case_no_amps = sub(r'\s+', '_', folder_name).replace('&',
-                                                                      'and')
+    folder_snake_case_no_amps = sub(r'\s+', '_', folder_name).replace(
+        '&', 'and')
 
     return folder_snake_case_no_amps.lower()
 

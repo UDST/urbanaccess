@@ -47,43 +47,44 @@ def _boundingbox_check(df, feed_folder, lat_min=None, lng_min=None,
 
     """
     if not isinstance(verbose, bool):
-        raise ValueError('verbose must be bool')
+        raise ValueError('verbose must be bool.')
     if not isinstance(remove, bool):
-        raise ValueError('remove must be bool')
+        raise ValueError('remove must be bool.')
 
     if bbox is not None:
         if not isinstance(bbox, tuple) or len(bbox) != 4:
-            raise ValueError('bbox must be a 4 element tuple')
+            raise ValueError('bbox must be a 4 element tuple.')
         if (lat_min is not None) or (lng_min is not None) or (
                     lat_max is not None) or (lng_max is not None):
             raise ValueError('lat_min, lng_min, lat_max and lng_max must be '
-                             'None if you are using bbox')
+                             'None if using bbox.')
 
         lng_max, lat_min, lng_min, lat_max = bbox
 
     if lat_min is None:
-        raise ValueError('lat_min cannot be None')
+        raise ValueError('lat_min cannot be None.')
     if lng_min is None:
-        raise ValueError('lng_min cannot be None')
+        raise ValueError('lng_min cannot be None.')
     if lat_max is None:
-        raise ValueError('lat_max cannot be None')
+        raise ValueError('lat_max cannot be None.')
     if lng_max is None:
-        raise ValueError('lng_max cannot be None')
+        raise ValueError('lng_max cannot be None.')
     if not isinstance(lat_min, float) or not isinstance(lng_min, float) or\
             not isinstance(lat_max, float) or not isinstance(lng_max, float):
         raise ValueError('lng_min, lat_min, lng_min, lat_max, and lng_max '
-                         'must be floats')
+                         'must be floats.')
 
     outside_boundingbox = df.loc[~(
         ((lng_max < df["stop_lon"]) & (df["stop_lon"] < lng_min)) & (
             (lat_min < df["stop_lat"]) & (df["stop_lat"] < lat_max)))]
 
+    feed_name = os.path.split(feed_folder)[1]
     if len(outside_boundingbox) > 0:
-        log(
-            'WARNING: {} GTFS feed stops: {:,} of {:,} ({:.2f} percent of '
-            'total) record(s) are outside the bounding box coordinates'.format(
-                os.path.split(feed_folder)[1], len(outside_boundingbox),
-                len(df), (len(outside_boundingbox) / len(df)) * 100),
+        log('WARNING: {} GTFS feed stops: {:,} of {:,} ({:.2f} percent of '
+            'total) record(s) are outside the bounding box '
+            'coordinates.'.format(
+             feed_name, len(outside_boundingbox),
+             len(df), (len(outside_boundingbox) / len(df)) * 100),
             level=lg.WARNING)
         if verbose:
             log('Records:')
@@ -116,25 +117,23 @@ def _checkcoordinates(df, feed_folder):
     None
 
     """
+    feed_name = os.path.split(feed_folder)[1]
     if (df['stop_lat'] > 0).values.any() & (df['stop_lon'] < 0).values.any():
         log('{} GTFS feed stops: coordinates are in northwest hemisphere. '
-            'Latitude = North (90); Longitude = West (-90).'.format(
-                os.path.split(feed_folder)[1]))
+            'Latitude = North (90); Longitude = West (-90).'.format(feed_name))
 
     if (df['stop_lat'] < 0).values.any() & (df['stop_lon'] < 0).values.any():
         log('{} GTFS feed stops: coordinates are in southwest hemisphere. '
             'Latitude = South (-90); Longitude = West (-90).'.format(
-                os.path.split(feed_folder)[1]))
+             feed_name))
 
     if (df['stop_lat'] > 0).values.any() & (df['stop_lon'] > 0).values.any():
         log('{} GTFS feed stops: coordinates are in northeast hemisphere. '
-            'Latitude = North (90); Longitude = East (90).'.format(
-                os.path.split(feed_folder)[1]))
+            'Latitude = North (90); Longitude = East (90).'.format(feed_name))
 
     if (df['stop_lat'] < 0).values.any() & (df['stop_lon'] > 0).values.any():
         log('{} GTFS feed stops: coordinates are in southeast hemisphere. '
-            'Latitude = South (-90); Longitude = East (90).'.format(
-                os.path.split(feed_folder)[1]))
+            'Latitude = South (-90); Longitude = East (90).'.format(feed_name))
 
 
 def _validate_gtfs(stops_df, feed_folder,

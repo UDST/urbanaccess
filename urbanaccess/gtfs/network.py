@@ -268,7 +268,6 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
     # if input_calendar_dates_df is not empty then add it to processing
     if input_calendar_dates_df.empty is False:
         df_list.extend([input_calendar_dates_df])
-
     for index, df in enumerate(df_list):
         df['unique_service_id'] = (df['service_id'].str.cat(
                 df['unique_agency_id'].astype('str'), sep='_'))
@@ -355,8 +354,7 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
         for col_name_key, string_value in calendar_dates_lookup.items():
             if col_name_key not in input_calendar_dates_df.columns:
                 raise ValueError('Column: {} not found in calendar_dates '
-                                 'dataframe.'.format(col_name_key))
-
+                                 'DataFrame.'.format(col_name_key))
             if col_name_key not in input_calendar_dates_df.select_dtypes(
                     include=[object]).columns:
                 raise ValueError('Column: {} must be object type.'.format(
