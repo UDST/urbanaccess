@@ -1154,6 +1154,20 @@ def test_trip_schedule_selector_wo_cal_dates_invalid_params(
     assert expected_error in str(excinfo.value)
 
 
+def test_trip_schedule_selector_no_services_found(
+        gtfs_feed_wo_calendar):
+    with pytest.raises(ValueError) as excinfo:
+        result = gtfs_network._trip_schedule_selector(
+            input_trips_df=gtfs_feed_wo_calendar.trips,
+            input_calendar_df=gtfs_feed_wo_calendar.calendar,
+            input_calendar_dates_df=gtfs_feed_wo_calendar.calendar_dates,
+            day='monday',
+            calendar_dates_lookup=None)
+    expected_error = ("No service_id(s) were found with the specified "
+                      "calendar and or calendar_dates search parameters.")
+    assert expected_error in str(excinfo.value)
+
+
 def test_trip_schedule_selector_w_cal_dates_invalid_params_1(
         gtfs_feed_wo_calendar_dates):
     # test with empty 'calendar_dates'df
@@ -1164,8 +1178,8 @@ def test_trip_schedule_selector_w_cal_dates_invalid_params_1(
             input_calendar_dates_df=gtfs_feed_wo_calendar_dates.calendar_dates,
             day='monday',
             calendar_dates_lookup={'schedule_type': 'WD'})
-    expected_error = ("calendar_dates_df is empty. Unable to use the "
-                      "calendar_dates_lookup parameter.")
+    expected_error = ("calendar_dates is empty. Unable to use the "
+                      "'calendar_dates_lookup' parameter. Set to None.")
     assert expected_error in str(excinfo.value)
 
 
@@ -1191,7 +1205,7 @@ def test_trip_schedule_selector_w_cal_dates_invalid_params_2(
             day='monday',
             calendar_dates_lookup={'invalid_col': 'WD'})
     expected_error = ("Column: invalid_col not found in calendar_dates "
-                      "dataframe.")
+                      "DataFrame.")
     assert expected_error in str(excinfo.value)
     # test with invalid col dtype in 'calendar_dates_lookup' param
     with pytest.raises(ValueError) as excinfo:
