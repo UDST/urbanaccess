@@ -451,19 +451,15 @@ def _stops_agencyid(stops_df, trips_df, routes_df,
     group_counts = group.reset_index(level=1)
     # check if stop_ids are associated with more than one agency
     if any(group_counts.index.value_counts().values > 1):
+        feed_name = os.path.split(feed_folder)[1]
         log('GTFS feed: {!s}, stops uses the same stop_id across '
             'multiple agency_ids. This feed stops table will be '
             'modified from its original format to provide stop_ids for '
-            'each agency using a one to many join'.format(os.path.split(
-                feed_folder)[1]))
+            'each agency using a one to many join.'.format(feed_name))
 
-        tmp = merged_df[
-            ['stop_id', 'unique_agency_id']].drop_duplicates(
+        tmp = merged_df[['stop_id', 'unique_agency_id']].drop_duplicates(
             ['stop_id', 'unique_agency_id'], inplace=False)
-        merged_df = tmp.merge(stops_df, 'left',
-                              on='stop_id')
-
-        return merged_df
+        merged_df = tmp.merge(stops_df, 'left', on='stop_id')
 
     else:
 
@@ -472,7 +468,7 @@ def _stops_agencyid(stops_df, trips_df, routes_df,
                              merged_df[['unique_agency_id', 'stop_id']],
                              how='left', on='stop_id',
                              sort=False, copy=False)
-        return merged_df
+    return merged_df
 
 
 def _routes_agencyid(routes_df, agency_df):
