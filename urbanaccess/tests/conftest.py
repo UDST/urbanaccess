@@ -232,7 +232,6 @@ def trips_feed_1():
 @pytest.fixture
 def trips_feed_2():
     data = {
-
         'route_id': ['40-4', '40-4', '40-4', '40-4',
                      '40-4x', '40-4x',
                      'r-2', 'r-2',

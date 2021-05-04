@@ -412,13 +412,12 @@ def test_trips_agencyid_feed_4(trips_feed_4,
                              'agency_3_metro', 'agency_3_metro',
                              'agency_3_metro', 'agency_3_metro']}
     index = range(14)
-    expected_result = pd.concat([trips_feed_4,
-                                 pd.DataFrame(data, index)],
-                                axis=1)
+    expected_result = pd.concat(
+        [trips_feed_4, pd.DataFrame(data, index)], axis=1)
 
-    result_df = utils_format._trips_agencyid(trips_df=trips_feed_4,
-                                             routes_df=routes_feed_4,
-                                             agency_df=agency_feed_4)
+    result_df = utils_format._trips_agencyid(
+        trips_df=trips_feed_4, routes_df=routes_feed_4,
+        agency_df=agency_feed_4)
 
     # test that cols not touched by function in output df are
     # identical to the cols in input df
@@ -450,9 +449,8 @@ def test_stops_agencyid_feed_1(stops_feed_1,
                                folder_feed_1):
     data = {'unique_agency_id': ['agency_a_city_a'] * 9}
     index = range(9)
-    expected_result = pd.concat([stops_feed_1,
-                                 pd.DataFrame(data, index)],
-                                axis=1)
+    expected_result = pd.concat(
+        [stops_feed_1, pd.DataFrame(data, index)], axis=1)
 
     result_df = utils_format._stops_agencyid(stops_df=stops_feed_1,
                                              trips_df=trips_feed_1,
@@ -498,9 +496,8 @@ def test_stops_agencyid_feed_2(stops_feed_2,
                                  'agency_b_district_2', 'agency_b_district_2',
                                  'agency_b_district_2', 'agency_b_district_2']}
     index = range(16)
-    expected_result = pd.concat([stops_feed_2,
-                                 pd.DataFrame(data, index)],
-                                axis=1)
+    expected_result = pd.concat(
+        [stops_feed_2, pd.DataFrame(data, index)], axis=1)
 
     result_df = utils_format._stops_agencyid(stops_df=stops_feed_2,
                                              trips_df=trips_feed_2,
@@ -562,9 +559,7 @@ def test_stops_agencyid_feed_4(stops_feed_4,
                              'agency_2_rail', 'agency_3_metro',
                              'agency_2_rail', 'agency_3_metro']
     }
-
     index = range(18)
-
     expected_result = pd.DataFrame(data, index)
 
     result_df = utils_format._stops_agencyid(stops_df=stops_feed_4,
@@ -604,12 +599,11 @@ def test_routes_agencyid_feed_1(routes_feed_1,
                                 agency_feed_1):
     data = {'unique_agency_id': ['agency_a_city_a'] * 4}
     index = range(4)
-    expected_result = pd.concat([routes_feed_1,
-                                 pd.DataFrame(data, index)],
-                                axis=1)
+    expected_result = pd.concat(
+        [routes_feed_1, pd.DataFrame(data, index)], axis=1)
 
-    result_df = utils_format._routes_agencyid(routes_df=routes_feed_1,
-                                              agency_df=agency_feed_1)
+    result_df = utils_format._routes_agencyid(
+        routes_df=routes_feed_1, agency_df=agency_feed_1)
 
     # test that cols not touched by function in output df are
     # identical to the cols in input df
@@ -638,12 +632,11 @@ def test_routes_agencyid_feed_2(routes_feed_2,
     data = {'unique_agency_id': ['agency_b_district_1', 'agency_b_district_1',
                                  'agency_b_district_2', 'agency_b_district_2']}
     index = range(4)
-    expected_result = pd.concat([routes_feed_2,
-                                 pd.DataFrame(data, index)],
-                                axis=1)
+    expected_result = pd.concat(
+        [routes_feed_2, pd.DataFrame(data, index)], axis=1)
 
-    result_df = utils_format._routes_agencyid(routes_df=routes_feed_2,
-                                              agency_df=agency_feed_2)
+    result_df = utils_format._routes_agencyid(
+        routes_df=routes_feed_2, agency_df=agency_feed_2)
 
     # test that cols not touched by function in output df are
     # identical to the cols in input df
@@ -673,12 +666,11 @@ def test_routes_agencyid_feed_4(routes_feed_4,
                                  'agency_2_rail', 'agency_2_rail',
                                  'agency_3_metro', 'agency_3_metro']}
     index = range(6)
-    expected_result = pd.concat([routes_feed_4,
-                                 pd.DataFrame(data, index)],
-                                axis=1)
+    expected_result = pd.concat(
+        [routes_feed_4, pd.DataFrame(data, index)], axis=1)
 
-    result_df = utils_format._routes_agencyid(routes_df=routes_feed_4,
-                                              agency_df=agency_feed_4)
+    result_df = utils_format._routes_agencyid(
+        routes_df=routes_feed_4, agency_df=agency_feed_4)
 
     # test that cols not touched by function in output df are
     # identical to the cols in input df
@@ -708,9 +700,8 @@ def test_stop_times_agencyid_feed_1(stop_times_feed_1,
                                     agency_feed_1):
     data = {'unique_agency_id': ['agency_a_city_a'] * 54}
     index = range(54)
-    expected_result = pd.concat([stop_times_feed_1,
-                                 pd.DataFrame(data, index)],
-                                axis=1)
+    expected_result = pd.concat(
+        [stop_times_feed_1, pd.DataFrame(data, index)], axis=1)
 
     result_df = utils_format._stop_times_agencyid(
         stop_times_df=stop_times_feed_1,
@@ -772,9 +763,8 @@ def test_stop_times_agencyid_feed_2(stop_times_feed_2,
                                  'agency_b_district_2', 'agency_b_district_2',
                                  'agency_b_district_2', 'agency_b_district_2']}
     index = range(54)
-    expected_result = pd.concat([stop_times_feed_2,
-                                 pd.DataFrame(data, index)],
-                                axis=1)
+    expected_result = pd.concat(
+        [stop_times_feed_2, pd.DataFrame(data, index)], axis=1)
 
     result_df = utils_format._stop_times_agencyid(
         stop_times_df=stop_times_feed_2,
@@ -842,9 +832,8 @@ def test_stop_times_agencyid_feed_4(stop_times_feed_4,
                                  'agency_3_metro', 'agency_3_metro',
                                  'agency_3_metro', 'agency_3_metro']}
     index = range(66)
-    expected_result = pd.concat([stop_times_feed_4,
-                                 pd.DataFrame(data, index)],
-                                axis=1)
+    expected_result = pd.concat(
+        [stop_times_feed_4, pd.DataFrame(data, index)], axis=1)
 
     result_df = utils_format._stop_times_agencyid(
         stop_times_df=stop_times_feed_4,
@@ -879,16 +868,15 @@ def test_add_unique_gtfsfeed_id(stops_feed_1, routes_feed_1, trips_feed_1,
                                 calendar_dates_feed_1, folder_feed_1):
 
     stops_df, routes_df, trips_df, stop_times_df, calendar_df, \
-        calendar_dates_df = (utils_format
-                             ._add_unique_gtfsfeed_id(
-                                stops_df=stops_feed_1,
-                                routes_df=routes_feed_1,
-                                trips_df=trips_feed_1,
-                                stop_times_df=stop_times_feed_1,
-                                calendar_df=calendar_feed_1,
-                                calendar_dates_df=calendar_dates_feed_1,
-                                feed_folder=folder_feed_1,
-                                feed_number=1))
+        calendar_dates_df = utils_format._add_unique_gtfsfeed_id(
+            stops_df=stops_feed_1,
+            routes_df=routes_feed_1,
+            trips_df=trips_feed_1,
+            stop_times_df=stop_times_feed_1,
+            calendar_df=calendar_feed_1,
+            calendar_dates_df=calendar_dates_feed_1,
+            feed_folder=folder_feed_1,
+            feed_number=1)
 
     df_dict = {'stops': [stops_df, stops_feed_1],
                'routes': [routes_df, routes_feed_1],
@@ -902,7 +890,6 @@ def test_add_unique_gtfsfeed_id(stops_feed_1, routes_feed_1, trips_feed_1,
     unique_feed_id = '_'.join([feed_folder, str(1)])
 
     for df in df_dict.keys():
-
         # create new unique_feed_id column based on the name of the feed folder
         assert df_dict[df][0]['unique_feed_id'].unique() == unique_feed_id
 
@@ -912,8 +899,8 @@ def test_add_unique_gtfsfeed_id(stops_feed_1, routes_feed_1, trips_feed_1,
         assert df_dict[df][1].equals(df_dict[df][0][original_cols])
 
 
-def test_remove_whitespace_from_values(trips_feed_w_invalid_values):
-    raw_df, expected_df, feed_path = trips_feed_w_invalid_values
+def test_remove_whitespace_from_values(trips_txt_w_invalid_values):
+    raw_df, expected_df, feed_path = trips_txt_w_invalid_values
 
     # convert the one int record to str to match dtype of what would be read by
     # read_gtfs function
@@ -941,8 +928,8 @@ def test_remove_whitespace_from_values(trips_feed_w_invalid_values):
         'trip_id'].str.len().sum()
 
 
-def test_read_gtfs_trips_w_invalid_values(trips_feed_w_invalid_values):
-    raw_df, expected_df, feed_path = trips_feed_w_invalid_values
+def test_read_gtfs_trips_w_invalid_values(trips_txt_w_invalid_values):
+    raw_df, expected_df, feed_path = trips_txt_w_invalid_values
     result = utils_format._read_gtfs_trips(
         textfile_path=feed_path, textfile='trips.txt')
     # re-sort cols so they are in same order for test

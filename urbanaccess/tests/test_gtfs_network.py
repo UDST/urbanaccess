@@ -864,7 +864,7 @@ def test_create_transit_net_save_processed_gtfs_True(
         save_filename='test_file.h5')
 
     # test that file was written as expected
-    file_list = glob.glob(r"{}/*.h5".format(dir_path))
+    file_list = glob.glob(os.path.join(dir_path, '*.h5'))
     file_path = file_list[0]
     file_name = os.path.basename(file_path)
     assert file_name == 'test_file.h5'
@@ -1201,7 +1201,7 @@ def test_trip_schedule_selector_w_cal_dates_invalid_params_2(
             input_calendar_dates_df=cal_dates_df,
             day='monday',
             calendar_dates_lookup={'invalid_dtype': '1'})
-    expected_error = ("Column: invalid_dtype must be object type.")
+    expected_error = "Column: invalid_dtype must be object type."
     assert expected_error in str(excinfo.value)
 
 
@@ -1621,7 +1621,7 @@ def test_save_processed_gtfs_data(
         gtfs_feed_wo_calendar_dates,
         filename='test_file.h5', dir=dir_path)
     # test that file was written as expected
-    file_list = glob.glob(r"{}/*.h5".format(dir_path))
+    file_list = glob.glob(os.path.join(dir_path, '*.h5'))
     file_path = file_list[0]
     file_name = os.path.basename(file_path)
     assert file_name == 'test_file.h5'

@@ -90,8 +90,7 @@ def test_txt_header_whitespace_check(test_txt_files, test_txt_files_to_use):
     assert list(df.columns) == list(df.columns.str.strip())
 
 
-@pytest.mark.skipif(
-    sys.version_info >= (3, 0), reason="requires python < 3.0")
+@pytest.mark.skipif(sys.version_info >= (3, 0), reason="requires python < 3.0")
 def test_txt_encoder_check(test_txt_files, test_txt_files_to_use):
     root_dir, do_not_fix_txt, fix_txt, fix_txt_wBOM = test_txt_files
 
