@@ -884,24 +884,32 @@ def _timetoseconds(df, time_cols):
                     'format and should be 8 character '
                     'string 00:00:00.'.format(i))
         df_fixed = pd.DataFrame(time_list, columns=[col])
-
         df[col] = df_fixed[col]
 
         h = pd.to_numeric(df[col].str[0:2])
-        if h.any() > 48:
-            log('Warning: {} hour value is large and may be incorrect, '
-                'please check this.'.format(
-                    df[col].str[0:2].max()), level=lg.WARNING)
+        invalid_vals = h.loc[h > 48]
+        cnt = len(invalid_vals)
+        if cnt > 0:
+            log('Warning: {:,} hour value(s) are greater then 48. '
+                'Max value is: {}. Check value(s) if this is '
+                'unexpected.'.format(cnt, invalid_vals.max()),
+                level=lg.WARNING)
         m = pd.to_numeric(df[col].str[3:5])
-        if m.any() > 60:
-            log('Warning: {} minute value is large and may be incorrect, '
-                'please check this.'.format(
-                    df[col].str[3:5].max()), level=lg.WARNING)
+        invalid_vals = m.loc[m > 60]
+        cnt = len(invalid_vals)
+        if cnt > 0:
+            log('Warning: {:,} minute value(s) are greater then 60. '
+                'Max value is: {}. Check value(s) if this is '
+                'unexpected.'.format(cnt, invalid_vals.max()),
+                level=lg.WARNING)
         s = pd.to_numeric(df[col].str[6:8])
-        if s.any() > 60:
-            log('Warning: {} second value is large and may be incorrect, '
-                'please check this.'.format(
-                    df[col].str[6:8].max()), level=lg.WARNING)
+        invalid_vals = s.loc[s > 60]
+        cnt = len(invalid_vals)
+        if cnt > 0:
+            log('Warning: {:,} second value(s) are greater then 60. '
+                'Max value is: {}. Check value(s) if this is '
+                'unexpected.'.format(cnt, invalid_vals.max()),
+                level=lg.WARNING)
         col_series = (h * 60 * 60) + (m * 60) + s
         series_df = col_series.to_frame(name=''.join([col, '_sec']))
 
@@ -916,6 +924,11 @@ def _timetoseconds(df, time_cols):
 
     final_df = pd.merge(df, concat_series_df, how='left', left_index=True,
                         right_index=True, sort=False, copy=False)
+
+    # replace the '' inserted during processing with nans to ensure column
+    # values are the same as they were before processing
+    for col in time_cols:
+        final_df[col] = final_df[col].replace({'': np.nan})
 
     log('Successfully converted {} to seconds past midnight and appended new '
         'columns to stop_times. '
