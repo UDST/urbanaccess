@@ -783,7 +783,7 @@ def agency_a_feed_on_disk_wo_req_file(
 @pytest.fixture()
 def agency_a_feed_on_disk_wo_agency(
         tmpdir,
-        agency_feed_1, stop_times_feed_1, stops_feed_1,
+        stop_times_feed_1, stops_feed_1,
         routes_feed_1, trips_feed_1, calendar_feed_1):
     feed_file_dict = {'stop_times': stop_times_feed_1,
                       'stops': stops_feed_1,
@@ -791,6 +791,35 @@ def agency_a_feed_on_disk_wo_agency(
                       'trips': trips_feed_1,
                       'calendar': calendar_feed_1}
     feed_path = os.path.join(tmpdir.strpath, 'agency_a_wo_agency')
+    os.makedirs(feed_path)
+    print('writing test data to dir: {}'.format(feed_path))
+    for feed_file, feed_df in feed_file_dict.items():
+        feed_file_name = '{}.txt'.format(feed_file)
+        feed_df.to_csv(os.path.join(feed_path, feed_file_name), index=False)
+    return feed_path
+
+
+@pytest.fixture()
+def agency_a_feed_on_disk_w_calendar_and_calendar_dates_empty_txt(
+        tmpdir,
+        agency_feed_1, stop_times_feed_1, stops_feed_1,
+        routes_feed_1, trips_feed_1, calendar_feed_1, calendar_dates_feed_1):
+    # create empty dfs but keep the headers
+    agency_feed_1 = pd.DataFrame(columns=agency_feed_1.columns)
+    stop_times_feed_1 = pd.DataFrame(columns=stop_times_feed_1.columns)
+    stops_feed_1 = pd.DataFrame(columns=stops_feed_1.columns)
+    routes_feed_1 = pd.DataFrame(columns=routes_feed_1.columns)
+    trips_feed_1 = pd.DataFrame(columns=trips_feed_1.columns)
+    calendar_feed_1 = pd.DataFrame(columns=calendar_feed_1.columns)
+    calendar_dates_feed_1 = pd.DataFrame(columns=calendar_dates_feed_1.columns)
+    feed_file_dict = {'agency': agency_feed_1,
+                      'stop_times': stop_times_feed_1,
+                      'stops': stops_feed_1,
+                      'routes': routes_feed_1,
+                      'trips': trips_feed_1,
+                      'calendar': calendar_feed_1,
+                      'calendar_dates': calendar_dates_feed_1}
+    feed_path = os.path.join(tmpdir.strpath, 'empty_txt_test')
     os.makedirs(feed_path)
     print('writing test data to dir: {}'.format(feed_path))
     for feed_file, feed_df in feed_file_dict.items():
