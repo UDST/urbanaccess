@@ -1,6 +1,7 @@
 import os
 import time
 import pandas as pd
+import numpy as np
 from re import sub
 import logging as lg
 
@@ -589,69 +590,104 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
         and value for all tables and records.
     """
     start_time = time.time()
+    feed_folder_name = os.path.basename(feed_folder)
+    agency_file_path = os.path.join(feed_folder, 'agency.txt')
 
-    df_list = [stops_df, routes_df, trips_df, stop_times_df, calendar_df]
-    # if calendar_dates_df is not empty then add it to the processing list
-    if calendar_dates_df.empty is False:
-        df_list.extend([calendar_dates_df])
+    df_dict = {'stops': stops_df,
+               'routes': routes_df,
+               'trips': trips_df,
+               'stop_times': stop_times_df}
 
-    path_absent = os.path.exists(
-        os.path.join(feed_folder, 'agency.txt')) is False
+    optional_df_dict = {'calendar': calendar_df,
+                        'calendar_dates': calendar_dates_df}
+    # if optional calendar or calendar_dates_df are not empty then add it
+    # to the processing list
+    for name, df in optional_df_dict.items():
+        if df.empty is False:
+            df_dict.update({name: df})
+
+    # check if agency.txt file exists
+    path_absent = os.path.exists(agency_file_path) is False
+    # check if 'agency_id' col exists in agency.txt
     agency_absent = 'agency_id' not in agency_df.columns
 
-    if (path_absent or agency_absent) and nulls_as_folder is True:
-
-        for index, df in enumerate(df_list):
+    # if agency.txt or 'agency_id' col does not exist, generate
+    # 'unique_agency_id' using the name of the GTFS feed folder
+    if (path_absent or agency_absent) and nulls_as_folder:
+        # apply the unique agency ID to all GTFS dfs
+        for name, df in df_dict.items():
             unique_agency_id = _generate_unique_feed_id(feed_folder)
             df['unique_agency_id'] = unique_agency_id
-            df_list[index] = df
-
+            df_dict[name] = df
         log('The agency.txt or agency_id column was not found. The unique '
             'agency ID: {} was generated using the name of the folder '
-            'containing the GTFS feed text files.'.format(
-                unique_agency_id))
+            'containing the GTFS feed text files for tables: {}.'.format(
+                unique_agency_id, list(df_dict.keys())))
 
-    elif path_absent is False and nulls_as_folder is False:
+    # if agency.txt does not exist and nulls_as_folder is False throw error
+    elif path_absent and nulls_as_folder is False:
         raise ValueError(
             'No agency.txt file was found in {}. Add the missing file to '
-            'folder or set nulls_as_folder to True'.format(feed_folder))
+            'folder or set nulls_as_folder to True.'.format(feed_folder))
 
+    # assumes agency.txt and 'agency_id' exists and begins process of
+    # generating unique_agency_id using these data
     else:
-        if path_absent:
-            file_path = os.path.join(feed_folder, 'agency.txt')
-            raise ValueError('{} not found.'.format(file_path))
-        if 'agency_name' not in agency_df.columns or 'agency_id' not in \
-                agency_df.columns:
-            raise ValueError('both agency_name and agency_id columns were not '
-                             'found in agency.txt')
-        if len(agency_df[['agency_id', 'agency_name']]) == 0:
+        cols = ['agency_id', 'agency_name']
+        # if 'agency_name' and 'agency_id' cols do not exist throw error
+        if not all(col in agency_df.columns for col in cols):
+            raise ValueError('Both agency_name and agency_id columns were not '
+                             'found in agency.txt.')
+
+        # replace nans with ''
+        agency_df[cols] = agency_df[cols].fillna('')
+        # determine extent of missing values
+        all_missing = (agency_df['agency_id'].str.isspace().all() and
+                       agency_df['agency_name'].str.isspace().all()) or \
+                      (agency_df[cols].values == '').all()
+        any_missing = (agency_df['agency_id'].str.isspace().any() and
+                       agency_df['agency_name'].str.isspace().any()) or \
+                      (agency_df[cols].values == '').any()
+
+        # if 'agency_name' and 'agency_id' both have no records or both contain
+        # nulls or blank str throw error
+        cnt_agency_records = len(agency_df)
+        if cnt_agency_records == 0 or all_missing:
             raise ValueError('agency.txt has no agency_id or agency_name '
-                             'values')
+                             'values.')
 
-        if len(agency_df['agency_name']) == 1:
-            if agency_df['agency_name'].isnull().values:
-                raise ValueError('null values in agency_name were found')
+        # if 'agency_name' has only 1 record: use value in 'agency_name'
+        # for 'unique_agency_id'
+        if cnt_agency_records == 1:
+            agency_txt_name = agency_df['agency_name'][0]
+            # if 'agency_name' is null or a blank str throw error
+            if agency_txt_name.isspace() or agency_txt_name == '':
+                raise ValueError('Null value in agency_name was found.')
 
-            # could be added to helper function
-            # take first agency
-            agency_snake_case = sub(r'\s+', '_', agency_df['agency_name'][0])
+            # simplify and standardize the agency name
+            agency_snake_case = sub(r'\s+', '_', agency_txt_name)
             unique_agency_id = agency_snake_case.replace('&', 'and').lower()
 
-            for index, df in enumerate(df_list):
+            # apply the unique agency ID to all GTFS dfs
+            for name, df in df_dict.items():
                 df['unique_agency_id'] = unique_agency_id
-                df_list[index] = df
-            log(
-                'The unique agency ID: {} was generated using the name of '
-                'the agency in the agency.txt file.'.format(
-                    unique_agency_id))
+                df_dict[name] = df
+            log('The unique agency ID: {} was generated using the name of '
+                'the agency in the agency.txt file for tables: {}.'.format(
+                    unique_agency_id, list(df_dict.keys())))
 
-        elif len(agency_df['agency_name']) > 1:
-            if agency_df[['agency_id',
-                          'agency_name']].isnull().values.any():
+        # if 'agency_name' has more than 1 record: use value in 'agency_name'
+        # and agency_id for 'unique_agency_id' and then use 'agency_id' in
+        # routes table to join agency information downstream to all other
+        # tables in GTFS feed
+        elif cnt_agency_records > 1:
+            # if any records in 'agency_id' and 'agency_name' have nulls
+            # or blank strs throw error
+            if any_missing:
                 raise ValueError(
                     'Null values found in agency_id and agency_name.')
 
-            # subset dataframes
+            # subset DataFrames to only cols of interest for processing
             subset_agency_df = agency_df[['agency_id', 'agency_name']]
             subset_routes_df = routes_df[['route_id', 'agency_id']]
             subset_stop_times_df = stop_times_df[['trip_id', 'stop_id']]
@@ -659,7 +695,10 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
             subset_trips_df_w_sid = trips_df[
                 ['trip_id', 'route_id', 'service_id']]
 
-            # if calendar_dates_df is not empty then process it
+            # below, apply the unique agency ID to all GTFS dfs via
+            # merge operations
+
+            # if optional calendar_dates_df is not empty then process it
             if calendar_dates_df.empty is False:
                 calendar_dates_replacement_df = _calendar_dates_agencyid(
                     calendar_dates_df=calendar_dates_df,
@@ -668,12 +707,14 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
                     agency_df=subset_agency_df,
                     feed_folder=feed_folder)
 
-            calendar_replacement_df = _calendar_agencyid(
-                calendar_df=calendar_df,
-                routes_df=subset_routes_df,
-                trips_df=subset_trips_df_w_sid,
-                agency_df=subset_agency_df,
-                feed_folder=feed_folder)
+            # if optional calendar_df is not empty then process it
+            if calendar_df.empty is False:
+                calendar_replacement_df = _calendar_agencyid(
+                    calendar_df=calendar_df,
+                    routes_df=subset_routes_df,
+                    trips_df=subset_trips_df_w_sid,
+                    agency_df=subset_agency_df,
+                    feed_folder=feed_folder)
 
             trips_replacement_df = _trips_agencyid(
                 trips_df=trips_df,
@@ -698,44 +739,60 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
                 trips_df=subset_trips_df,
                 agency_df=subset_agency_df)
 
-            # update the df_list object with these new variable overrides
-            df_list = [stops_replacement_df,
-                       routes_replacement_df,
-                       trips_replacement_df,
-                       stop_times_replacement_df,
-                       calendar_replacement_df]
-            # if calendar_dates_df is not empty then add it to the
-            # processing list
+            # update the df_dict dfs with the new dfs with unique agency IDs
+            df_dict = {'stops': stops_replacement_df,
+                       'routes': routes_replacement_df,
+                       'trips': trips_replacement_df,
+                       'stop_times': stop_times_replacement_df}
+
+            # if optional calendar or calendar_dates_df are not empty then
+            # add it to the processing list
+            if calendar_df.empty is False:
+                df_dict.update(
+                    {'calendar': calendar_replacement_df})
             if calendar_dates_df.empty is False:
-                df_list.extend([calendar_dates_replacement_df])
+                df_dict.update(
+                    {'calendar_dates': calendar_dates_replacement_df})
 
             log('agency.txt agency_name column has more than one agency name '
                 'listed. Unique agency ID was assigned using the agency ID '
                 'and associated agency name.')
 
-    for index, df in enumerate(df_list):
-        if df['unique_agency_id'].isnull().values.any():
-
+    # if there are still nulls in the generated 'unique_agency_id' column,
+    # assign ID as concat of 'multiple_operators_' and GTFS folder name
+    for name, df in df_dict.items():
+        # if nans are string convert to null
+        df['unique_agency_id'].replace('nan', np.nan, inplace=True)
+        null_cnt = df['unique_agency_id'].isnull().sum()
+        if null_cnt > 0:
             unique_agency_id = _generate_unique_feed_id(feed_folder)
             df['unique_agency_id'].fillna(
                 ''.join(['multiple_operators_', unique_agency_id]),
                 inplace=True)
-            log(
-                'There are {:,} null values ({:,.2f}% of {:,} total) without '
-                'a unique agency ID. These records will be labeled as '
-                'multiple_operators_ with the GTFS file folder '
-                'name'.format(df['unique_agency_id'].isnull().sum(),
-                              len(df),
-                              round((float(df['unique_agency_id'].isnull(
-                              ).sum()) / float(len(df)) * 100))))
-            df_list[index] = df
+            null_pct = round((float(null_cnt) / float(len(df)) * 100))
+            log('There are {:,} null values ({:,.2f}% of {:,} total) in {} '
+                'table without an unique agency ID. These records will be '
+                'labeled as multiple_operators_{} with the GTFS file folder '
+                'name.'.format(null_cnt, len(df), null_pct, name,
+                               feed_folder_name))
+            df_dict[name] = df
 
-    # if calendar_dates_df is empty then return the original empty df
-    if calendar_dates_df.empty:
-        df_list.extend([calendar_dates_df])
+    optional_df_dict = {
+        'calendar': calendar_df,
+        'calendar_dates': calendar_dates_df}
+    # if optional calendar or calendar_dates_df are empty then return
+    # the original empty df
+    for name, df in optional_df_dict.items():
+        if df.empty:
+            df_dict.update({name: df})
 
-    log('Unique agency ID operation complete. Took {:,.2f} seconds'.format(
-        time.time() - start_time))
+    # ensure returned items in list are always in the same expected order
+    df_list = [df_dict['stops'], df_dict['routes'], df_dict['trips'],
+               df_dict['stop_times'], df_dict['calendar'],
+               df_dict['calendar_dates']]
+
+    log('Unique agency ID operation complete. '
+        'Took {:,.2f} seconds.'.format(time.time() - start_time))
     return df_list
 
 
