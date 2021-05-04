@@ -263,93 +263,131 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
                     raise ValueError('calendar_dates_lookup value: {} '
                                      'must contain strings.'.format(value))
 
-    # create unique service IDs
-    df_list = [input_trips_df, input_calendar_df]
-    # if input_calendar_dates_df is not empty then add it to processing
-    if input_calendar_dates_df.empty is False:
+    # check if calendar dfs and related params are empty or not to determine
+    # what will be used in processing
+    has_calendar = input_calendar_df.empty is False
+    has_calendar_param = day is not None
+    has_calendar_dates = input_calendar_dates_df.empty is False
+    has_calendar_dates_param = calendar_dates_lookup is not None
+
+    if not has_calendar:
+        log('calendar table has no records and will not be used to '
+            'select trips.')
+        if has_calendar_param:
+            log("Warning: calendar is empty. "
+                "Unable to use the 'day' parameter.", level=lg.WARNING)
+    if has_calendar_dates:
+        if not has_calendar_dates_param:
+            log("calendar_dates table has records however the "
+                "'calendar_dates_lookup' parameter is None, no trips will be "
+                "selected using calendar_dates.")
+    else:
+        log('calendar_dates table has no records and will not be used to '
+            'select trips.')
+        if has_calendar_dates_param:
+            raise ValueError("calendar_dates is empty. Unable to use the "
+                             "'calendar_dates_lookup' parameter. Set to None.")
+
+    # create unique service IDs for dfs in list if they are not empty
+    df_list = [input_trips_df]
+    if has_calendar:
+        df_list.extend([input_calendar_df])
+    if has_calendar_dates:
         df_list.extend([input_calendar_dates_df])
     for index, df in enumerate(df_list):
         df['unique_service_id'] = (df['service_id'].str.cat(
                 df['unique_agency_id'].astype('str'), sep='_'))
         df_list[index] = df
 
-    # select service IDs where day specified has a 1 = service runs on that day
-    log('Using calendar to extract service_ids to select trips...')
-    input_calendar_df = input_calendar_df[(input_calendar_df[day] == 1)]
-    input_calendar_df = input_calendar_df[['unique_service_id']]
-    num_cal_service_ids_extracted = len(input_calendar_df)
-    log('{:,} service_ids were extracted from calendar.'.format(
-        num_cal_service_ids_extracted))
+    service_ids_df = pd.DataFrame()
 
-    # generate information needed to tell user the status of their trips in
-    # terms of service_ids in calendar and calendar_dates tables
-    trips_in_calendar = input_trips_df.loc[
-        input_trips_df['unique_service_id'].isin(
-            input_calendar_df['unique_service_id'])]
-    trips_notin_calendar = input_trips_df.loc[
-        ~input_trips_df['unique_service_id'].isin(
-            input_calendar_df['unique_service_id'])]
+    # collect service IDs that match search parameters in calendar.txt
+    if has_calendar and has_calendar_param:
+        # select service IDs where day specified has a 1 = service
+        # runs on that day
+        log('Using calendar to extract service_ids to select trips...')
+        service_ids_df = input_calendar_df[(input_calendar_df[day] == 1)]
+        service_ids_df = service_ids_df[['unique_service_id']]
+        num_cal_service_ids_extracted = len(service_ids_df)
+        log('{:,} service_ids were extracted from calendar.'.format(
+            num_cal_service_ids_extracted))
 
-    cnt_input_trips_df = len(input_trips_df)
-    cnt_trips_in_calendar = len(trips_in_calendar)
-    pct_trips_in_calendar = round(cnt_trips_in_calendar / len(
-        input_trips_df) * 100, 2)
+        # generate information needed to tell user the status of their trips in
+        # terms of service_ids in calendar table
+        trips_in_calendar = input_trips_df.loc[
+            input_trips_df['unique_service_id'].isin(
+                service_ids_df['unique_service_id'])]
+        trips_notin_calendar = input_trips_df.loc[
+            ~input_trips_df['unique_service_id'].isin(
+                service_ids_df['unique_service_id'])]
+        cnt_input_trips_df = len(input_trips_df)
+        cnt_trips_in_calendar = len(trips_in_calendar)
+        pct_trips_in_calendar = round(cnt_trips_in_calendar / len(
+            input_trips_df) * 100, 2)
 
-    feeds_wtrips_in_cal = trips_in_calendar['unique_feed_id'].unique()
-    print_feed_ids = [' '.join(feed_id.split('_')[:-1]) for feed_id in
-                      feeds_wtrips_in_cal]
-    feeds_wotrips_in_cal = trips_notin_calendar['unique_feed_id'].unique()
-    if print_feed_ids:
-        log('{:,} trip(s) {:.2f} percent of {:,} total trip records were '
-            'found in calendar for GTFS feed(s): {}.'.format(
-             cnt_trips_in_calendar, pct_trips_in_calendar, cnt_input_trips_df,
-             print_feed_ids))
-
-    feed_id_not_in_cal = [x for x in feeds_wotrips_in_cal if
-                          x not in feeds_wtrips_in_cal]
-    for feed_id in feed_id_not_in_cal:
-        trip_feed_name = ' '.join(feed_id.split('_')[:-1])
-        log('0 trip(s) 0 percent of {:,} total trip records were '
-            'found in calendar for GTFS feed: {}.'.format(
-                cnt_input_trips_df, trip_feed_name))
-
-    if len(trips_notin_calendar) > 0 and calendar_dates_lookup is None:
-        warning_msg = (
-            'NOTE: If you expected more trips to have been extracted and your '
-            'GTFS feed(s) have a calendar_dates file, consider utilizing the '
-            'calendar_dates_lookup parameter in order to add additional trips '
-            'based on information inside of calendar_dates. This should only '
-            'be done if you know the corresponding GTFS feed is using '
-            'calendar_dates instead of calendar to specify service_ids. When '
-            'in doubt do not use the calendar_dates_lookup parameter.')
-        log(warning_msg, level=lg.WARNING)
-
-    if len(feeds_wtrips_in_cal) != len(feeds_wotrips_in_cal) and \
-            calendar_dates_lookup is None:
-        for feed_id in feeds_wotrips_in_cal:
-            trip_feed_name = ' '.join(feed_id.split('_')[:-1])
+        feeds_wtrips_in_cal = trips_in_calendar['unique_feed_id'].unique()
+        print_feed_ids = [' '.join(feed_id.split('_')[:-1]) for feed_id in
+                          feeds_wtrips_in_cal]
+        feeds_wotrips_in_cal = trips_notin_calendar['unique_feed_id'].unique()
+        if print_feed_ids:
             log('{:,} trip(s) {:.2f} percent of {:,} total trip records were '
-                'not found in calendar for GTFS feed: {}.'.format(
+                'found in calendar for GTFS feed(s): {}.'.format(
                     cnt_trips_in_calendar, pct_trips_in_calendar,
-                    cnt_input_trips_df, trip_feed_name))
-            if feed_id not in feeds_wtrips_in_cal:
-                log('Warning: GTFS feed: {} no trips were selected using '
-                    'calendar. It is suggested you use the '
-                    'calendar_dates_lookup parameter to utilize this feed\'s '
-                    'calendar_dates file.'.format(trip_feed_name),
-                    level=lg.WARNING)
+                    cnt_input_trips_df, print_feed_ids))
 
-    # look for service_ids inside of calendar_dates if calendar does not
-    # supply enough service_ids to select trips by
-    if len(trips_notin_calendar) > 0 and calendar_dates_lookup is not None:
-        log('Using calendar_dates to supplement service_ids extracted from '
-            'calendar to select trips...')
+        feed_id_not_in_cal = [x for x in feeds_wotrips_in_cal if
+                              x not in feeds_wtrips_in_cal]
+        for feed_id in feed_id_not_in_cal:
+            trip_feed_name = ' '.join(feed_id.split('_')[:-1])
+            log('0 trip(s) 0 percent of {:,} total trip records were '
+                'found in calendar for GTFS feed: {}.'.format(
+                    cnt_input_trips_df, trip_feed_name))
+
+        # warn user that if they have a calendar_dates table and they
+        # expected more trips to be selected from the calendar table that
+        # they should consider using the calendar_dates table to supplement
+        # the selection of trips
+        if has_calendar_dates and len(trips_notin_calendar) > 0 and \
+                has_calendar_dates_param is False:
+            warning_msg = (
+                'NOTE: If you expected more trips to have been extracted and '
+                'your GTFS feed(s) have a calendar_dates file, consider '
+                'utilizing the calendar_dates_lookup parameter in order to '
+                'add additional trips based on information inside of '
+                'calendar_dates. This should only be done if you know the '
+                'corresponding GTFS feed is using calendar_dates instead of '
+                'calendar to specify service_ids. When in doubt do not use '
+                'the calendar_dates_lookup parameter.')
+            log(warning_msg, level=lg.WARNING)
+
+        if len(feeds_wtrips_in_cal) != len(feeds_wotrips_in_cal) and \
+                calendar_dates_lookup is None:
+            for feed_id in feeds_wotrips_in_cal:
+                trip_feed_name = ' '.join(feed_id.split('_')[:-1])
+                log('{:,} trip(s) {:.2f} percent of {:,} total trip records '
+                    'were not found in calendar for GTFS feed: {}.'.format(
+                        cnt_trips_in_calendar, pct_trips_in_calendar,
+                        cnt_input_trips_df, trip_feed_name))
+                if feed_id not in feeds_wtrips_in_cal:
+                    log('Warning: GTFS feed: {} no trips were selected using '
+                        'calendar. It is suggested you use the '
+                        'calendar_dates_lookup parameter to utilize this '
+                        'feed\'s calendar_dates file.'.format(trip_feed_name),
+                        level=lg.WARNING)
+    else:
+        num_cal_service_ids_extracted = 0
+        cnt_input_trips_df = 0
+
+    # collect service IDs that match search parameters in calendar_dates.txt
+    if has_calendar_dates and has_calendar_dates_param:
+        # look for service_ids inside of calendar_dates if calendar does not
+        # supply enough service_ids to select trips by
+        if has_calendar:
+            if len(trips_notin_calendar) > 0:
+                log('Using calendar_dates to supplement service_ids extracted '
+                    'from calendar to select trips...')
 
         subset_result_df = pd.DataFrame()
-
-        if input_calendar_dates_df.empty:
-            raise ValueError('calendar_dates_df is empty. Unable to use the '
-                             'calendar_dates_lookup parameter.')
 
         for col_name_key, string_value in calendar_dates_lookup.items():
             if col_name_key not in input_calendar_dates_df.columns:
@@ -390,15 +428,20 @@ def _trip_schedule_selector(input_trips_df, input_calendar_df,
         log('An additional {:,} service_id(s) were extracted from '
             'calendar_dates. Total service_id(s) extracted: {:,}.'.format(
              num_caldates_service_ids_extracted, tot_service_ids_extracted))
-        input_calendar_df = input_calendar_df.append(subset_result_df)
-        input_calendar_df.drop_duplicates(inplace=True)
+        service_ids_df = service_ids_df.append(subset_result_df)
+        service_ids_df.drop_duplicates(inplace=True)
+
+    if service_ids_df.empty:
+        raise ValueError('No service_id(s) were found with '
+                         'the specified calendar and or calendar_dates '
+                         'search parameters.')
 
     # select and create df of trips that match the service IDs for the day of
     # the week specified merge calendar df that has service IDs for
     # specified day with trips df
     calendar_selected_trips_df = input_trips_df.loc[
         input_trips_df['unique_service_id'].isin(
-            input_calendar_df['unique_service_id'])]
+            service_ids_df['unique_service_id'])]
 
     sort_columns = ['route_id', 'trip_id', 'direction_id']
     if 'direction_id' not in calendar_selected_trips_df.columns:
