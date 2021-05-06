@@ -312,7 +312,6 @@ def _stops_agencyid(stops_df, trips_df, routes_df,
         merged_df = tmp.merge(stops_df, 'left', on='stop_id')
 
     else:
-
         merged_df.drop_duplicates(subset='stop_id', keep='first', inplace=True)
         merged_df = pd.merge(stops_df,
                              merged_df[['unique_agency_id', 'stop_id']],
@@ -438,6 +437,11 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
         Returns all input GTFS DataFrames with a unique agency ID column
         and value for all tables and records.
     """
+    # TODO: cover edge cases such as in GTFS madison feed stops.txt comes
+    #  with agency ID col that doesnt exist in routes.txt which means it
+    #  never shows up in resulting stops agency ID columns. If file has
+    #  agency_id then use it, if not then do the merges.
+
     start_time = time.time()
     feed_folder_name = os.path.basename(feed_folder)
     agency_file_path = os.path.join(feed_folder, 'agency.txt')
@@ -614,15 +618,16 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
         df['unique_agency_id'].replace('nan', np.nan, inplace=True)
         null_cnt = df['unique_agency_id'].isnull().sum()
         if null_cnt > 0:
-            unique_agency_id = _generate_unique_feed_id(feed_folder)
-            df['unique_agency_id'].fillna(
-                ''.join(['multiple_operators_', unique_agency_id]),
-                inplace=True)
-            null_pct = round((float(null_cnt) / float(len(df)) * 100))
+            df_cnt = len(df)
+            unique_feed_id = _generate_unique_feed_id(feed_folder)
+            unique_agency_id = ''.join(
+                ['multiple_operators_', unique_feed_id])
+            df['unique_agency_id'].fillna(unique_agency_id, inplace=True)
+            null_pct = round((float(null_cnt) / float(df_cnt)) * 100, 2)
             log('There are {:,} null values ({:,.2f}% of {:,} total) in {} '
                 'table without an unique agency ID. These records will be '
                 'labeled as multiple_operators_{} with the GTFS file folder '
-                'name.'.format(null_cnt, len(df), null_pct, name,
+                'name.'.format(null_cnt, null_pct, df_cnt, name,
                                feed_folder_name))
             df_dict[name] = df
 
