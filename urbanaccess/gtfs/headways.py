@@ -1,7 +1,6 @@
 import warnings
 import pandas as pd
 import time
-import logging as lg
 
 from urbanaccess.utils import log
 from urbanaccess.gtfs.utils_validation import _check_time_range_format
