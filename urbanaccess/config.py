@@ -260,6 +260,69 @@ _TRIPS_WHEELCHAIR_ACCESSIBLE = {
        'one rider in a wheelchair',
     2: 'No riders in wheelchairs can be accommodated on this trip'}
 
+# set category for GTFS file types for processing
+_GTFS_TXT_FILE_TYPES = {
+    'required_files': ['stops.txt', 'routes.txt', 'trips.txt',
+                       'stop_times.txt'],
+    'optional_files': ['agency.txt'],
+    'calendar_files': ['calendar.txt', 'calendar_dates.txt']}
+
+_SUPPORTED_GTFS_TXT_FILES = []
+for name, file_list in _GTFS_TXT_FILE_TYPES.items():
+    _SUPPORTED_GTFS_TXT_FILES.extend(file_list)
+
+
+# set data schema variables for when GTFS txt files are read as DataFrames
+_GTFS_READ_TXT_CONFIG = {
+    'agency': {'req_dtypes': None,
+               'opt_dtypes': None,
+               'numeric_converter': None,
+               'remove_whitespace': None,
+               'min_required_cols': None},
+    'stops': {'req_dtypes': {'stop_id': object},
+              'opt_dtypes': None,
+              'numeric_converter': ['stop_lat', 'stop_lon'],
+              'remove_whitespace': ['stop_id'],
+              'min_required_cols': ['stop_id', 'stop_lat', 'stop_lon']},
+    'routes': {'req_dtypes': {'route_id': object},
+               'opt_dtypes': None,
+               'numeric_converter': None,
+               'remove_whitespace': ['route_id'],
+               'min_required_cols': ['route_id']},
+    'trips': {'req_dtypes': {'trip_id': object,
+                             'service_id': object,
+                             'route_id': object},
+              'opt_dtypes': {'shape_id': object},
+              'numeric_converter': None,
+              'remove_whitespace': ['trip_id', 'service_id', 'route_id'],
+              'min_required_cols': ['trip_id', 'service_id', 'route_id']},
+
+    'stop_times': {'req_dtypes': {'trip_id': object,
+                                  'stop_id': object,
+                                  'departure_time': object,
+                                  'arrival_time': object},
+                   'opt_dtypes': None,
+                   'numeric_converter': None,
+                   'remove_whitespace': ['trip_id', 'stop_id'],
+                   'min_required_cols': ['trip_id', 'stop_id',
+                                         'departure_time', 'arrival_time']},
+    'calendar': {'req_dtypes': {'service_id': object},
+                 'opt_dtypes': None,
+                 'numeric_converter': ['monday', 'tuesday', 'wednesday',
+                                       'thursday', 'friday', 'saturday',
+                                       'sunday'],
+                 'remove_whitespace': ['service_id'],
+                 'min_required_cols': ['service_id', 'monday', 'tuesday',
+                                       'wednesday', 'thursday', 'friday',
+                                       'saturday', 'sunday', 'start_date',
+                                       'end_date']},
+    'calendar_dates': {'req_dtypes': {'service_id': object},
+                       'opt_dtypes': None,
+                       'numeric_converter': None,
+                       'remove_whitespace': ['service_id'],
+                       'min_required_cols': ['service_id', 'date',
+                                             'exception_type']}
+}
 
 # instantiate the UrbanAccess configuration object and check format
 settings = urbanaccess_config()

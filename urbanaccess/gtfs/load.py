@@ -29,9 +29,7 @@ def _standardize_txt(csv_rootpath=os.path.join(config.settings.data_folder,
     None
     """
 
-    gtfsfiles_to_use = ['stops.txt', 'routes.txt', 'trips.txt',
-                        'stop_times.txt', 'calendar.txt',
-                        'agency.txt', 'calendar_dates.txt']
+    gtfsfiles_to_use = config._SUPPORTED_GTFS_TXT_FILES.copy()
 
     if six.PY2:
         _txt_encoder_check(gtfsfiles_to_use, csv_rootpath)
@@ -260,11 +258,10 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
         textfilelist = [textfilename for textfilename in
                         os.listdir(os.path.join(gtfsfeed_path, folder)) if
                         textfilename.endswith(".txt")]
-        required_gtfsfiles = ['stops.txt', 'routes.txt', 'trips.txt',
-                              'stop_times.txt']
-        optional_gtfsfiles = ['agency.txt']
+        required_gtfsfiles = config._GTFS_TXT_FILE_TYPES['required_files']
+        optional_gtfsfiles = config._GTFS_TXT_FILE_TYPES['optional_files']
         # either calendar or calendar_dates is required
-        calendar_gtfsfiles = ['calendar.txt', 'calendar_dates.txt']
+        calendar_gtfsfiles = config._GTFS_TXT_FILE_TYPES['calendar_files']
 
         calendar_files = [i for i in calendar_gtfsfiles if i in textfilelist]
         if len(calendar_files) == 0:
@@ -284,53 +281,53 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
                         os.path.join(gtfsfeed_path, folder)))
 
         for textfile in required_gtfsfiles:
+            # TODO: refactor to simplify creation of DataFrames
             if textfile == 'stops.txt':
-                stops_df = utils_format._read_gtfs_stops(
-                    textfile_path=os.path.join(gtfsfeed_path, folder),
-                    textfile=textfile)
+                stops_df = utils_format._read_gtfs_file(
+                        textfile_path=os.path.join(gtfsfeed_path, folder),
+                        textfile=textfile)
             if textfile == 'routes.txt':
-                routes_df = utils_format._read_gtfs_routes(
-                    textfile_path=os.path.join(gtfsfeed_path, folder),
-                    textfile=textfile)
+                routes_df = utils_format._read_gtfs_file(
+                        textfile_path=os.path.join(gtfsfeed_path, folder),
+                        textfile=textfile)
             if textfile == 'trips.txt':
-                trips_df = utils_format._read_gtfs_trips(
-                    textfile_path=os.path.join(gtfsfeed_path, folder),
-                    textfile=textfile)
+                trips_df = utils_format._read_gtfs_file(
+                        textfile_path=os.path.join(gtfsfeed_path, folder),
+                        textfile=textfile)
             if textfile == 'stop_times.txt':
-                stop_times_df = utils_format._read_gtfs_stop_times(
-                    textfile_path=os.path.join(gtfsfeed_path, folder),
-                    textfile=textfile)
+                stop_times_df = utils_format._read_gtfs_file(
+                        textfile_path=os.path.join(gtfsfeed_path, folder),
+                        textfile=textfile)
 
         for textfile in calendar_files:
             # use both calendar and calendar_dates if they exist, otherwise
             # if only one of them exists use the one that exists and set the
             # other one that does not exist to a blank df
             if textfile == 'calendar.txt':
-                calendar_df = utils_format._read_gtfs_calendar(
-                    textfile_path=os.path.join(gtfsfeed_path, folder),
-                    textfile=textfile)
+                calendar_df = utils_format._read_gtfs_file(
+                        textfile_path=os.path.join(gtfsfeed_path, folder),
+                        textfile=textfile)
                 # if only calendar, set calendar_dates as blank
                 # with default required columns
                 if len(calendar_files) == 1:
-                    calendar_dates_df = pd.DataFrame(
-                        columns=['service_id', 'dates', 'exception_type'])
+                    default_cols = config._GTFS_READ_TXT_CONFIG[
+                        'calendar_dates']['min_required_cols']
+                    calendar_dates_df = pd.DataFrame(columns=default_cols)
             else:
-                calendar_dates_df = utils_format._read_gtfs_calendar_dates(
-                    textfile_path=os.path.join(gtfsfeed_path, folder),
-                    textfile=textfile)
+                calendar_dates_df = utils_format._read_gtfs_file(
+                        textfile_path=os.path.join(gtfsfeed_path, folder),
+                        textfile=textfile)
                 # if only calendar_dates, set calendar as blank
                 # with default required columns
                 if len(calendar_files) == 1:
-                    calendar_df = pd.DataFrame(
-                        columns=['service_id', 'monday',
-                                 'tuesday', 'wednesday', 'thursday',
-                                 'friday', 'saturday', 'sunday',
-                                 'start_date', 'end_date'])
+                    default_cols = config._GTFS_READ_TXT_CONFIG[
+                        'calendar']['min_required_cols']
+                    calendar_df = pd.DataFrame(columns=default_cols)
 
         for textfile in optional_gtfsfiles:
             if textfile == 'agency.txt':
                 if textfile in textfilelist:
-                    agency_df = utils_format._read_gtfs_agency(
+                    agency_df = utils_format._read_gtfs_file(
                         textfile_path=os.path.join(gtfsfeed_path, folder),
                         textfile=textfile)
                 else:
@@ -419,7 +416,6 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
     gtfsfeeds_dfs.calendar = merged_calendar_df
     gtfsfeeds_dfs.calendar_dates = merged_calendar_dates_df
 
-    # TODO: add to print the list of GTFS feed txt files read in for each feed
     log('{:,} GTFS feed file(s) successfully read as DataFrames:'.format(
         len(folderlist)))
     for folder in folderlist:

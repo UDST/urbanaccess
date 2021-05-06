@@ -135,7 +135,10 @@ def trips_txt_w_invalid_values(tmpdir):
                          'weekday-3', 'weekday-3', 'weekend-1', 'weekend-1'],
         '    direction_id    ': [1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
         'wheelchair_    accessible': [1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-        'bikes_allowed': [1, 1, 1, 1, 0, 0, 0, 0, 0, 0]
+        'bikes_allowed': [1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+        'shape_id': ['10_0_40', '10_0_40', '10_0_41', '10_0_41',
+                     '11_0_00', '11_0_00', '12_0_40', '12_0_40',
+                     '13_0_40', '13_0_40']
     }
     index = range(10)
     raw_df = pd.DataFrame(data, index)
@@ -156,12 +159,40 @@ def trips_txt_w_invalid_values(tmpdir):
                        'weekday-3', 'weekday-3', 'weekend-1', 'weekend-1'],
         'direction_id': [1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
         'wheelchair_    accessible': [1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-        'bikes_allowed': [1, 1, 1, 1, 0, 0, 0, 0, 0, 0]
+        'bikes_allowed': [1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+        'shape_id': ['10_0_40', '10_0_40', '10_0_41', '10_0_41',
+                     '11_0_00', '11_0_00', '12_0_40', '12_0_40',
+                     '13_0_40', '13_0_40']
     }
     index = range(10)
     expected_df = pd.DataFrame(data, index)
 
     return raw_df, expected_df, feed_path
+
+
+@pytest.fixture()
+def trips_txt_w_missing_req_col(tmpdir):
+    # remove the required trip and service ID cols
+    data = {
+        'route_id': ['10-101', '10-101', '10-101', '10-101',
+                     '111', '00111', '12-101', '12-101', '13-101', '13-101'],
+        'direction_id': [1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+        'wheelchair_    accessible': [1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+        'bikes_allowed': [1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+        'shape_id': ['10_0_40', '10_0_40', '10_0_41', '10_0_41',
+                     '11_0_00', '11_0_00', '12_0_40', '12_0_40',
+                     '13_0_40', '13_0_40']
+    }
+    index = range(10)
+    raw_df = pd.DataFrame(data, index)
+
+    feed_path = os.path.join(tmpdir.strpath, 'test_trips_invalid_values')
+    os.makedirs(feed_path)
+    print('writing test data to dir: {}'.format(feed_path))
+    feed_file_name = '{}.txt'.format('trips')
+    raw_df.to_csv(os.path.join(feed_path, feed_file_name), index=False)
+
+    return raw_df, feed_path
 
 
 def test_calendar_dates_agencyid_feed_1(calendar_dates_feed_1,
@@ -1029,7 +1060,7 @@ def test_remove_whitespace_from_values(trips_txt_w_invalid_values):
 
 def test_read_gtfs_trips_w_invalid_values(trips_txt_w_invalid_values):
     raw_df, expected_df, feed_path = trips_txt_w_invalid_values
-    result = utils_format._read_gtfs_trips(
+    result = utils_format._read_gtfs_file(
         textfile_path=feed_path, textfile='trips.txt')
     # re-sort cols so they are in same order for test
     expected_df.sort_index(axis=1, inplace=True)
@@ -1039,31 +1070,14 @@ def test_read_gtfs_trips_w_invalid_values(trips_txt_w_invalid_values):
 
 def test_read_gtfs_agency(agency_txt_w_invalid_values):
     raw_df, expected_df, feed_path = agency_txt_w_invalid_values
-    result = utils_format._read_gtfs_agency(
+    result = utils_format._read_gtfs_file(
         textfile_path=feed_path, textfile='agency.txt')
     assert result.equals(expected_df)
 
 
-def test_read_gtfs_agency_invalid_params(
-        agency_a_feed_on_disk_w_calendar_and_calendar_dates_empty_txt):
-    feed_path = agency_a_feed_on_disk_w_calendar_and_calendar_dates_empty_txt
-    with pytest.raises(ValueError) as excinfo:
-        result = utils_format._read_gtfs_agency(
-            textfile_path=feed_path, textfile='trips.txt')
-    expected_error = ('trips.txt is not an expected GTFS file name. '
-                      'Expected: agency.txt.')
-    assert expected_error in str(excinfo.value)
-    with pytest.raises(ValueError) as excinfo:
-        result = utils_format._read_gtfs_agency(
-            textfile_path=feed_path, textfile='agency.txt')
-    expected_error = ('{} has no records.'.format(
-        os.path.join(feed_path, 'agency.txt')))
-    assert expected_error in str(excinfo.value)
-
-
 def test_read_gtfs_stops(stops_txt_w_invalid_values):
     raw_df, expected_df, feed_path = stops_txt_w_invalid_values
-    result = utils_format._read_gtfs_stops(
+    result = utils_format._read_gtfs_file(
         textfile_path=feed_path, textfile='stops.txt')
     # ensure lat long precision is the same for equals()
     result['stop_lat'] = result['stop_lat'].round(6)
@@ -1073,113 +1087,39 @@ def test_read_gtfs_stops(stops_txt_w_invalid_values):
     assert result.equals(expected_df)
 
 
-def test_read_gtfs_stops_invalid_params(
-        agency_a_feed_on_disk_w_calendar_and_calendar_dates_empty_txt):
-    feed_path = agency_a_feed_on_disk_w_calendar_and_calendar_dates_empty_txt
-    with pytest.raises(ValueError) as excinfo:
-        result = utils_format._read_gtfs_stops(
-            textfile_path=feed_path, textfile='trips.txt')
-    expected_error = ('trips.txt is not an expected GTFS file name. '
-                      'Expected: stops.txt.')
-    assert expected_error in str(excinfo.value)
-    with pytest.raises(ValueError) as excinfo:
-        result = utils_format._read_gtfs_stops(
-            textfile_path=feed_path, textfile='stops.txt')
-    expected_error = ('{} has no records.'.format(
-        os.path.join(feed_path, 'stops.txt')))
-    assert expected_error in str(excinfo.value)
-
-
 def test_read_gtfs_routes(routes_txt_w_invalid_values):
     raw_df, expected_df, feed_path = routes_txt_w_invalid_values
-    result = utils_format._read_gtfs_routes(
+    result = utils_format._read_gtfs_file(
         textfile_path=feed_path, textfile='routes.txt')
     assert result.equals(expected_df)
 
 
-def test_read_gtfs_routes_invalid_params(
-        agency_a_feed_on_disk_w_calendar_and_calendar_dates_empty_txt):
-    feed_path = agency_a_feed_on_disk_w_calendar_and_calendar_dates_empty_txt
-    with pytest.raises(ValueError) as excinfo:
-        result = utils_format._read_gtfs_routes(
-            textfile_path=feed_path, textfile='trips.txt')
-    expected_error = ('trips.txt is not an expected GTFS file name. '
-                      'Expected: routes.txt.')
-    assert expected_error in str(excinfo.value)
-    with pytest.raises(ValueError) as excinfo:
-        result = utils_format._read_gtfs_routes(
-            textfile_path=feed_path, textfile='routes.txt')
-    expected_error = ('{} has no records.'.format(
-        os.path.join(feed_path, 'routes.txt')))
-    assert expected_error in str(excinfo.value)
-
-
 def test_read_gtfs_trips(trips_txt_w_invalid_values):
     raw_df, expected_df, feed_path = trips_txt_w_invalid_values
-    result = utils_format._read_gtfs_trips(
+    result = utils_format._read_gtfs_file(
         textfile_path=feed_path, textfile='trips.txt')
     assert result.equals(expected_df)
 
 
-def test_read_gtfs_trips_invalid_params(
-        agency_a_feed_on_disk_w_calendar_and_calendar_dates_empty_txt):
-    feed_path = agency_a_feed_on_disk_w_calendar_and_calendar_dates_empty_txt
-    with pytest.raises(ValueError) as excinfo:
-        result = utils_format._read_gtfs_trips(
-            textfile_path=feed_path, textfile='stops.txt')
-    expected_error = ('stops.txt is not an expected GTFS file name. '
-                      'Expected: trips.txt.')
-    assert expected_error in str(excinfo.value)
-    with pytest.raises(ValueError) as excinfo:
-        result = utils_format._read_gtfs_trips(
-            textfile_path=feed_path, textfile='trips.txt')
-    expected_error = ('{} has no records.'.format(
-        os.path.join(feed_path, 'trips.txt')))
-    assert expected_error in str(excinfo.value)
-
-
 def test_read_gtfs_stop_times(stop_times_txt_w_invalid_values):
     raw_df, expected_df, feed_path = stop_times_txt_w_invalid_values
-    result = utils_format._read_gtfs_stop_times(
+    result = utils_format._read_gtfs_file(
         textfile_path=feed_path, textfile='stop_times.txt')
     assert result.equals(expected_df)
 
 
-def test_read_gtfs_stop_times_invalid_params(
-        agency_a_feed_on_disk_w_calendar_and_calendar_dates_empty_txt):
-    feed_path = agency_a_feed_on_disk_w_calendar_and_calendar_dates_empty_txt
-    with pytest.raises(ValueError) as excinfo:
-        result = utils_format._read_gtfs_stop_times(
-            textfile_path=feed_path, textfile='trips.txt')
-    expected_error = ('trips.txt is not an expected GTFS file name. '
-                      'Expected: stop_times.txt.')
-    assert expected_error in str(excinfo.value)
-    with pytest.raises(ValueError) as excinfo:
-        result = utils_format._read_gtfs_stop_times(
-            textfile_path=feed_path, textfile='stop_times.txt')
-    expected_error = ('{} has no records.'.format(
-        os.path.join(feed_path, 'stop_times.txt')))
-    assert expected_error in str(excinfo.value)
-
-
 def test_read_gtfs_calendar(calendar_txt_w_invalid_values):
     raw_df, expected_df, feed_path = calendar_txt_w_invalid_values
-    result = utils_format._read_gtfs_calendar(
+    result = utils_format._read_gtfs_file(
         textfile_path=feed_path, textfile='calendar.txt')
     assert result.equals(expected_df)
 
 
-def test_read_gtfs_calendar_invalid_params(
+def test_read_gtfs_calendar_no_data(
         capsys,
         agency_a_feed_on_disk_w_calendar_and_calendar_dates_empty_txt):
     feed_path = agency_a_feed_on_disk_w_calendar_and_calendar_dates_empty_txt
-    with pytest.raises(ValueError) as excinfo:
-        result = utils_format._read_gtfs_calendar(
-            textfile_path=feed_path, textfile='trips.txt')
-    expected_error = ('trips.txt is not an expected GTFS file name. '
-                      'Expected: calendar.txt.')
-    assert expected_error in str(excinfo.value)
-    result = utils_format._read_gtfs_calendar(
+    result = utils_format._read_gtfs_file(
         textfile_path=feed_path, textfile='calendar.txt')
     # check that expected print prints
     captured = capsys.readouterr()
@@ -1188,26 +1128,46 @@ def test_read_gtfs_calendar_invalid_params(
 
 def test_read_gtfs_calendar_dates(calendar_dates_txt_w_invalid_values):
     raw_df, expected_df, feed_path = calendar_dates_txt_w_invalid_values
-    result = utils_format._read_gtfs_calendar_dates(
+    result = utils_format._read_gtfs_file(
         textfile_path=feed_path, textfile='calendar_dates.txt')
     assert result.equals(expected_df)
 
 
-def test_read_gtfs_calendar_dates_invalid_params(
+def test_read_gtfs_calendar_dates_no_data(
         capsys,
         agency_a_feed_on_disk_w_calendar_and_calendar_dates_empty_txt):
     feed_path = agency_a_feed_on_disk_w_calendar_and_calendar_dates_empty_txt
-    with pytest.raises(ValueError) as excinfo:
-        result = utils_format._read_gtfs_calendar_dates(
-            textfile_path=feed_path, textfile='trips.txt')
-    expected_error = ('trips.txt is not an expected GTFS file name. '
-                      'Expected: calendar_dates.txt.')
-    assert expected_error in str(excinfo.value)
-    result = utils_format._read_gtfs_calendar_dates(
+    result = utils_format._read_gtfs_file(
         textfile_path=feed_path, textfile='calendar_dates.txt')
     # check that expected print prints
     captured = capsys.readouterr()
     assert 'service_ids' in captured.out
+
+
+def test_read_gtfs_file_general_errors(
+        agency_a_feed_on_disk_w_calendar_and_calendar_dates_empty_txt,
+        trips_txt_w_missing_req_col):
+    feed_path = agency_a_feed_on_disk_w_calendar_and_calendar_dates_empty_txt
+    with pytest.raises(ValueError) as excinfo:
+        result = utils_format._read_gtfs_file(
+            textfile_path=feed_path, textfile='random.txt')
+    expected_error = (
+        "random.txt is not a supported GTFS file. Supported files are: "
+        "['agency.txt', 'stops.txt', 'routes.txt', 'trips.txt', "
+        "'stop_times.txt', 'calendar.txt', 'calendar_dates.txt'].")
+    assert expected_error in str(excinfo.value)
+    with pytest.raises(ValueError) as excinfo:
+        result = utils_format._read_gtfs_file(
+            textfile_path=feed_path, textfile='trips.txt')
+    expected_error = 'trips.txt has no records. This file cannot be empty.'
+    assert expected_error in str(excinfo.value)
+    raw_df, feed_path = trips_txt_w_missing_req_col
+    with pytest.raises(ValueError) as excinfo:
+        result = utils_format._read_gtfs_file(
+            textfile_path=feed_path, textfile='trips.txt')
+    expected_error = ("trips.txt is missing required column(s): ['trip_id', "
+                      "'service_id'].")
+    assert expected_error in str(excinfo.value)
 
 
 def test_list_raw_txt_columns(calendar_dates_txt_w_invalid_values):
