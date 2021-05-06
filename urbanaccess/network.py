@@ -315,22 +315,16 @@ def _route_id_to_node(stops_df, edges_w_routes):
         stops_df['stop_id'].str.cat(
             stops_df['unique_agency_id'].astype('str'), sep='_'))
 
-    tmp1 = pd.merge(edges_w_routes[['node_id_from',
-                                    'node_id_route_from']],
-                    stops_df[['unique_stop_id',
-                              'stop_lat',
-                              'stop_lon']],
+    tmp1 = pd.merge(edges_w_routes[['node_id_from', 'node_id_route_from']],
+                    stops_df[['unique_stop_id', 'stop_lat', 'stop_lon']],
                     how='left', left_on='node_id_from',
                     right_on='unique_stop_id', sort=False, copy=False)
     tmp1.rename(columns={'node_id_route_from': 'node_id_route',
                          'stop_lon': 'x',
                          'stop_lat': 'y'},
                 inplace=True)
-    tmp2 = pd.merge(edges_w_routes[['node_id_to',
-                                    'node_id_route_to']],
-                    stops_df[['unique_stop_id',
-                              'stop_lat',
-                              'stop_lon']],
+    tmp2 = pd.merge(edges_w_routes[['node_id_to', 'node_id_route_to']],
+                    stops_df[['unique_stop_id', 'stop_lat', 'stop_lon']],
                     how='left',
                     left_on='node_id_to',
                     right_on='unique_stop_id', sort=False, copy=False)
@@ -343,16 +337,16 @@ def _route_id_to_node(stops_df, edges_w_routes):
                                        tmp2[['node_id_route', 'x', 'y']]],
                                       axis=0)
 
-    transit_nodes_wroutes.drop_duplicates(subset='node_id_route',
-                                          keep='first',
-                                          inplace=True)
+    transit_nodes_wroutes.drop_duplicates(
+        subset='node_id_route', keep='first', inplace=True)
     # set node index to be unique stop ID
     transit_nodes_wroutes = transit_nodes_wroutes.set_index('node_id_route')
 
-    log(
-        'routes successfully joined to transit nodes. Took {:,'
-        '.2f} seconds'.format(
-            time.time() - start_time))
+    # set network type
+    transit_nodes_wroutes['net_type'] = 'transit'
+
+    log('routes successfully joined to transit nodes. '
+        'Took {:,.2f} seconds'.format(time.time() - start_time))
 
     return transit_nodes_wroutes
 
