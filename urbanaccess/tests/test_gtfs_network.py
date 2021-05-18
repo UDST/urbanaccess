@@ -492,7 +492,7 @@ def test_create_transit_net_wo_calendar_dates_timepad(
         save_processed_gtfs=False,
         save_dir=None,
         save_filename=None,
-        timerange_pad=6,
+        timerange_pad='06:00:00',
         time_aware=False)
     assert isinstance(transit_net, urbanaccess_network)
     urbanaccess_network_info = vars(transit_net)
@@ -794,7 +794,7 @@ def test_create_transit_net_invalid_params(gtfs_feed_wo_calendar_dates):
             save_filename=None,
             timerange_pad=0.4,
             time_aware=False)
-    expected_error = "timerange_pad must be int."
+    expected_error = "timerange_pad must be string."
     assert expected_error in str(excinfo.value)
 
 
@@ -1224,7 +1224,7 @@ def test_time_selector_w_timerange_pad(
         df=stop_times_int,
         starttime=timerange[0],
         endtime=timerange[1],
-        timerange_pad=6)
+        timerange_pad='06:00:00')
     # create expected subset result
     expected_result = stop_times_int.loc[
         stop_times_int.index.isin(
