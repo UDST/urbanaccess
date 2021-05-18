@@ -13,6 +13,7 @@
 /docs/build
 /demo/logs
 /demo/data
+/tests/images
 /tests/logs
 /tests/integration/data
 /tests/integration/logs
