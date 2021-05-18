@@ -1,4 +1,6 @@
 import pandas as pd
+import os
+import logging as lg
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from matplotlib import collections as mc
@@ -6,6 +8,7 @@ import numpy as np
 import time
 
 from urbanaccess.utils import log
+from urbanaccess import config
 
 
 def plot_net(nodes, edges, x_col=None, y_col=None, from_col=None,
@@ -14,6 +17,7 @@ def plot_net(nodes, edges, x_col=None, y_col=None, from_col=None,
              edge_color='#999999', edge_linewidth=1, edge_alpha=1,
              node_color='black', node_size=15, node_alpha=1,
              node_edgecolor='none', node_zorder=3, nodes_only=False,
+             show=True, close=False, save=False, filepath=None, dpi=300,
              ax=None):
     """
     plot urbanaccess network nodes and edges
@@ -62,6 +66,22 @@ def plot_net(nodes, edges, x_col=None, y_col=None, from_col=None,
         nodes under the edges, 3 will plot nodes on top
     nodes_only : bool, optional
         if true only the nodes will plot
+    show : bool, optional
+        if true, figure will be shown via pyplot.show()
+    close : bool, optional
+        if true, figure will be closed via pyplot.close()
+    save : bool, optional
+        if true, save the figure to disk at location specified in filepath
+    filepath : string, optional
+        if save is true, the full path to the file with file name and
+        extension. If only file name and no path is provided, image will be
+        saved with the default config.settings.images_folder directory.
+        File format is derived from the file extension.
+        If None, will save image in config.settings.images_folder as
+        'urbanaccess_plot.png'
+    dpi : int, optional
+        if save is true, the image resolution of saved file.
+        Default is 300 DPI.
     ax :  matplotlib.axes._subplots.AxesSubplot, optional
         matplotlib axes, as given by, for example, plt.subplot.
         Use to specify the projection.
@@ -167,16 +187,62 @@ def plot_net(nodes, edges, x_col=None, y_col=None, from_col=None,
     ax.get_yaxis().get_major_formatter().set_useOffset(False)
     ax.axis('off')
 
-    log('Figure created. Took {:,.2f} seconds'.format(
-        time.time() - start_time))
+    if save:
+        fig = _save_figure(fig, filepath, dpi)
+    if show:
+        plt.show()
+    if close:
+        plt.close()
 
-    plt.show()
+    log('Figure created. Took {:,.2f} seconds.'.format(
+        time.time() - start_time))
 
     return fig, ax
 
 
-def col_colors(df, col, num_bins=5, cmap='spectral',
-               start=0.1, stop=0.9):
+def _save_figure(fig, filepath, dpi):
+    # if filepath not specified then use the default in config and
+    # save file using default file name as PNG
+    if filepath is None:
+        filename = '{}.png'.format(config.settings.image_filename)
+        filepath = config.settings.images_folder
+    else:
+        if not isinstance(filepath, str):
+            raise ValueError('Filepath must be a string.')
+        filename = os.path.basename(filepath)
+        filepath = os.path.dirname(filepath)
+        # if only filename was specified in param, default dir to the
+        # default images dir
+        if filepath == '':
+            filepath = config.settings.images_folder
+    try:
+        if not os.path.exists(filepath):
+            os.makedirs(filepath)
+    except Exception:
+        error_msg = 'Unable to make directory: {}.'
+        raise ValueError(error_msg.format(filepath))
+    # reconstitute the full filepath
+    filepath = os.path.join(filepath, filename)
+    # if existing file already exists warn that it will be overwritten
+    if os.path.isfile(filepath):
+        warn_msg = ('Warning: Existing file {} already exists in '
+                    'directory: {} and will be overwritten...')
+        warning_msg = (warn_msg.format(filename, filepath))
+        log(warning_msg, level=lg.WARNING)
+
+    # get image file extension
+    image_ext = os.path.splitext(filepath)[1].replace('.', '')
+
+    fig.set_frameon(True)  # required to save with facecolor
+    fig.savefig(filepath, dpi=dpi, bbox_inches='tight',
+                format=image_ext, facecolor=fig.get_facecolor(),
+                transparent=True)
+    fig.set_frameon(False)  # return to original state
+    log('Saved {} figure: {}.'.format(image_ext, filepath))
+    return fig
+
+
+def col_colors(df, col, num_bins=5, cmap='Spectral', start=0.1, stop=0.9):
     """
     Get a list of colors by binning a continuous variable column
     into quantiles

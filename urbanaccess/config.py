@@ -16,19 +16,19 @@ def _format_check(settings):
     Nothing
     """
 
-    valid_keys = ['data_folder', 'logs_folder', 'log_file',
-                  'log_console', 'log_name', 'log_filename',
+    valid_keys = ['data_folder', 'images_folder', 'image_filename', 'logs_folder',
+                  'log_file', 'log_console', 'log_name', 'log_filename',
                   'txt_encoding', 'gtfs_api']
 
     for key in settings.keys():
         if key not in valid_keys:
             raise ValueError('{} not found in list of valid configuration '
-                             'keys'.format(key))
+                             'keys: {}.'.format(key, valid_keys))
         if not isinstance(key, str):
-            raise ValueError('{} must be a string'.format(key))
+            raise ValueError('{} must be a string.'.format(key))
         if key == 'log_file' or key == 'log_console':
             if not isinstance(settings[key], bool):
-                raise ValueError('{} must be boolean'.format(key))
+                raise ValueError('{} must be boolean.'.format(key))
 
 
 # TODO: make class CamelCase
@@ -41,6 +41,10 @@ class urbanaccess_config(object):
     ----------
     data_folder : str
         location to save and load data files
+    images_folder : str
+        location to save images saved from plotting networks
+    image_filename : str
+        default name of image to use when saving plots
     logs_folder : str
         location to write log files
     log_file : bool
@@ -60,19 +64,23 @@ class urbanaccess_config(object):
         the GTFS API server root URL as the value to pass to the GTFS loader
     """
 
-    def __init__(self,
-                 data_folder='data',
-                 logs_folder='logs',
-                 log_file=True,
-                 log_console=False,
-                 log_name='urbanaccess',
-                 log_filename='urbanaccess',
-                 txt_encoding='utf-8',
-                 gtfs_api={'gtfsdataexch': (
-                         'http://www.gtfs-data-exchange.com/'
-                         'api/agencies?format=csv')}):
+    def __init__(
+            self,
+            data_folder='data',
+            images_folder='images',
+            image_filename='urbanaccess_plot',
+            logs_folder='logs',
+            log_file=True,
+            log_console=False,
+            log_name='urbanaccess',
+            log_filename='urbanaccess',
+            txt_encoding='utf-8',
+            gtfs_api={'gtfsdataexch': (
+                'http://www.gtfs-data-exchange.com/api/agencies?format=csv')}):
 
         self.data_folder = data_folder
+        self.images_folder = images_folder
+        self.image_filename = image_filename
         self.logs_folder = logs_folder
         self.log_file = log_file
         self.log_console = log_console
@@ -111,19 +119,24 @@ class urbanaccess_config(object):
         with open(yaml_file, 'r') as f:
             yaml_config = yaml.safe_load(f)
 
-        settings = cls(data_folder=yaml_config.get('data_folder', 'data'),
-                       logs_folder=yaml_config.get('logs_folder', 'logs'),
-                       log_file=yaml_config.get('log_file', True),
-                       log_console=yaml_config.get('log_console', False),
-                       log_name=yaml_config.get('log_name', 'urbanaccess'),
-                       log_filename=yaml_config.get('log_filename',
-                                                    'urbanaccess'),
-                       txt_encoding=yaml_config.get('txt_encoding', 'utf-8'),
-                       gtfs_api=yaml_config.get('gtfs_api', {
-                           'gtfsdataexch':
-                               ('http://www.gtfs-data-exchange.com/'
-                                'api/agencies?format=csv')}),
-                       )
+        settings = cls(
+            data_folder=yaml_config.get('data_folder', 'data'),
+            images_folder=yaml_config.get('images_folder', 'images'),
+            image_filename=yaml_config.get(
+                'image_filename', 'urbanaccess_plot'),
+            logs_folder=yaml_config.get('logs_folder', 'logs'),
+            log_file=yaml_config.get('log_file', True),
+            log_console=yaml_config.get('log_console', False),
+            log_name=yaml_config.get('log_name', 'urbanaccess'),
+            log_filename=yaml_config.get('log_filename', 'urbanaccess'),
+            txt_encoding=yaml_config.get('txt_encoding', 'utf-8'),
+            gtfs_api=yaml_config.get(
+                'gtfs_api', {'gtfsdataexch': (
+                    'http://www.gtfs-data-exchange.com/api/agencies?format=csv'
+                )
+                }
+            )
+        )
 
         return settings
 
@@ -132,13 +145,15 @@ class urbanaccess_config(object):
         Return a dict representation of an urbanaccess_config instance.
         """
         return {'data_folder': self.data_folder,
+                'images_folder': self.images_folder,
+                'image_filename': self.image_filename,
                 'logs_folder': self.logs_folder,
                 'log_file': self.log_file,
                 'log_console': self.log_console,
                 'log_name': self.log_name,
                 'log_filename': self.log_filename,
                 'txt_encoding': self.txt_encoding,
-                'gtfs_api': self.gtfs_api,
+                'gtfs_api': self.gtfs_api
                 }
 
     def to_yaml(self, configdir='configs', yamlname='urbanaccess_config.yaml',
