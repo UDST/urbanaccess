@@ -90,6 +90,35 @@ def selected_int_stop_times_from_feed_wo_calendar_dates(
 
 
 @pytest.fixture
+def selected_int_stop_times_from_feed_wo_calendar_dates_for_timepad(
+        gtfs_feed_wo_calendar_dates):
+    stop_times = gtfs_feed_wo_calendar_dates.stop_times.copy()
+    trip_ids = ['a1', 'a2', 'a3', 'a4', 'b1', 'b2', 'c1', 'c2']
+    stop_times_subset = stop_times.loc[stop_times['trip_id'].isin(trip_ids)]
+    stop_times_subset = stop_times_subset.loc[
+        ((stop_times_subset['departure_time_sec'] >= 22500) & (
+                stop_times_subset['departure_time_sec'] <= 96000)) | (
+            stop_times_subset['departure_time_sec'].isnull())]
+    stop_times_subset['unique_stop_id'] = (
+        stop_times_subset['stop_id'].str.cat(
+            stop_times_subset['unique_agency_id'].astype('str'), sep='_'))
+    stop_times_subset['departure_time_sec_interpolate'] = stop_times_subset[
+        'departure_time_sec']
+    update_dict = {2: 23100, 3: 23400, 26: 23100, 27: 23400, 38: 95100,
+                   39: 95400}
+    for index, value in update_dict.items():
+        stop_times_subset.at[index, 'departure_time_sec_interpolate'] = value
+    update_dict = {0: np.nan, 6: np.nan, 11: 600.0, 12: np.nan, 18: np.nan,
+                   24: np.nan, 30: np.nan, 35: 600.0, 36: np.nan, 42: np.nan,
+                   47: 600.0}
+    stop_times_subset['timediff'] = 300.0
+    for index, value in update_dict.items():
+        stop_times_subset.at[index, 'timediff'] = value
+
+    return stop_times_subset
+
+
+@pytest.fixture
 def selected_stops_from_feed_wo_calendar_dates(gtfs_feed_wo_calendar_dates):
     # create 'final_selected_stops' df that is used as input to test function
     stops_df = gtfs_feed_wo_calendar_dates.stops.copy()
@@ -176,7 +205,11 @@ def stop_times_interpolated():
                            '10_citybuses', '11_citybuses', '12_citybuses',
                            '13_citybuses', '14_citybuses'],
         'stop_id': ['10', '11', '12', '13', '14'] * 4,
-        'stop_sequence': [1, 2, 3, 4, 5] * 4
+        'stop_sequence': [1, 2, 3, 4, 5] * 4,
+        'arrival_time': ['08:15:00', '08:20:00', '08:25:00', '08:30:00',
+                         '08:35:00'] * 4,
+        'departure_time': ['08:15:00', '08:20:00', '08:25:00', '08:30:00',
+                           '08:35:00'] * 4
     }
 
     index = range(20)
@@ -246,6 +279,65 @@ def expected_transit_edge_from_feed_wo_calendar_dates_process_lvl_2():
 
 
 @pytest.fixture
+def expected_transit_edge_from_feed_wo_calendar_dates_process_lvl_2_timeaware():  # noqa
+    # represents df after it has been post-processed downstream
+    data = {
+        'node_id_from': ['1_agency_a_city_a', '2_agency_a_city_a',
+                         '3_agency_a_city_a', '4_agency_a_city_a',
+                         '5_agency_a_city_a'],
+        'node_id_to': ['2_agency_a_city_a', '3_agency_a_city_a',
+                       '4_agency_a_city_a', '5_agency_a_city_a',
+                       '6_agency_a_city_a'],
+        'weight': [5.0] * 5,
+        'unique_agency_id': ['agency_a_city_a'] * 5,
+        'unique_trip_id': ['a3_agency_a_city_a'] * 5,
+        'sequence': range(1, 6),
+        'id': ['a3_agency_a_city_a_1', 'a3_agency_a_city_a_2',
+               'a3_agency_a_city_a_3', 'a3_agency_a_city_a_4',
+               'a3_agency_a_city_a_5'],
+        'route_type': [3] * 5,
+        'departure_time': ['08:15:00', '08:20:00', '08:25:00', '08:30:00',
+                           '08:35:00'],
+        'arrival_time': ['08:20:00', '08:25:00', '08:30:00', '08:35:00',
+                         '08:40:00']
+    }
+    index = range(5)
+    df = pd.DataFrame(data, index)
+    # raw data are read as int32
+    df['sequence'] = df['sequence'].astype('int32')
+    return df
+
+
+@pytest.fixture
+def expected_transit_edge_from_feed_wo_calendar_dates_process_lvl_1_timeaware(
+        expected_transit_edge_from_feed_wo_calendar_dates_process_lvl_2_timeaware):  # noqa
+    # represents df prior to being post-processed downstream
+    df = expected_transit_edge_from_feed_wo_calendar_dates_process_lvl_2_timeaware.copy()  # noqa
+    df.drop(columns=['route_type'], inplace=True)
+    # convert weight from min to sec to represent df prior to
+    # post-process step
+    df['weight'] = 300.0
+
+    return df
+
+
+@pytest.fixture
+def expected_final_transit_edge_from_feed_wo_calendar_dates_timeaware(
+        expected_transit_edge_from_feed_wo_calendar_dates_process_lvl_2_timeaware):  # noqa
+    data = {
+        'unique_route_id': ['10-101_agency_a_city_a'] * 5,
+        'net_type': ['transit'] * 5
+    }
+    index = range(5)
+    df = pd.DataFrame(data, index)
+    df = pd.concat(
+        [expected_transit_edge_from_feed_wo_calendar_dates_process_lvl_2_timeaware,  # noqa
+        df],
+        axis=1)
+    return df
+
+
+@pytest.fixture
 def expected_final_transit_edge_from_feed_wo_calendar_dates(
         expected_transit_edge_from_feed_wo_calendar_dates_process_lvl_2):
     data = {
@@ -257,6 +349,29 @@ def expected_final_transit_edge_from_feed_wo_calendar_dates(
     df = pd.concat(
         [expected_transit_edge_from_feed_wo_calendar_dates_process_lvl_2, df],
         axis=1)
+    return df
+
+
+@pytest.fixture
+def expected_final_transit_edge_from_feed_wo_calendar_dates_timepad(
+        expected_final_transit_edge_from_feed_wo_calendar_dates):
+    # create expected edge table which includes a trip in the reverse
+    # direction from trip a4
+    df = expected_final_transit_edge_from_feed_wo_calendar_dates.copy()
+    df['node_id_from_2'] = df['node_id_to']
+    df['node_id_to_2'] = df['node_id_from']
+    df.drop(columns=['node_id_from', 'node_id_to'], inplace=True)
+    df.rename(columns={'node_id_from_2': 'node_id_from',
+                       'node_id_to_2': 'node_id_to'}, inplace=True)
+    df.sort_values(by=['id'], inplace=True, ascending=False)
+    df['sequence'] = [1, 2, 3, 4, 5]
+    df['unique_trip_id'] = df['unique_trip_id'].str.slice_replace(0, 2, 'a4')
+    df['id'] = (
+        df['unique_trip_id'].str.cat(
+            df['sequence'].astype('str'), sep='_'))
+    df = pd.concat(
+        [expected_final_transit_edge_from_feed_wo_calendar_dates, df],
+        axis=0, ignore_index=True)
     return df
 
 
@@ -359,6 +474,91 @@ def test_create_transit_net_wo_calendar_dates(
     # ensure 'sequence' is int32 for test as other OS sometimes reads this as
     # int64 and will cause tests to fail when using equals()
     result_edge['sequence'] = result_edge['sequence'].astype('int32')
+    assert result_edge.equals(expected_result)
+
+
+def test_create_transit_net_wo_calendar_dates_timepad(
+        gtfs_feed_wo_calendar_dates,
+        expected_urbanaccess_network_keys,
+        expected_final_transit_edge_from_feed_wo_calendar_dates_timepad):
+    expected_result = \
+        expected_final_transit_edge_from_feed_wo_calendar_dates_timepad.copy()
+    transit_net = gtfs_network.create_transit_net(
+        gtfs_feed_wo_calendar_dates, day='monday',
+        timerange=['07:00:00', '10:00:00'],
+        calendar_dates_lookup=None,
+        overwrite_existing_stop_times_int=False,
+        use_existing_stop_times_int=False,
+        save_processed_gtfs=False,
+        save_dir=None,
+        save_filename=None,
+        timerange_pad='06:00:00',
+        time_aware=False)
+    assert isinstance(transit_net, urbanaccess_network)
+    urbanaccess_network_info = vars(transit_net)
+    expected_dfs = ['transit_nodes', 'transit_edges']
+    assert expected_urbanaccess_network_keys == sorted(list(
+        urbanaccess_network_info.keys()))
+    for key, value in urbanaccess_network_info.items():
+        assert isinstance(value, pd.core.frame.DataFrame)
+        # check that df is not empty
+        if key in expected_dfs:
+            assert value.empty is False
+
+    result_edge = transit_net.transit_edges.copy()
+    # test that output df is identical to expected df
+    result_edge = result_edge.reindex(
+        sorted(result_edge.columns), axis=1)
+    expected_result = expected_result.reindex(
+        sorted(expected_result.columns), axis=1)
+    # ensure 'sequence' is int32 for test as other OS sometimes reads this as
+    # int64 and will cause tests to fail when using equals()
+    result_edge['sequence'] = result_edge['sequence'].astype('int32')
+    expected_result['sequence'] = expected_result['sequence'].astype('int32')
+    assert result_edge.equals(expected_result)
+
+
+def test_create_transit_net_wo_calendar_dates_timeaware(
+        gtfs_feed_wo_calendar_dates,
+        expected_urbanaccess_network_keys,
+        expected_final_transit_edge_from_feed_wo_calendar_dates_timeaware):
+    expected_result = \
+        expected_final_transit_edge_from_feed_wo_calendar_dates_timeaware.copy()  # noqa
+    transit_net = gtfs_network.create_transit_net(
+        gtfs_feed_wo_calendar_dates, day='monday',
+        timerange=['07:00:00', '10:00:00'],
+        calendar_dates_lookup=None,
+        overwrite_existing_stop_times_int=False,
+        use_existing_stop_times_int=False,
+        save_processed_gtfs=False,
+        save_dir=None,
+        save_filename=None,
+        timerange_pad=None,
+        time_aware=True)
+    assert isinstance(transit_net, urbanaccess_network)
+    urbanaccess_network_info = vars(transit_net)
+    expected_dfs = ['transit_nodes', 'transit_edges']
+    assert expected_urbanaccess_network_keys == sorted(list(
+        urbanaccess_network_info.keys()))
+    for key, value in urbanaccess_network_info.items():
+        assert isinstance(value, pd.core.frame.DataFrame)
+        # check that df is not empty
+        if key in expected_dfs:
+            assert value.empty is False
+
+    result_edge = transit_net.transit_edges.copy()
+    # check if expected timeware cols are in result
+    expected_timeaware_cols = ['arrival_time', 'departure_time']
+    assert all(col in result_edge.columns for col in expected_timeaware_cols)
+    # test that output df is identical to expected df
+    result_edge = result_edge.reindex(
+        sorted(result_edge.columns), axis=1)
+    expected_result = expected_result.reindex(
+        sorted(expected_result.columns), axis=1)
+    # ensure 'sequence' is int32 for test as other OS sometimes reads this as
+    # int64 and will cause tests to fail when using equals()
+    result_edge['sequence'] = result_edge['sequence'].astype('int32')
+    expected_result['sequence'] = expected_result['sequence'].astype('int32')
     assert result_edge.equals(expected_result)
 
 
@@ -567,6 +767,34 @@ def test_create_transit_net_invalid_params(gtfs_feed_wo_calendar_dates):
             save_filename=None)
     expected_error = ('overwrite_existing_stop_times_int and '
                       'use_existing_stop_times_int cannot both be True.')
+    assert expected_error in str(excinfo.value)
+    with pytest.raises(ValueError) as excinfo:
+        transit_net = gtfs_network.create_transit_net(
+            gtfs_feed_wo_calendar_dates, day='monday',
+            timerange=['07:00:00', '10:00:00'],
+            calendar_dates_lookup=None,
+            overwrite_existing_stop_times_int=False,
+            use_existing_stop_times_int=False,
+            save_processed_gtfs=False,
+            save_dir=None,
+            save_filename=None,
+            timerange_pad=None,
+            time_aware=6)
+    expected_error = "time_aware must be bool."
+    assert expected_error in str(excinfo.value)
+    with pytest.raises(ValueError) as excinfo:
+        transit_net = gtfs_network.create_transit_net(
+            gtfs_feed_wo_calendar_dates, day='monday',
+            timerange=['07:00:00', '10:00:00'],
+            calendar_dates_lookup=None,
+            overwrite_existing_stop_times_int=False,
+            use_existing_stop_times_int=False,
+            save_processed_gtfs=False,
+            save_dir=None,
+            save_filename=None,
+            timerange_pad=0.4,
+            time_aware=False)
+    expected_error = "timerange_pad must be string."
     assert expected_error in str(excinfo.value)
 
 
@@ -972,7 +1200,8 @@ def test_trip_schedule_selector_w_cal_dates_invalid_params_2(
     assert expected_error in str(excinfo.value)
 
 
-def test_time_selector(selected_int_stop_times_from_feed_wo_calendar_dates):
+def test_time_selector_wo_timerange_pad(
+        selected_int_stop_times_from_feed_wo_calendar_dates):
     timerange = ['08:20:00', '08:35:00']
     stop_times_int = selected_int_stop_times_from_feed_wo_calendar_dates.copy()
     result = gtfs_network._time_selector(
@@ -981,8 +1210,26 @@ def test_time_selector(selected_int_stop_times_from_feed_wo_calendar_dates):
         endtime=timerange[1])
 
     # create expected subset result
-    expected_result = stop_times_int.loc[14:15]
-    assert len(result) == 2
+    expected_result = stop_times_int.loc[13:16]
+    assert len(result) == 4
+    assert result.equals(expected_result)
+
+
+def test_time_selector_w_timerange_pad(
+        selected_int_stop_times_from_feed_wo_calendar_dates_for_timepad):
+    timerange = ['07:00:00', '10:00:00']
+    stop_times_int = \
+        selected_int_stop_times_from_feed_wo_calendar_dates_for_timepad.copy()
+    result = gtfs_network._time_selector(
+        df=stop_times_int,
+        starttime=timerange[0],
+        endtime=timerange[1],
+        timerange_pad='06:00:00')
+    # create expected subset result
+    expected_result = stop_times_int.loc[
+        stop_times_int.index.isin(
+            [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23])]
+    assert len(result) == 12
     assert result.equals(expected_result)
 
 
@@ -1002,7 +1249,8 @@ def test_time_difference(selected_int_stop_times_from_feed_wo_calendar_dates):
     assert result.equals(expected_result)
 
 
-def test_format_transit_net_edge_test_1(stop_times_interpolated):
+def test_format_transit_net_edge_test_1_timeaware_False(
+        stop_times_interpolated):
     df = gtfs_network._format_transit_net_edge(stop_times_interpolated)
 
     # length of edge df should be 16
@@ -1034,7 +1282,46 @@ def test_format_transit_net_edge_test_1(stop_times_interpolated):
                'unique_agency_id'][11]  # noqa
 
 
-def test_format_transit_net_edge_test_2(
+def test_format_transit_net_edge_test_1_timeaware_True(
+        stop_times_interpolated):
+    df = gtfs_network._format_transit_net_edge(stop_times_interpolated,
+                                               time_aware=True)
+
+    # length of edge df should be 16
+    assert len(df) == 16
+
+    # sequence ID should be numeric starting at 1 and end at 4 for each trip
+    assert df['sequence'][0] == 1 and df['sequence'][3] == 4
+
+    # edge df should have these columns and no null values
+    for col in ['node_id_from', 'node_id_to', 'weight']:
+        assert col in df.columns and df[
+            col].isnull().values.any() == False  # noqa
+
+    # there should be 4 edges per trip ID
+    for i, row in df.groupby('unique_trip_id').size().iteritems():
+        assert row == 4
+
+    # check if the values in edge df were obtained from the correct
+    # positions in the original stop times df
+    assert df['node_id_from'][0] == stop_times_interpolated[
+        'unique_stop_id'][0] and \
+           df['node_id_to'][0] == stop_times_interpolated[
+               'unique_stop_id'][1] and \
+           df['weight'][0] == stop_times_interpolated['timediff'][1]  # noqa
+
+    assert df['unique_trip_id'][8] == stop_times_interpolated[
+        'unique_trip_id'][11] and \
+           df['unique_agency_id'][8] == stop_times_interpolated[
+               'unique_agency_id'][11]  # noqa
+
+    assert df['departure_time'][0] == stop_times_interpolated[
+        'departure_time'][0]  # noqa
+    assert df['arrival_time'][0] == stop_times_interpolated[
+        'arrival_time'][1]  # noqa
+
+
+def test_format_transit_net_edge_test_2_timeaware_False(
         selected_int_stop_times_from_feed_wo_calendar_dates,
         expected_transit_edge_from_feed_wo_calendar_dates_process_lvl_1):
     expected_result = \
@@ -1047,6 +1334,36 @@ def test_format_transit_net_edge_test_2(
     stop_times_int['timediff'] = stop_times_int.groupby('unique_trip_id')[
         'departure_time_sec'].diff()
     result = gtfs_network._format_transit_net_edge(stop_times_int)
+
+    # test that output df is identical to expected df
+    result = result.reindex(
+        sorted(result.columns), axis=1)
+    expected_result = expected_result.reindex(
+        sorted(expected_result.columns), axis=1)
+    # ensure 'sequence' is int32 for test as other OS sometimes reads this as
+    # int64 and will cause tests to fail when using equals()
+    result['sequence'] = result['sequence'].astype('int32')
+    assert result.equals(expected_result)
+
+
+def test_format_transit_net_edge_timeaware_True(
+        selected_int_stop_times_from_feed_wo_calendar_dates,
+        expected_transit_edge_from_feed_wo_calendar_dates_process_lvl_1_timeaware):  # noqa
+    expected_result = \
+        expected_transit_edge_from_feed_wo_calendar_dates_process_lvl_1_timeaware.copy()  # noqa
+
+    # create the 'selected_interpolated_stop_times_df' that is expected
+    stop_times_int = selected_int_stop_times_from_feed_wo_calendar_dates.copy()
+    # there are no missing time values in the test data so just use
+    # 'departure_time_sec' to generate the timediff col for the test
+    stop_times_int['timediff'] = stop_times_int.groupby('unique_trip_id')[
+        'departure_time_sec'].diff()
+    result = gtfs_network._format_transit_net_edge(stop_times_int,
+                                                   time_aware=True)
+
+    # check if expected timeware cols are in result
+    expected_timeaware_cols = ['arrival_time', 'departure_time']
+    assert all(col in result.columns for col in expected_timeaware_cols)
 
     # test that output df is identical to expected df
     result = result.reindex(
