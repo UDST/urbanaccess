@@ -2,6 +2,7 @@ from __future__ import division
 import os
 import pandas as pd
 import time
+from datetime import datetime, timedelta
 import logging as lg
 
 from urbanaccess.utils import log, df_to_hdf5, hdf5_to_df
@@ -71,13 +72,17 @@ def create_transit_net(
         directory to save the HDF5 file
     save_filename : str, optional
         name to save the HDF5 file as
-    timerange_pad: int, optional
-        integer indicating the number of hours to pad after the end of the
-        time interval specified in 'timerange'
+    timerange_pad: str, optional
+        string indicating the number of hours minutes seconds to pad after the
+        end of the time interval specified in 'timerange'. Must follow format
+        of a 24 hour clock for example: '02:00:00' for a two hour pad or
+        '02:30:00' for a 2 hour and 30 minute pad.
     time_aware: bool, optional
         boolean to indicate whether the transit network should include
         time information. If True, 'arrival_time' and 'departure_time' columns
         from the stop_times table will be included in the transit edge table
+        where 'departure_time' is the departure time at node_id_from stop and
+        'arrival_time' is the arrival time at node_id_to stop
 
     Returns
     -------
@@ -106,8 +111,8 @@ def create_transit_net(
         raise ValueError('use_existing_stop_times_int must be bool.')
     if not isinstance(save_processed_gtfs, bool):
         raise ValueError('save_processed_gtfs must be bool.')
-    if timerange_pad and not isinstance(timerange_pad, int):
-        raise ValueError('timerange_pad must be int.')
+    if timerange_pad and not isinstance(timerange_pad, str):
+        raise ValueError('timerange_pad must be string.')
     if not isinstance(time_aware, bool):
         raise ValueError('time_aware must be bool.')
     if overwrite_existing_stop_times_int and use_existing_stop_times_int:
@@ -726,9 +731,11 @@ def _time_selector(df, starttime, endtime, timerange_pad=None):
         24 hour clock formatted time 1
     endtime : str
         24 hour clock formatted time 2,
-    timerange_pad: int, optional
-        integer indicating the number of hours to pad after the end of the
-        time interval specified in 'endtime'
+    timerange_pad: str, optional
+        string indicating the number of hours minutes seconds to pad after the
+        end of the time interval specified in 'timerange'. Must follow format
+        of a 24 hour clock for example: '02:00:00' for a two hour pad or
+        '02:30:00' for a 2 hour and 30 minute pad.
     Returns
     -------
     selected_stop_timesdf : pandas.DataFrame
@@ -756,14 +763,24 @@ def _time_selector(df, starttime, endtime, timerange_pad=None):
 
     # define timepad in seconds to include stops active after specified endtime
     if timerange_pad:
-        end_h_wpad = str(end_h + timerange_pad)
-        end_h_wpad = end_h_wpad.zfill(2)
-        pad_str = '{}:{}:{}'.format(end_h_wpad, endtime[3:5], endtime[6:8])
+        # convert timerange_pad 24 hour to seconds
+        pad_h = int(str(timerange_pad[0:2]))
+        pad_m = int(str(timerange_pad[3:5]))
+        pad_s = int(str(timerange_pad[6:8]))
+        pad_sec = (pad_h * 60 * 60) + (pad_m * 60) + pad_s
+
+        # add endtime and timerange_pad to get new endtime and convert to
+        # str for informative print
+        dt1 = datetime.strptime(endtime, '%H:%M:%S')
+        dt2 = datetime.strptime(timerange_pad, '%H:%M:%S')
+        dt2_delta = timedelta(hours=dt2.hour, minutes=dt2.minute,
+                              seconds=dt2.second)
+        dt3 = dt1 + dt2_delta
+        str_t3 = datetime.strftime(dt3, '%H:%M:%S')
         log('   Additional stop times active between the specified end time: '
-            '{} with timerange_pad of: {} hour(s) (padded end time: {}) '
-            'will be selected...'.format(
-             endtime, timerange_pad, pad_str))
-    pad = int(0 if timerange_pad is None else timerange_pad) * 3600
+            '{} with timerange_pad of: {} (padded end time: {}) '
+            'will be selected...'.format(endtime, timerange_pad, str_t3))
+    pad = int(0 if timerange_pad is None else pad_sec)
 
     # create df of stops times that are within the requested range
     selected_stop_timesdf = df[(
@@ -777,7 +794,7 @@ def _time_selector(df, starttime, endtime, timerange_pad=None):
             'successfully selected {:,} records out of {:,} total records '
             '({:.2f} percent of total). '
             'Took {:,.2f} seconds.'.format(
-                starttime, endtime, pad_str, subset_df_count, df_count,
+                starttime, endtime, str_t3, subset_df_count, df_count,
                 (subset_df_count / df_count) * 100,
                 time.time() - start_time))
     else:
@@ -805,6 +822,8 @@ def _format_transit_net_edge(stop_times_df, time_aware=False):
         boolean to indicate whether the transit network should include
         time information. If True, 'arrival_time' and 'departure_time' columns
         from the stop_times table will be included in the transit edge table
+        where 'departure_time' is the departure time at node_id_from stop and
+        'arrival_time' is the arrival time at node_id_to stop
 
     Returns
     -------
@@ -833,8 +852,7 @@ def _format_transit_net_edge(stop_times_df, time_aware=False):
             'stop times to edges...')
 
     for trip, tmp_trip_df in stop_times_df.groupby(['unique_trip_id']):
-        # if 'time_aware', also create from and to arrival and departure time
-        # cols
+        # if 'time_aware', also create arrival and departure time cols
         if time_aware:
             edge_df = pd.DataFrame({
                 "node_id_from": tmp_trip_df['unique_stop_id'].iloc[:-1].values,
@@ -845,15 +863,12 @@ def _format_transit_net_edge(stop_times_df, time_aware=False):
                 # set unique trip ID without edge order to join other data
                 # later
                 "unique_trip_id": trip,
-                # create from and to arrival and departure time cols
-                "arrival_time_from":
-                    tmp_trip_df['arrival_time'].iloc[:-1].values,
-                "arrival_time_to":
-                    tmp_trip_df['arrival_time'].iloc[1:].values,
-                "departure_time_from":
+                # departure_time at node_id_from stop
+                "departure_time":
                     tmp_trip_df['departure_time'].iloc[:-1].values,
-                "departure_time_to":
-                    tmp_trip_df['departure_time'].iloc[1:].values
+                # arrival_time at node_id_to stop
+                "arrival_time":
+                    tmp_trip_df['arrival_time'].iloc[1:].values
             })
         else:
             edge_df = pd.DataFrame({
