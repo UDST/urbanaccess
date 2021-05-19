@@ -296,14 +296,10 @@ def expected_transit_edge_from_feed_wo_calendar_dates_process_lvl_2_timeaware():
                'a3_agency_a_city_a_3', 'a3_agency_a_city_a_4',
                'a3_agency_a_city_a_5'],
         'route_type': [3] * 5,
-        'arrival_time_from': ['08:15:00', '08:20:00', '08:25:00', '08:30:00',
-                              '08:35:00'],
-        'arrival_time_to': ['08:20:00', '08:25:00', '08:30:00', '08:35:00',
-                            '08:40:00'],
-        'departure_time_from': ['08:15:00', '08:20:00', '08:25:00', '08:30:00',
-                                '08:35:00'],
-        'departure_time_to': ['08:20:00', '08:25:00', '08:30:00', '08:35:00',
-                              '08:40:00']
+        'departure_time': ['08:15:00', '08:20:00', '08:25:00', '08:30:00',
+                           '08:35:00'],
+        'arrival_time': ['08:20:00', '08:25:00', '08:30:00', '08:35:00',
+                         '08:40:00']
     }
     index = range(5)
     df = pd.DataFrame(data, index)
@@ -496,7 +492,7 @@ def test_create_transit_net_wo_calendar_dates_timepad(
         save_processed_gtfs=False,
         save_dir=None,
         save_filename=None,
-        timerange_pad=6,
+        timerange_pad='06:00:00',
         time_aware=False)
     assert isinstance(transit_net, urbanaccess_network)
     urbanaccess_network_info = vars(transit_net)
@@ -552,8 +548,7 @@ def test_create_transit_net_wo_calendar_dates_timeaware(
 
     result_edge = transit_net.transit_edges.copy()
     # check if expected timeware cols are in result
-    expected_timeaware_cols = ['arrival_time_from', 'arrival_time_to',
-                               'departure_time_from', 'departure_time_to']
+    expected_timeaware_cols = ['arrival_time', 'departure_time']
     assert all(col in result_edge.columns for col in expected_timeaware_cols)
     # test that output df is identical to expected df
     result_edge = result_edge.reindex(
@@ -799,7 +794,7 @@ def test_create_transit_net_invalid_params(gtfs_feed_wo_calendar_dates):
             save_filename=None,
             timerange_pad=0.4,
             time_aware=False)
-    expected_error = "timerange_pad must be int."
+    expected_error = "timerange_pad must be string."
     assert expected_error in str(excinfo.value)
 
 
@@ -1243,7 +1238,7 @@ def test_time_selector_w_timerange_pad(
         df=stop_times_int,
         starttime=timerange[0],
         endtime=timerange[1],
-        timerange_pad=6)
+        timerange_pad='06:00:00')
     # create expected subset result
     expected_result = stop_times_int.loc[
         stop_times_int.index.isin(
@@ -1334,15 +1329,10 @@ def test_format_transit_net_edge_test_1_timeaware_True(
            df['unique_agency_id'][8] == stop_times_interpolated[
                'unique_agency_id'][11]  # noqa
 
-    assert df['arrival_time_from'][0] == stop_times_interpolated[
-        'arrival_time'][0] and \
-           df['arrival_time_to'][0] == stop_times_interpolated[
-               'arrival_time'][1]  # noqa
-
-    assert df['departure_time_from'][0] == stop_times_interpolated[
-        'departure_time'][0] and \
-           df['departure_time_to'][0] == stop_times_interpolated[
-               'departure_time'][1]  # noqa
+    assert df['departure_time'][0] == stop_times_interpolated[
+        'departure_time'][0]  # noqa
+    assert df['arrival_time'][0] == stop_times_interpolated[
+        'arrival_time'][1]  # noqa
 
 
 def test_format_transit_net_edge_test_2_timeaware_False(
@@ -1386,8 +1376,7 @@ def test_format_transit_net_edge_timeaware_True(
                                                    time_aware=True)
 
     # check if expected timeware cols are in result
-    expected_timeaware_cols = ['arrival_time_from', 'arrival_time_to',
-                               'departure_time_from', 'departure_time_to']
+    expected_timeaware_cols = ['arrival_time', 'departure_time']
     assert all(col in result.columns for col in expected_timeaware_cols)
 
     # test that output df is identical to expected df
