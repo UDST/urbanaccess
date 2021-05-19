@@ -744,7 +744,7 @@ def _timetoseconds(df, time_cols):
         invalid_vals = h.loc[h > 48]
         cnt = len(invalid_vals)
         if cnt > 0:
-            log('Warning: {:,} hour value(s) are greater then 48. '
+            log('Warning: {:,} hour value(s) are greater than 48. '
                 'Max value is: {}. Check value(s) if this is '
                 'unexpected.'.format(cnt, invalid_vals.max()),
                 level=lg.WARNING)
@@ -752,7 +752,7 @@ def _timetoseconds(df, time_cols):
         invalid_vals = m.loc[m > 60]
         cnt = len(invalid_vals)
         if cnt > 0:
-            log('Warning: {:,} minute value(s) are greater then 60. '
+            log('Warning: {:,} minute value(s) are greater than 60. '
                 'Max value is: {}. Check value(s) if this is '
                 'unexpected.'.format(cnt, invalid_vals.max()),
                 level=lg.WARNING)
@@ -760,7 +760,7 @@ def _timetoseconds(df, time_cols):
         invalid_vals = s.loc[s > 60]
         cnt = len(invalid_vals)
         if cnt > 0:
-            log('Warning: {:,} second value(s) are greater then 60. '
+            log('Warning: {:,} second value(s) are greater than 60. '
                 'Max value is: {}. Check value(s) if this is '
                 'unexpected.'.format(cnt, invalid_vals.max()),
                 level=lg.WARNING)
