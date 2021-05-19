@@ -362,7 +362,7 @@ def test_plot_close(small_net):
         ax=None)
 
 
-def test_plot_save_w_custom_name(small_net, tmpdir):
+def test_plot_save_w_path_and_filename(small_net, tmpdir):
     edge_df, node_df = small_net
     save_path = os.path.join(tmpdir.strpath, 'test_save_plot')
     os.makedirs(save_path)
@@ -468,7 +468,7 @@ def test_plot_invalid_params(small_net, transit_nodes_invalid_xy):
             node_edgecolor='none', node_zorder=3, nodes_only=True,
             show=False, close=False, save=True, filepath=4, dpi=300,
             ax=None)
-    expected_error = ('Filepath must be a string.')
+    expected_error = 'Filepath must be a string.'
     assert expected_error in str(excinfo.value)
 
 
