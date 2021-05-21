@@ -18,7 +18,7 @@ else:
 
 class urbanaccess_network(object):
     """
-    An urbanaccess object of Pandas DataFrames representing
+    An urbanaccess object of pandas.DataFrames representing
     the components of a graph network
 
     Parameters
@@ -85,7 +85,7 @@ def integrate_network(urbanaccess_network, headways=False,
                       urbanaccess_gtfsfeeds_df=None, headway_statistic='mean'):
     """
     Create an integrated network comprised of transit and OSM nodes and edges
-    by connecting the transit network with the osm network.
+    by connecting the transit network with the OSM network.
     travel time is in units of minutes
 
     Parameters
@@ -95,7 +95,7 @@ def integrate_network(urbanaccess_network, headways=False,
         osm_edges, osm_nodes
     headways : bool, optional
         if true, route stop level headways calculated in a previous step
-        will be applied to the osm to transit connector
+        will be applied to the OSM to transit connector
         edge travel time weights as an approximate measure
         of average passenger transit stop waiting time.
     urbanaccess_gtfsfeeds_df : object, optional
@@ -103,7 +103,7 @@ def integrate_network(urbanaccess_network, headways=False,
         the corresponding headways and stops DataFrames
     headway_statistic : {'mean', 'std', 'min', 'max'}, optional
         required if headways is true; route stop headway
-        statistic to apply to the osm to transit connector edges:
+        statistic to apply to the OSM to transit connector edges:
         mean, std, min, max. Default is mean.
 
     Returns
@@ -244,18 +244,18 @@ def integrate_network(urbanaccess_network, headways=False,
 def _add_headway_impedance(ped_to_transit_edges_df, headways_df,
                            headway_statistic='mean'):
     """
-    Add route stop level headways to the osm to transit connector
+    Add route stop level headways to the OSM to transit connector
     travel time weight column
 
     Parameters
     ----------
     ped_to_transit_edges_df : pandas.DataFrame
-        DataFrame of the osm to transit connectors
+        DataFrame of the OSM to transit connectors
     headways_df : pandas.DataFrame
         headways DataFrame
     headway_statistic : {'mean', 'std', 'min', 'max'}, optional
         required if headways is true; route stop headway statistic to apply
-        to the osm to transit connector edges:
+        to the OSM to transit connector edges:
         mean, std, min, max. Default is mean.
 
     Returns
@@ -299,7 +299,7 @@ def _route_id_to_node(stops_df, edges_w_routes):
     Parameters
     ----------
     stops_df : pandas.DataFrame
-        processed gtfs stops DataFrame
+        processed GTFS stops DataFrame
     edges_w_routes : pandas.DataFrame
         transit edge DataFrame that has route ID information
 
@@ -359,13 +359,13 @@ def _route_id_to_node(stops_df, edges_w_routes):
 
 def _connector_edges(osm_nodes, transit_nodes, travel_speed_mph=3):
     """
-    Generate the connector edges between the osm and transit edges and
+    Generate the connector edges between the OSM and transit edges and
     weight by travel time
 
     Parameters
     ----------
     osm_nodes : pandas.DataFrame
-        osm nodes DataFrame
+        OSM nodes DataFrame
     transit_nodes : pandas.DataFrame
         transit nodes DataFrame
     travel_speed_mph : int, optional
@@ -388,7 +388,7 @@ def _connector_edges(osm_nodes, transit_nodes, travel_speed_mph=3):
 
     for transit_node_id, row in transit_nodes.iterrows():
         # create new edge between the node in df2 (transit)
-        # and the node in openstreetmap (pedestrian)
+        # and the node in OpenStreetMap (pedestrian)
 
         osm_node_id = int(row['nearest_osm_node'])
         osm_row = osm_nodes.loc[osm_node_id]
@@ -429,9 +429,9 @@ def _format_pandana_edges_nodes(edge_df, node_df):
     Parameters
     ----------
     edge_df : pandas.DataFrame
-        integrated transit and osm edge DataFrame
+        integrated transit and OSM edge DataFrame
     node_df : pandas.DataFrame
-        integrated transit and osm node DataFrame
+        integrated transit and OSM node DataFrame
 
     Returns
     -------

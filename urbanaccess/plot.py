@@ -23,9 +23,9 @@ def plot_net(nodes, edges, x_col=None, y_col=None, from_col=None,
     nodes : pandas.DataFrame
     edges : pandas.DataFrame
     x_col : str, optional
-        x coordinate column in nodes dataframe
+        x coordinate column in nodes DataFrame
     y_col : str, optional
-        y coordinate column in nodes dataframe
+        y coordinate column in nodes DataFrame
     from_col : str, optional
         name of column to use for 'from' node ID
     to_col : str, optional
@@ -37,28 +37,28 @@ def plot_net(nodes, edges, x_col=None, y_col=None, from_col=None,
         a bbox can be extracted for an area using: the CSV format
         bbox from http://boundingbox.klokantech.com/
         if None bbox will be calculated from spatial extents of data
-    fig_height : int
+    fig_height : int, optional
         matplotlib figure height in inches
-    margin : float
+    margin : float, optional
         margin around the figure
-    edge_color : string
+    edge_color : string, optional
         color of the edge lines
-    edge_linewidth : float
+    edge_linewidth : float, optional
         width of the edge lines
-    edge_alpha : float
+    edge_alpha : float, optional
         opacity of the edge lines
-    node_color : string
+    node_color : string, optional
         node color
-    node_size : int
+    node_size : int, optional
         node size
-    node_alpha : float
+    node_alpha : float, optional
         node opacity
-    node_edgecolor : string
+    node_edgecolor : string, optional
         the color of the node border
-    node_zorder : int
+    node_zorder : int, optional
         zorder to plot nodes, edges are zorder 2. A node_zorder 1 will plot
         nodes under the edges, 3 will plot nodes on top
-    nodes_only : bool
+    nodes_only : bool, optional
         if true only the nodes will plot
     ax :  matplotlib.axes._subplots.AxesSubplot, optional
         matplotlib axes, as given by, for example, plt.subplot.
@@ -67,6 +67,7 @@ def plot_net(nodes, edges, x_col=None, y_col=None, from_col=None,
     Returns
     -------
     fig, ax
+        pyplot.figure, pyplot.axis
     """
 
     start_time = time.time()
@@ -175,7 +176,7 @@ def col_colors(df, col, num_bins=5, cmap='spectral',
     ----------
     df : pandas.DataFrame
     col : string
-        the name of the column in the dataframe with the continuous variable
+        the name of the column in the DataFrame with the continuous variable
     num_bins : int
         how many quantiles
     cmap : string
@@ -211,7 +212,7 @@ def _recursive_category_gen(col, num_bins):
     Parameters
     ----------
     col : string
-        the name of the column in the dataframe with the continuous variable
+        the name of the column in the DataFrame with the continuous variable
     num_bins : int
         how many quantiles
 
@@ -259,7 +260,7 @@ def _prep_edges(edges, nodes, from_col, to_col,
     Returns
     -------
     edges_wline : pandas.DataFrame
-        the edge dataframe with from and to x and y coordinates and
+        the edge DataFrame with from and to x and y coordinates and
         IDs to build lines
     """
 

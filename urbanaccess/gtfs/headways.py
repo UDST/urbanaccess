@@ -1,7 +1,6 @@
 import warnings
 import pandas as pd
 import time
-import logging as lg
 
 from urbanaccess.utils import log
 from urbanaccess.gtfs.utils_validation import _check_time_range_format
@@ -17,13 +16,13 @@ def _calc_headways_by_route_stop(df):
     Parameters
     ----------
     df : pandas.DataFrame
-        interpolated stop times dataframe for stop times within the time
+        interpolated stop times DataFrame for stop times within the time
         range with appended trip and route information
 
     Returns
     -------
-    dataframe : pandas.DataFrame
-        dataframe of statistics of route stop headways in units of minutes
+    DataFrame : pandas.DataFrame
+        DataFrame of statistics of route stop headways in units of minutes
     """
 
     # TODO: Optimize for speed
@@ -160,9 +159,9 @@ def headways(gtfsfeeds_df, headway_timerange):
     Returns
     -------
     gtfsfeeds_dfs.headways : pandas.DataFrame
-        gtfsfeeds_dfs object for the headways dataframe with statistics of
-        route stop headways in units of minutes
-        with relevant route and stop information
+        gtfsfeeds_dfs object for the headways DataFrame with statistics of
+        route stop headways in units of minutes with relevant route and stop
+        information
     """
     _check_time_range_format(headway_timerange)
 

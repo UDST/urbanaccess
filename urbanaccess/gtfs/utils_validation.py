@@ -15,18 +15,19 @@ def _boundingbox_check(df, feed_folder, lat_min=None, lng_min=None,
     Parameters
     ----------
     df : pandas.DataFrame
-        stops dataframe
+        stops DataFrame
     feed_folder : str
-        name of originating gtfs feed folder
-    lat_min : float
+        name of originating GTFS feed folder, will be the basename
+        directory folder for the GTFS feed
+    lat_min : float, optional
         southern latitude of bounding box
-    lng_min : float
+    lng_min : float, optional
         eastern longitude of bounding box
-    lat_max : float
+    lat_max : float, optional
         northern latitude of bounding box
-    lng_max : float
+    lng_max : float, optional
         western longitude of bounding box
-    bbox : tuple
+    bbox : tuple, optional
         Bounding box formatted as a 4 element tuple: (lng_max, lat_min,
         lng_min, lat_max)
         example: (-122.304611, 37.798933, -122.263412, 37.822802)
@@ -41,59 +42,63 @@ def _boundingbox_check(df, feed_folder, lat_min=None, lng_min=None,
     Returns
     -------
     df : pandas.DataFrame
+        stops DataFrame. If remove=True, DataFrame will contain only stops
+        that are located within the bbox coordinates specified
 
     """
     if not isinstance(verbose, bool):
-        raise ValueError('verbose must be bool')
+        raise ValueError('verbose must be bool.')
     if not isinstance(remove, bool):
-        raise ValueError('remove must be bool')
+        raise ValueError('remove must be bool.')
 
     if bbox is not None:
         if not isinstance(bbox, tuple) or len(bbox) != 4:
-            raise ValueError('bbox must be a 4 element tuple')
+            raise ValueError('bbox must be a 4 element tuple.')
         if (lat_min is not None) or (lng_min is not None) or (
                     lat_max is not None) or (lng_max is not None):
             raise ValueError('lat_min, lng_min, lat_max and lng_max must be '
-                             'None if you are using bbox')
+                             'None if using bbox.')
 
         lng_max, lat_min, lng_min, lat_max = bbox
 
     if lat_min is None:
-        raise ValueError('lat_min cannot be None')
+        raise ValueError('lat_min cannot be None.')
     if lng_min is None:
-        raise ValueError('lng_min cannot be None')
+        raise ValueError('lng_min cannot be None.')
     if lat_max is None:
-        raise ValueError('lat_max cannot be None')
+        raise ValueError('lat_max cannot be None.')
     if lng_max is None:
-        raise ValueError('lng_max cannot be None')
+        raise ValueError('lng_max cannot be None.')
     if not isinstance(lat_min, float) or not isinstance(lng_min, float) or\
             not isinstance(lat_max, float) or not isinstance(lng_max, float):
         raise ValueError('lng_min, lat_min, lng_min, lat_max, and lng_max '
-                         'must be floats')
+                         'must be floats.')
 
     outside_boundingbox = df.loc[~(
         ((lng_max < df["stop_lon"]) & (df["stop_lon"] < lng_min)) & (
             (lat_min < df["stop_lat"]) & (df["stop_lat"] < lat_max)))]
 
+    feed_name = os.path.split(feed_folder)[1]
     if len(outside_boundingbox) > 0:
-        log(
-            'WARNING: {} GTFS feed stops: {:,} of {:,} ({:.2f} percent of '
-            'total) record(s) are outside the bounding box coordinates'.format(
-                os.path.split(feed_folder)[1], len(outside_boundingbox),
-                len(df), (len(outside_boundingbox) / len(df)) * 100),
+        log('WARNING: {} GTFS feed stops: {:,} of {:,} ({:.2f} percent of '
+            'total) record(s) are outside the bounding box '
+            'coordinates.'.format(
+             feed_name, len(outside_boundingbox),
+             len(df), (len(outside_boundingbox) / len(df)) * 100),
             level=lg.WARNING)
         if verbose:
             log('Records:')
             log('{}'.format(outside_boundingbox))
         if remove:
-            df_subset = df.drop(outside_boundingbox.index)
+            df = df.drop(outside_boundingbox.index)
             log('Removed identified stops that are outside of bounding box.')
-            return df_subset
+        else:
+            log('Stops found outside of bounding box were not removed. '
+                'Set remove=True to remove stops outside of bounding box.')
     else:
-        log(
-            'No GTFS feed stops were found to be outside the bounding box '
-            'coordinates')
-        return df
+        log('No GTFS feed stops were found to be outside the bounding box '
+            'coordinates.')
+    return df
 
 
 def _checkcoordinates(df, feed_folder):
@@ -103,34 +108,33 @@ def _checkcoordinates(df, feed_folder):
     Parameters
     ----------
     df : pandas.DataFrame
-        stops dataframe
+        stops DataFrame
     feed_folder : str
-        name of originating gtfs feed folder
+        name of originating GTFS feed folder, will be the basename
+        directory folder for the GTFS feed
 
     Returns
     -------
     None
 
     """
+    feed_name = os.path.split(feed_folder)[1]
     if (df['stop_lat'] > 0).values.any() & (df['stop_lon'] < 0).values.any():
         log('{} GTFS feed stops: coordinates are in northwest hemisphere. '
-            'Latitude = North (90); Longitude = West (-90).'.format(
-                os.path.split(feed_folder)[1]))
+            'Latitude = North (90); Longitude = West (-90).'.format(feed_name))
 
     if (df['stop_lat'] < 0).values.any() & (df['stop_lon'] < 0).values.any():
         log('{} GTFS feed stops: coordinates are in southwest hemisphere. '
             'Latitude = South (-90); Longitude = West (-90).'.format(
-                os.path.split(feed_folder)[1]))
+             feed_name))
 
     if (df['stop_lat'] > 0).values.any() & (df['stop_lon'] > 0).values.any():
         log('{} GTFS feed stops: coordinates are in northeast hemisphere. '
-            'Latitude = North (90); Longitude = East (90).'.format(
-                os.path.split(feed_folder)[1]))
+            'Latitude = North (90); Longitude = East (90).'.format(feed_name))
 
     if (df['stop_lat'] < 0).values.any() & (df['stop_lon'] > 0).values.any():
         log('{} GTFS feed stops: coordinates are in southeast hemisphere. '
-            'Latitude = South (-90); Longitude = East (90).'.format(
-                os.path.split(feed_folder)[1]))
+            'Latitude = South (-90); Longitude = East (90).'.format(feed_name))
 
 
 def _validate_gtfs(stops_df, feed_folder,
@@ -142,9 +146,9 @@ def _validate_gtfs(stops_df, feed_folder,
     Parameters
     ----------
     stops_df : pandas.DataFrame
-        stop times dataframe
+        stop times DataFrame
     feed_folder : str
-        name of originating gtfs feed folder
+        name of originating GTFS feed folder
     verbose : bool
         if true and stops are found outside of the bbox, the stops that are
         outside will be printed for your reference
@@ -160,6 +164,9 @@ def _validate_gtfs(stops_df, feed_folder,
     Returns
     -------
     stops_df : pandas.DataFrame
+        stops DataFrame. If remove_stops_outsidebbox=True, DataFrame will
+        contain only stops that are located within the bbox coordinates
+        specified
     """
 
     stops_df = _boundingbox_check(df=stops_df,

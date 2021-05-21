@@ -8,27 +8,27 @@ def create_osm_net(osm_edges, osm_nodes,
                    travel_speed_mph=3, network_type='walk'):
     """
     Create a travel time weight network graph in units of minutes from
-    openstreetmap nodes and edges
+    OpenStreetMap (OSM) nodes and edges
 
     Parameters
     ----------
     osm_edges : pandas.DataFrame
-        osm edge dataframe
+        OSM edge DataFrame
     osm_nodes : pandas.DataFrame
-        osm node dataframe
+        OSM node DataFrame
     travel_speed_mph : int, optional
         travel speed to use to calculate travel time across a
         distance on an edge. units are in miles per hour (MPH)
         for pedestrian travel this is assumed to be 3 MPH
     network_type : str, optional
-        default is 'walk' for the osm pedestrian network.
-        this string is used to label the osm network once it is
+        default is 'walk' for the OSM pedestrian network.
+        this string is used to label the OSM network once it is
         integrated with the transit network
 
     Returns
     -------
     ua_network : object
-        urbanaccess_network object with osm_edges and osm_nodes dataframes
+        urbanaccess_network object with osm_edges and osm_nodes DataFrames
     ua_network.osm_edges : pandas.DataFrame
     ua_network.osm_nodes : pandas.DataFrame
 
