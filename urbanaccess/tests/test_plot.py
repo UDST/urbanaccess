@@ -368,7 +368,7 @@ def test_plot_append_ax(small_net, show_plot):
 
 
 @skipifci  # dont run on CI to avoid stalling Travis when plots are shown
-def test_plot_show_close(small_net, show_plot):
+def test_plot_show_close(small_net):
     edge_df, node_df = small_net
 
     plot.plot_net(
@@ -380,11 +380,11 @@ def test_plot_show_close(small_net, show_plot):
         edge_color='#999999', edge_linewidth=1, edge_alpha=1,
         node_color='black', node_size=15, node_alpha=1,
         node_edgecolor='none', node_zorder=3, nodes_only=False,
-        show=show_plot, close=True, save=False, filepath=None, dpi=300,
+        show=True, close=True, save=False, filepath=None, dpi=300,
         ax=None)
 
 
-def test_plot_save_w_path_and_filename(small_net, tmpdir):
+def test_plot_save_w_path_and_filename(small_net, tmpdir, show_plot):
     edge_df, node_df = small_net
     save_path = os.path.join(tmpdir.strpath, 'test_save_plot')
     os.makedirs(save_path)
@@ -407,11 +407,13 @@ def test_plot_save_w_path_and_filename(small_net, tmpdir):
     assert os.path.isfile(file_name)
     # read and show image
     img = mpimg.imread(file_name)
-    imgplot = plt.imshow(img)
-    plt.show()
+    # if test is not run in CI env show plot
+    if show_plot:
+        imgplot = plt.imshow(img)
+        plt.show()
 
 
-def test_plot_save_w_default_name(small_net):
+def test_plot_save_w_default_name(small_net, show_plot):
     edge_df, node_df = small_net
 
     plot.plot_net(
@@ -432,11 +434,13 @@ def test_plot_save_w_default_name(small_net):
     assert os.path.isfile(file_name)
     # read and show image
     img = mpimg.imread(file_name)
-    imgplot = plt.imshow(img)
-    plt.show()
+    # if test is not run in CI env show plot
+    if show_plot:
+        imgplot = plt.imshow(img)
+        plt.show()
 
 
-def test_plot_save_w_filename_only(small_net):
+def test_plot_save_w_filename_only(small_net, show_plot):
     edge_df, node_df = small_net
     filename = 'test_image.png'
     plot.plot_net(
@@ -456,8 +460,10 @@ def test_plot_save_w_filename_only(small_net):
     assert os.path.isfile(file_name)
     # read and show image
     img = mpimg.imread(file_name)
-    imgplot = plt.imshow(img)
-    plt.show()
+    # if test is not run in CI env show plot
+    if show_plot:
+        imgplot = plt.imshow(img)
+        plt.show()
 
 
 def test_plot_invalid_params(small_net, transit_nodes_invalid_xy, show_plot):
