@@ -428,9 +428,9 @@ def test_plot_save_w_default_name(small_net, show_plot):
         show=False, close=False, save=True, filepath=None, dpi=300,
         ax=None)
     # check that file was created
-    test_path = os.path.dirname(os.path.realpath(__file__))
-    file_name = os.path.join(test_path, settings.images_folder,
+    file_name = os.path.join(settings.images_folder,
                              '{}.png'.format(settings.image_filename))
+    print('wrote test data to file: {}'.format(file_name))
     assert os.path.isfile(file_name)
     # read and show image
     img = mpimg.imread(file_name)
@@ -455,8 +455,8 @@ def test_plot_save_w_filename_only(small_net, show_plot):
         show=False, close=False, save=True, filepath=filename, dpi=300,
         ax=None)
     # check that file was created
-    test_path = os.path.dirname(os.path.realpath(__file__))
-    file_name = os.path.join(test_path, settings.images_folder, filename)
+    file_name = os.path.join(settings.images_folder, filename)
+    print('wrote test data to file: {}'.format(file_name))
     assert os.path.isfile(file_name)
     # read and show image
     img = mpimg.imread(file_name)
