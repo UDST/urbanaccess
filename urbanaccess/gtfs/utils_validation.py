@@ -199,6 +199,8 @@ def _check_time_range_format(timerange):
     -------
     None
     """
+    if timerange is None:
+        raise ValueError('timerange cannot be None.')
     time_error_statement = (
         '{} starttime and endtime are not in the correct format. '
         'Format should be a 24 hour clock in the following format: 08:00:00 '
