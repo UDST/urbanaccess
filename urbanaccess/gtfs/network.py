@@ -236,9 +236,9 @@ def create_transit_net(
 
     # proceed to calc stop_times_int if stop_times_int is already empty, or
     # overwrite existing is True, or use existing is False
-    if gtfsfeeds_dfs.stop_times_int.empty or \
-            overwrite_existing_stop_times_int or use_existing_stop_times_int \
-            is False:
+    existing_stop_times_int = gtfsfeeds_dfs.stop_times_int.empty
+    if existing_stop_times_int or overwrite_existing_stop_times_int or \
+            use_existing_stop_times_int is False:
         if overwrite_existing_stop_times_int:
             log('   Overwriting existing stop_times_int DataFrame...')
         gtfsfeeds_dfs.stop_times_int = _interpolate_stop_times(
