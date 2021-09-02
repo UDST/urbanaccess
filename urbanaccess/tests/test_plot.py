@@ -10,6 +10,27 @@ from urbanaccess import plot
 from urbanaccess.config import settings
 
 
+# setup decorator to skip test if run on continuous integration (CI)
+# environment to avoid plot tests hanging when showing plots
+ci_test = os.environ.get('CI') == 'true'
+skipifci = pytest.mark.skipif(ci_test, reason='skip on CI')
+
+
+@pytest.fixture
+def show_plot():
+    # setup 'show' param depending on if tests are run in CI
+    # environment to avoid plot tests hanging when showing plots
+    if ci_test:
+        # if CI do not show plots
+        show_plot = False
+        print('Tests with "show=True" are set to "show=False"'.format(
+            show_plot))
+    else:
+        # if local environment show plots
+        show_plot = True
+    return show_plot
+
+
 @pytest.fixture
 def transit_nodes_invalid_xy():
     data = {
@@ -192,7 +213,7 @@ def small_net(transit_edges, drive_edges, connector_edges,
     return edge_df, node_df
 
 
-def test_plot_w_col_names_case_1(small_net):
+def test_plot_w_col_names_case_1(small_net, show_plot):
     edge_df, node_df = small_net
     # edge: has from and to col names specified via params
     # node: has expected default x and y col names
@@ -205,11 +226,11 @@ def test_plot_w_col_names_case_1(small_net):
         edge_color='#999999', edge_linewidth=1, edge_alpha=1,
         node_color='black', node_size=15, node_alpha=1,
         node_edgecolor='none', node_zorder=3, nodes_only=False,
-        show=True, close=False, save=False, filepath=None, dpi=300,
+        show=show_plot, close=False, save=False, filepath=None, dpi=300,
         ax=None)
 
 
-def test_plot_w_col_names_case_2(small_net):
+def test_plot_w_col_names_case_2(small_net, show_plot):
     edge_df, node_df = small_net
     node_df.rename(columns={'x': 'long', 'y': 'lat'},
                    inplace=True)
@@ -224,11 +245,11 @@ def test_plot_w_col_names_case_2(small_net):
         edge_color='#999999', edge_linewidth=1, edge_alpha=1,
         node_color='black', node_size=15, node_alpha=1,
         node_edgecolor='none', node_zorder=3, nodes_only=False,
-        show=True, close=False, save=False, filepath=None, dpi=300,
+        show=show_plot, close=False, save=False, filepath=None, dpi=300,
         ax=None)
 
 
-def test_plot_w_col_names_case_3(small_net):
+def test_plot_w_col_names_case_3(small_net, show_plot):
     edge_df, node_df = small_net
     edge_df.rename(columns={'from': 'from_int', 'to': 'to_int'},
                    inplace=True)
@@ -243,11 +264,11 @@ def test_plot_w_col_names_case_3(small_net):
         edge_color='#999999', edge_linewidth=1, edge_alpha=1,
         node_color='black', node_size=15, node_alpha=1,
         node_edgecolor='none', node_zorder=3, nodes_only=False,
-        show=True, close=False, save=False, filepath=None, dpi=300,
+        show=show_plot, close=False, save=False, filepath=None, dpi=300,
         ax=None)
 
 
-def test_plot_w_col_names_case_4(small_net):
+def test_plot_w_col_names_case_4(small_net, show_plot):
     edge_df, node_df = small_net
     edge_df.rename(columns={'from': 'node_id_from', 'to': 'node_id_to'},
                    inplace=True)
@@ -262,11 +283,11 @@ def test_plot_w_col_names_case_4(small_net):
         edge_color='#999999', edge_linewidth=1, edge_alpha=1,
         node_color='black', node_size=15, node_alpha=1,
         node_edgecolor='none', node_zorder=3, nodes_only=False,
-        show=True, close=False, save=False, filepath=None, dpi=300,
+        show=show_plot, close=False, save=False, filepath=None, dpi=300,
         ax=None)
 
 
-def test_plot_w_bbox_param(small_net):
+def test_plot_w_bbox_param(small_net, show_plot):
     edge_df, node_df = small_net
     # use bbox param to create a zoomed in plot
     bbox = (-122.274201, 37.800592, -122.259953, 37.809815)
@@ -279,11 +300,11 @@ def test_plot_w_bbox_param(small_net):
         edge_color='#999999', edge_linewidth=1, edge_alpha=1,
         node_color='black', node_size=15, node_alpha=1,
         node_edgecolor='none', node_zorder=3, nodes_only=False,
-        show=True, close=False, save=False, filepath=None, dpi=300,
+        show=show_plot, close=False, save=False, filepath=None, dpi=300,
         ax=None)
 
 
-def test_plot_nodes_only(small_net):
+def test_plot_nodes_only(small_net, show_plot):
     edge_df, node_df = small_net
     plot.plot_net(
         node_df, edge_df,
@@ -294,11 +315,11 @@ def test_plot_nodes_only(small_net):
         edge_color='#999999', edge_linewidth=1, edge_alpha=1,
         node_color='black', node_size=15, node_alpha=1,
         node_edgecolor='none', node_zorder=3, nodes_only=False,
-        show=True, close=False, save=False, filepath=None, dpi=300,
+        show=show_plot, close=False, save=False, filepath=None, dpi=300,
         ax=None)
 
 
-def test_plot_pass_ax(small_net):
+def test_plot_pass_ax(small_net, show_plot):
     edge_df, node_df = small_net
     # test adding ax var to plot: project plot coords
 
@@ -318,11 +339,11 @@ def test_plot_pass_ax(small_net):
         edge_color='#999999', edge_linewidth=1, edge_alpha=1,
         node_color='black', node_size=15, node_alpha=1,
         node_edgecolor='none', node_zorder=3, nodes_only=False,
-        show=True, close=False, save=False, filepath=None, dpi=300,
+        show=show_plot, close=False, save=False, filepath=None, dpi=300,
         ax=teale_albers_ax)
 
 
-def test_plot_append_ax(small_net):
+def test_plot_append_ax(small_net, show_plot):
     edge_df, node_df = small_net
 
     fig, ax = plot.plot_net(
@@ -334,7 +355,7 @@ def test_plot_append_ax(small_net):
         edge_color='#999999', edge_linewidth=1, edge_alpha=1,
         node_color='black', node_size=15, node_alpha=1,
         node_edgecolor='none', node_zorder=3, nodes_only=False,
-        show=True, close=False, save=False, filepath=None, dpi=300,
+        show=show_plot, close=False, save=False, filepath=None, dpi=300,
         ax=None)
     # test adding additional ax var to plot: annotate node names
     col = 'id'
@@ -346,7 +367,8 @@ def test_plot_append_ax(small_net):
     fig.show()
 
 
-def test_plot_close(small_net):
+@skipifci  # dont run on CI to avoid stalling Travis when plots are shown
+def test_plot_show_close(small_net):
     edge_df, node_df = small_net
 
     plot.plot_net(
@@ -362,7 +384,7 @@ def test_plot_close(small_net):
         ax=None)
 
 
-def test_plot_save_w_path_and_filename(small_net, tmpdir):
+def test_plot_save_w_path_and_filename(small_net, tmpdir, show_plot):
     edge_df, node_df = small_net
     save_path = os.path.join(tmpdir.strpath, 'test_save_plot')
     os.makedirs(save_path)
@@ -385,11 +407,13 @@ def test_plot_save_w_path_and_filename(small_net, tmpdir):
     assert os.path.isfile(file_name)
     # read and show image
     img = mpimg.imread(file_name)
-    imgplot = plt.imshow(img)
-    plt.show()
+    # if test is not run in CI env show plot
+    if show_plot:
+        imgplot = plt.imshow(img)
+        plt.show()
 
 
-def test_plot_save_w_default_name(small_net):
+def test_plot_save_w_default_name(small_net, show_plot):
     edge_df, node_df = small_net
 
     plot.plot_net(
@@ -404,17 +428,19 @@ def test_plot_save_w_default_name(small_net):
         show=False, close=False, save=True, filepath=None, dpi=300,
         ax=None)
     # check that file was created
-    test_path = os.path.dirname(os.path.realpath(__file__))
-    file_name = os.path.join(test_path, settings.images_folder,
+    file_name = os.path.join(settings.images_folder,
                              '{}.png'.format(settings.image_filename))
+    print('wrote test data to file: {}'.format(file_name))
     assert os.path.isfile(file_name)
     # read and show image
     img = mpimg.imread(file_name)
-    imgplot = plt.imshow(img)
-    plt.show()
+    # if test is not run in CI env show plot
+    if show_plot:
+        imgplot = plt.imshow(img)
+        plt.show()
 
 
-def test_plot_save_w_filename_only(small_net):
+def test_plot_save_w_filename_only(small_net, show_plot):
     edge_df, node_df = small_net
     filename = 'test_image.png'
     plot.plot_net(
@@ -429,16 +455,18 @@ def test_plot_save_w_filename_only(small_net):
         show=False, close=False, save=True, filepath=filename, dpi=300,
         ax=None)
     # check that file was created
-    test_path = os.path.dirname(os.path.realpath(__file__))
-    file_name = os.path.join(test_path, settings.images_folder, filename)
+    file_name = os.path.join(settings.images_folder, filename)
+    print('wrote test data to file: {}'.format(file_name))
     assert os.path.isfile(file_name)
     # read and show image
     img = mpimg.imread(file_name)
-    imgplot = plt.imshow(img)
-    plt.show()
+    # if test is not run in CI env show plot
+    if show_plot:
+        imgplot = plt.imshow(img)
+        plt.show()
 
 
-def test_plot_invalid_params(small_net, transit_nodes_invalid_xy):
+def test_plot_invalid_params(small_net, transit_nodes_invalid_xy, show_plot):
     edge_df, node_df = small_net
     # test bbox with incorrect coords
     with pytest.raises(ValueError) as excinfo:
@@ -451,7 +479,7 @@ def test_plot_invalid_params(small_net, transit_nodes_invalid_xy):
             edge_color='#999999', edge_linewidth=1, edge_alpha=1,
             node_color='black', node_size=15, node_alpha=1,
             node_edgecolor='none', node_zorder=3, nodes_only=True,
-            show=True, close=False, save=False, filepath=None, dpi=300,
+            show=show_plot, close=False, save=False, filepath=None, dpi=300,
             ax=None)
     expected_error = ('Difference between min and max x and '
                       'or y resulted in a negative value or 0.')
