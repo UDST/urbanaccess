@@ -31,7 +31,8 @@ def create_transit_net(
         time_aware=False,
         date=None,
         date_range=None,
-        use_highest_freq_trips_date=False
+        use_highest_freq_trips_date=False,
+        simplify=False
 ):
     """
     Create a travel time weight network graph in units of
@@ -150,6 +151,13 @@ def create_transit_net(
         contain the same trip IDs, an error will be raised to prompt you
         to explicitly set one of the dates found as the date in the 'date'
         parameter.
+    simplify : boolean
+        when True, the transit network is significantly reduced in size by
+        collapsing trips that share identical characteristics including
+        agency, travel time, stop sequence, and route into one unique
+        representative trip with its corresponding edges. It is suggested to
+        use simplification when using networks with network analysis tools
+        such as Pandana for computational efficiency. Default is False.
 
     Returns
     -------
@@ -280,6 +288,14 @@ def create_transit_net(
     transit_edges = _route_id_to_edge(
         transit_edge_df=transit_edges, trips_df=gtfsfeeds_dfs.trips)
 
+    transit_nodes = _remove_nodes_not_in_edges(
+        nodes=transit_nodes, edges=transit_edges,
+        from_id_col='node_id_from', to_id_col='node_id_to')
+
+    if simplify:
+        transit_edges, transit_nodes = _simplify_transit_net(
+            transit_edges, transit_nodes)
+
     # assign node and edge net type
     transit_nodes['net_type'] = 'transit'
     transit_edges['net_type'] = 'transit'
@@ -292,6 +308,68 @@ def create_transit_net(
         time.time() - start_time))
 
     return ua_network
+
+
+def _simplify_transit_net(edges, nodes):
+    # TODO: add option for groups that are duplicates, place trip ids
+    #  of the groups that are removed in a new column as list of
+    #  strings for debugging
+    start_time = time.time()
+
+    log('Running transit network simplification...')
+
+    # columns to use for group to group value comparison to identify
+    # groups of similar values for simplification
+    col_list = ['node_id_from', 'node_id_to', 'weight', 'unique_agency_id',
+                'sequence', 'route_type', 'unique_route_id']
+
+    # group records that have identical values for each col in col_list
+    # tag each record in group as True if the group exists more than once
+    id_col = 'unique_trip_id'
+    edges_wdup = edges.groupby(id_col)[col_list].agg(tuple).sum(1).duplicated()
+
+    # remove records where their group was duplicated
+    simp_edges = edges.loc[edges[id_col].isin(edges_wdup[~edges_wdup].index)]
+
+    # simplify nodes by removing nodes that do not exist in the simplified
+    # edge table, this catches edges cases but normally there should never be
+    # node ids in the node table that are not in the edge table
+    simp_nodes = _remove_nodes_not_in_edges(
+        nodes=nodes, edges=simp_edges,
+        from_id_col='node_id_from', to_id_col='node_id_to')
+
+    # calculate various data len and print statistics
+    trip_remove_cnt = len(edges_wdup.loc[edges_wdup == True])
+    trip_org_tot_cnt = len(edges[id_col].unique())
+    trip_proc_tot_cnt = len(simp_edges[id_col].unique())
+    trip_remove_pct = (trip_remove_cnt / trip_org_tot_cnt) * 100
+    edge_org_rec_tot_cnt = len(edges)
+    edge_proc_rec_tot_cnt = len(simp_edges)
+    edge_remove_cnt = edge_org_rec_tot_cnt - edge_proc_rec_tot_cnt
+    edge_remove_pct = (edge_remove_cnt / edge_org_rec_tot_cnt) * 100
+    msg = ('Transit edges have been simplified removing {:,} trip(s) '
+           '({:.2f} percent) (reduced from {:,} to {:,} trip(s)) '
+           'resulting in the removal of {:,} edge(s) ({:.2f} percent) '
+           '(reduced from {:,} to {:,} edges(s)).')
+    log(msg.format(trip_remove_cnt, trip_remove_pct,
+                   trip_org_tot_cnt, trip_proc_tot_cnt,
+                   edge_remove_cnt, edge_remove_pct,
+                   edge_org_rec_tot_cnt, edge_proc_rec_tot_cnt))
+
+    node_org_tot_cnt = len(nodes)
+    node_proc_tot_cnt = len(simp_nodes)
+    # if nodes have a different count after simplification notify the user,
+    # however this should never occur
+    if node_org_tot_cnt != node_proc_tot_cnt:
+        node_remove_cnt = node_org_tot_cnt - node_proc_tot_cnt
+        node_remove_pct = (node_remove_cnt / node_org_tot_cnt) * 100
+        msg = ('Transit nodes have been simplified removing {:,} nodes(s) '
+               '({:.2f} percent) (reduced from {:,} to {:,} nodes(s)).')
+        log(msg.format(node_remove_cnt, node_remove_pct, node_org_tot_cnt,
+                       node_proc_tot_cnt))
+    log('Transit edge simplification complete. '
+        'Took {:,.2f} seconds.'.format(time.time() - start_time))
+    return simp_edges, simp_nodes
 
 
 def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df):
@@ -1182,3 +1260,9 @@ def _check_if_index_name_in_cols(df):
     cols = df.columns.values
     iname = df.index.name
     return (iname in cols)
+
+
+def _remove_nodes_not_in_edges(nodes, edges, from_id_col, to_id_col):
+    edge_node_list = set(edges[from_id_col]) | set(edges[to_id_col])
+    nodes_df = nodes.loc[nodes.index.isin(edge_node_list)]
+    return nodes_df
