@@ -633,7 +633,7 @@ def _zipfile_type_check(file, feed_url_value):
 
     Parameters
     ----------
-    file : addinfourl
+    file : http.client.HTTPResponse
         loaded zipfile object in memory
     feed_url_value : str
         URL to download GTFS feed zipfile
@@ -642,6 +642,9 @@ def _zipfile_type_check(file, feed_url_value):
     -------
     nothing
     """
+    # TODO: check for a better method to support cases that are zips but
+    #  dont have header info example: sanfordcommunityredevelopmentagency
+    #  GTFS feed URL
     if 'zip' not in file.info().get('Content-Type') is True \
             or 'octet' not in file.info().get('Content-Type') is True:
         raise ValueError(
