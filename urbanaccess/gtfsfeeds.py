@@ -512,10 +512,8 @@ def download(data_folder=os.path.join(config.settings.data_folder),
                     time.sleep(error_pause_duration)
                     try:
                         file = request.urlopen(feed_url_value)
-
-                        _zipfile_type_check(file=file,
-                                            feed_url_value=feed_url_value)
-
+                        _zipfile_type_check(
+                            file=file, feed_url_value=feed_url_value)
                         with open(zipfile_path, "wb") as local_file:
                             local_file.write(file.read())
                     except Exception:
@@ -562,10 +560,54 @@ def download(data_folder=os.path.join(config.settings.data_folder),
     log('GTFS feed download completed. Took {:,.2f} seconds'.format(
         time.time() - start_time1))
 
-    _unzip(zip_rootpath=download_folder, delete_zips=delete_zips)
+    unzip(zip_rootpath=download_folder, delete_zips=delete_zips)
 
 
-def _unzip(zip_rootpath, delete_zips=True):
+def _unzip_util(zipfile_read_path, unzip_file_path, has_subzips):
+    with zipfile.ZipFile(zipfile_read_path) as z:
+        # required to deal with zipfiles that have subdirectories and
+        # that were created on OSX
+        filelist = [file for file in z.namelist() if
+                    file.endswith(".txt") and not file.startswith(
+                        "__MACOSX")]
+        # in cases where the zip contains multiple zips of GTFS feeds
+        # such as the case with the SEPTA GTFS feed
+        sub_zip_filelist = [file for file in z.namelist() if
+                            file.endswith(".zip")]
+        if len(filelist) == 0 and len(sub_zip_filelist) > 0:
+            msg = ('Zipfile contains {:,} zipfiles: {}. These will be '
+                   'extracted as separate feeds.')
+            log(msg.format(len(sub_zip_filelist), sub_zip_filelist))
+            extract_subzips = True
+        else:
+            extract_subzips = False
+
+        if has_subzips:
+            if not os.path.exists(unzip_file_path):
+                os.makedirs(unzip_file_path)
+            for file in filelist:
+                file_path = os.path.join(
+                    unzip_file_path, os.path.basename(file))
+                with open(file_path, 'wb') as f:
+                    f.write(z.read(file))
+                    f.close()
+        else:
+            if extract_subzips:
+                filelist = sub_zip_filelist.copy()
+            if not os.path.exists(unzip_file_path):
+                os.makedirs(unzip_file_path)
+            for file in filelist:
+                file_path = os.path.join(
+                    unzip_file_path, os.path.basename(file))
+                with open(file_path, 'wb') as f:
+                    f.write(z.read(file))
+                    f.close()
+        z.close()
+    if not has_subzips:
+        return sub_zip_filelist
+
+
+def unzip(zip_rootpath, delete_zips=True):
     """
     unzip all GTFS feed zipfiles in a root directory with resulting text files
     in the root folder: gtfsfeed_text
@@ -598,33 +640,37 @@ def _unzip(zip_rootpath, delete_zips=True):
                          'directory: {}'.format(zip_rootpath))
 
     for zfile in zipfilelist:
+        unzipfile_name = zfile.replace('.zip', '')
+        unzip_file_path = os.path.join(unzip_rootpath, unzipfile_name)
+        zipfile_read_path = os.path.join(zip_rootpath, zfile)
 
-        with zipfile.ZipFile(os.path.join(zip_rootpath, zfile)) as z:
-            # required to deal with zipfiles that have subdirectories and
-            # that were created on OSX
-            filelist = [file for file in z.namelist() if
-                        file.endswith(".txt") and not file.startswith(
-                            "__MACOSX")]
-            if not os.path.exists(
-                    os.path.join(unzip_rootpath, zfile.replace('.zip', ''))):
-                os.makedirs(
-                    os.path.join(unzip_rootpath, zfile.replace('.zip', '')))
-            for file in filelist:
-                with open(
-                        os.path.join(unzip_rootpath, zfile.replace('.zip', ''),
-                                     os.path.basename(file)), 'wb') as f:
-                    f.write(z.read(file))
-                    f.close()
-            z.close()
-            log('{} successfully extracted to: {}'.format(zfile, os.path.join(
-                unzip_rootpath, zfile.replace('.zip', ''))))
+        sub_zip_filelist = _unzip_util(zipfile_read_path, unzip_file_path,
+                                       has_subzips=False)
+        if len(sub_zip_filelist) != 0:
+            for sub_zipfile in sub_zip_filelist:
+                sub_zipfile_path = os.path.join(unzip_file_path, sub_zipfile)
+                # make unzip dir name unique in case others exist
+                sub_unzipfile_name = '{}_{}'.format(
+                    unzipfile_name, sub_zipfile.replace('.zip', ''))
+                sub_unzipfile_path = os.path.join(
+                    os.path.split(unzip_file_path)[0], sub_unzipfile_name)
+                _unzip_util(sub_zipfile_path, sub_unzipfile_path,
+                            has_subzips=True)
+                msg = ('{} with nested zipfile: {} successfully extracted '
+                       'to: {}')
+                log(msg.format(zfile, sub_zipfile, sub_unzipfile_path))
+                os.remove(sub_zipfile_path)  # remove the nested zip
+            os.rmdir(unzip_file_path)  # remove the dir that had the nested zip
+        else:
+            log('{} successfully extracted to: {}'.format(
+                zfile, unzip_file_path))
+
     if delete_zips:
         os.remove(zip_rootpath)
         log('Deleted {} folder'.format(zip_rootpath))
-    log(
-        'GTFS feed zipfile extraction completed. Took {:,.2f} seconds for {} '
-        'files'.format(
-            time.time() - start_time, len(zipfilelist)))
+    msg = ('GTFS feed zipfile extraction completed. Took {:,.2f} seconds '
+           'for {:,} file(s)')
+    log(msg.format(time.time() - start_time, len(zipfilelist)))
 
 
 def _zipfile_type_check(file, feed_url_value):
