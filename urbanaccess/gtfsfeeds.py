@@ -388,7 +388,7 @@ def search(api='gtfsdataexch', search_text=None, search_field=None,
 
 def download(data_folder=os.path.join(config.settings.data_folder),
              feed_name=None, feed_url=None, feed_dict=None,
-             error_pause_duration=5, delete_zips=False):
+             error_pause_duration=5, delete_zips=False, raise_url_error=True):
     """
     Connect to the URLs passed in function or the URLs stored in the
     urbanaccess_gtfsfeeds instance and download the GTFS feed zipfile(s)
@@ -412,6 +412,11 @@ def download(data_folder=os.path.join(config.settings.data_folder),
         how long to pause in seconds before re-trying requests if error
     delete_zips : bool, optional
         if true the downloaded zipfiles will be removed
+    raise_url_error : bool, optional
+        if true error will be raised when a request to a URL fails, URL
+        failure response will be returned, else if false URL failures will
+        still be printed to logs but will fail silently to allow process
+        to continue.
     Returns
     -------
     nothing
@@ -517,6 +522,10 @@ def download(data_folder=os.path.join(config.settings.data_folder),
                         log(msg_no_connection_w_status.format(
                             feed_url_value, status_code),
                             level=lg.ERROR)
+                        if raise_url_error:
+                            raise Exception(
+                                msg_no_connection_w_status.format(
+                                    feed_url_value, status_code))
                 else:
                     log(msg_no_connection_w_status.format(
                         feed_url_value, status_code),
@@ -525,6 +534,10 @@ def download(data_folder=os.path.join(config.settings.data_folder),
                 log(msg_no_connection.format(
                     feed_url_value, traceback.format_exc()),
                     level=lg.ERROR)
+                if raise_url_error:
+                    raise Exception(
+                        msg_no_connection.format(
+                            feed_url_value, traceback.format_exc()))
         else:
             try:
                 file = request.urlopen(feed_url_value)
@@ -541,6 +554,10 @@ def download(data_folder=os.path.join(config.settings.data_folder),
                 log(msg_no_connection.format(
                     feed_url_value, traceback.format_exc()),
                     level=lg.ERROR)
+                if raise_url_error:
+                    raise Exception(
+                        msg_no_connection.format(
+                            feed_url_value, traceback.format_exc()))
 
     log('GTFS feed download completed. Took {:,.2f} seconds'.format(
         time.time() - start_time1))
