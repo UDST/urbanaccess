@@ -473,7 +473,8 @@ def download(data_folder=os.path.join(config.settings.data_folder),
     # TODO: add file counter and print number to user
     for feed_name_key, feed_url_value in feeds.gtfs_feeds.items():
         start_time2 = time.time()
-        zipfile_path = ''.join([download_folder, '/', feed_name_key, '.zip'])
+        zipfile_path = os.path.join(download_folder, '{}.zip'.format(
+            feed_name_key))
 
         # resolve issues where request results in certificate verify failure
         ssl._create_default_https_context = ssl._create_unverified_context
@@ -529,8 +530,8 @@ def download(data_folder=os.path.join(config.settings.data_folder),
                 file = request.urlopen(feed_url_value)
                 _zipfile_type_check(file=file,
                                     feed_url_value=feed_url_value)
-                file_path = ''.join(
-                    [download_folder, '/', feed_name_key, '.zip'])
+                file_path = os.path.join(download_folder, '{}.zip'.format(
+                    feed_name_key))
                 with open(file_path, "wb") as local_file:
                     local_file.write(file.read())
                 log(msg_download_succeed.format(
