@@ -5,6 +5,7 @@ import zipfile
 import os
 import logging as lg
 import time
+import ssl
 from six.moves.urllib import request
 
 from urbanaccess.utils import log
@@ -473,6 +474,9 @@ def download(data_folder=os.path.join(config.settings.data_folder),
     for feed_name_key, feed_url_value in feeds.gtfs_feeds.items():
         start_time2 = time.time()
         zipfile_path = ''.join([download_folder, '/', feed_name_key, '.zip'])
+
+        # resolve issues where request results in certificate verify failure
+        ssl._create_default_https_context = ssl._create_unverified_context
 
         # add default user-agent header in request to avoid 403 Errors
         opener = request.build_opener()
