@@ -633,13 +633,15 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
                                feed_folder_name))
             df_dict[name] = df
 
+    #  TODO: this dict may be redundant check if can refactor
     optional_df_dict = {
         'calendar': calendar_df,
         'calendar_dates': calendar_dates_df}
     # if optional calendar or calendar_dates_df are empty then return
-    # the original empty df
+    # the original empty df with an empty agency ID column
     for name, df in optional_df_dict.items():
         if df.empty:
+            df['unique_agency_id'] = np.nan
             df_dict.update({name: df})
 
     # ensure returned items in list are always in the same expected order
@@ -684,22 +686,38 @@ def _add_unique_gtfsfeed_id(stops_df, routes_df, trips_df,
     """
     start_time = time.time()
 
-    df_list = [stops_df, routes_df, trips_df, stop_times_df, calendar_df]
-    # if calendar_dates_df is not empty then add it to the processing list
-    if calendar_dates_df.empty is False:
-        df_list.extend([calendar_dates_df])
+    df_dict = {'stops': stops_df,
+               'routes': routes_df,
+               'trips': trips_df,
+               'stop_times': stop_times_df}
+
+    optional_df_dict = {'calendar': calendar_df,
+                        'calendar_dates': calendar_dates_df}
+    # if optional calendar or calendar_dates_df are not empty then add it
+    # to the processing list
+    for name, df in optional_df_dict.items():
+        if df.empty is False:
+            df_dict.update({name: df})
 
     # standardize feed_folder name
     feed_folder = _generate_unique_feed_id(feed_folder)
 
-    for index, df in enumerate(df_list):
+    for name, df in df_dict.items():
         # create new unique_feed_id column based on the name of the feed folder
         df['unique_feed_id'] = '_'.join([feed_folder, str(feed_number)])
-        df_list[index] = df
+        df_dict[name] = df
 
-    # if calendar_dates_df is empty then return the original empty df
-    if calendar_dates_df.empty:
-        df_list.extend([calendar_dates_df])
+    # if optional calendar or calendar_dates_df are empty then return
+    # the original empty df with an empty agency ID column
+    for name, df in optional_df_dict.items():
+        if df.empty:
+            df['unique_feed_id'] = np.nan
+            df_dict.update({name: df})
+
+    # ensure returned items in list are always in the same expected order
+    df_list = [df_dict['stops'], df_dict['routes'], df_dict['trips'],
+               df_dict['stop_times'], df_dict['calendar'],
+               df_dict['calendar_dates']]
 
     log('Unique GTFS feed ID operation complete. '
         'Took {:,.2f} seconds.'.format(time.time() - start_time))
