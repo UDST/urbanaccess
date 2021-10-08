@@ -704,7 +704,7 @@ def _add_unique_gtfsfeed_id(stops_df, routes_df, trips_df,
     return df_list
 
 
-def _timetoseconds(df, time_cols):
+def _timetoseconds(df, time_cols, verbose=False):
     """
     Convert default GTFS stop time departure and arrival times from 24 hour
     clock to seconds past midnight
@@ -716,6 +716,8 @@ def _timetoseconds(df, time_cols):
     time_cols : list
         list of columns to convert from 24 hour clock to seconds past
         midnight. Default column is 'departure_time'.
+    verbose : boolean
+        if True print value format debug statements
 
     Returns
     -------
@@ -732,11 +734,21 @@ def _timetoseconds(df, time_cols):
         for n, i in enumerate(time_list):
             if len(i) == 7:
                 time_list[n] = '0' + i
+                if verbose:
+                    log("Padded value {} with a '0'".format(i))
+            i_wo_whitespace = "".join(i.split())
+            if i != i_wo_whitespace:
+                if verbose:
+                    log("Removed whitespace from value: {}".format(i))
+                # set to = i so that the next set of value checks on 'i' will
+                # pass if issues was due to existence of whitespace
+                i = i_wo_whitespace
+                time_list[n] = i
             if (len(i) != 8) & (len(i) != 0) & (len(i) != 7):
                 raise ValueError(
-                    'Check formatting of value: {} as it is in the incorrect '
-                    'format and should be 8 character '
-                    'string 00:00:00.'.format(i))
+                    "Check formatting of value: '{}' as it is in the incorrect"
+                    " format and should be 8 character "
+                    "string '00:00:00'.".format(i))
         df_fixed = pd.DataFrame(time_list, columns=[col])
         df[col] = df_fixed[col]
 
