@@ -114,6 +114,8 @@ def _trip_schedule_selector_validate_params(calendar_dates_df, params):
 
 
 def _cal_date_dt_conversion(df, date_cols):
+    #  TODO: add a try except section here to capture calendar format issues
+    #   and return in user friendly message
     for col in date_cols:
         df[col] = pd.to_datetime(
             df[col], format='%y%m%d', infer_datetime_format=True)
@@ -743,11 +745,12 @@ def _calendar_service_id_selector(
     active_srvc_ids_cnt = len(active_srvc_ids)
 
     if active_srvc_ids_cnt == 0:
-        raise ValueError(
-            'No active service_ids were found matching the specified '
+        msg = (
+            'Warning: No active service_ids were found matching the specified '
             'parameters. No trips can be selected. Suggest modifying the '
             'calendar parameters and or reviewing the GTFS calendar and or '
             'calendar_dates tables.')
+        log(msg, level=lg.WARNING)
     else:
         _print_count_service_ids(df_dict={'calendar': calendar_df,
                                           'calendar_dates': calendar_dates_df},
