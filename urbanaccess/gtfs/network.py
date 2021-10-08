@@ -292,6 +292,16 @@ def create_transit_net(
         nodes=transit_nodes, edges=transit_edges,
         from_id_col='node_id_from', to_id_col='node_id_to')
 
+    if transit_edges.empty:
+        msg = (
+            "Resulting transit network edges have 0 record(s). Most likely "
+            "the 'timerange' and or calendar selection parameters resulted in "
+            "a network with no active trips within the schedule window "
+            "specified. It is suggested to expand the 'timerange' and or "
+            "alter the calendar selection parameters to enlarge the time "
+            "window for selecting active trips.")
+        raise ValueError(msg)
+
     if simplify:
         transit_edges, transit_nodes = _simplify_transit_net(
             transit_edges, transit_nodes)
@@ -313,10 +323,17 @@ def create_transit_net(
 def _simplify_transit_net(edges, nodes):
     # TODO: add option for groups that are duplicates, place trip ids
     #  of the groups that are removed in a new column as list of
-    #  strings for debugging
+    #  strings for debugging or trip counts
+    # TODO: can simplify even more by reducing along edge shared attr in
+    #  addition to trips, ensure that stop ids are connected
     start_time = time.time()
 
     log('Running transit network simplification...')
+
+    if edges.empty:
+        raise ValueError(
+            'Unable to simplify transit network. Edges have 0 records to '
+            'simplify.')
 
     # columns to use for group to group value comparison to identify
     # groups of similar values for simplification
@@ -351,10 +368,13 @@ def _simplify_transit_net(edges, nodes):
            '({:.2f} percent) (reduced from {:,} to {:,} trip(s)) '
            'resulting in the removal of {:,} edge(s) ({:.2f} percent) '
            '(reduced from {:,} to {:,} edges(s)).')
-    log(msg.format(trip_remove_cnt, trip_remove_pct,
-                   trip_org_tot_cnt, trip_proc_tot_cnt,
-                   edge_remove_cnt, edge_remove_pct,
-                   edge_org_rec_tot_cnt, edge_proc_rec_tot_cnt))
+    if edge_remove_cnt > 0:
+        log(msg.format(trip_remove_cnt, trip_remove_pct,
+                       trip_org_tot_cnt, trip_proc_tot_cnt,
+                       edge_remove_cnt, edge_remove_pct,
+                       edge_org_rec_tot_cnt, edge_proc_rec_tot_cnt))
+    else:
+        log('Transit edges cannot be further simplified.')
 
     node_org_tot_cnt = len(nodes)
     node_proc_tot_cnt = len(simp_nodes)
@@ -735,6 +755,16 @@ def _format_transit_net_edge(stop_times_df, time_aware=False):
 
     log('Starting transformation process for {:,} '
         'total trips...'.format(len(stop_times_df['unique_trip_id'].unique())))
+
+    if stop_times_df.empty:
+        raise ValueError(
+            "Unable to continue processing transit network. stop_times "
+            "table has 0 records. Most likely the 'timerange' and or "
+            "calendar selection parameters resulted in "
+            "a network with no active trips within the schedule window "
+            "specified. It is suggested to expand the 'timerange' and or "
+            "alter the calendar selection parameters to enlarge the time "
+            "window for selecting active trips.")
 
     # subset to only columns needed for processing
     cols_of_interest = ['unique_trip_id', 'stop_id', 'unique_stop_id',
