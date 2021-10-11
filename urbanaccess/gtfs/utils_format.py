@@ -495,11 +495,13 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
         # replace nans with ''
         agency_df[cols] = agency_df[cols].fillna('')
         # determine extent of missing values
-        all_missing = (agency_df['agency_id'].str.isspace().all() and
-                       agency_df['agency_name'].str.isspace().all()) or \
+        agency_id_str = agency_df['agency_id'].astype(str)
+        agency_name_str = agency_df['agency_name'].astype(str)
+        all_missing = (agency_id_str.str.isspace().all() and
+                       agency_name_str.str.isspace().all()) or \
                       (agency_df[cols].values == '').all()
-        any_missing = (agency_df['agency_id'].str.isspace().any() and
-                       agency_df['agency_name'].str.isspace().any()) or \
+        any_missing = (agency_id_str.str.isspace().any() and
+                       agency_name_str.str.isspace().any()) or \
                       (agency_df[cols].values == '').any()
 
         # if 'agency_name' and 'agency_id' both have no records or both contain
