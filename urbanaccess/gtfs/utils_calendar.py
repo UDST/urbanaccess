@@ -185,6 +185,7 @@ def _select_calendar_service_ids(calendar_df, params):
     """
     # collect service IDs that match search parameters in calendar.txt
     msg = 'Selecting service_ids from calendar'
+    srvc_ids = []
 
     day = params['day']
     date = params['date']
