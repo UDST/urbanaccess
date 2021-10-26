@@ -1341,12 +1341,15 @@ def _highest_freq_trips_date(trips_df, calendar_df, calendar_dates_df):
         date_trip_cnt.update({date: trip_id_cnt})
 
     # find the date that has the max number of trips
-    max_date = max(date_trip_cnt, key=lambda k: date_trip_cnt[k])
+    # sort so the max is always the same between runs of the same data
+    date_trip_cnt_sorted = dict(sorted(date_trip_cnt.items()))
+    max_date = max(date_trip_cnt_sorted, key=lambda k: date_trip_cnt_sorted[k])
     # get the max number of trips number
-    max_trips = max(date_trip_cnt.values())
+    max_trips = max(date_trip_cnt_sorted.values())
     # check to see if there are more than 1 dates that have the same max number
     # of trips value
-    dates_w_max_trips = [k for k, v in date_trip_cnt.items() if v == max_trips]
+    dates_w_max_trips = [k for k, v in
+                         date_trip_cnt_sorted.items() if v == max_trips]
     # get the service_ids for dates that share the max number of trips value
     reduce_list = [date_srv_id_dict[x] for x in dates_w_max_trips]
     # check to see if any of the dates have different service_ids from
