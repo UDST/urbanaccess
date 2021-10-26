@@ -944,7 +944,7 @@ def _select_calendar_dates_str_match(
             result_cnt = len(result_srvc_ids)
             log('          Found {:,} unique service_id(s) that matched query:'
                 ' column: {} and string: {}.'.format(
-                result_cnt, col_name_key, text))
+                    result_cnt, col_name_key, text))
             srvc_ids.extend(result_srvc_ids)
             srvc_ids = list(set(srvc_ids))
 
