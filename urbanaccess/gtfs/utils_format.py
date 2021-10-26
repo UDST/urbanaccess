@@ -92,6 +92,15 @@ def _read_gtfs_file(textfile_path, textfile):
     df = _remove_whitespace(
         df=df, textfile=textfile, col_list=remove_whitespace)
 
+    # convert dtypes here in case col name was incorrect due to
+    # whitespace when read in pd.read_csv()
+    if req_dtypes is not None:
+        for col_name, dtype in req_dtypes.items():
+            if df[col_name].dtype != dtype:
+                if dtype == object:
+                    dtype = str  # force to string instead of object
+                df[col_name] = df[col_name].astype(dtype)
+
     if numeric_converter is not None:
         for col in numeric_converter:
             df[col] = pd.to_numeric(df[col])
