@@ -592,9 +592,9 @@ def _select_calendar_dates_service_ids_by_day(
     #  requiring pandas > 0.18.1 is needed to run the line below:
     calendar_dates_df['_ua_weekday'] = calendar_dates_df[
         'date'].dt.day_name().str.lower()
-    subset_cal_dates_df = calendar_dates_df.loc[
-        calendar_dates_df['_ua_weekday'] == day]
-    srvc_ids = subset_cal_dates_df['unique_service_id'].to_list()
+    subset_df = calendar_dates_df.loc[calendar_dates_df['_ua_weekday'] == day]
+    srvc_ids = subset_df['unique_service_id'].loc[
+        subset_df['exception_type'] == '1'].to_list()
     _print_cal_service_ids_len(srvc_ids, table_name='calendar dates')
 
     return srvc_ids
