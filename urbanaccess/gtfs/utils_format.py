@@ -92,6 +92,15 @@ def _read_gtfs_file(textfile_path, textfile):
     df = _remove_whitespace(
         df=df, textfile=textfile, col_list=remove_whitespace)
 
+    # convert dtypes here in case col name was incorrect due to
+    # whitespace when read in pd.read_csv()
+    if req_dtypes is not None:
+        for col_name, dtype in req_dtypes.items():
+            if df[col_name].dtype != dtype:
+                if dtype == object:
+                    dtype = str  # force to string instead of object
+                df[col_name] = df[col_name].astype(dtype)
+
     if numeric_converter is not None:
         for col in numeric_converter:
             df[col] = pd.to_numeric(df[col])
@@ -404,7 +413,7 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
     tables; 4) If GTFS feed has an agency.txt file and it has more than
     one agency (it must have an 'agency_id' and 'agency_name' column and
     values), however if there is also a mismatch between the 'agency_id'
-    in aganecy.txt and routes.txt, then assume records tied to the mismatched
+    in agency.txt and routes.txt, then assume records tied to the mismatched
     'agency_id'(s) are from multiple agencies and label the unique agency ID
     as such by concatenating 'multiple_operators_' and the GTFS feed directory
     folder name.
@@ -495,11 +504,13 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
         # replace nans with ''
         agency_df[cols] = agency_df[cols].fillna('')
         # determine extent of missing values
-        all_missing = (agency_df['agency_id'].str.isspace().all() and
-                       agency_df['agency_name'].str.isspace().all()) or \
+        agency_id_str = agency_df['agency_id'].astype(str)
+        agency_name_str = agency_df['agency_name'].astype(str)
+        all_missing = (agency_id_str.str.isspace().all() and
+                       agency_name_str.str.isspace().all()) or \
                       (agency_df[cols].values == '').all()
-        any_missing = (agency_df['agency_id'].str.isspace().any() and
-                       agency_df['agency_name'].str.isspace().any()) or \
+        any_missing = (agency_id_str.str.isspace().any() and
+                       agency_name_str.str.isspace().any()) or \
                       (agency_df[cols].values == '').any()
 
         # if 'agency_name' and 'agency_id' both have no records or both contain
@@ -631,13 +642,15 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
                                feed_folder_name))
             df_dict[name] = df
 
+    #  TODO: this dict may be redundant check if can refactor
     optional_df_dict = {
         'calendar': calendar_df,
         'calendar_dates': calendar_dates_df}
     # if optional calendar or calendar_dates_df are empty then return
-    # the original empty df
+    # the original empty df with an empty agency ID column
     for name, df in optional_df_dict.items():
         if df.empty:
+            df['unique_agency_id'] = np.nan
             df_dict.update({name: df})
 
     # ensure returned items in list are always in the same expected order
@@ -682,22 +695,38 @@ def _add_unique_gtfsfeed_id(stops_df, routes_df, trips_df,
     """
     start_time = time.time()
 
-    df_list = [stops_df, routes_df, trips_df, stop_times_df, calendar_df]
-    # if calendar_dates_df is not empty then add it to the processing list
-    if calendar_dates_df.empty is False:
-        df_list.extend([calendar_dates_df])
+    df_dict = {'stops': stops_df,
+               'routes': routes_df,
+               'trips': trips_df,
+               'stop_times': stop_times_df}
+
+    optional_df_dict = {'calendar': calendar_df,
+                        'calendar_dates': calendar_dates_df}
+    # if optional calendar or calendar_dates_df are not empty then add it
+    # to the processing list
+    for name, df in optional_df_dict.items():
+        if df.empty is False:
+            df_dict.update({name: df})
 
     # standardize feed_folder name
     feed_folder = _generate_unique_feed_id(feed_folder)
 
-    for index, df in enumerate(df_list):
+    for name, df in df_dict.items():
         # create new unique_feed_id column based on the name of the feed folder
         df['unique_feed_id'] = '_'.join([feed_folder, str(feed_number)])
-        df_list[index] = df
+        df_dict[name] = df
 
-    # if calendar_dates_df is empty then return the original empty df
-    if calendar_dates_df.empty:
-        df_list.extend([calendar_dates_df])
+    # if optional calendar or calendar_dates_df are empty then return
+    # the original empty df with an empty agency ID column
+    for name, df in optional_df_dict.items():
+        if df.empty:
+            df['unique_feed_id'] = np.nan
+            df_dict.update({name: df})
+
+    # ensure returned items in list are always in the same expected order
+    df_list = [df_dict['stops'], df_dict['routes'], df_dict['trips'],
+               df_dict['stop_times'], df_dict['calendar'],
+               df_dict['calendar_dates']]
 
     log('Unique GTFS feed ID operation complete. '
         'Took {:,.2f} seconds.'.format(time.time() - start_time))
