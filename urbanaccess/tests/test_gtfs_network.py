@@ -66,6 +66,19 @@ def gtfs_feed_w_calendar_and_calendar_dates(
 
 
 @pytest.fixture
+def gtfs_feed_w_calendar_and_calendar_dates_multi_agency(
+        agency_b_feed_on_disk_w_calendar_and_calendar_dates):
+    loaded_feeds = gtfs_load.gtfsfeed_to_df(
+        gtfsfeed_path=agency_b_feed_on_disk_w_calendar_and_calendar_dates,
+        validation=False,
+        verbose=True,
+        bbox=None,
+        remove_stops_outsidebbox=False,
+        append_definitions=False)
+    return loaded_feeds
+
+
+@pytest.fixture
 def selected_int_stop_times_from_feed_wo_calendar_dates(
         gtfs_feed_wo_calendar_dates):
     # reproduce what is expected as the 'selected_interpolated_stop_times_df'
@@ -309,6 +322,76 @@ def expected_transit_edge_from_feed_wo_calendar_dates_process_lvl_2_timeaware():
 
 
 @pytest.fixture
+def expected_final_transit_edge_from_feed_wo_calendar():
+    # represents df after it has been post-processed downstream
+    data = {
+        'node_id_from': ['6_agency_a_city_a', '5_agency_a_city_a',
+                         '4_agency_a_city_a', '3_agency_a_city_a'],
+        'node_id_to': ['5_agency_a_city_a', '4_agency_a_city_a',
+                       '3_agency_a_city_a', '1_agency_a_city_a'],
+        'weight': [5.0, 5.0, 5.0, 10.0],
+        'unique_agency_id': ['agency_a_city_a'] * 4,
+        'unique_trip_id': ['c2_agency_a_city_a'] * 4,
+        'sequence': range(1, 5),
+        'unique_route_id': ['12-101_agency_a_city_a'] * 4,
+        'id': ['c2_agency_a_city_a_1', 'c2_agency_a_city_a_2',
+               'c2_agency_a_city_a_3', 'c2_agency_a_city_a_4'],
+        'route_type': [1] * 4,
+        'net_type': ['transit'] * 4
+    }
+    index = range(4)
+    df = pd.DataFrame(data, index)
+    # raw data are read as int32
+    df['sequence'] = df['sequence'].astype('int32')
+    return df
+
+
+@pytest.fixture
+def expected_final_transit_edge_from_feed_w_cal_and_cal_dates(
+        expected_transit_edge_from_feed_wo_calendar_dates_process_lvl_2):
+    # represents df after it has been post-processed downstream
+    data = {
+        'unique_route_id': ['10-101_agency_a_city_a'] * 5,
+        'net_type': ['transit'] * 5
+    }
+    index = range(5)
+    df = pd.DataFrame(data, index)
+    df = pd.concat(
+        [expected_transit_edge_from_feed_wo_calendar_dates_process_lvl_2,
+         df],
+        axis=1)
+    return df
+
+
+@pytest.fixture
+def expected_transit_edge_from_agency_b_feed_w_cal_and_cal_dates():
+    # represents df after it has been post-processed downstream
+    data = {
+        'node_id_from': ['60_agency_b_district_1', '61_agency_b_district_1',
+                         '62_agency_b_district_1', '63_agency_b_district_1',
+                         '64_agency_b_district_1'],
+        'node_id_to': ['61_agency_b_district_1', '62_agency_b_district_1',
+                       '63_agency_b_district_1', '64_agency_b_district_1',
+                       '65_agency_b_district_1'],
+        'weight': [5.0] * 5,
+        'unique_agency_id': ['agency_b_district_1'] * 5,
+        'unique_trip_id': ['13_agency_b_district_1'] * 5,
+        'sequence': range(1, 6),
+        'unique_route_id': ['40-4_agency_b_district_1'] * 5,
+        'id': ['13_agency_b_district_1_1', '13_agency_b_district_1_2',
+               '13_agency_b_district_1_3', '13_agency_b_district_1_4',
+               '13_agency_b_district_1_5'],
+        'route_type': [3] * 5,
+        'net_type': ['transit'] * 5
+    }
+    index = range(5)
+    df = pd.DataFrame(data, index)
+    # raw data are read as int32
+    df['sequence'] = df['sequence'].astype('int32')
+    return df
+
+
+@pytest.fixture
 def expected_transit_edge_from_feed_wo_calendar_dates_process_lvl_1_timeaware(
         expected_transit_edge_from_feed_wo_calendar_dates_process_lvl_2_timeaware):  # noqa
     # represents df prior to being post-processed downstream
@@ -439,6 +522,50 @@ def hdf5_file_on_disk_gtfsfeeds_dfs(
     return hdf5_save_path
 
 
+def test_create_transit_net_wo_calendar_dates_w_high_freq_trips(
+        gtfs_feed_wo_calendar_dates,
+        expected_urbanaccess_network_keys,
+        expected_final_transit_edge_from_feed_wo_calendar_dates):
+    expected_result = \
+        expected_final_transit_edge_from_feed_wo_calendar_dates.copy()
+    transit_net = gtfs_network.create_transit_net(
+        gtfs_feed_wo_calendar_dates, day=None,
+        timerange=['07:00:00', '10:00:00'],
+        calendar_dates_lookup=None,
+        overwrite_existing_stop_times_int=False,
+        use_existing_stop_times_int=False,
+        save_processed_gtfs=False,
+        save_dir=None,
+        save_filename=None,
+        timerange_pad=None,
+        time_aware=False,
+        date=None,
+        date_range=None,
+        use_highest_freq_trips_date=True,
+        simplify=False)
+    assert isinstance(transit_net, urbanaccess_network)
+    urbanaccess_network_info = vars(transit_net)
+    expected_dfs = ['transit_nodes', 'transit_edges']
+    assert expected_urbanaccess_network_keys == sorted(list(
+        urbanaccess_network_info.keys()))
+    for key, value in urbanaccess_network_info.items():
+        assert isinstance(value, pd.core.frame.DataFrame)
+        # check that df is not empty
+        if key in expected_dfs:
+            assert value.empty is False
+
+    result_edge = transit_net.transit_edges.copy()
+    # test that output df is identical to expected df
+    result_edge = result_edge.reindex(
+        sorted(result_edge.columns), axis=1)
+    expected_result = expected_result.reindex(
+        sorted(expected_result.columns), axis=1)
+    # ensure 'sequence' is int32 for test as other OS sometimes reads this as
+    # int64 and will cause tests to fail when using equals()
+    result_edge['sequence'] = result_edge['sequence'].astype('int32')
+    assert result_edge.equals(expected_result)
+
+
 def test_create_transit_net_wo_calendar_dates(
         gtfs_feed_wo_calendar_dates,
         expected_urbanaccess_network_keys,
@@ -447,6 +574,123 @@ def test_create_transit_net_wo_calendar_dates(
         expected_final_transit_edge_from_feed_wo_calendar_dates.copy()
     transit_net = gtfs_network.create_transit_net(
         gtfs_feed_wo_calendar_dates, day='monday',
+        timerange=['07:00:00', '10:00:00'],
+        calendar_dates_lookup=None,
+        overwrite_existing_stop_times_int=False,
+        use_existing_stop_times_int=False,
+        save_processed_gtfs=False,
+        save_dir=None,
+        save_filename=None)
+    assert isinstance(transit_net, urbanaccess_network)
+    urbanaccess_network_info = vars(transit_net)
+    expected_dfs = ['transit_nodes', 'transit_edges']
+    assert expected_urbanaccess_network_keys == sorted(list(
+        urbanaccess_network_info.keys()))
+    for key, value in urbanaccess_network_info.items():
+        assert isinstance(value, pd.core.frame.DataFrame)
+        # check that df is not empty
+        if key in expected_dfs:
+            assert value.empty is False
+
+    result_edge = transit_net.transit_edges.copy()
+    # test that output df is identical to expected df
+    result_edge = result_edge.reindex(
+        sorted(result_edge.columns), axis=1)
+    expected_result = expected_result.reindex(
+        sorted(expected_result.columns), axis=1)
+    # ensure 'sequence' is int32 for test as other OS sometimes reads this as
+    # int64 and will cause tests to fail when using equals()
+    result_edge['sequence'] = result_edge['sequence'].astype('int32')
+    assert result_edge.equals(expected_result)
+
+
+def test_create_transit_net_wo_calendar(
+        gtfs_feed_wo_calendar,
+        expected_urbanaccess_network_keys,
+        expected_final_transit_edge_from_feed_wo_calendar
+):
+    expected_result = \
+        expected_final_transit_edge_from_feed_wo_calendar.copy()
+    transit_net = gtfs_network.create_transit_net(
+        gtfs_feed_wo_calendar, day=None,
+        timerange=['00:00:00', '23:59:00'],
+        calendar_dates_lookup=None,
+        overwrite_existing_stop_times_int=False,
+        use_existing_stop_times_int=False,
+        save_processed_gtfs=False,
+        save_dir=None,
+        save_filename=None,
+        date='2016-04-24')
+    assert isinstance(transit_net, urbanaccess_network)
+    urbanaccess_network_info = vars(transit_net)
+    expected_dfs = ['transit_nodes', 'transit_edges']
+    assert expected_urbanaccess_network_keys == sorted(list(
+        urbanaccess_network_info.keys()))
+    for key, value in urbanaccess_network_info.items():
+        assert isinstance(value, pd.core.frame.DataFrame)
+        # check that df is not empty
+        if key in expected_dfs:
+            assert value.empty is False
+
+    result_edge = transit_net.transit_edges.copy()
+    # test that output df is identical to expected df
+    result_edge = result_edge.reindex(
+        sorted(result_edge.columns), axis=1)
+    expected_result = expected_result.reindex(
+        sorted(expected_result.columns), axis=1)
+    # ensure 'sequence' is int32 for test as other OS sometimes reads this as
+    # int64 and will cause tests to fail when using equals()
+    result_edge['sequence'] = result_edge['sequence'].astype('int32')
+    assert result_edge.equals(expected_result)
+
+
+def test_create_transit_net_w_calendar_and_calendar_dates(
+        gtfs_feed_w_calendar_and_calendar_dates,
+        expected_urbanaccess_network_keys,
+        expected_final_transit_edge_from_feed_w_cal_and_cal_dates):
+    expected_result = \
+        expected_final_transit_edge_from_feed_w_cal_and_cal_dates.copy()
+    transit_net = gtfs_network.create_transit_net(
+        gtfs_feed_w_calendar_and_calendar_dates, day=None,
+        timerange=['07:00:00', '10:00:00'],
+        calendar_dates_lookup=None,
+        overwrite_existing_stop_times_int=False,
+        use_existing_stop_times_int=False,
+        save_processed_gtfs=False,
+        save_dir=None,
+        save_filename=None,
+        date_range=['2016-12-24', '2017-03-18'])
+    assert isinstance(transit_net, urbanaccess_network)
+    urbanaccess_network_info = vars(transit_net)
+    expected_dfs = ['transit_nodes', 'transit_edges']
+    assert expected_urbanaccess_network_keys == sorted(list(
+        urbanaccess_network_info.keys()))
+    for key, value in urbanaccess_network_info.items():
+        assert isinstance(value, pd.core.frame.DataFrame)
+        # check that df is not empty
+        if key in expected_dfs:
+            assert value.empty is False
+
+    result_edge = transit_net.transit_edges.copy()
+    # test that output df is identical to expected df
+    result_edge = result_edge.reindex(
+        sorted(result_edge.columns), axis=1)
+    expected_result = expected_result.reindex(
+        sorted(expected_result.columns), axis=1)
+    # ensure 'sequence' is int32 for test as other OS sometimes reads this as
+    # int64 and will cause tests to fail when using equals()
+    result_edge['sequence'] = result_edge['sequence'].astype('int32')
+    assert result_edge.equals(expected_result)
+
+
+def test_create_transit_net_w_calendar_and_calendar_dates_multi_agency(
+        gtfs_feed_w_calendar_and_calendar_dates_multi_agency,
+        expected_urbanaccess_network_keys,
+        expected_transit_edge_from_agency_b_feed_w_cal_and_cal_dates):
+    expected_result = \
+        expected_transit_edge_from_agency_b_feed_w_cal_and_cal_dates.copy()
+    transit_net = gtfs_network.create_transit_net(
+        gtfs_feed_w_calendar_and_calendar_dates_multi_agency, day='monday',
         timerange=['07:00:00', '10:00:00'],
         calendar_dates_lookup=None,
         overwrite_existing_stop_times_int=False,
@@ -523,7 +767,8 @@ def test_create_transit_net_wo_calendar_dates_timeaware(
         expected_urbanaccess_network_keys,
         expected_final_transit_edge_from_feed_wo_calendar_dates_timeaware):
     expected_result = \
-        expected_final_transit_edge_from_feed_wo_calendar_dates_timeaware.copy()  # noqa
+        expected_final_transit_edge_from_feed_wo_calendar_dates_timeaware\
+            .copy()  # noqa
     transit_net = gtfs_network.create_transit_net(
         gtfs_feed_wo_calendar_dates, day='monday',
         timerange=['07:00:00', '10:00:00'],
@@ -779,6 +1024,27 @@ def test_create_transit_net_invalid_params(gtfs_feed_wo_calendar_dates):
             save_dir=None,
             save_filename=None,
             timerange_pad=None,
+            time_aware=False,
+            date=None,
+            date_range=None,
+            use_highest_freq_trips_date=True,
+            simplify=False)
+    expected_error = ("Only one parameter: 'use_highest_freq_trips_date' "
+                      "or one of 'day', 'date', or 'date_range' can be "
+                      "used at a time or both 'day' and 'date_range' can "
+                      "be used.")
+    assert expected_error in str(excinfo.value)
+    with pytest.raises(ValueError) as excinfo:
+        transit_net = gtfs_network.create_transit_net(
+            gtfs_feed_wo_calendar_dates, day='monday',
+            timerange=['07:00:00', '10:00:00'],
+            calendar_dates_lookup=None,
+            overwrite_existing_stop_times_int=False,
+            use_existing_stop_times_int=False,
+            save_processed_gtfs=False,
+            save_dir=None,
+            save_filename=None,
+            timerange_pad=None,
             time_aware=6)
     expected_error = "time_aware must be bool."
     assert expected_error in str(excinfo.value)
@@ -978,240 +1244,6 @@ def test_skip_interpolator(stop_times, calendar):
                                                           1, 2, 3, 4, 5,
                                                           1, 2, 3, 4, 5,
                                                           1, 2, 3, 4, 5]
-
-
-def test_trip_schedule_selector_wo_cal_dates(gtfs_feed_wo_calendar_dates):
-    expected_result = gtfs_feed_wo_calendar_dates.trips.copy()
-    # create expected trips result
-    expected_result.reset_index(drop=True, inplace=True)
-    expected_result = expected_result.iloc[0:8]
-    result = gtfs_network._trip_schedule_selector(
-        input_trips_df=gtfs_feed_wo_calendar_dates.trips,
-        input_calendar_df=gtfs_feed_wo_calendar_dates.calendar,
-        input_calendar_dates_df=gtfs_feed_wo_calendar_dates.calendar_dates,
-        day='monday',
-        calendar_dates_lookup=None)
-
-    assert len(result) == 8
-    assert result.equals(expected_result)
-
-
-def test_trip_schedule_selector_wo_cal_dates_wo_direction_id(
-        gtfs_feed_wo_calendar_dates):
-    # remove 'direction_id' col for test
-    trips_df = gtfs_feed_wo_calendar_dates.trips.copy()
-    trips_df.drop(columns=['direction_id'], inplace=True)
-    expected_result = gtfs_feed_wo_calendar_dates.trips.copy()
-    # create expected trips result
-    expected_result.reset_index(drop=True, inplace=True)
-    expected_result.drop(columns=['direction_id'], inplace=True)
-    expected_result = expected_result.iloc[0:8]
-
-    result = gtfs_network._trip_schedule_selector(
-        input_trips_df=trips_df,
-        input_calendar_df=gtfs_feed_wo_calendar_dates.calendar,
-        input_calendar_dates_df=gtfs_feed_wo_calendar_dates.calendar_dates,
-        day='monday',
-        calendar_dates_lookup=None)
-
-    assert len(result) == 8
-    assert result.equals(expected_result)
-
-
-def test_trip_schedule_selector_w_cal_dates(gtfs_feed_wo_calendar):
-    expected_result = gtfs_feed_wo_calendar.trips.copy()
-    # create expected trips result
-    expected_result = expected_result.iloc[4:10]
-    expected_result.reset_index(drop=True, inplace=True)
-    result = gtfs_network._trip_schedule_selector(
-        input_trips_df=gtfs_feed_wo_calendar.trips,
-        input_calendar_df=gtfs_feed_wo_calendar.calendar,
-        input_calendar_dates_df=gtfs_feed_wo_calendar.calendar_dates,
-        day='sunday',
-        calendar_dates_lookup={'schedule_type': 'WE',
-                               'service_id': ['weekday-3', 'weekday-2']})
-
-    assert len(result) == 6
-    assert result.equals(expected_result)
-
-
-def test_trip_schedule_selector_w_cal_and_cal_dates(
-        gtfs_feed_w_calendar_and_calendar_dates):
-    trips_df = gtfs_feed_w_calendar_and_calendar_dates.trips.copy()
-    cal_df = gtfs_feed_w_calendar_and_calendar_dates.calendar.copy()
-    cal_dates_df = gtfs_feed_w_calendar_and_calendar_dates.calendar_dates \
-        .copy()
-    expected_result = gtfs_feed_w_calendar_and_calendar_dates.trips.copy()
-    result = gtfs_network._trip_schedule_selector(
-        input_trips_df=trips_df,
-        input_calendar_df=cal_df,
-        input_calendar_dates_df=cal_dates_df,
-        day='monday',
-        calendar_dates_lookup={'schedule_type': 'WE'})
-
-    assert len(result) == 10
-    assert result.equals(expected_result)
-
-
-def test_trip_schedule_selector_w_cal_and_cal_dates_wo_lookup(
-        gtfs_feed_w_calendar_and_calendar_dates):
-    trips_df_1 = gtfs_feed_w_calendar_and_calendar_dates.trips.copy()
-    cal_df = gtfs_feed_w_calendar_and_calendar_dates.calendar.copy()
-    cal_dates_df_1 = gtfs_feed_w_calendar_and_calendar_dates.calendar_dates \
-        .copy()
-    # create extra records in trips and calendar_dates for a different agency
-    # that do not exist in the calendar table
-    trips_df_2 = trips_df_1.copy()
-    trips_df_2['unique_agency_id'] = trips_df_2['unique_agency_id'] + '_x'
-    trips_df_2['unique_feed_id'] = trips_df_2['unique_feed_id'] + '_x'
-    trips_df_2 = trips_df_2.iloc[0:8]
-    trips_df_x2 = pd.concat(
-        [trips_df_1, trips_df_2], axis=0,
-        ignore_index=True)
-    cal_dates_df_2 = cal_dates_df_1.copy()
-    cal_dates_df_2['unique_agency_id'] = \
-        cal_dates_df_2['unique_agency_id'] + '_x'
-    cal_dates_df_2['unique_feed_id'] = \
-        cal_dates_df_2['unique_feed_id'] + '_x'
-    cal_dates_df_x2 = pd.concat(
-        [cal_dates_df_1, cal_dates_df_2], axis=0,
-        ignore_index=True)
-    # create expected trips result
-    expected_result = trips_df_1.copy()
-    expected_result = expected_result.iloc[0:8]
-    result = gtfs_network._trip_schedule_selector(
-        input_trips_df=trips_df_x2,
-        input_calendar_df=cal_df,
-        input_calendar_dates_df=cal_dates_df_x2,
-        day='monday',
-        calendar_dates_lookup=None)
-
-    assert len(result) == 8
-    assert result.equals(expected_result)
-
-
-def test_trip_schedule_selector_wo_cal_dates_invalid_params(
-        gtfs_feed_wo_calendar_dates):
-    gtfs_feed = gtfs_feed_wo_calendar_dates
-    # test with invalid 'day' param
-    with pytest.raises(ValueError) as excinfo:
-        result = gtfs_network._trip_schedule_selector(
-            input_trips_df=gtfs_feed.trips,
-            input_calendar_df=gtfs_feed.calendar,
-            input_calendar_dates_df=gtfs_feed.calendar_dates,
-            day='monday ',
-            calendar_dates_lookup=None)
-    expected_error = (
-        "Incorrect day specified. Must be one of lowercase strings: 'monday',"
-        " 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'.")
-    assert expected_error in str(excinfo.value)
-    # test with invalid 'calendar_dates_lookup' param
-    with pytest.raises(ValueError) as excinfo:
-        result = gtfs_network._trip_schedule_selector(
-            input_trips_df=gtfs_feed.trips,
-            input_calendar_df=gtfs_feed.calendar,
-            input_calendar_dates_df=gtfs_feed.calendar_dates,
-            day='monday',
-            calendar_dates_lookup=['invalid'])
-    expected_error = "calendar_dates_lookup parameter must be a dictionary."
-    assert expected_error in str(excinfo.value)
-    # test with invalid 'calendar_dates_lookup' param
-    with pytest.raises(ValueError) as excinfo:
-        result = gtfs_network._trip_schedule_selector(
-            input_trips_df=gtfs_feed.trips,
-            input_calendar_df=gtfs_feed.calendar,
-            input_calendar_dates_df=gtfs_feed.calendar_dates,
-            day='monday',
-            calendar_dates_lookup={1: 'WD'})
-    expected_error = "calendar_dates_lookup key: 1 must be a string."
-    assert expected_error in str(excinfo.value)
-    # test with invalid 'calendar_dates_lookup' param
-    with pytest.raises(ValueError) as excinfo:
-        result = gtfs_network._trip_schedule_selector(
-            input_trips_df=gtfs_feed.trips,
-            input_calendar_df=gtfs_feed.calendar,
-            input_calendar_dates_df=gtfs_feed.calendar_dates,
-            day='monday',
-            calendar_dates_lookup={'schedule_type': 1})
-    expected_error = ("calendar_dates_lookup value: 1 must be a "
-                      "string or a list of strings.")
-    assert expected_error in str(excinfo.value)
-    # test with invalid 'calendar_dates_lookup' param
-    with pytest.raises(ValueError) as excinfo:
-        result = gtfs_network._trip_schedule_selector(
-            input_trips_df=gtfs_feed.trips,
-            input_calendar_df=gtfs_feed.calendar,
-            input_calendar_dates_df=gtfs_feed.calendar_dates,
-            day='monday',
-            calendar_dates_lookup={'schedule_type': ['WD', 1]})
-    expected_error = ("calendar_dates_lookup value: ['WD', 1] "
-                      "must contain strings.")
-    assert expected_error in str(excinfo.value)
-
-
-def test_trip_schedule_selector_no_services_found(
-        gtfs_feed_wo_calendar):
-    with pytest.raises(ValueError) as excinfo:
-        result = gtfs_network._trip_schedule_selector(
-            input_trips_df=gtfs_feed_wo_calendar.trips,
-            input_calendar_df=gtfs_feed_wo_calendar.calendar,
-            input_calendar_dates_df=gtfs_feed_wo_calendar.calendar_dates,
-            day='monday',
-            calendar_dates_lookup=None)
-    expected_error = ("No service_id(s) were found with the specified "
-                      "calendar and or calendar_dates search parameters.")
-    assert expected_error in str(excinfo.value)
-
-
-def test_trip_schedule_selector_w_cal_dates_invalid_params_1(
-        gtfs_feed_wo_calendar_dates):
-    # test with empty 'calendar_dates'df
-    with pytest.raises(ValueError) as excinfo:
-        result = gtfs_network._trip_schedule_selector(
-            input_trips_df=gtfs_feed_wo_calendar_dates.trips,
-            input_calendar_df=gtfs_feed_wo_calendar_dates.calendar,
-            input_calendar_dates_df=gtfs_feed_wo_calendar_dates.calendar_dates,
-            day='monday',
-            calendar_dates_lookup={'schedule_type': 'WD'})
-    expected_error = ("calendar_dates is empty. Unable to use the "
-                      "'calendar_dates_lookup' parameter. Set to None.")
-    assert expected_error in str(excinfo.value)
-
-
-def test_trip_schedule_selector_w_cal_dates_invalid_params_2(
-        gtfs_feed_wo_calendar):
-    # create invalid data in calendar dates file
-    cal_dates_df = gtfs_feed_wo_calendar.calendar_dates.copy()
-    series = pd.Series(
-        data=[1, 1, 2, 2], index=range(4),
-        name='invalid_dtype')
-    cal_dates_df['invalid_dtype'] = series
-    series = pd.Series(
-        data=[10, 11, 10, 'aa'], index=range(4),
-        name='day_type')
-    cal_dates_df['day_type'] = series
-
-    # test with invalid col in 'calendar_dates_lookup' param
-    with pytest.raises(ValueError) as excinfo:
-        result = gtfs_network._trip_schedule_selector(
-            input_trips_df=gtfs_feed_wo_calendar.trips,
-            input_calendar_df=gtfs_feed_wo_calendar.calendar,
-            input_calendar_dates_df=cal_dates_df,
-            day='monday',
-            calendar_dates_lookup={'invalid_col': 'WD'})
-    expected_error = ("Column: invalid_col not found in calendar_dates "
-                      "DataFrame.")
-    assert expected_error in str(excinfo.value)
-    # test with invalid col dtype in 'calendar_dates_lookup' param
-    with pytest.raises(ValueError) as excinfo:
-        result = gtfs_network._trip_schedule_selector(
-            input_trips_df=gtfs_feed_wo_calendar.trips,
-            input_calendar_df=gtfs_feed_wo_calendar.calendar,
-            input_calendar_dates_df=cal_dates_df,
-            day='monday',
-            calendar_dates_lookup={'invalid_dtype': '1'})
-    expected_error = "Column: invalid_dtype must be object type."
-    assert expected_error in str(excinfo.value)
 
 
 def test_time_selector_wo_timerange_pad(

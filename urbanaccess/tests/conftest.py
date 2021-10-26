@@ -295,8 +295,8 @@ def calendar_feed_1():
         'friday': [1, 1, 1, 0],
         'saturday': [0, 0, 0, 1],
         'sunday': [0, 0, 0, 1],
-        'start_date': [20161224] * 4,
-        'end_date': [20170318] * 4}
+        'start_date': ['20161224'] * 4,
+        'end_date': ['20170318'] * 4}
 
     index = range(4)
 
@@ -318,8 +318,8 @@ def calendar_feed_2():
         'friday': [1, 1, 1, 0],
         'saturday': [0, 0, 0, 1],
         'sunday': [0, 0, 0, 1],
-        'start_date': [20161224] * 4,
-        'end_date': [20170318] * 4}
+        'start_date': ['20161224'] * 4,
+        'end_date': ['20170318'] * 4}
 
     index = range(4)
 
@@ -338,29 +338,12 @@ def calendar_feed_4():
         'friday': [1],
         'saturday': [0],
         'sunday': [0],
-        'start_date': [20161224],
-        'end_date': [20170318]}
+        'start_date': ['20161224'],
+        'end_date': ['20170318']}
 
     index = range(1)
 
     df = pd.DataFrame(data, index)
-    return df
-
-
-@pytest.fixture
-def calendar_empty():
-    columns = {'service_id',
-               'monday',
-               'tuesday',
-               'wednesday',
-               'thursday',
-               'friday',
-               'saturday',
-               'sunday',
-               'start_date',
-               'end_date'}
-
-    df = pd.DataFrame(columns=columns)
     return df
 
 
@@ -371,8 +354,8 @@ def calendar_dates_feed_1():
                        'weekday-2',
                        'weekday-3',
                        'weekend-1'],
-        'date': [20161224, 20170318, 20160424, 20161230],
-        'exception_type': [1, 2, 1, 1],
+        'date': ['20161224', '20170318', '20160424', '20161230'],
+        'exception_type': ['1', '2', '1', '1'],
         'schedule_type': ['WD', 'WD', 'WD', 'WE']}
 
     index = range(4)
@@ -388,8 +371,8 @@ def calendar_dates_feed_2():
                        'weekday-2',
                        'weekday-3',
                        'weekend-1'],
-        'date': [20161224, 20170318, 20160424, 20161230],
-        'exception_type': [1, 2, 1, 1],
+        'date': ['20161224', '20170318', '20160424', '20161230'],
+        'exception_type': ['1', '2', '1', '1'],
         'schedule_type': ['WD', 'WD', 'WD', 'SA']
     }
 
@@ -403,8 +386,8 @@ def calendar_dates_feed_2():
 def calendar_dates_feed_4():
     data = {
         'service_id': ['wk-1'],
-        'date': [20161224],
-        'exception_type': [1]}
+        'date': ['20161224'],
+        'exception_type': ['1']}
 
     index = range(1)
 
@@ -820,6 +803,27 @@ def agency_a_feed_on_disk_w_calendar_and_calendar_dates_empty_txt(
                       'calendar': calendar_feed_1,
                       'calendar_dates': calendar_dates_feed_1}
     feed_path = os.path.join(tmpdir.strpath, 'empty_txt_test')
+    os.makedirs(feed_path)
+    print('writing test data to dir: {}'.format(feed_path))
+    for feed_file, feed_df in feed_file_dict.items():
+        feed_file_name = '{}.txt'.format(feed_file)
+        feed_df.to_csv(os.path.join(feed_path, feed_file_name), index=False)
+    return feed_path
+
+
+@pytest.fixture()
+def agency_b_feed_on_disk_w_calendar_and_calendar_dates(
+        tmpdir,
+        agency_feed_2, stop_times_feed_2, stops_feed_2,
+        routes_feed_2, trips_feed_2, calendar_feed_2, calendar_dates_feed_2):
+    feed_file_dict = {'agency': agency_feed_2,
+                      'stop_times': stop_times_feed_2,
+                      'stops': stops_feed_2,
+                      'routes': routes_feed_2,
+                      'trips': trips_feed_2,
+                      'calendar': calendar_feed_2,
+                      'calendar_dates': calendar_dates_feed_2}
+    feed_path = os.path.join(tmpdir.strpath, 'agency_b_w_both_calendars')
     os.makedirs(feed_path)
     print('writing test data to dir: {}'.format(feed_path))
     for feed_file, feed_df in feed_file_dict.items():
