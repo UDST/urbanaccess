@@ -799,6 +799,8 @@ def _select_calendar_dates_service_ids(calendar_dates_df, params):
     if has_day_param:
         srvc_ids_add = _select_calendar_dates_service_ids_by_day(
             calendar_dates_df, msg, day)
+        if has_day_and_date_range_param:
+            srvc_ids_add_day = srvc_ids_add.copy()
 
     if has_date_param:
         srvc_ids_add, srvc_ids_del = \
@@ -809,6 +811,22 @@ def _select_calendar_dates_service_ids(calendar_dates_df, params):
         srvc_ids_add, srvc_ids_del = \
             _select_calendar_dates_service_ids_by_date_range(
                 calendar_dates_df, msg, date_range)
+        if has_day_and_date_range_param:
+            srvc_ids_add_date_range = srvc_ids_add.copy()
+            # since we are also using 'day' as a param we cannot remove
+            # service_ids so set it to empty list
+            srvc_ids_del = []
+
+    if has_day_and_date_range_param:
+        # get the intersection between service IDs found via 'day' and
+        # 'date_range' params; since 'day' is a global param we
+        # cannot use any exception_type = 2 records to remove records
+        print_msg = '{} that are active within date_range: {} on day: {}...'
+        log(print_msg.format(msg, date_range, day))
+        intersect_srvc_ids = _intersect_cal_service_ids(
+            dict_1={'day': srvc_ids_add_day},
+            dict_2={'date range': srvc_ids_add_date_range})
+        srvc_ids_add = intersect_srvc_ids.copy()
 
     if has_cal_dates_param:
         query_srvc_ids_add, query_srvc_ids_del = \
@@ -818,7 +836,8 @@ def _select_calendar_dates_service_ids(calendar_dates_df, params):
         # active service_ids or inactive service_ids
         merge_dict = {'add': [srvc_ids_add, query_srvc_ids_add],
                       'del': [srvc_ids_del, query_srvc_ids_del]}
-        _add_exception_type_service_id_lists(merge_dict)
+        srvc_ids_add, srvc_ids_del = _add_exception_type_service_id_lists(
+            merge_dict)
 
     return srvc_ids_add, srvc_ids_del
 
