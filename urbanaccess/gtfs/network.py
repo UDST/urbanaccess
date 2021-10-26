@@ -193,6 +193,11 @@ def create_transit_net(
     if overwrite_existing_stop_times_int and use_existing_stop_times_int:
         raise ValueError('overwrite_existing_stop_times_int and '
                          'use_existing_stop_times_int cannot both be True.')
+    if use_highest_freq_trips_date and any([day, date, date_range]):
+        raise ValueError("Only one parameter: 'use_highest_freq_trips_date' "
+                         "or one of 'day', 'date', or 'date_range' can be "
+                         "used at a time or both 'day' and 'date_range' can "
+                         "be used.")
 
     columns = ['route_id',
                'direction_id',
