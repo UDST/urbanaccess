@@ -8,6 +8,22 @@ from urbanaccess.utils import log
 
 
 def _trip_schedule_selector_validate_params(calendar_dates_df, params):
+    """
+    Validate parameters passed to the _calendar_service_id_selector()
+    function.
+
+    Parameters
+    ----------
+    calendar_dates_df : pandas.DataFrame
+        Calendar dates DataFrame
+    params : dict
+        Parameters to validate as a dict
+
+    Returns
+    -------
+    Nothing
+
+    """
     has_cal = params['has_cal']
     has_cal_dates = params['has_cal_dates']
 
@@ -38,7 +54,7 @@ def _trip_schedule_selector_validate_params(calendar_dates_df, params):
         if day not in valid_days:
             valid_days_str = str(valid_days).replace('[', '').replace(']', '')
             raise ValueError(
-                'Day: {}  is not a supported day. Must be one of lowercase '
+                'Day: {} is not a supported day. Must be one of lowercase '
                 'strings: {}.'.format(day, valid_days_str))
 
     if has_date_param:
@@ -48,7 +64,7 @@ def _trip_schedule_selector_validate_params(calendar_dates_df, params):
             dt.strptime(date, '%Y-%m-%d')
         except ValueError:
             raise ValueError("Date: {} is not a supported date format. "
-                             "Expected format: 'YYYY-MM-DD'".format(date))
+                             "Expected format: 'YYYY-MM-DD'.".format(date))
 
     if has_date_range_param:
         if len(date_range) != 2:
@@ -62,7 +78,7 @@ def _trip_schedule_selector_validate_params(calendar_dates_df, params):
             except ValueError:
                 raise ValueError("Date: {} in date range: {} is not a "
                                  "supported date format. Expected format: "
-                                 "'YYYY-MM-DD'".format(date_item, date_range))
+                                 "'YYYY-MM-DD'.".format(date_item, date_range))
         item_1 = dt.strptime(date_range[0], '%Y-%m-%d')
         item_2 = dt.strptime(date_range[1], '%Y-%m-%d')
         if item_1 > item_2:
@@ -99,8 +115,8 @@ def _trip_schedule_selector_validate_params(calendar_dates_df, params):
                                      'DataFrame.'.format(col_name_key))
                 if col_name_key not in calendar_dates_df.select_dtypes(
                         include=[object]).columns:
-                    raise ValueError('Column: {} must be object type.'.format(
-                        col_name_key))
+                    raise ValueError('Calendar_dates column: {} must be '
+                                     'object type.'.format(col_name_key))
         else:
             raise ValueError("Calendar_dates is empty. Unable to use the "
                              "'calendar_dates_lookup' parameter. Set to None.")
@@ -114,8 +130,26 @@ def _trip_schedule_selector_validate_params(calendar_dates_df, params):
 
 
 def _cal_date_dt_conversion(df, date_cols):
-    #  TODO: add a try except section here to capture calendar format issues
-    #   and return in user friendly message
+    """
+    Convert columns with dates as strings to datetime64[ns] format. Expected
+    incoming dates in format:'%y%m%d' (YYYY-MM-DD)
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        DataFrame that contains date columns to convert to DateTime
+        format. Typically this will be the calendar DataFrame
+    date_cols : list
+        List of strings denoting date columns with string values to convert
+        to DateTime format. For example: ['start_date', 'end_date']
+
+    Returns
+    -------
+    df : pandas.DataFrame
+        Returns the same passed df DataFrame with the columns specified in
+        date_cols converted to datetime64[ns] format.
+
+    """
     for col in date_cols:
         df[col] = pd.to_datetime(
             df[col], format='%y%m%d', infer_datetime_format=True)
@@ -123,6 +157,25 @@ def _cal_date_dt_conversion(df, date_cols):
 
 
 def _select_calendar_service_ids(calendar_df, params):
+    """
+    Wrapper function to select service IDs from the calendar.txt that are
+    active according to the parameters specified
+
+    Parameters
+    ----------
+    calendar_df : pandas.DataFrame
+        Calendar DataFrame
+    params : dict
+        Parameters denoting how service IDs should be selected from table
+        and supporting information to guide the selection process
+
+    Returns
+    -------
+    srvc_ids : list
+        returns a list of service IDs from the calendar.txt that are
+        active according to the parameters specified
+
+    """
     # collect service IDs that match search parameters in calendar.txt
     msg = 'Selecting service_ids from calendar'
 
@@ -164,6 +217,22 @@ def _select_calendar_service_ids(calendar_df, params):
 
 
 def _print_cal_service_ids_len(srvc_ids, table_name):
+    """
+    Helper function to print counts of service IDs
+
+    Parameters
+    ----------
+    srvc_ids : list
+        list of selected service IDs to generate counts for print message
+    table_name : str
+        name of table where service IDs were selected from to include
+        in print message
+
+    Returns
+    -------
+    Nothing
+
+    """
     cnt_msg = '          {:,} service_id(s) were selected from {}.'
     warning_msg = '          Warning: No service_ids were selected from {}.'
     srvc_ids_cnt = len(srvc_ids)
@@ -176,6 +245,27 @@ def _print_cal_service_ids_len(srvc_ids, table_name):
 
 
 def _intersect_cal_service_ids(dict_1, dict_2, verbose=True):
+    """
+    Return the intersection of two lists of service IDs that are set as
+    the values in two dicts
+
+    Parameters
+    ----------
+    dict_1 : dict
+        dict 1 where the key is the origin of the service IDs for informative
+        purposes and the value is a list of service IDs.
+        Example: {'date': srvc_ids_date}
+    dict_2 : dict
+        dict 2 where the key is the origin of the service IDs for informative
+        purposes and the value is a list of service IDs.
+        Example: {'day': srvc_ids_date}
+    verbose : boolean, optional
+        if False, turns off logging and print statements in this function
+    Returns
+    -------
+    srvc_ids : list
+        list of intersected and unique selected service IDs
+    """
     srvc_id_1_name, srvc_id_1 = list(dict_1.items())[0]
     srvc_id_2_name, srvc_id_2 = list(dict_2.items())[0]
     srvc_ids = list(set(srvc_id_1) & set(srvc_id_2))
@@ -194,9 +284,26 @@ def _intersect_cal_service_ids(dict_1, dict_2, verbose=True):
 
 def _select_calendar_service_ids_by_day(
         calendar_df, msg, day=None, verbose=True):
-    # Global search using: day in calendar.txt
-    # select service IDs where day specified = 1 where
-    # 1 = service is active; 0 = service inactive
+    """
+    Global search using day in calendar.txt to select service IDs where
+    day specified = 1 where 1 = service is active; 0 = service inactive
+
+    Parameters
+    ----------
+    calendar_df : pandas.DataFrame
+        Calendar DataFrame
+    msg : str
+        string to prepend to print statement for informative purposes
+    day : {'monday', 'tuesday', 'wednesday', 'thursday',
+    'friday', 'saturday', 'sunday'}
+        day of the week to extract active service IDs in calendar.
+    verbose : boolean, optional
+        if False, turns off logging and print statements in this function
+    Returns
+    -------
+    srvc_ids : list
+        list of active service IDs
+    """
     if verbose:
         log('     {} that are active on day: {}...'.format(msg, day))
     subset_cal_df = calendar_df.loc[calendar_df[day] == 1]
@@ -241,7 +348,7 @@ def _select_calendar_service_ids_by_date_range(
         print_msg = (
             '     Date range: {} contains the following date ranges '
             'available in the calendar. Date ranges available '
-            'are:: \n          {}'.format(date_range, date_rngs))
+            'are: \n          {}'.format(date_range, date_rngs))
         log(print_msg)
 
     _print_cal_service_ids_len(srvc_ids, table_name='calendar')
@@ -249,6 +356,35 @@ def _select_calendar_service_ids_by_date_range(
 
 
 def _calendar_date_ranges(calendar_df, for_print=True):
+    """
+    Helper function to return date ranges inside of the calendar.txt table
+    using the columns 'start_date' and 'end_date'. Returns date ranges
+    in string format to be used in print statements and in pd.Timestamp
+    format to be used in downstream functions.
+
+    Parameters
+    ----------
+    calendar_df : pandas.DataFrame
+        Calendar DataFrame
+    for_print : boolean, optional
+        If True, returns date ranges in string format to be used in print
+        statements where each element takes format:
+        '{start timestamp as string} to {start timestamp as string}'.
+        If False, returns date ranges in pd.Timestamp format as a
+        list of dicts where keys are the 'start_date' and
+        'end_date' for each range: {'start_date': pd.Timestamp,
+        'end_date': pd.Timestamp}.
+    Returns
+    -------
+    date_rngs : list
+        If for_print is True, returns date ranges in string format to be used
+        in print statements where each element takes format:
+        '{start timestamp as string} to {end timestamp as string}'.
+        If False, returns date ranges in pd.Timestamp format as a
+        list of dicts where keys are the 'start_date' and
+        'end_date' for each range: {'start_date': pd.Timestamp,
+        'end_date': pd.Timestamp}.
+    """
     date_cols = ['start_date', 'end_date']
     unique_range = calendar_df[date_cols].drop_duplicates(subset=date_cols)
     # build list of ranges that exist in table to print to user
@@ -268,13 +404,32 @@ def _calendar_date_ranges(calendar_df, for_print=True):
 
 def _select_calendar_service_ids_by_date(
         calendar_df, msg, date=None, verbose=True):
-    # Global search using: date to subset records in calendar.txt
-    # using 'start_date' and 'end_date' columns when GTFS feed has
-    # seasonal service_ids
-    # select service IDs where date is within the 'start_date' and
-    # 'end_date' and then select IDs that are active on the day of
-    # the week the date represents
+    """
+    Global search using date to subset records in calendar.txt
+    using 'start_date' and 'end_date' columns when GTFS feed has
+    seasonal service_ids, select service IDs where date is within the
+    'start_date' and 'end_date' and then select IDs that are active on
+    the day of the week the date represents
 
+    Parameters
+    ----------
+    calendar_df : pandas.DataFrame
+        Calendar DataFrame
+    msg : str
+        string to prepend to print statement for informative purposes
+    date : str
+        date to extract active service IDs in calendar table specified as
+        a string in YYYY-MM-DD format, e.g. '2013-03-09'. service IDs
+        that are active on the date specified (where the date is within the
+        date range given by the start_date and end_date columns) and
+        that date's day of the week will be extracted.
+    verbose : boolean, optional
+        if False, turns off logging and print statements in this function
+    Returns
+    -------
+    srvc_ids : list
+        list of active service IDs
+    """
     # convert date to day of the week
     day = dt.strptime(date, '%Y-%m-%d').strftime('%A').lower()
 
@@ -331,6 +486,23 @@ def _select_calendar_service_ids_by_date(
 
 
 def _parse_cal_dates_exception_type(cal_dates_df, verbose=True):
+    """
+    Helper function to parse selected calendar_dates.txt service IDs
+    from unique_service_id column by exception_type
+
+    Parameters
+    ----------
+    cal_dates_df : pandas.DataFrame
+        Calendar dates DataFrame
+    verbose : boolean, optional
+        if False, turns off logging and print statements in this function
+    Returns
+    -------
+    srvc_ids_add : list
+        list of selected service IDs to add
+    srvc_ids_del : list
+        list of selected service IDs to remove
+    """
     # 1 - Service has been added for the specified date.
     # 2 - Service has been removed for the specified date.
     id_col = 'unique_service_id'
@@ -354,6 +526,30 @@ def _parse_cal_dates_exception_type(cal_dates_df, verbose=True):
 
 def _select_calendar_dates_service_ids_by_day(
         calendar_dates_df, msg, day=None):
+    """
+    Select service IDs in calendar_dates.txt that are active on dates
+    that match the day of the week specified will be where
+    exception_type = 1 (service is added for date).
+
+    Parameters
+    ----------
+    calendar_dates_df : pandas.DataFrame
+        Calendar dates DataFrame
+    msg : str
+        string to prepend to print statement for informative purposes
+    day : {'monday', 'tuesday', 'wednesday', 'thursday',
+    'friday', 'saturday', 'sunday'}
+        day of the week to extract service IDs in calendar_dates table.
+        Service IDs that are active on dates that match the day of the week
+        specified will be extracted where exception_type = 1 (service is added
+         for date).
+
+    Returns
+    -------
+    srvc_ids : list
+        list of active service IDs
+    """
+
     # select all service ids that are active on this day of week,
     # that are inclusive
 
@@ -372,6 +568,33 @@ def _select_calendar_dates_service_ids_by_day(
 
 def _select_calendar_dates_service_ids_by_date(
         calendar_dates_df, msg, date=None, verbose=True):
+    """
+    Search using date to subset records in calendar_dates.txt
+    using 'date' column to select service IDs regardless of exception_type
+
+    Parameters
+    ----------
+    calendar_dates_df : pandas.DataFrame
+        Calendar dates DataFrame
+    msg : str
+        string to prepend to print statement for informative purposes
+    date : str
+        date to extract service IDs in calendar dates table specified as
+        a string in YYYY-MM-DD format, e.g. '2013-03-09'. calendar_dates
+        service IDs that are active within the date range specified will
+        be selected where exception_type = 1
+        (service is added for date) and inactive within
+        the date range specified will be selected where exception_type = 2
+       (service is removed for date).
+    verbose : boolean, optional
+        if False, turns off logging and print statements in this function
+    Returns
+    -------
+    srvc_ids_add : list
+        list of selected service IDs to add
+    srvc_ids_del : list
+        list of selected service IDs to remove
+    """
     # select all that are on this day, that are inclusive
     # remove from those found in calendar that are exclusive
     if verbose:
@@ -392,7 +615,37 @@ def _select_calendar_dates_service_ids_by_date(
 
 def _select_calendar_dates_service_ids_by_date_range(
         calendar_dates_df, msg, date_range=None, verbose=True):
-    # select all service ids that are active within date_range
+    """
+    Search using date_range to subset records in calendar_dates.txt
+    using the 'date' column to select service IDs within the date range
+    regardless of exception_type
+
+    Parameters
+    ----------
+    calendar_dates_df : pandas.DataFrame
+        Calendar dates DataFrame
+    msg : str
+        string to prepend to print statement for informative purposes
+    date_range : list
+        date range to extract active service IDs in calendar_dates table
+        specified as a 2 element list of strings where the first element
+        is the first date and the second element is the last date in the date
+        range. Dates should be specified as strings in YYYY-MM-DD format,
+        e.g. ['2013-03-09', '2013-09-01'].
+        calendar_dates service IDs that are active within
+        the date range specified will be selected where exception_type = 1
+        (service is added for date) and inactive within
+        the date range specified will be selected where exception_type = 2
+       (service is removed for date).
+    verbose : boolean, optional
+        if False, turns off logging and print statements in this function
+    Returns
+    -------
+    srvc_ids_add : list
+        list of selected service IDs to add
+    srvc_ids_del : list
+        list of selected service IDs to remove
+    """
     if verbose:
         log('     {} that are active within date_range: {}...'.format(
             msg, date_range))
@@ -418,6 +671,26 @@ def _select_calendar_dates_service_ids_by_date_range(
 
 
 def _add_exception_type_service_id_lists(srvc_ids_list_dict):
+    """
+    Helper function to combine selected calendar_dates.txt service IDs
+    together by exception_type that have been selected with different
+    parameters
+
+    Parameters
+    ----------
+    srvc_ids_list_dict : dict
+        dict with keys 'add' (exception_type = 1) and 'del'
+        (exception_type = 2) with values as a list of lists of service IDs
+        for example:
+        {'add': [['service ID 1, 'service ID 2], ['service ID 3']],
+        {'del': [['service ID 4, 'service ID 5], ['service ID 6']]}
+    Returns
+    -------
+    srvc_ids_add : list
+        list of combined selected service IDs to add
+    srvc_ids_del : list
+        list of combined selected service IDs to remove
+    """
     print_dict = {}
     for list_type, srvc_id_lists in srvc_ids_list_dict.items():
         srvc_ids_cnt_1 = len(srvc_id_lists[0])
@@ -447,6 +720,26 @@ def _add_exception_type_service_id_lists(srvc_ids_list_dict):
 
 
 def _select_calendar_dates_service_ids(calendar_dates_df, params):
+    """
+    Wrapper function to select service IDs from the calendar_dates.txt
+    that are active according to the parameters specified
+
+    Parameters
+    ----------
+    calendar_dates_df : pandas.DataFrame
+        Calendar dates DataFrame
+    params : dict
+        Parameters denoting how service IDs should be selected from table
+        and supporting information to guide the selection process
+
+    Returns
+    -------
+    srvc_ids_add : list
+        list of selected service IDs to add
+    srvc_ids_del : list
+        list of selected service IDs to remove
+
+    """
     # collect service IDs that match search parameters in calendar_dates.txt
     msg = '     Selecting service_ids from calendar_dates'
 
@@ -497,6 +790,28 @@ def _select_calendar_dates_service_ids(calendar_dates_df, params):
 
 def _merge_service_ids_cal_dates_w_cal(
         srvc_ids, srvc_ids_add, srvc_ids_del, verbose=True):
+    """
+    Helper function to combine selected calendar.txt and calendar_dates.txt
+    service IDs together where service IDs from calendar dates table with
+    exception type 1 are added to those found in calendar table and those
+    with exception type 2 are removed from those found in calendar table
+
+    Parameters
+    ----------
+    srvc_ids : list
+        list of selected service IDs from calendar table
+    srvc_ids_add : list
+        list of selected service IDs to add from calendar dates table
+    srvc_ids_del : list
+        list of selected service IDs to remove from calendar dates table
+    verbose : boolean, optional
+        if False, turns off logging and print statements in this function
+
+    Returns
+    -------
+    active_srvc_ids : list
+        list of combined selected service IDs
+    """
     if verbose:
         log('     Reconciling service_id(s) between calendar and '
             'calendar_dates based on exception_type... ')
@@ -531,7 +846,34 @@ def _merge_service_ids_cal_dates_w_cal(
 
 
 def _select_calendar_dates_str_match(
-        calendar_dates_df, msg, cal_dates_lookup=None):
+        calendar_dates_df, msg, cal_dates_lookup):
+    """
+    Selects service IDs from calendar_dates.txt that match the specified
+    query composed of a dict of column name and string value selection key
+    value pair criteria. Search will be exact and will select all records
+    that meet each key value pair criteria.
+
+    Parameters
+    ----------
+    calendar_dates_df : pandas.DataFrame
+        Calendar dates DataFrame
+    msg : str
+        message to prepend to print statement in function for informative
+        purposes
+    cal_dates_lookup : dict
+        dictionary of the lookup column (key) as a string and corresponding
+        string (value) as string or list of strings to use to subset service
+        IDs using the calendar_dates DataFrame. Search will be exact and will
+        select all records that meet each key value pair criteria.
+        Example: {'schedule_type' : 'WD'} or {'schedule_type' : ['WD', 'SU']}
+
+    Returns
+    -------
+    srvc_ids_add : list
+        list of selected service IDs to add
+    srvc_ids_del : list
+        list of selected service IDs to remove
+    """
     # collect service IDs that match search parameters in calendar_dates.txt
     log('{} that match calendar_date_lookup parameter(s) for '
         'column(s) and string(s): {}...'.format(msg, cal_dates_lookup))
@@ -566,6 +908,23 @@ def _select_calendar_dates_str_match(
 
 
 def _print_count_service_ids(df_dict, subset_ids):
+    """
+    Helper function to provide information to user on the results of the
+    active service ID selection process by printing counts of service IDs
+    in tables prior and post-processing.
+
+    Parameters
+    ----------
+    df_dict : dict
+        dict where key is a string denoting the name of the dataframe to use
+        for prints and the value is a pandas.DataFrame containing the
+        original DataFrame
+    subset_ids : list
+        list of processed active service IDs
+    Returns
+    -------
+    Nothing
+    """
     # TODO: flip this around to have:
     #  {agency: {table: {org_count: n, proc_count: n}}}}
     #  if agency has records in both tables print differently
@@ -664,16 +1023,6 @@ def _calendar_service_id_selector(
         calendar where exception_type = 1 (service is added for date).
         This parameter is best utilized if its known that the GTFS
         feed calendar table has seasonal service IDs.
-    use_highest_freq_trips_date : boolean, optional
-        when True, the date that contains the highest number of active trips
-        will be determined and will be used to select active service IDs.
-        See the docstring for the 'date' parameter to understand how the
-        'date' is then used to select service IDs. If multiple dates are found
-        to contain the highest number of trips, and they contain the same
-        trip IDs, one date from those found will be used. If they do not
-        contain the same trip IDs, an error will be raised to prompt you
-        to explicitly set one of the dates found as the date in the 'date'
-        parameter.
     cal_dates_lookup : dict, optional
         dictionary of the lookup column (key) as a string and corresponding
         string (value) as string or list of strings to use to subset trips
@@ -681,8 +1030,8 @@ def _calendar_service_id_selector(
         there is a high degree of certainly that the GTFS feed in use has
         service_ids listed in calendar_dates that would otherwise not be
         selected if using any of the other calendar_dates parameters such as:
-         'day', 'date' or 'date_range'. Search will be exact and will select
-         all records that meet each key value pair criteria.
+        'day', 'date' or 'date_range'. Search will be exact and will select
+        all records that meet each key value pair criteria.
         Example: {'schedule_type' : 'WD'} or {'schedule_type' : ['WD', 'SU']}
 
     Returns
@@ -848,11 +1197,30 @@ def _trip_selector(trips_df, service_ids, verbose=True):
 
 
 def _highest_freq_trips_date(trips_df, calendar_df, calendar_dates_df):
+    """
+    Counts the number of trips active on each calendar day of active service
+    and returns the date with the maximum number of trips.
+
+    Parameters
+    ----------
+    trips_df : pandas.DataFrame
+        trips DataFrame
+    calendar_df : pandas.DataFrame
+        calendar DataFrame
+    calendar_dates_df : pandas.DataFrame
+        calendar dates DataFrame
+
+    Returns
+    -------
+    max_date : str
+        date as a string where the maximum number of trips occur in a schedule
+
+    """
     start_time = time.time()
     # get service ids for each date
     # count the trips that have those service ids
     # the date that has the max is the date to choose
-    # use select service ids by date with that date
+    # use to select service ids by date with the date found here
     log('Finding date with the most frequent trips...')
     has_cal = calendar_df.empty is False
     has_cal_dates = calendar_dates_df.empty is False
@@ -931,21 +1299,20 @@ def _highest_freq_trips_date(trips_df, calendar_df, calendar_dates_df):
 
     time_msg = 'Took {:,.2f} seconds.'.format(time.time() - start_time)
     if len(dates_w_max_trips) == 1:
-        msg = (
-            'The date with the most frequent trips ({:,} active trips): {} '
-            'will be used to select service ids. {}'.format(
-                max_date, max_trips, time_msg))
+        msg = ("The date with the most frequent trips ({:,} active trips): {} "
+               "will be used to select service ids. {}".format(
+                max_trips, max_date, time_msg))
         log(msg)
     # if there are more than 1 dates with the same max number of trips value,
     # print informative messages and ValueError depending on if service_ids
     # differ between the dates
     else:
         if len(service_ids_not_shared) == 0:
-            msg = ('The following dates: {} have identical service_ids '
-                   'representing the date with the most frequent trips '
-                   '({:,} active trips). The service ids active on these dates'
-                   ' will be used to select active trips. Selection of '
-                   'service ids will be made using date: {}. {}')
+            msg = ("The following dates: {} have identical service_ids "
+                   "representing the date with the most frequent trips "
+                   "({:,} active trips). The service ids active on these dates"
+                   " will be used to select active trips. Selection of "
+                   "service ids will be made using date: {}. {}")
             log(msg.format(
                 sorted(dates_w_max_trips), max_trips, max_date, time_msg))
         # if there are different service_ids between the dates that have the
@@ -953,12 +1320,12 @@ def _highest_freq_trips_date(trips_df, calendar_df, calendar_dates_df):
         # pick one of the dates in the list to use since we cannot arbitrary
         # pick one for them
         else:
-            msg = ('The following dates: {} have different service ids '
-                   'representing the date with the most frequent trips '
-                   '({:,} active trips). Unable to use the '
-                   '"use_highest_freq_trips_date" parameter. '
-                   'Pick one date from this list as the "date" parameter '
-                   'to proceed.')
+            msg = ("The following dates: {} have different service ids "
+                   "representing the date with the most frequent trips "
+                   "({:,} active trips). Unable to use the "
+                   "'use_highest_freq_trips_date' parameter. "
+                   "Pick one date from this list as the 'date' parameter "
+                   "to proceed.")
             raise ValueError(msg.format(sorted(dates_w_max_trips), max_trips))
 
     # return the date of the max trip value instead of the date's service IDs
@@ -969,6 +1336,21 @@ def _highest_freq_trips_date(trips_df, calendar_df, calendar_dates_df):
 
 
 def _unique_service_id(df_list):
+    """
+    Create 'unique_service_id' column and values for a list of
+    pandas.DataFrames
+
+    Parameters
+    ----------
+    df_list : list
+        list of pandas.DataFrames to generate 'unique_service_id' column for
+
+    Returns
+    -------
+    df_list : list
+        list of pandas.DataFrames with 'unique_service_id' column added
+
+    """
     for index, df in enumerate(df_list):
         df['unique_service_id'] = (df['service_id'].str.cat(
             df['unique_agency_id'].astype('str'), sep='_'))

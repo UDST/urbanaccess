@@ -413,7 +413,7 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
     tables; 4) If GTFS feed has an agency.txt file and it has more than
     one agency (it must have an 'agency_id' and 'agency_name' column and
     values), however if there is also a mismatch between the 'agency_id'
-    in aganecy.txt and routes.txt, then assume records tied to the mismatched
+    in agency.txt and routes.txt, then assume records tied to the mismatched
     'agency_id'(s) are from multiple agencies and label the unique agency ID
     as such by concatenating 'multiple_operators_' and the GTFS feed directory
     folder name.
