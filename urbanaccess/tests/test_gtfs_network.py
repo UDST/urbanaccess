@@ -522,6 +522,116 @@ def hdf5_file_on_disk_gtfsfeeds_dfs(
     return hdf5_save_path
 
 
+@pytest.fixture
+def edges_empty(transit_edges_to_simplify):
+    df_empty = transit_edges_to_simplify[0:0]
+    return df_empty
+
+
+@pytest.fixture
+def transit_edges_to_simplify():
+    data = {
+        'node_id_from': [
+            '1_agency_a_city_a', '2_agency_a_city_a', '3_agency_a_city_a',
+            '4_agency_a_city_a', '3_agency_a_city_a', '2_agency_a_city_a',
+            '5_agency_a_city_a', '6_agency_a_city_a', '7_agency_a_city_a',
+            '5_agency_a_city_a', '6_agency_a_city_a', '7_agency_a_city_a',
+            '8_agency_a_city_a', '9_agency_a_city_a', '10_agency_a_city_a',
+            '8_agency_a_city_a', '9_agency_a_city_a', '10_agency_a_city_a'
+        ],
+        'node_id_to': [
+            '2_agency_a_city_a', '3_agency_a_city_a', '4_agency_a_city_a',
+            '3_agency_a_city_a', '2_agency_a_city_a', '1_agency_a_city_a',
+            '6_agency_a_city_a', '7_agency_a_city_a', '8_agency_a_city_a',
+            '6_agency_a_city_a', '7_agency_a_city_a', '8_agency_a_city_a',
+            '9_agency_a_city_a', '10_agency_a_city_a', '11_agency_a_city_a',
+            '9_agency_a_city_a', '10_agency_a_city_a', '11_agency_a_city_a'],
+        'weight': [2.0, 4.0, 5.0,
+                   5.0, 4.0, 2.0,
+                   2.0, 2.0, 3.0,
+                   2.0, 2.0, 3.0,
+                   4.0, 3.0, 4.0,
+                   4.0, 3.0, 4.0],
+        'unique_agency_id': ['agency_a_city_a'] * 18,
+        'unique_trip_id': [
+            '1_agency_a_city_a', '1_agency_a_city_a', '1_agency_a_city_a',
+            '2_agency_a_city_a', '2_agency_a_city_a', '2_agency_a_city_a',
+            '3_agency_a_city_a', '3_agency_a_city_a', '3_agency_a_city_a',
+            '4_agency_a_city_a', '4_agency_a_city_a', '4_agency_a_city_a',
+            '5_agency_a_city_a', '5_agency_a_city_a', '5_agency_a_city_a',
+            '6_agency_a_city_a', '6_agency_a_city_a', '6_agency_a_city_a'],
+        'sequence': [1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3],
+        'unique_route_id': [
+            'R1_agency_a_city_a', 'R1_agency_a_city_a', 'R1_agency_a_city_a',
+            'R1_agency_a_city_a', 'R1_agency_a_city_a', 'R1_agency_a_city_a',
+            'A1_agency_a_city_a', 'A1_agency_a_city_a', 'A1_agency_a_city_a',
+            'A1_agency_a_city_a', 'A1_agency_a_city_a', 'A1_agency_a_city_a',
+            'B1_agency_a_city_a', 'B1_agency_a_city_a', 'B1_agency_a_city_a',
+            'C1_agency_a_city_a', 'C1_agency_a_city_a', 'C1_agency_a_city_a'],
+        'route_type': [1] * 18,
+        'net_type': ['transit'] * 18
+    }
+    index = range(18)
+    df = pd.DataFrame(data, index)
+    df['id'] = (df['unique_trip_id'].str.cat(
+        df['sequence'].astype('str'), sep='_'))
+    return df
+
+
+@pytest.fixture
+def transit_nodes_to_simplify():
+    data = {
+        'node_id': [
+            '1_agency_a_city_a', '2_agency_a_city_a', '3_agency_a_city_a',
+            '4_agency_a_city_a', '5_agency_a_city_a', '6_agency_a_city_a',
+            '7_agency_a_city_a', '8_agency_a_city_a', '9_agency_a_city_a',
+            '10_agency_a_city_a', '11_agency_a_city_a'],
+        'x': [-122.268962, -122.273627, -122.276709, -122.272114,
+              -122.266589, -122.268842, -122.271760, -122.265859,
+              -122.274823, -122.271057, -122.266551],
+        'y': [37.807730, 37.800201, 37.795430, 37.793342,
+              37.806846, 37.803413, 37.798581, 37.796250,
+              37.805727, 37.804455, 37.802497],
+        'unique_agency_id': ['agency_a_city_a'] * 11,
+        'route_type': [1] * 11,
+        'stop_id': range(1, 12),
+        'stop_name': [
+            'ave a', 'ave b', 'ave c', 'ave d', 'ave 1', 'ave 2',
+            'ave 3', 'ave 4', 'st a', 'st b', 'st c'],
+        'net_type': ['transit'] * 11
+    }
+    index = range(11)
+    df = pd.DataFrame(data, index)
+    df.set_index('node_id', drop=True, inplace=True)
+    return df
+
+
+@pytest.fixture
+def transit_nodes_to_simplify_extra_nodes(transit_nodes_to_simplify):
+    data = {
+        'node_id': ['12_agency_a_city_a'],
+        'x': [-122.266551],
+        'y': [37.802497],
+        'unique_agency_id': ['agency_a_city_a'],
+        'route_type': [1],
+        'stop_id': [13],
+        'stop_name': ['st d'],
+        'net_type': ['transit']
+    }
+    index = range(1)
+    df = pd.DataFrame(data, index)
+    df.set_index('node_id', drop=True, inplace=True)
+    df = pd.concat([transit_nodes_to_simplify, df], axis=1)
+
+    return df
+
+
+@pytest.fixture
+def stop_times_empty(selected_int_stop_times_from_feed_wo_calendar_dates):
+    df_empty = selected_int_stop_times_from_feed_wo_calendar_dates[0:0]
+    return df_empty
+
+
 def test_create_transit_net_wo_calendar_dates_w_high_freq_trips(
         gtfs_feed_wo_calendar_dates,
         expected_urbanaccess_network_keys,
@@ -660,6 +770,49 @@ def test_create_transit_net_w_calendar_and_calendar_dates(
         save_dir=None,
         save_filename=None,
         date_range=['2016-12-24', '2017-03-18'])
+    assert isinstance(transit_net, urbanaccess_network)
+    urbanaccess_network_info = vars(transit_net)
+    expected_dfs = ['transit_nodes', 'transit_edges']
+    assert expected_urbanaccess_network_keys == sorted(list(
+        urbanaccess_network_info.keys()))
+    for key, value in urbanaccess_network_info.items():
+        assert isinstance(value, pd.core.frame.DataFrame)
+        # check that df is not empty
+        if key in expected_dfs:
+            assert value.empty is False
+
+    result_edge = transit_net.transit_edges.copy()
+    # test that output df is identical to expected df
+    result_edge = result_edge.reindex(
+        sorted(result_edge.columns), axis=1)
+    expected_result = expected_result.reindex(
+        sorted(expected_result.columns), axis=1)
+    # ensure 'sequence' is int32 for test as other OS sometimes reads this as
+    # int64 and will cause tests to fail when using equals()
+    result_edge['sequence'] = result_edge['sequence'].astype('int32')
+    assert result_edge.equals(expected_result)
+
+
+def test_create_transit_net_w_calendar_and_calendar_dates_w_simplify(
+        gtfs_feed_w_calendar_and_calendar_dates,
+        expected_urbanaccess_network_keys,
+        expected_final_transit_edge_from_feed_w_cal_and_cal_dates):
+    # TODO: note that gtfs_feed_w_calendar_and_calendar_dates does not
+    #  result in any edges that require simplification. Test can be improved
+    #  by changing the test data to one that can be simplified.
+    expected_result = \
+        expected_final_transit_edge_from_feed_w_cal_and_cal_dates.copy()
+    transit_net = gtfs_network.create_transit_net(
+        gtfs_feed_w_calendar_and_calendar_dates, day=None,
+        timerange=['07:00:00', '10:00:00'],
+        calendar_dates_lookup=None,
+        overwrite_existing_stop_times_int=False,
+        use_existing_stop_times_int=False,
+        save_processed_gtfs=False,
+        save_dir=None,
+        save_filename=None,
+        date_range=['2016-12-24', '2017-03-18'],
+        simplify=True)
     assert isinstance(transit_net, urbanaccess_network)
     urbanaccess_network_info = vars(transit_net)
     expected_dfs = ['transit_nodes', 'transit_edges']
@@ -1422,6 +1575,15 @@ def test_format_transit_net_edge_timeaware_True(
     assert result.equals(expected_result)
 
 
+def test_format_transit_net_edge_empty_stop_times(stop_times_empty):
+    with pytest.raises(ValueError) as excinfo:
+        result = gtfs_network._format_transit_net_edge(stop_times_empty)
+    expected_error = (
+        "Unable to continue processing transit network. stop_times table "
+        "has 0 records.")
+    assert expected_error in str(excinfo.value)
+
+
 def test_convert_imp_time_units(
         transit_edge_from_feed_wo_calendar_dates):
     # test with minutes
@@ -1734,3 +1896,122 @@ def test_load_processed_gtfs_data(
         # check that df is empty
         if key in expected_dfs_empty:
             assert value.empty
+
+
+def test_simplify_transit_net(
+        transit_edges_to_simplify, transit_nodes_to_simplify):
+    remove_edge_ids = ['4_agency_a_city_a_1', '4_agency_a_city_a_2',
+                       '4_agency_a_city_a_3']
+    expected_edges = transit_edges_to_simplify.loc[
+        ~transit_edges_to_simplify['id'].isin(remove_edge_ids)]
+    expected_edges.reset_index(inplace=True, drop=True)
+    result_edges, result_nodes = gtfs_network._simplify_transit_net(
+        transit_edges_to_simplify, transit_nodes_to_simplify)
+
+    # expect all nodes to persist
+    assert len(result_nodes) == 11
+    assert result_nodes.equals(transit_nodes_to_simplify)
+
+    # expect 5_agency_a_city_a_1 to 3 and 6_agency_a_city_a_1 to 3 to
+    # persist since they have different attributes in unique_route_id col
+    # expect 1_agency_a_city_a_1 to 3 and 2_agency_a_city_a_1 to 3 to
+    # persist since node_id_from and node_id_to are different
+    # expect only one of 3_agency_a_city_a_1 to 3 or 4_agency_a_city_a_1 to 3
+    # to persist but not both since they share the same attributes
+    assert len(result_edges) == 15
+    result_edges.reset_index(inplace=True, drop=True)
+    assert result_edges.equals(expected_edges)
+
+
+def test_simplify_transit_net_already_simplified(
+        transit_edges_to_simplify, transit_nodes_to_simplify):
+    remove_edge_ids = ['4_agency_a_city_a_1', '4_agency_a_city_a_2',
+                       '4_agency_a_city_a_3']
+    expected_edges = transit_edges_to_simplify.loc[
+        ~transit_edges_to_simplify['id'].isin(remove_edge_ids)]
+    expected_edges.reset_index(inplace=True, drop=True)
+
+    # use the simplified edge table as input to test
+    result_edges, result_nodes = gtfs_network._simplify_transit_net(
+        expected_edges, transit_nodes_to_simplify)
+
+    # expect all nodes to persist
+    assert len(result_nodes) == 11
+    assert result_nodes.equals(transit_nodes_to_simplify)
+
+    # expect 5_agency_a_city_a_1 to 3 and 6_agency_a_city_a_1 to 3 to
+    # persist since they have different attributes in unique_route_id col
+    # expect 1_agency_a_city_a_1 to 3 and 2_agency_a_city_a_1 to 3 to
+    # persist since node_id_from and node_id_to are different
+    # expect only one of 3_agency_a_city_a_1 to 3 or 4_agency_a_city_a_1 to 3
+    # to persist but not both since they share the same attributes
+    assert len(result_edges) == 15
+    result_edges.reset_index(inplace=True, drop=True)
+    assert result_edges.equals(expected_edges)
+
+
+def test_simplify_transit_net_remove_extra_nodes(
+        transit_edges_to_simplify, transit_nodes_to_simplify_extra_nodes):
+    remove_edge_ids = ['4_agency_a_city_a_1', '4_agency_a_city_a_2',
+                       '4_agency_a_city_a_3']
+    expected_edges = transit_edges_to_simplify.loc[
+        ~transit_edges_to_simplify['id'].isin(remove_edge_ids)]
+    expected_edges.reset_index(inplace=True, drop=True)
+
+    remove_node_ids = ['12_agency_a_city_a']
+    expected_nodes = transit_nodes_to_simplify_extra_nodes.loc[
+        ~transit_nodes_to_simplify_extra_nodes.index.isin(remove_node_ids)]
+
+    result_edges, result_nodes = gtfs_network._simplify_transit_net(
+        transit_edges_to_simplify, transit_nodes_to_simplify_extra_nodes)
+
+    # expect all nodes except for 12_agency_a_city_a to persist
+    assert len(result_nodes) == 11
+    assert result_nodes.equals(expected_nodes)
+
+    # expect 5_agency_a_city_a_1 to 3 and 6_agency_a_city_a_1 to 3 to
+    # persist since they have different attributes in unique_route_id col
+    # expect 1_agency_a_city_a_1 to 3 and 2_agency_a_city_a_1 to 3 to
+    # persist since node_id_from and node_id_to are different
+    # expect only one of 3_agency_a_city_a_1 to 3 or 4_agency_a_city_a_1 to 3
+    # to persist but not both since they share the same attributes
+    assert len(result_edges) == 15
+    result_edges.reset_index(inplace=True, drop=True)
+    assert result_edges.equals(expected_edges)
+
+
+def test_simplify_transit_net_empty_edges(
+        edges_empty, transit_nodes_to_simplify):
+    with pytest.raises(ValueError) as excinfo:
+        result_edges, result_nodes = gtfs_network._simplify_transit_net(
+            edges_empty, transit_nodes_to_simplify)
+    expected_error = (
+        'Unable to simplify transit network. Edges have 0 records to '
+        'simplify.')
+    assert expected_error in str(excinfo.value)
+
+
+def test_remove_nodes_not_in_edges(
+        transit_edges_to_simplify, transit_nodes_to_simplify_extra_nodes):
+    remove_node_ids = ['12_agency_a_city_a']
+    expected_nodes = transit_nodes_to_simplify_extra_nodes.loc[
+        ~transit_nodes_to_simplify_extra_nodes.index.isin(remove_node_ids)]
+
+    result_nodes = gtfs_network._remove_nodes_not_in_edges(
+        transit_nodes_to_simplify_extra_nodes, transit_edges_to_simplify,
+        from_id_col='node_id_from', to_id_col='node_id_to')
+
+    # expect all nodes except for 12_agency_a_city_a to persist
+    assert len(result_nodes) == 11
+    assert result_nodes.equals(expected_nodes)
+
+
+def test_remove_nodes_not_in_edges_none_to_remove(
+        transit_edges_to_simplify, transit_nodes_to_simplify):
+    result_nodes = gtfs_network._remove_nodes_not_in_edges(
+        transit_nodes_to_simplify, transit_edges_to_simplify,
+        from_id_col='node_id_from', to_id_col='node_id_to')
+
+    # expect all nodes to persist
+    assert len(result_nodes) == 11
+    assert result_nodes.equals(transit_nodes_to_simplify)
