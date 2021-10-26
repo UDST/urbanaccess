@@ -36,15 +36,17 @@ def _trip_schedule_selector_validate_params(calendar_dates_df, params):
     has_date_param = params['has_date_param']
     has_date_range_param = params['has_date_range_param']
     has_cal_dates_param = params['has_cal_dates_param']
+    has_day_and_date_range_param = params['has_day_and_date_range_param']
 
     # only one search parameter can be used at a time
-    param_list = [has_day_param, has_date_param, has_date_range_param]
-    param_true_cnt = param_list.count(True)
-    if param_true_cnt > 1:
+    all_param_list = [has_day_param, has_date_param, has_date_range_param]
+    all_param_true_cnt = all_param_list.count(True)
+
+    # Note: combination of day and date_range is valid
+    if all_param_true_cnt > 1 and not has_day_and_date_range_param:
         raise ValueError(
             "Only one parameter: 'day', 'date', or 'date_range' can be used "
-            "at a time. To proceed, keep one parameter and set the other "
-            "parameter(s) to None.")
+            "at a time or both 'day' and 'date_range' can be used.")
 
     if has_day_param:
         if not isinstance(day, str):
@@ -185,6 +187,7 @@ def _select_calendar_service_ids(calendar_df, params):
     has_day_param = params['has_day_param']
     has_date_param = params['has_date_param']
     has_date_range_param = params['has_date_range_param']
+    has_day_and_date_range_param = params['has_day_and_date_range_param']
 
     # convert cols to datetime expected format: 'yyyymmdd' e.g.: '20130825'
     date_cols = ['start_date', 'end_date']
@@ -205,7 +208,9 @@ def _select_calendar_service_ids(calendar_df, params):
             calendar_df, msg, date)
         srvc_ids = srvc_ids_date.copy()
 
-    if has_day_param and has_date_range_param:
+    if has_day_and_date_range_param:
+        # get the intersection between service IDs found via 'day' and
+        # 'date_range' params
         print_msg = '{} that are active within date_range: {} on day: {}...'
         log(print_msg.format(msg, date_range, day))
         intersect_srvc_ids = _intersect_cal_service_ids(
@@ -751,6 +756,7 @@ def _select_calendar_dates_service_ids(calendar_dates_df, params):
     has_date_param = params['has_date_param']
     has_date_range_param = params['has_date_range_param']
     has_cal_dates_param = params['has_cal_dates_param']
+    has_day_and_date_range_param = params['has_day_and_date_range_param']
 
     # convert 'date' to datetime expected format: 'yyyymmdd' e.g.: '20130825'
     calendar_dates_df = _cal_date_dt_conversion(
@@ -1054,6 +1060,8 @@ def _calendar_service_id_selector(
     has_date_param = date is not None
     has_date_range_param = date_range is not None
     has_cal_dates_param = cal_dates_lookup is not None
+    has_day_and_date_range_param = \
+        has_day_param and has_date_range_param is True
 
     params = {'day': day,
               'date': date,
@@ -1064,7 +1072,8 @@ def _calendar_service_id_selector(
               'has_date_param': has_date_param,
               'has_date_range_param': has_date_range_param,
               'has_cal_dates': has_cal_dates,
-              'has_cal_dates_param': has_cal_dates_param}
+              'has_cal_dates_param': has_cal_dates_param,
+              'has_day_and_date_range_param': has_day_and_date_range_param}
 
     _trip_schedule_selector_validate_params(calendar_dates_df, params)
 
