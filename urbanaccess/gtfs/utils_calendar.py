@@ -287,8 +287,8 @@ def _intersect_cal_service_ids(dict_1, dict_2, verbose=True):
         msg = ('          Intersection between service_ids selected with: '
                '{} parameter (count: {:,}) and {} parameter (count: {:,}) '
                'returned {:,} total service_id(s).'.format(
-            srvc_id_1_name, list_1_len, srvc_id_2_name, list_2_len,
-            srvc_ids_len))
+                srvc_id_1_name, list_1_len, srvc_id_2_name, list_2_len,
+                srvc_ids_len))
         log(msg)
     return srvc_ids
 
@@ -327,11 +327,33 @@ def _select_calendar_service_ids_by_day(
 
 def _select_calendar_service_ids_by_date_range(
         calendar_df, msg, date_range=None):
-    # Global search using: date_range to subset records in calendar.txt
-    # using 'start_date' and 'end_date' columns when GTFS feed has
-    # seasonal service_ids
-    # select service IDs where 'start_date' and 'end_date' is within the
-    # date_range
+    """
+    Global search using date_range to subset records in calendar.txt
+    using 'start_date' and 'end_date' columns when GTFS feed has
+    seasonal service_ids select service IDs where
+    'start_date' and 'end_date' are within the date_range
+
+    Parameters
+    ----------
+    calendar_df : pandas.DataFrame
+        Calendar DataFrame
+    msg : str
+        string to prepend to print statement for informative purposes
+    date_range : list
+        date range to extract active service IDs in calendar table
+        specified as a 2 element list of strings where the first element
+        is the first date and the second element is the last date in the
+        date range. Dates should be specified as strings in YYYY-MM-DD format,
+        e.g. ['2013-03-09', '2013-09-01']. Service IDs that are active
+        within the date range specified (where the date range is within
+        the date range given by the start_date and end_date columns)
+        will be extracted.
+
+    Returns
+    -------
+    srvc_ids : list
+        list of active service IDs
+    """
     log('     {} that are active within date_range: {}...'.format(
         msg, date_range))
 
@@ -341,8 +363,8 @@ def _select_calendar_service_ids_by_date_range(
         date_range[0], date_range[1], inclusive=True)].to_list()
     end_d_mask = service_ids.loc[calendar_df['end_date'].between(
         date_range[0], date_range[1], inclusive=True)].to_list()
-    ids_in_range = service_ids.loc[service_ids.isin(start_d_mask) &
-                                   service_ids.isin(end_d_mask)]
+    ids_in_range = service_ids.loc[
+        service_ids.isin(start_d_mask) & service_ids.isin(end_d_mask)]
     subset_cal_df = calendar_df.loc[service_ids.isin(ids_in_range)]
     srvc_ids = subset_cal_df['unique_service_id'].to_list()
 
@@ -574,6 +596,7 @@ def _select_calendar_dates_service_ids_by_day(
         calendar_dates_df['_ua_weekday'] == day]
     srvc_ids = subset_cal_dates_df['unique_service_id'].to_list()
     _print_cal_service_ids_len(srvc_ids, table_name='calendar dates')
+
     return srvc_ids
 
 
@@ -828,7 +851,6 @@ def _merge_service_ids_cal_dates_w_cal(
         log('     Reconciling service_id(s) between calendar and '
             'calendar_dates based on exception_type... ')
     srvc_ids_add = list(set(srvc_ids_add))
-    srvc_ids_add_cnt = len(srvc_ids_add)
     srvc_ids_del = list(set(srvc_ids_del))
     srvc_ids_cnt_before_add = len(set(srvc_ids))
 
