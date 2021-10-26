@@ -1302,10 +1302,10 @@ def _highest_freq_trips_date(trips_df, calendar_df, calendar_dates_df):
             dates_dt = dates.to_pydatetime()
             dates_str = [date.strftime('%Y-%m-%d') for date in dates_dt]
             date_list.extend(dates_str)
-        unique_date_list = set(date_list)
+        unique_date_list_cal = list(set(date_list))
 
         date_srv_id_dict = {}
-        for date in unique_date_list:
+        for date in unique_date_list_cal:
             srvc_ids_date = _select_calendar_service_ids_by_date(
                 calendar_df, msg='', date=date, verbose=False)
             date_srv_id_dict.update({date: srvc_ids_date})
@@ -1313,8 +1313,11 @@ def _highest_freq_trips_date(trips_df, calendar_df, calendar_dates_df):
     if has_cal_dates:
         calendar_dates_df = _cal_date_dt_conversion(
             df=calendar_dates_df, date_cols=['date'])
+        unique_date_list_cal_dates = list(
+            calendar_dates_df['date'].dt.strftime('%Y-%m-%d').unique())
+
         date_add_rmv_srv_id_dict = {}
-        for date in unique_date_list:
+        for date in unique_date_list_cal_dates:
             srvc_ids_add, srvc_ids_del = \
                 _select_calendar_dates_service_ids_by_date(
                     calendar_dates_df, msg='', date=date, verbose=False)
@@ -1322,13 +1325,33 @@ def _highest_freq_trips_date(trips_df, calendar_df, calendar_dates_df):
                 'add': srvc_ids_add, 'remove': srvc_ids_del}})
 
     if has_cal and has_cal_dates:
+        # combine both list of dates into one list of unique dates
+        unique_date_list_cal.extend(unique_date_list_cal_dates)
+        unique_date_list = set(unique_date_list_cal)
+
         for date in unique_date_list:
-            srvc_ids = date_srv_id_dict[date].copy()
-            srvc_ids_add = date_add_rmv_srv_id_dict[date]['add']
-            srvc_ids_del = date_add_rmv_srv_id_dict[date]['remove']
+            if date in date_srv_id_dict.keys():
+                srvc_ids = date_srv_id_dict[date].copy()
+            else:
+                srvc_ids = []
+            if date in date_add_rmv_srv_id_dict.keys():
+                srvc_ids_add = date_add_rmv_srv_id_dict[date]['add']
+                srvc_ids_del = date_add_rmv_srv_id_dict[date]['remove']
+            else:
+                srvc_ids_add = []
+                srvc_ids_del = []
             active_srvc_ids = _merge_service_ids_cal_dates_w_cal(
                 srvc_ids, srvc_ids_add, srvc_ids_del, verbose=False)
             date_srv_id_dict[date] = active_srvc_ids.copy()
+    elif has_cal and not has_cal_dates:
+        unique_date_list = unique_date_list_cal.copy()
+    elif has_cal_dates and not has_cal:
+        unique_date_list = unique_date_list_cal_dates.copy()
+        date_srv_id_dict = {}
+        for date in unique_date_list:
+            # only consider service IDs to add (exception type == 1)
+            date_srv_id_dict.update(
+                {date: date_add_rmv_srv_id_dict[date]['add']})
 
     # select the trips and count
     trips_df['unique_trip_id'] = trips_df['trip_id'].str.cat(
