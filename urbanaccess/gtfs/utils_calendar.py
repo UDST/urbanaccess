@@ -1220,7 +1220,7 @@ def _trip_selector(trips_df, service_ids, verbose=True):
             'trips and calendar and or calendar_dates tables.')
     if verbose:
         agency_id_col = 'unique_agency_id'
-        agency_ids = subset_trip_df[agency_id_col].unique()
+        agency_ids = trips_df[agency_id_col].unique()
         for agency in agency_ids:
             agency_trip_cnt = len(subset_trip_df.loc[
                                       subset_trip_df[agency_id_col] == agency])
