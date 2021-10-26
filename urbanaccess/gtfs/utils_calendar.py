@@ -153,8 +153,13 @@ def _cal_date_dt_conversion(df, date_cols):
 
     """
     for col in date_cols:
-        df[col] = pd.to_datetime(
-            df[col], format='%y%m%d', infer_datetime_format=True)
+        try:
+            df[col] = pd.to_datetime(
+                df[col], format='%y%m%d', infer_datetime_format=True)
+        except ValueError:
+            raise ValueError("Column: {} has values that are not in a "
+                             "supported date format. Expected format: "
+                             "'YYYY-MM-DD'.".format(col))
     return df
 
 
