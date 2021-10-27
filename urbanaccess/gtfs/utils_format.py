@@ -761,26 +761,47 @@ def _timetoseconds(df, time_cols, verbose=False):
     for col in time_cols:
         time_list = df[col].fillna('').tolist()
         for n, i in enumerate(time_list):
-            if len(i) == 7:
-                time_list[n] = '0' + i
-                if verbose:
-                    log("Padded value {} with a '0'".format(i))
+            # remove any extra whitespace in time string
             i_wo_whitespace = "".join(i.split())
             if i != i_wo_whitespace:
                 if verbose:
                     log("Removed whitespace from value: {}".format(i))
                 # set to = i so that the next set of value checks on 'i' will
-                # pass if issues was due to existence of whitespace
+                # pass if issue was due to presence of whitespace
                 i = i_wo_whitespace
                 time_list[n] = i
-            if (len(i) != 8) & (len(i) != 0) & (len(i) != 7):
-                raise ValueError(
-                    "Check formatting of value: '{}' as it is in the incorrect"
-                    " format and should be 8 character "
-                    "string '00:00:00'.".format(i))
-        df_fixed = pd.DataFrame(time_list, columns=[col])
-        df[col] = df_fixed[col]
 
+            # assume majority of issues will be related to hr missing
+            # leading 0 when its a single digit, however we cannot assume
+            # that min or sec digits that are missing a padded 0 can be
+            # fixed this way as these may not be formatting errors and could
+            # be actual typos that should throw errors to notify user instead
+            hr_str = i.split(':')[0]
+            if len(hr_str) == 1 and hr_str != '':
+                padded_i = '0' + i
+                if verbose:
+                    log("Padded hour value {} with a '0'".format(i))
+                # set to = i so that the next set of value checks on 'i' will
+                # pass if issue was due to presence of whitespace
+                i = padded_i
+                time_list[n] = i
+
+            # if len is still not 8 and all time components are not len of 2,
+            # throw error, but allow 0 len to pass
+            final_i_len = len(i)
+            if final_i_len != 0:
+                correct_time_len = all(len(item) == 2 for item in i.split(':'))
+                if final_i_len != 8 or not correct_time_len:
+                    msg = (
+                        "Check formatting of value: '{}' as it is in the "
+                        "incorrect format and should be 8 character "
+                        "string '00:00:00'.")
+                    raise ValueError(msg.format(i))
+        df_fixed = pd.DataFrame(time_list, columns=[col])
+        df[col] = df_fixed[col]  # update with fixed time values
+
+        # check time components for outlier values, if found allow them but
+        # log as warning
         h = pd.to_numeric(df[col].str[0:2])
         invalid_vals = h.loc[h > 48]
         cnt = len(invalid_vals)
@@ -808,7 +829,8 @@ def _timetoseconds(df, time_cols, verbose=False):
         col_series = (h * 60 * 60) + (m * 60) + s
         series_df = col_series.to_frame(name=''.join([col, '_sec']))
 
-        # check if times are negative if so display warning
+        # this should never occur but if so, check if times are negative if
+        # so log warning
         if series_df.values.any() < 0:
             log('Warning: Some stop times in {} column are negative. '
                 'Time should be positive. Suggest checking original '
@@ -826,8 +848,8 @@ def _timetoseconds(df, time_cols, verbose=False):
         final_df[col] = final_df[col].replace({'': np.nan})
 
     log('Successfully converted {} to seconds past midnight and appended new '
-        'columns to stop_times. '
-        'Took {:,.2f} seconds.'.format(time_cols, time.time() - start_time))
+        'columns to stop_times. Took {:,.2f} seconds.'.format(
+            time_cols, time.time() - start_time))
 
     return final_df
 
