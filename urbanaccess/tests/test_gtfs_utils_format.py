@@ -1029,6 +1029,50 @@ def test_add_unique_gtfsfeed_id(stops_feed_1, routes_feed_1, trips_feed_1,
         assert df_dict[df][1].equals(df_dict[df][0][original_cols])
 
 
+def test_add_unique_gtfsfeed_id_empty_optional_df(
+        stops_feed_1, routes_feed_1, trips_feed_1,
+        stop_times_feed_1, calendar_feed_1,
+        calendar_dates_feed_1, folder_feed_1):
+
+    # build empty calendar df
+    calendar_empty = calendar_feed_1[0:0]
+
+    stops_df, routes_df, trips_df, stop_times_df, calendar_df, \
+        calendar_dates_df = utils_format._add_unique_gtfsfeed_id(
+            stops_df=stops_feed_1,
+            routes_df=routes_feed_1,
+            trips_df=trips_feed_1,
+            stop_times_df=stop_times_feed_1,
+            calendar_df=calendar_empty,
+            calendar_dates_df=calendar_dates_feed_1,
+            feed_folder=folder_feed_1,
+            feed_number=1)
+
+    df_dict = {'stops': [stops_df, stops_feed_1],
+               'routes': [routes_df, routes_feed_1],
+               'trips': [trips_df, trips_feed_1],
+               'stop_times': [stop_times_df, stop_times_feed_1],
+               'calendar': [calendar_df, calendar_empty],
+               'calendar_dates': [calendar_dates_df, calendar_dates_feed_1]}
+
+    feed_folder = sub(r'\s+', '_', os.path.split(folder_feed_1)[1]).replace(
+        '&', 'and').lower()
+    unique_feed_id = '_'.join([feed_folder, str(1)])
+
+    for df in df_dict.keys():
+        # create new unique_feed_id column based on the name of the feed folder
+        if df != 'calendar':
+            assert df_dict[df][0]['unique_feed_id'].unique() == unique_feed_id
+        else:
+            # if calendar since it was empty we dont expect a value
+            assert list(df_dict[df][0]['unique_feed_id'].unique()) == []
+
+        # test that cols not touched by function in output df are
+        # identical to the cols in input df
+        original_cols = df_dict[df][1].columns
+        assert df_dict[df][1].equals(df_dict[df][0][original_cols])
+
+
 def test_remove_whitespace_from_values(trips_txt_w_invalid_values):
     raw_df, expected_df, feed_path = trips_txt_w_invalid_values
 
@@ -1182,9 +1226,15 @@ def test_list_raw_txt_columns(calendar_dates_txt_w_invalid_values):
 
 def test_timetoseconds(stop_times_feed_1):
     # create 1 record that is missing a 0 in the hr position
-    stop_times_feed_1['departure_time'].iloc[8] = '1:20:00'
+    stop_times_feed_1['departure_time'].iloc[8] = '6:25:00'
+    # create 1 record that has whitespace in the hr position
+    stop_times_feed_1['departure_time'].iloc[12] = ' 08:15:00'
+    # create 1 record that has whitespace in the hr and min position
+    stop_times_feed_1['departure_time'].iloc[13] = ' 08:20 :00'
+    # create 1 record that has whitespace in the sec position
+    stop_times_feed_1['departure_time'].iloc[14] = '08:25:  00 '
     result = utils_format._timetoseconds(
-        stop_times_feed_1, time_cols=['departure_time'])
+        stop_times_feed_1, time_cols=['departure_time'], verbose=True)
     # check that 'departure_time_sec' was created and is not empty
     assert 'departure_time_sec' in result.columns
     assert result['departure_time_sec'].empty is False
@@ -1200,8 +1250,16 @@ def test_timetoseconds(stop_times_feed_1):
     assert result.iloc[37]['departure_time_sec'] == 94800.0
     # check that value that was missing a 0 was fixed and it was converted
     # to seconds
-    assert result.iloc[8]['departure_time'] == '01:20:00'
-    assert result.iloc[8]['departure_time_sec'] == 4800.0
+    assert result.iloc[8]['departure_time'] == '06:25:00'
+    assert result.iloc[8]['departure_time_sec'] == 23100.0
+    # check that values that had whitespace were fixed and it was converted
+    # to seconds
+    assert result.iloc[12]['departure_time'] == '08:15:00'
+    assert result.iloc[12]['departure_time_sec'] == 29700.0
+    assert result.iloc[13]['departure_time'] == '08:20:00'
+    assert result.iloc[13]['departure_time_sec'] == 30000.0
+    assert result.iloc[14]['departure_time'] == '08:25:00'
+    assert result.iloc[14]['departure_time_sec'] == 30300.0
 
 
 def test_timetoseconds_invalid_params(stop_times_feed_1):
@@ -1210,15 +1268,30 @@ def test_timetoseconds_invalid_params(stop_times_feed_1):
             stop_times_feed_1, time_cols='departure_time')
     expected_error = 'departure_time is not a list.'
     assert expected_error in str(excinfo.value)
+    expected_error = ("Check formatting of value: '{}' as it is in "
+                      "the incorrect format and should be 8 character "
+                      "string '00:00:00'.")
     with pytest.raises(ValueError) as excinfo:
         # create 1 record with invalid formatting
-        stop_times_feed_1['departure_time'].iloc[0] = '100:90:80'
+        test_df_1 = stop_times_feed_1.copy()
+        test_df_1['departure_time'].iloc[0] = '100:90:80'
         result = utils_format._timetoseconds(
-            stop_times_feed_1, time_cols=['departure_time'])
-    expected_error = ('Check formatting of value: 100:90:80 as it is in '
-                      'the incorrect format and should be 8 character '
-                      'string 00:00:00.')
-    assert expected_error in str(excinfo.value)
+            test_df_1, time_cols=['departure_time'])
+    assert expected_error.format('100:90:80') in str(excinfo.value)
+    with pytest.raises(ValueError) as excinfo:
+        # create 1 record that is missing a 0 in the sec position
+        test_df_2 = stop_times_feed_1.copy()
+        test_df_2['departure_time'].iloc[6] = '06:25:0'
+        result = utils_format._timetoseconds(
+            test_df_2, time_cols=['departure_time'])
+    assert expected_error.format('06:25:0') in str(excinfo.value)
+    with pytest.raises(ValueError) as excinfo:
+        # create 1 record that is missing a 0 in the min position
+        test_df_3 = stop_times_feed_1.copy()
+        test_df_3['departure_time'].iloc[47] = '06:4:00'
+        result = utils_format._timetoseconds(
+            test_df_3, time_cols=['departure_time'])
+    assert expected_error.format('06:4:00') in str(excinfo.value)
 
 
 def test_timetoseconds_invalid_data(capsys, stop_times_feed_1):
