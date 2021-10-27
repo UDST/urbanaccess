@@ -66,6 +66,19 @@ def gtfs_feed_w_calendar_and_calendar_dates(
 
 
 @pytest.fixture
+def gtfs_feed_w_calendar_and_calendar_dates_multi_agency(
+        agency_b_feed_on_disk_w_calendar_and_calendar_dates):
+    loaded_feeds = gtfs_load.gtfsfeed_to_df(
+        gtfsfeed_path=agency_b_feed_on_disk_w_calendar_and_calendar_dates,
+        validation=False,
+        verbose=True,
+        bbox=None,
+        remove_stops_outsidebbox=False,
+        append_definitions=False)
+    return loaded_feeds
+
+
+@pytest.fixture
 def selected_int_stop_times_from_feed_wo_calendar_dates(
         gtfs_feed_wo_calendar_dates):
     # reproduce what is expected as the 'selected_interpolated_stop_times_df'
@@ -309,6 +322,76 @@ def expected_transit_edge_from_feed_wo_calendar_dates_process_lvl_2_timeaware():
 
 
 @pytest.fixture
+def expected_final_transit_edge_from_feed_wo_calendar():
+    # represents df after it has been post-processed downstream
+    data = {
+        'node_id_from': ['6_agency_a_city_a', '5_agency_a_city_a',
+                         '4_agency_a_city_a', '3_agency_a_city_a'],
+        'node_id_to': ['5_agency_a_city_a', '4_agency_a_city_a',
+                       '3_agency_a_city_a', '1_agency_a_city_a'],
+        'weight': [5.0, 5.0, 5.0, 10.0],
+        'unique_agency_id': ['agency_a_city_a'] * 4,
+        'unique_trip_id': ['c2_agency_a_city_a'] * 4,
+        'sequence': range(1, 5),
+        'unique_route_id': ['12-101_agency_a_city_a'] * 4,
+        'id': ['c2_agency_a_city_a_1', 'c2_agency_a_city_a_2',
+               'c2_agency_a_city_a_3', 'c2_agency_a_city_a_4'],
+        'route_type': [1] * 4,
+        'net_type': ['transit'] * 4
+    }
+    index = range(4)
+    df = pd.DataFrame(data, index)
+    # raw data are read as int32
+    df['sequence'] = df['sequence'].astype('int32')
+    return df
+
+
+@pytest.fixture
+def expected_final_transit_edge_from_feed_w_cal_and_cal_dates(
+        expected_transit_edge_from_feed_wo_calendar_dates_process_lvl_2):
+    # represents df after it has been post-processed downstream
+    data = {
+        'unique_route_id': ['10-101_agency_a_city_a'] * 5,
+        'net_type': ['transit'] * 5
+    }
+    index = range(5)
+    df = pd.DataFrame(data, index)
+    df = pd.concat(
+        [expected_transit_edge_from_feed_wo_calendar_dates_process_lvl_2,
+         df],
+        axis=1)
+    return df
+
+
+@pytest.fixture
+def expected_transit_edge_from_agency_b_feed_w_cal_and_cal_dates():
+    # represents df after it has been post-processed downstream
+    data = {
+        'node_id_from': ['60_agency_b_district_1', '61_agency_b_district_1',
+                         '62_agency_b_district_1', '63_agency_b_district_1',
+                         '64_agency_b_district_1'],
+        'node_id_to': ['61_agency_b_district_1', '62_agency_b_district_1',
+                       '63_agency_b_district_1', '64_agency_b_district_1',
+                       '65_agency_b_district_1'],
+        'weight': [5.0] * 5,
+        'unique_agency_id': ['agency_b_district_1'] * 5,
+        'unique_trip_id': ['13_agency_b_district_1'] * 5,
+        'sequence': range(1, 6),
+        'unique_route_id': ['40-4_agency_b_district_1'] * 5,
+        'id': ['13_agency_b_district_1_1', '13_agency_b_district_1_2',
+               '13_agency_b_district_1_3', '13_agency_b_district_1_4',
+               '13_agency_b_district_1_5'],
+        'route_type': [3] * 5,
+        'net_type': ['transit'] * 5
+    }
+    index = range(5)
+    df = pd.DataFrame(data, index)
+    # raw data are read as int32
+    df['sequence'] = df['sequence'].astype('int32')
+    return df
+
+
+@pytest.fixture
 def expected_transit_edge_from_feed_wo_calendar_dates_process_lvl_1_timeaware(
         expected_transit_edge_from_feed_wo_calendar_dates_process_lvl_2_timeaware):  # noqa
     # represents df prior to being post-processed downstream
@@ -439,6 +522,160 @@ def hdf5_file_on_disk_gtfsfeeds_dfs(
     return hdf5_save_path
 
 
+@pytest.fixture
+def edges_empty(transit_edges_to_simplify):
+    df_empty = transit_edges_to_simplify[0:0]
+    return df_empty
+
+
+@pytest.fixture
+def transit_edges_to_simplify():
+    data = {
+        'node_id_from': [
+            '1_agency_a_city_a', '2_agency_a_city_a', '3_agency_a_city_a',
+            '4_agency_a_city_a', '3_agency_a_city_a', '2_agency_a_city_a',
+            '5_agency_a_city_a', '6_agency_a_city_a', '7_agency_a_city_a',
+            '5_agency_a_city_a', '6_agency_a_city_a', '7_agency_a_city_a',
+            '8_agency_a_city_a', '9_agency_a_city_a', '10_agency_a_city_a',
+            '8_agency_a_city_a', '9_agency_a_city_a', '10_agency_a_city_a'
+        ],
+        'node_id_to': [
+            '2_agency_a_city_a', '3_agency_a_city_a', '4_agency_a_city_a',
+            '3_agency_a_city_a', '2_agency_a_city_a', '1_agency_a_city_a',
+            '6_agency_a_city_a', '7_agency_a_city_a', '8_agency_a_city_a',
+            '6_agency_a_city_a', '7_agency_a_city_a', '8_agency_a_city_a',
+            '9_agency_a_city_a', '10_agency_a_city_a', '11_agency_a_city_a',
+            '9_agency_a_city_a', '10_agency_a_city_a', '11_agency_a_city_a'],
+        'weight': [2.0, 4.0, 5.0,
+                   5.0, 4.0, 2.0,
+                   2.0, 2.0, 3.0,
+                   2.0, 2.0, 3.0,
+                   4.0, 3.0, 4.0,
+                   4.0, 3.0, 4.0],
+        'unique_agency_id': ['agency_a_city_a'] * 18,
+        'unique_trip_id': [
+            '1_agency_a_city_a', '1_agency_a_city_a', '1_agency_a_city_a',
+            '2_agency_a_city_a', '2_agency_a_city_a', '2_agency_a_city_a',
+            '3_agency_a_city_a', '3_agency_a_city_a', '3_agency_a_city_a',
+            '4_agency_a_city_a', '4_agency_a_city_a', '4_agency_a_city_a',
+            '5_agency_a_city_a', '5_agency_a_city_a', '5_agency_a_city_a',
+            '6_agency_a_city_a', '6_agency_a_city_a', '6_agency_a_city_a'],
+        'sequence': [1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3],
+        'unique_route_id': [
+            'R1_agency_a_city_a', 'R1_agency_a_city_a', 'R1_agency_a_city_a',
+            'R1_agency_a_city_a', 'R1_agency_a_city_a', 'R1_agency_a_city_a',
+            'A1_agency_a_city_a', 'A1_agency_a_city_a', 'A1_agency_a_city_a',
+            'A1_agency_a_city_a', 'A1_agency_a_city_a', 'A1_agency_a_city_a',
+            'B1_agency_a_city_a', 'B1_agency_a_city_a', 'B1_agency_a_city_a',
+            'C1_agency_a_city_a', 'C1_agency_a_city_a', 'C1_agency_a_city_a'],
+        'route_type': [1] * 18,
+        'net_type': ['transit'] * 18
+    }
+    index = range(18)
+    df = pd.DataFrame(data, index)
+    df['id'] = (df['unique_trip_id'].str.cat(
+        df['sequence'].astype('str'), sep='_'))
+    return df
+
+
+@pytest.fixture
+def transit_nodes_to_simplify():
+    data = {
+        'node_id': [
+            '1_agency_a_city_a', '2_agency_a_city_a', '3_agency_a_city_a',
+            '4_agency_a_city_a', '5_agency_a_city_a', '6_agency_a_city_a',
+            '7_agency_a_city_a', '8_agency_a_city_a', '9_agency_a_city_a',
+            '10_agency_a_city_a', '11_agency_a_city_a'],
+        'x': [-122.268962, -122.273627, -122.276709, -122.272114,
+              -122.266589, -122.268842, -122.271760, -122.265859,
+              -122.274823, -122.271057, -122.266551],
+        'y': [37.807730, 37.800201, 37.795430, 37.793342,
+              37.806846, 37.803413, 37.798581, 37.796250,
+              37.805727, 37.804455, 37.802497],
+        'unique_agency_id': ['agency_a_city_a'] * 11,
+        'route_type': [1] * 11,
+        'stop_id': range(1, 12),
+        'stop_name': [
+            'ave a', 'ave b', 'ave c', 'ave d', 'ave 1', 'ave 2',
+            'ave 3', 'ave 4', 'st a', 'st b', 'st c'],
+        'net_type': ['transit'] * 11
+    }
+    index = range(11)
+    df = pd.DataFrame(data, index)
+    df.set_index('node_id', drop=True, inplace=True)
+    return df
+
+
+@pytest.fixture
+def transit_nodes_to_simplify_extra_nodes(transit_nodes_to_simplify):
+    data = {
+        'node_id': ['12_agency_a_city_a'],
+        'x': [-122.266551],
+        'y': [37.802497],
+        'unique_agency_id': ['agency_a_city_a'],
+        'route_type': [1],
+        'stop_id': [13],
+        'stop_name': ['st d'],
+        'net_type': ['transit']
+    }
+    index = range(1)
+    df = pd.DataFrame(data, index)
+    df.set_index('node_id', drop=True, inplace=True)
+    df = pd.concat([transit_nodes_to_simplify, df], axis=1)
+
+    return df
+
+
+@pytest.fixture
+def stop_times_empty(selected_int_stop_times_from_feed_wo_calendar_dates):
+    df_empty = selected_int_stop_times_from_feed_wo_calendar_dates[0:0]
+    return df_empty
+
+
+def test_create_transit_net_wo_calendar_dates_w_high_freq_trips(
+        gtfs_feed_wo_calendar_dates,
+        expected_urbanaccess_network_keys,
+        expected_final_transit_edge_from_feed_wo_calendar_dates):
+    expected_result = \
+        expected_final_transit_edge_from_feed_wo_calendar_dates.copy()
+    transit_net = gtfs_network.create_transit_net(
+        gtfs_feed_wo_calendar_dates, day=None,
+        timerange=['07:00:00', '10:00:00'],
+        calendar_dates_lookup=None,
+        overwrite_existing_stop_times_int=False,
+        use_existing_stop_times_int=False,
+        save_processed_gtfs=False,
+        save_dir=None,
+        save_filename=None,
+        timerange_pad=None,
+        time_aware=False,
+        date=None,
+        date_range=None,
+        use_highest_freq_trips_date=True,
+        simplify=False)
+    assert isinstance(transit_net, urbanaccess_network)
+    urbanaccess_network_info = vars(transit_net)
+    expected_dfs = ['transit_nodes', 'transit_edges']
+    assert expected_urbanaccess_network_keys == sorted(list(
+        urbanaccess_network_info.keys()))
+    for key, value in urbanaccess_network_info.items():
+        assert isinstance(value, pd.core.frame.DataFrame)
+        # check that df is not empty
+        if key in expected_dfs:
+            assert value.empty is False
+
+    result_edge = transit_net.transit_edges.copy()
+    # test that output df is identical to expected df
+    result_edge = result_edge.reindex(
+        sorted(result_edge.columns), axis=1)
+    expected_result = expected_result.reindex(
+        sorted(expected_result.columns), axis=1)
+    # ensure 'sequence' is int32 for test as other OS sometimes reads this as
+    # int64 and will cause tests to fail when using equals()
+    result_edge['sequence'] = result_edge['sequence'].astype('int32')
+    assert result_edge.equals(expected_result)
+
+
 def test_create_transit_net_wo_calendar_dates(
         gtfs_feed_wo_calendar_dates,
         expected_urbanaccess_network_keys,
@@ -447,6 +684,166 @@ def test_create_transit_net_wo_calendar_dates(
         expected_final_transit_edge_from_feed_wo_calendar_dates.copy()
     transit_net = gtfs_network.create_transit_net(
         gtfs_feed_wo_calendar_dates, day='monday',
+        timerange=['07:00:00', '10:00:00'],
+        calendar_dates_lookup=None,
+        overwrite_existing_stop_times_int=False,
+        use_existing_stop_times_int=False,
+        save_processed_gtfs=False,
+        save_dir=None,
+        save_filename=None)
+    assert isinstance(transit_net, urbanaccess_network)
+    urbanaccess_network_info = vars(transit_net)
+    expected_dfs = ['transit_nodes', 'transit_edges']
+    assert expected_urbanaccess_network_keys == sorted(list(
+        urbanaccess_network_info.keys()))
+    for key, value in urbanaccess_network_info.items():
+        assert isinstance(value, pd.core.frame.DataFrame)
+        # check that df is not empty
+        if key in expected_dfs:
+            assert value.empty is False
+
+    result_edge = transit_net.transit_edges.copy()
+    # test that output df is identical to expected df
+    result_edge = result_edge.reindex(
+        sorted(result_edge.columns), axis=1)
+    expected_result = expected_result.reindex(
+        sorted(expected_result.columns), axis=1)
+    # ensure 'sequence' is int32 for test as other OS sometimes reads this as
+    # int64 and will cause tests to fail when using equals()
+    result_edge['sequence'] = result_edge['sequence'].astype('int32')
+    assert result_edge.equals(expected_result)
+
+
+def test_create_transit_net_wo_calendar(
+        gtfs_feed_wo_calendar,
+        expected_urbanaccess_network_keys,
+        expected_final_transit_edge_from_feed_wo_calendar
+):
+    expected_result = \
+        expected_final_transit_edge_from_feed_wo_calendar.copy()
+    transit_net = gtfs_network.create_transit_net(
+        gtfs_feed_wo_calendar, day=None,
+        timerange=['00:00:00', '23:59:00'],
+        calendar_dates_lookup=None,
+        overwrite_existing_stop_times_int=False,
+        use_existing_stop_times_int=False,
+        save_processed_gtfs=False,
+        save_dir=None,
+        save_filename=None,
+        date='2016-04-24')
+    assert isinstance(transit_net, urbanaccess_network)
+    urbanaccess_network_info = vars(transit_net)
+    expected_dfs = ['transit_nodes', 'transit_edges']
+    assert expected_urbanaccess_network_keys == sorted(list(
+        urbanaccess_network_info.keys()))
+    for key, value in urbanaccess_network_info.items():
+        assert isinstance(value, pd.core.frame.DataFrame)
+        # check that df is not empty
+        if key in expected_dfs:
+            assert value.empty is False
+
+    result_edge = transit_net.transit_edges.copy()
+    # test that output df is identical to expected df
+    result_edge = result_edge.reindex(
+        sorted(result_edge.columns), axis=1)
+    expected_result = expected_result.reindex(
+        sorted(expected_result.columns), axis=1)
+    # ensure 'sequence' is int32 for test as other OS sometimes reads this as
+    # int64 and will cause tests to fail when using equals()
+    result_edge['sequence'] = result_edge['sequence'].astype('int32')
+    assert result_edge.equals(expected_result)
+
+
+def test_create_transit_net_w_calendar_and_calendar_dates(
+        gtfs_feed_w_calendar_and_calendar_dates,
+        expected_urbanaccess_network_keys,
+        expected_final_transit_edge_from_feed_w_cal_and_cal_dates):
+    expected_result = \
+        expected_final_transit_edge_from_feed_w_cal_and_cal_dates.copy()
+    transit_net = gtfs_network.create_transit_net(
+        gtfs_feed_w_calendar_and_calendar_dates, day=None,
+        timerange=['07:00:00', '10:00:00'],
+        calendar_dates_lookup=None,
+        overwrite_existing_stop_times_int=False,
+        use_existing_stop_times_int=False,
+        save_processed_gtfs=False,
+        save_dir=None,
+        save_filename=None,
+        date_range=['2016-12-24', '2017-03-18'])
+    assert isinstance(transit_net, urbanaccess_network)
+    urbanaccess_network_info = vars(transit_net)
+    expected_dfs = ['transit_nodes', 'transit_edges']
+    assert expected_urbanaccess_network_keys == sorted(list(
+        urbanaccess_network_info.keys()))
+    for key, value in urbanaccess_network_info.items():
+        assert isinstance(value, pd.core.frame.DataFrame)
+        # check that df is not empty
+        if key in expected_dfs:
+            assert value.empty is False
+
+    result_edge = transit_net.transit_edges.copy()
+    # test that output df is identical to expected df
+    result_edge = result_edge.reindex(
+        sorted(result_edge.columns), axis=1)
+    expected_result = expected_result.reindex(
+        sorted(expected_result.columns), axis=1)
+    # ensure 'sequence' is int32 for test as other OS sometimes reads this as
+    # int64 and will cause tests to fail when using equals()
+    result_edge['sequence'] = result_edge['sequence'].astype('int32')
+    assert result_edge.equals(expected_result)
+
+
+def test_create_transit_net_w_calendar_and_calendar_dates_w_simplify(
+        gtfs_feed_w_calendar_and_calendar_dates,
+        expected_urbanaccess_network_keys,
+        expected_final_transit_edge_from_feed_w_cal_and_cal_dates):
+    # TODO: note that gtfs_feed_w_calendar_and_calendar_dates does not
+    #  result in any edges that require simplification. Test can be improved
+    #  by changing the test data to one that can be simplified.
+    expected_result = \
+        expected_final_transit_edge_from_feed_w_cal_and_cal_dates.copy()
+    transit_net = gtfs_network.create_transit_net(
+        gtfs_feed_w_calendar_and_calendar_dates, day=None,
+        timerange=['07:00:00', '10:00:00'],
+        calendar_dates_lookup=None,
+        overwrite_existing_stop_times_int=False,
+        use_existing_stop_times_int=False,
+        save_processed_gtfs=False,
+        save_dir=None,
+        save_filename=None,
+        date_range=['2016-12-24', '2017-03-18'],
+        simplify=True)
+    assert isinstance(transit_net, urbanaccess_network)
+    urbanaccess_network_info = vars(transit_net)
+    expected_dfs = ['transit_nodes', 'transit_edges']
+    assert expected_urbanaccess_network_keys == sorted(list(
+        urbanaccess_network_info.keys()))
+    for key, value in urbanaccess_network_info.items():
+        assert isinstance(value, pd.core.frame.DataFrame)
+        # check that df is not empty
+        if key in expected_dfs:
+            assert value.empty is False
+
+    result_edge = transit_net.transit_edges.copy()
+    # test that output df is identical to expected df
+    result_edge = result_edge.reindex(
+        sorted(result_edge.columns), axis=1)
+    expected_result = expected_result.reindex(
+        sorted(expected_result.columns), axis=1)
+    # ensure 'sequence' is int32 for test as other OS sometimes reads this as
+    # int64 and will cause tests to fail when using equals()
+    result_edge['sequence'] = result_edge['sequence'].astype('int32')
+    assert result_edge.equals(expected_result)
+
+
+def test_create_transit_net_w_calendar_and_calendar_dates_multi_agency(
+        gtfs_feed_w_calendar_and_calendar_dates_multi_agency,
+        expected_urbanaccess_network_keys,
+        expected_transit_edge_from_agency_b_feed_w_cal_and_cal_dates):
+    expected_result = \
+        expected_transit_edge_from_agency_b_feed_w_cal_and_cal_dates.copy()
+    transit_net = gtfs_network.create_transit_net(
+        gtfs_feed_w_calendar_and_calendar_dates_multi_agency, day='monday',
         timerange=['07:00:00', '10:00:00'],
         calendar_dates_lookup=None,
         overwrite_existing_stop_times_int=False,
@@ -523,7 +920,8 @@ def test_create_transit_net_wo_calendar_dates_timeaware(
         expected_urbanaccess_network_keys,
         expected_final_transit_edge_from_feed_wo_calendar_dates_timeaware):
     expected_result = \
-        expected_final_transit_edge_from_feed_wo_calendar_dates_timeaware.copy()  # noqa
+        expected_final_transit_edge_from_feed_wo_calendar_dates_timeaware\
+            .copy()  # noqa
     transit_net = gtfs_network.create_transit_net(
         gtfs_feed_wo_calendar_dates, day='monday',
         timerange=['07:00:00', '10:00:00'],
@@ -779,6 +1177,27 @@ def test_create_transit_net_invalid_params(gtfs_feed_wo_calendar_dates):
             save_dir=None,
             save_filename=None,
             timerange_pad=None,
+            time_aware=False,
+            date=None,
+            date_range=None,
+            use_highest_freq_trips_date=True,
+            simplify=False)
+    expected_error = ("Only one parameter: 'use_highest_freq_trips_date' "
+                      "or one of 'day', 'date', or 'date_range' can be "
+                      "used at a time or both 'day' and 'date_range' can "
+                      "be used.")
+    assert expected_error in str(excinfo.value)
+    with pytest.raises(ValueError) as excinfo:
+        transit_net = gtfs_network.create_transit_net(
+            gtfs_feed_wo_calendar_dates, day='monday',
+            timerange=['07:00:00', '10:00:00'],
+            calendar_dates_lookup=None,
+            overwrite_existing_stop_times_int=False,
+            use_existing_stop_times_int=False,
+            save_processed_gtfs=False,
+            save_dir=None,
+            save_filename=None,
+            timerange_pad=None,
             time_aware=6)
     expected_error = "time_aware must be bool."
     assert expected_error in str(excinfo.value)
@@ -980,240 +1399,6 @@ def test_skip_interpolator(stop_times, calendar):
                                                           1, 2, 3, 4, 5]
 
 
-def test_trip_schedule_selector_wo_cal_dates(gtfs_feed_wo_calendar_dates):
-    expected_result = gtfs_feed_wo_calendar_dates.trips.copy()
-    # create expected trips result
-    expected_result.reset_index(drop=True, inplace=True)
-    expected_result = expected_result.iloc[0:8]
-    result = gtfs_network._trip_schedule_selector(
-        input_trips_df=gtfs_feed_wo_calendar_dates.trips,
-        input_calendar_df=gtfs_feed_wo_calendar_dates.calendar,
-        input_calendar_dates_df=gtfs_feed_wo_calendar_dates.calendar_dates,
-        day='monday',
-        calendar_dates_lookup=None)
-
-    assert len(result) == 8
-    assert result.equals(expected_result)
-
-
-def test_trip_schedule_selector_wo_cal_dates_wo_direction_id(
-        gtfs_feed_wo_calendar_dates):
-    # remove 'direction_id' col for test
-    trips_df = gtfs_feed_wo_calendar_dates.trips.copy()
-    trips_df.drop(columns=['direction_id'], inplace=True)
-    expected_result = gtfs_feed_wo_calendar_dates.trips.copy()
-    # create expected trips result
-    expected_result.reset_index(drop=True, inplace=True)
-    expected_result.drop(columns=['direction_id'], inplace=True)
-    expected_result = expected_result.iloc[0:8]
-
-    result = gtfs_network._trip_schedule_selector(
-        input_trips_df=trips_df,
-        input_calendar_df=gtfs_feed_wo_calendar_dates.calendar,
-        input_calendar_dates_df=gtfs_feed_wo_calendar_dates.calendar_dates,
-        day='monday',
-        calendar_dates_lookup=None)
-
-    assert len(result) == 8
-    assert result.equals(expected_result)
-
-
-def test_trip_schedule_selector_w_cal_dates(gtfs_feed_wo_calendar):
-    expected_result = gtfs_feed_wo_calendar.trips.copy()
-    # create expected trips result
-    expected_result = expected_result.iloc[4:10]
-    expected_result.reset_index(drop=True, inplace=True)
-    result = gtfs_network._trip_schedule_selector(
-        input_trips_df=gtfs_feed_wo_calendar.trips,
-        input_calendar_df=gtfs_feed_wo_calendar.calendar,
-        input_calendar_dates_df=gtfs_feed_wo_calendar.calendar_dates,
-        day='sunday',
-        calendar_dates_lookup={'schedule_type': 'WE',
-                               'service_id': ['weekday-3', 'weekday-2']})
-
-    assert len(result) == 6
-    assert result.equals(expected_result)
-
-
-def test_trip_schedule_selector_w_cal_and_cal_dates(
-        gtfs_feed_w_calendar_and_calendar_dates):
-    trips_df = gtfs_feed_w_calendar_and_calendar_dates.trips.copy()
-    cal_df = gtfs_feed_w_calendar_and_calendar_dates.calendar.copy()
-    cal_dates_df = gtfs_feed_w_calendar_and_calendar_dates.calendar_dates \
-        .copy()
-    expected_result = gtfs_feed_w_calendar_and_calendar_dates.trips.copy()
-    result = gtfs_network._trip_schedule_selector(
-        input_trips_df=trips_df,
-        input_calendar_df=cal_df,
-        input_calendar_dates_df=cal_dates_df,
-        day='monday',
-        calendar_dates_lookup={'schedule_type': 'WE'})
-
-    assert len(result) == 10
-    assert result.equals(expected_result)
-
-
-def test_trip_schedule_selector_w_cal_and_cal_dates_wo_lookup(
-        gtfs_feed_w_calendar_and_calendar_dates):
-    trips_df_1 = gtfs_feed_w_calendar_and_calendar_dates.trips.copy()
-    cal_df = gtfs_feed_w_calendar_and_calendar_dates.calendar.copy()
-    cal_dates_df_1 = gtfs_feed_w_calendar_and_calendar_dates.calendar_dates \
-        .copy()
-    # create extra records in trips and calendar_dates for a different agency
-    # that do not exist in the calendar table
-    trips_df_2 = trips_df_1.copy()
-    trips_df_2['unique_agency_id'] = trips_df_2['unique_agency_id'] + '_x'
-    trips_df_2['unique_feed_id'] = trips_df_2['unique_feed_id'] + '_x'
-    trips_df_2 = trips_df_2.iloc[0:8]
-    trips_df_x2 = pd.concat(
-        [trips_df_1, trips_df_2], axis=0,
-        ignore_index=True)
-    cal_dates_df_2 = cal_dates_df_1.copy()
-    cal_dates_df_2['unique_agency_id'] = \
-        cal_dates_df_2['unique_agency_id'] + '_x'
-    cal_dates_df_2['unique_feed_id'] = \
-        cal_dates_df_2['unique_feed_id'] + '_x'
-    cal_dates_df_x2 = pd.concat(
-        [cal_dates_df_1, cal_dates_df_2], axis=0,
-        ignore_index=True)
-    # create expected trips result
-    expected_result = trips_df_1.copy()
-    expected_result = expected_result.iloc[0:8]
-    result = gtfs_network._trip_schedule_selector(
-        input_trips_df=trips_df_x2,
-        input_calendar_df=cal_df,
-        input_calendar_dates_df=cal_dates_df_x2,
-        day='monday',
-        calendar_dates_lookup=None)
-
-    assert len(result) == 8
-    assert result.equals(expected_result)
-
-
-def test_trip_schedule_selector_wo_cal_dates_invalid_params(
-        gtfs_feed_wo_calendar_dates):
-    gtfs_feed = gtfs_feed_wo_calendar_dates
-    # test with invalid 'day' param
-    with pytest.raises(ValueError) as excinfo:
-        result = gtfs_network._trip_schedule_selector(
-            input_trips_df=gtfs_feed.trips,
-            input_calendar_df=gtfs_feed.calendar,
-            input_calendar_dates_df=gtfs_feed.calendar_dates,
-            day='monday ',
-            calendar_dates_lookup=None)
-    expected_error = (
-        "Incorrect day specified. Must be one of lowercase strings: 'monday',"
-        " 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'.")
-    assert expected_error in str(excinfo.value)
-    # test with invalid 'calendar_dates_lookup' param
-    with pytest.raises(ValueError) as excinfo:
-        result = gtfs_network._trip_schedule_selector(
-            input_trips_df=gtfs_feed.trips,
-            input_calendar_df=gtfs_feed.calendar,
-            input_calendar_dates_df=gtfs_feed.calendar_dates,
-            day='monday',
-            calendar_dates_lookup=['invalid'])
-    expected_error = "calendar_dates_lookup parameter must be a dictionary."
-    assert expected_error in str(excinfo.value)
-    # test with invalid 'calendar_dates_lookup' param
-    with pytest.raises(ValueError) as excinfo:
-        result = gtfs_network._trip_schedule_selector(
-            input_trips_df=gtfs_feed.trips,
-            input_calendar_df=gtfs_feed.calendar,
-            input_calendar_dates_df=gtfs_feed.calendar_dates,
-            day='monday',
-            calendar_dates_lookup={1: 'WD'})
-    expected_error = "calendar_dates_lookup key: 1 must be a string."
-    assert expected_error in str(excinfo.value)
-    # test with invalid 'calendar_dates_lookup' param
-    with pytest.raises(ValueError) as excinfo:
-        result = gtfs_network._trip_schedule_selector(
-            input_trips_df=gtfs_feed.trips,
-            input_calendar_df=gtfs_feed.calendar,
-            input_calendar_dates_df=gtfs_feed.calendar_dates,
-            day='monday',
-            calendar_dates_lookup={'schedule_type': 1})
-    expected_error = ("calendar_dates_lookup value: 1 must be a "
-                      "string or a list of strings.")
-    assert expected_error in str(excinfo.value)
-    # test with invalid 'calendar_dates_lookup' param
-    with pytest.raises(ValueError) as excinfo:
-        result = gtfs_network._trip_schedule_selector(
-            input_trips_df=gtfs_feed.trips,
-            input_calendar_df=gtfs_feed.calendar,
-            input_calendar_dates_df=gtfs_feed.calendar_dates,
-            day='monday',
-            calendar_dates_lookup={'schedule_type': ['WD', 1]})
-    expected_error = ("calendar_dates_lookup value: ['WD', 1] "
-                      "must contain strings.")
-    assert expected_error in str(excinfo.value)
-
-
-def test_trip_schedule_selector_no_services_found(
-        gtfs_feed_wo_calendar):
-    with pytest.raises(ValueError) as excinfo:
-        result = gtfs_network._trip_schedule_selector(
-            input_trips_df=gtfs_feed_wo_calendar.trips,
-            input_calendar_df=gtfs_feed_wo_calendar.calendar,
-            input_calendar_dates_df=gtfs_feed_wo_calendar.calendar_dates,
-            day='monday',
-            calendar_dates_lookup=None)
-    expected_error = ("No service_id(s) were found with the specified "
-                      "calendar and or calendar_dates search parameters.")
-    assert expected_error in str(excinfo.value)
-
-
-def test_trip_schedule_selector_w_cal_dates_invalid_params_1(
-        gtfs_feed_wo_calendar_dates):
-    # test with empty 'calendar_dates'df
-    with pytest.raises(ValueError) as excinfo:
-        result = gtfs_network._trip_schedule_selector(
-            input_trips_df=gtfs_feed_wo_calendar_dates.trips,
-            input_calendar_df=gtfs_feed_wo_calendar_dates.calendar,
-            input_calendar_dates_df=gtfs_feed_wo_calendar_dates.calendar_dates,
-            day='monday',
-            calendar_dates_lookup={'schedule_type': 'WD'})
-    expected_error = ("calendar_dates is empty. Unable to use the "
-                      "'calendar_dates_lookup' parameter. Set to None.")
-    assert expected_error in str(excinfo.value)
-
-
-def test_trip_schedule_selector_w_cal_dates_invalid_params_2(
-        gtfs_feed_wo_calendar):
-    # create invalid data in calendar dates file
-    cal_dates_df = gtfs_feed_wo_calendar.calendar_dates.copy()
-    series = pd.Series(
-        data=[1, 1, 2, 2], index=range(4),
-        name='invalid_dtype')
-    cal_dates_df['invalid_dtype'] = series
-    series = pd.Series(
-        data=[10, 11, 10, 'aa'], index=range(4),
-        name='day_type')
-    cal_dates_df['day_type'] = series
-
-    # test with invalid col in 'calendar_dates_lookup' param
-    with pytest.raises(ValueError) as excinfo:
-        result = gtfs_network._trip_schedule_selector(
-            input_trips_df=gtfs_feed_wo_calendar.trips,
-            input_calendar_df=gtfs_feed_wo_calendar.calendar,
-            input_calendar_dates_df=cal_dates_df,
-            day='monday',
-            calendar_dates_lookup={'invalid_col': 'WD'})
-    expected_error = ("Column: invalid_col not found in calendar_dates "
-                      "DataFrame.")
-    assert expected_error in str(excinfo.value)
-    # test with invalid col dtype in 'calendar_dates_lookup' param
-    with pytest.raises(ValueError) as excinfo:
-        result = gtfs_network._trip_schedule_selector(
-            input_trips_df=gtfs_feed_wo_calendar.trips,
-            input_calendar_df=gtfs_feed_wo_calendar.calendar,
-            input_calendar_dates_df=cal_dates_df,
-            day='monday',
-            calendar_dates_lookup={'invalid_dtype': '1'})
-    expected_error = "Column: invalid_dtype must be object type."
-    assert expected_error in str(excinfo.value)
-
-
 def test_time_selector_wo_timerange_pad(
         selected_int_stop_times_from_feed_wo_calendar_dates):
     timerange = ['08:20:00', '08:35:00']
@@ -1388,6 +1573,15 @@ def test_format_transit_net_edge_timeaware_True(
     # int64 and will cause tests to fail when using equals()
     result['sequence'] = result['sequence'].astype('int32')
     assert result.equals(expected_result)
+
+
+def test_format_transit_net_edge_empty_stop_times(stop_times_empty):
+    with pytest.raises(ValueError) as excinfo:
+        result = gtfs_network._format_transit_net_edge(stop_times_empty)
+    expected_error = (
+        "Unable to continue processing transit network. stop_times table "
+        "has 0 records.")
+    assert expected_error in str(excinfo.value)
 
 
 def test_convert_imp_time_units(
@@ -1702,3 +1896,122 @@ def test_load_processed_gtfs_data(
         # check that df is empty
         if key in expected_dfs_empty:
             assert value.empty
+
+
+def test_simplify_transit_net(
+        transit_edges_to_simplify, transit_nodes_to_simplify):
+    remove_edge_ids = ['4_agency_a_city_a_1', '4_agency_a_city_a_2',
+                       '4_agency_a_city_a_3']
+    expected_edges = transit_edges_to_simplify.loc[
+        ~transit_edges_to_simplify['id'].isin(remove_edge_ids)]
+    expected_edges.reset_index(inplace=True, drop=True)
+    result_edges, result_nodes = gtfs_network._simplify_transit_net(
+        transit_edges_to_simplify, transit_nodes_to_simplify)
+
+    # expect all nodes to persist
+    assert len(result_nodes) == 11
+    assert result_nodes.equals(transit_nodes_to_simplify)
+
+    # expect 5_agency_a_city_a_1 to 3 and 6_agency_a_city_a_1 to 3 to
+    # persist since they have different attributes in unique_route_id col
+    # expect 1_agency_a_city_a_1 to 3 and 2_agency_a_city_a_1 to 3 to
+    # persist since node_id_from and node_id_to are different
+    # expect only one of 3_agency_a_city_a_1 to 3 or 4_agency_a_city_a_1 to 3
+    # to persist but not both since they share the same attributes
+    assert len(result_edges) == 15
+    result_edges.reset_index(inplace=True, drop=True)
+    assert result_edges.equals(expected_edges)
+
+
+def test_simplify_transit_net_already_simplified(
+        transit_edges_to_simplify, transit_nodes_to_simplify):
+    remove_edge_ids = ['4_agency_a_city_a_1', '4_agency_a_city_a_2',
+                       '4_agency_a_city_a_3']
+    expected_edges = transit_edges_to_simplify.loc[
+        ~transit_edges_to_simplify['id'].isin(remove_edge_ids)]
+    expected_edges.reset_index(inplace=True, drop=True)
+
+    # use the simplified edge table as input to test
+    result_edges, result_nodes = gtfs_network._simplify_transit_net(
+        expected_edges, transit_nodes_to_simplify)
+
+    # expect all nodes to persist
+    assert len(result_nodes) == 11
+    assert result_nodes.equals(transit_nodes_to_simplify)
+
+    # expect 5_agency_a_city_a_1 to 3 and 6_agency_a_city_a_1 to 3 to
+    # persist since they have different attributes in unique_route_id col
+    # expect 1_agency_a_city_a_1 to 3 and 2_agency_a_city_a_1 to 3 to
+    # persist since node_id_from and node_id_to are different
+    # expect only one of 3_agency_a_city_a_1 to 3 or 4_agency_a_city_a_1 to 3
+    # to persist but not both since they share the same attributes
+    assert len(result_edges) == 15
+    result_edges.reset_index(inplace=True, drop=True)
+    assert result_edges.equals(expected_edges)
+
+
+def test_simplify_transit_net_remove_extra_nodes(
+        transit_edges_to_simplify, transit_nodes_to_simplify_extra_nodes):
+    remove_edge_ids = ['4_agency_a_city_a_1', '4_agency_a_city_a_2',
+                       '4_agency_a_city_a_3']
+    expected_edges = transit_edges_to_simplify.loc[
+        ~transit_edges_to_simplify['id'].isin(remove_edge_ids)]
+    expected_edges.reset_index(inplace=True, drop=True)
+
+    remove_node_ids = ['12_agency_a_city_a']
+    expected_nodes = transit_nodes_to_simplify_extra_nodes.loc[
+        ~transit_nodes_to_simplify_extra_nodes.index.isin(remove_node_ids)]
+
+    result_edges, result_nodes = gtfs_network._simplify_transit_net(
+        transit_edges_to_simplify, transit_nodes_to_simplify_extra_nodes)
+
+    # expect all nodes except for 12_agency_a_city_a to persist
+    assert len(result_nodes) == 11
+    assert result_nodes.equals(expected_nodes)
+
+    # expect 5_agency_a_city_a_1 to 3 and 6_agency_a_city_a_1 to 3 to
+    # persist since they have different attributes in unique_route_id col
+    # expect 1_agency_a_city_a_1 to 3 and 2_agency_a_city_a_1 to 3 to
+    # persist since node_id_from and node_id_to are different
+    # expect only one of 3_agency_a_city_a_1 to 3 or 4_agency_a_city_a_1 to 3
+    # to persist but not both since they share the same attributes
+    assert len(result_edges) == 15
+    result_edges.reset_index(inplace=True, drop=True)
+    assert result_edges.equals(expected_edges)
+
+
+def test_simplify_transit_net_empty_edges(
+        edges_empty, transit_nodes_to_simplify):
+    with pytest.raises(ValueError) as excinfo:
+        result_edges, result_nodes = gtfs_network._simplify_transit_net(
+            edges_empty, transit_nodes_to_simplify)
+    expected_error = (
+        'Unable to simplify transit network. Edges have 0 records to '
+        'simplify.')
+    assert expected_error in str(excinfo.value)
+
+
+def test_remove_nodes_not_in_edges(
+        transit_edges_to_simplify, transit_nodes_to_simplify_extra_nodes):
+    remove_node_ids = ['12_agency_a_city_a']
+    expected_nodes = transit_nodes_to_simplify_extra_nodes.loc[
+        ~transit_nodes_to_simplify_extra_nodes.index.isin(remove_node_ids)]
+
+    result_nodes = gtfs_network._remove_nodes_not_in_edges(
+        transit_nodes_to_simplify_extra_nodes, transit_edges_to_simplify,
+        from_id_col='node_id_from', to_id_col='node_id_to')
+
+    # expect all nodes except for 12_agency_a_city_a to persist
+    assert len(result_nodes) == 11
+    assert result_nodes.equals(expected_nodes)
+
+
+def test_remove_nodes_not_in_edges_none_to_remove(
+        transit_edges_to_simplify, transit_nodes_to_simplify):
+    result_nodes = gtfs_network._remove_nodes_not_in_edges(
+        transit_nodes_to_simplify, transit_edges_to_simplify,
+        from_id_col='node_id_from', to_id_col='node_id_to')
+
+    # expect all nodes to persist
+    assert len(result_nodes) == 11
+    assert result_nodes.equals(transit_nodes_to_simplify)

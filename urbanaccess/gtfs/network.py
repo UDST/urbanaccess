@@ -193,6 +193,11 @@ def create_transit_net(
     if overwrite_existing_stop_times_int and use_existing_stop_times_int:
         raise ValueError('overwrite_existing_stop_times_int and '
                          'use_existing_stop_times_int cannot both be True.')
+    if use_highest_freq_trips_date and any([day, date, date_range]):
+        raise ValueError("Only one parameter: 'use_highest_freq_trips_date' "
+                         "or one of 'day', 'date', or 'date_range' can be "
+                         "used at a time or both 'day' and 'date_range' can "
+                         "be used.")
 
     columns = ['route_id',
                'direction_id',
@@ -292,6 +297,16 @@ def create_transit_net(
         nodes=transit_nodes, edges=transit_edges,
         from_id_col='node_id_from', to_id_col='node_id_to')
 
+    if transit_edges.empty:
+        msg = (
+            "Resulting transit network edges have 0 record(s). Most likely "
+            "the 'timerange' and or calendar selection parameters resulted in "
+            "a network with no active trips within the schedule window "
+            "specified. It is suggested to expand the 'timerange' and or "
+            "alter the calendar selection parameters to enlarge the time "
+            "window for selecting active trips.")
+        raise ValueError(msg)
+
     if simplify:
         transit_edges, transit_nodes = _simplify_transit_net(
             transit_edges, transit_nodes)
@@ -311,12 +326,43 @@ def create_transit_net(
 
 
 def _simplify_transit_net(edges, nodes):
+    """
+    Simplifies edge and node tables by removing trips from the edge table
+    that have identical properties that result in duplicate edge attributes
+    for use in routing engines such as Pandana. Edges are grouped by
+    columns: 'node_id_from', 'node_id_to', 'weight', 'unique_agency_id',
+    'sequence', 'route_type', and 'unique_route_id'. If multiple trip IDs are
+    found to have the exact same attributes in those columns, only one
+    representative trip ID and its corresponding edges will be preserved out
+    of the group.
+
+    Parameters
+    ----------
+    edges : pandas.DataFrame
+        edges DataFrame to simplify
+    nodes : pandas.DataFrame
+        nodes DataFrame to simplify
+
+    Returns
+    -------
+    simp_edges : pandas.DataFrame
+        simplified edge DataFrame
+    simp_nodes : pandas.DataFrame
+        simplified node DataFrame
+    """
     # TODO: add option for groups that are duplicates, place trip ids
     #  of the groups that are removed in a new column as list of
-    #  strings for debugging
+    #  strings for downstream debugging or for informative trip counts
+    # TODO: can simplify even more by reducing along edge shared attr in
+    #  addition to trips, must ensure that stop ids are connected
     start_time = time.time()
 
     log('Running transit network simplification...')
+
+    if edges.empty:
+        raise ValueError(
+            'Unable to simplify transit network. Edges have 0 records to '
+            'simplify.')
 
     # columns to use for group to group value comparison to identify
     # groups of similar values for simplification
@@ -339,7 +385,7 @@ def _simplify_transit_net(edges, nodes):
         from_id_col='node_id_from', to_id_col='node_id_to')
 
     # calculate various data len and print statistics
-    trip_remove_cnt = len(edges_wdup.loc[edges_wdup == True])
+    trip_remove_cnt = len(edges_wdup.loc[edges_wdup == True])  # noqa
     trip_org_tot_cnt = len(edges[id_col].unique())
     trip_proc_tot_cnt = len(simp_edges[id_col].unique())
     trip_remove_pct = (trip_remove_cnt / trip_org_tot_cnt) * 100
@@ -351,10 +397,13 @@ def _simplify_transit_net(edges, nodes):
            '({:.2f} percent) (reduced from {:,} to {:,} trip(s)) '
            'resulting in the removal of {:,} edge(s) ({:.2f} percent) '
            '(reduced from {:,} to {:,} edges(s)).')
-    log(msg.format(trip_remove_cnt, trip_remove_pct,
-                   trip_org_tot_cnt, trip_proc_tot_cnt,
-                   edge_remove_cnt, edge_remove_pct,
-                   edge_org_rec_tot_cnt, edge_proc_rec_tot_cnt))
+    if edge_remove_cnt > 0:
+        log(msg.format(trip_remove_cnt, trip_remove_pct,
+                       trip_org_tot_cnt, trip_proc_tot_cnt,
+                       edge_remove_cnt, edge_remove_pct,
+                       edge_org_rec_tot_cnt, edge_proc_rec_tot_cnt))
+    else:
+        log('Transit edges cannot be further simplified.')
 
     node_org_tot_cnt = len(nodes)
     node_proc_tot_cnt = len(simp_nodes)
@@ -389,7 +438,6 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df):
     final_stop_times_df : pandas.DataFrame
 
     """
-
     start_time = time.time()
 
     # create unique trip IDs
@@ -735,6 +783,16 @@ def _format_transit_net_edge(stop_times_df, time_aware=False):
 
     log('Starting transformation process for {:,} '
         'total trips...'.format(len(stop_times_df['unique_trip_id'].unique())))
+
+    if stop_times_df.empty:
+        raise ValueError(
+            "Unable to continue processing transit network. stop_times "
+            "table has 0 records. Most likely the 'timerange' and or "
+            "calendar selection parameters resulted in a network with no "
+            "active trips within the schedule window specified. It is "
+            "suggested to expand the 'timerange' and or alter the calendar "
+            "selection parameters to enlarge the time window for selecting "
+            "active trips.")
 
     # subset to only columns needed for processing
     cols_of_interest = ['unique_trip_id', 'stop_id', 'unique_stop_id',
@@ -1263,6 +1321,26 @@ def _check_if_index_name_in_cols(df):
 
 
 def _remove_nodes_not_in_edges(nodes, edges, from_id_col, to_id_col):
+    """
+    Helper function to remove nodes from node DataFrame that are not found
+    in the edges DataFrame
+
+    Parameters
+    ----------
+    nodes : pandas.DataFrame
+        nodes DataFrame
+    edges : pandas.DataFrame
+        edges DataFrame
+    from_id_col : str
+        name of from ID column
+    to_id_col : str
+        name of to ID column
+
+    Returns
+    -------
+    nodes_df : pandas.DataFrame
+        node DataFrame with only the nodes that exist in the edge DataFrame
+    """
     edge_node_list = set(edges[from_id_col]) | set(edges[to_id_col])
     nodes_df = nodes.loc[nodes.index.isin(edge_node_list)]
     return nodes_df

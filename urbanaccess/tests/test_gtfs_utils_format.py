@@ -284,8 +284,8 @@ def test_calendar_dates_agencyid_feed_4(calendar_dates_feed_4,
                                         agency_feed_4,
                                         folder_feed_4):
     data = {'service_id': ['wk-1'] * 3,
-            'date': [20161224] * 3,
-            'exception_type': [1] * 3,
+            'date': ['20161224'] * 3,
+            'exception_type': ['1'] * 3,
             'unique_agency_id': ['agency_1_bus', 'agency_2_rail',
                                  'agency_3_metro']}
     index = range(3)
@@ -418,8 +418,8 @@ def test_calendar_agencyid_feed_4(calendar_feed_4,
             'friday': [1] * 3,
             'saturday': [0] * 3,
             'sunday': [0] * 3,
-            'start_date': [20161224] * 3,
-            'end_date': [20170318] * 3,
+            'start_date': ['20161224'] * 3,
+            'end_date': ['20170318'] * 3,
             'unique_agency_id': ['agency_1_bus', 'agency_2_rail',
                                  'agency_3_metro']}
     index = range(3)

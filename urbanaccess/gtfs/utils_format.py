@@ -92,6 +92,15 @@ def _read_gtfs_file(textfile_path, textfile):
     df = _remove_whitespace(
         df=df, textfile=textfile, col_list=remove_whitespace)
 
+    # convert dtypes here in case col name was incorrect due to
+    # whitespace when read in pd.read_csv()
+    if req_dtypes is not None:
+        for col_name, dtype in req_dtypes.items():
+            if df[col_name].dtype != dtype:
+                if dtype == object:
+                    dtype = str  # force to string instead of object
+                df[col_name] = df[col_name].astype(dtype)
+
     if numeric_converter is not None:
         for col in numeric_converter:
             df[col] = pd.to_numeric(df[col])
@@ -404,7 +413,7 @@ def _add_unique_agencyid(agency_df, stops_df, routes_df,
     tables; 4) If GTFS feed has an agency.txt file and it has more than
     one agency (it must have an 'agency_id' and 'agency_name' column and
     values), however if there is also a mismatch between the 'agency_id'
-    in aganecy.txt and routes.txt, then assume records tied to the mismatched
+    in agency.txt and routes.txt, then assume records tied to the mismatched
     'agency_id'(s) are from multiple agencies and label the unique agency ID
     as such by concatenating 'multiple_operators_' and the GTFS feed directory
     folder name.
