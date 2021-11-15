@@ -403,7 +403,8 @@ def download(data_folder=os.path.join(config.settings.data_folder),
         name of transit agency or service to use to name downloaded zipfile.
         If using feed_name and feed_url, cannot use feed_dict.
     feed_url : str, optional
-        corresponding URL to the feed_name to use to download GTFS feed zipfile
+        corresponding URL to the feed_name to use to download GTFS feed
+        zipfile. If using feed_name and feed_url, cannot use feed_dict.
     feed_dict : dict, optional
         Dictionary specifying the name of the transit service or
         agency GTFS feed as the key and the GTFS feed URL as the value:
@@ -427,7 +428,7 @@ def download(data_folder=os.path.join(config.settings.data_folder),
     -------
     Nothing
     """
-
+    dtype_raise_error_msg = '{} must be a string'
     if (feed_name is not None and feed_url is None) or (
             feed_url is not None and feed_name is None):
         raise ValueError(
@@ -435,37 +436,33 @@ def download(data_folder=os.path.join(config.settings.data_folder),
 
     if feed_name is not None and feed_url is not None:
         if feed_dict is not None:
-            raise ValueError('feed_dict is not specified')
+            raise ValueError('only feed_dict or feed_name and '
+                             'feed_url can be used at once. '
+                             'Both cannot be used.')
         if not isinstance(feed_name, str) or not isinstance(feed_url, str):
             raise ValueError('either feed_name and or feed_url are not string')
         feeds.gtfs_feeds = {feed_name: feed_url}
 
     elif feed_dict is not None:
-        if feed_name is not None or feed_url is not None:
-            raise ValueError('either feed_name and or feed_url are not None')
         if not isinstance(feed_dict, dict):
             raise ValueError('feed_dict is not dict')
         for key in feed_dict.keys():
             if not isinstance(key, str):
-                raise ValueError('{} must be a string'.format(key))
-            for value in feed_dict[key]:
-                if not isinstance(value, str):
-                    raise ValueError('{} must be a string'.format(value))
+                raise ValueError(dtype_raise_error_msg.format(key))
+            value = feed_dict[key]
+            if not isinstance(value, str):
+                raise ValueError(dtype_raise_error_msg.format(value))
 
-        for key, value in feed_dict.items():
-            if value in feeds.gtfs_feeds.values():
-                raise ValueError(
-                    'duplicate values were found when the passed add_dict '
-                    'dictionary was added to the existing dictionary. Feed '
-                    'URL values must be unique.')
+        feed_dict_urls = list(feed_dict.values())
+        has_dup_urls = len(set(feed_dict_urls)) != len(feed_dict_urls)
+        if has_dup_urls:
+            raise ValueError('duplicate values were found in feed_dict. '
+                             'Feed URL values must be unique.')
 
         feeds.gtfs_feeds = feed_dict
     elif feed_name is None and feed_url is None and feed_dict is None:
         if len(feeds.gtfs_feeds) == 0:
             raise ValueError('No records were found in passed feed_dict')
-        feeds.gtfs_feeds
-    else:
-        raise ValueError('Passed parameters were incorrect or not specified.')
 
     download_folder = os.path.join(data_folder, 'gtfsfeed_zips')
 
