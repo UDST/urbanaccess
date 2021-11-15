@@ -52,14 +52,14 @@ class urbanaccess_gtfsfeeds(object):
         -------
         urbanaccess_gtfsfeeds
         """
-
+        dtype_raise_error_msg = '{} must be a string'
         if not isinstance(gtfsfeeddir, str):
-            raise ValueError('gtfsfeeddir must be a string')
+            raise ValueError(dtype_raise_error_msg.format('gtfsfeeddir'))
         if not os.path.exists(gtfsfeeddir):
             raise ValueError('{} does not exist or was not found'.format(
                 gtfsfeeddir))
         if not isinstance(yamlname, str):
-            raise ValueError('yaml must be a string')
+            raise ValueError(dtype_raise_error_msg.format('yaml'))
 
         yaml_file = os.path.join(gtfsfeeddir, yamlname)
 
@@ -67,7 +67,7 @@ class urbanaccess_gtfsfeeds(object):
             yaml_config = yaml.safe_load(f)
 
         if not isinstance(yaml_config, dict):
-            raise ValueError('{} yamlname is not a dict'.format(yamlname))
+            raise ValueError('{} is not a dict'.format(yamlname))
 
         validkey = 'gtfs_feeds'
         if validkey not in yaml_config.keys():
@@ -75,23 +75,22 @@ class urbanaccess_gtfsfeeds(object):
 
         for key in yaml_config['gtfs_feeds'].keys():
             if not isinstance(key, str):
-                raise ValueError('{} must be a string'.format(key))
-            for value in yaml_config['gtfs_feeds'][key]:
-                if not isinstance(value, str):
-                    raise ValueError('{} must be a string'.format(value))
+                raise ValueError(dtype_raise_error_msg.format(key))
+            value = yaml_config['gtfs_feeds'][key]
+            if not isinstance(value, str):
+                raise ValueError(dtype_raise_error_msg.format(value))
         unique_url_count = len(
-            pd.DataFrame.from_dict(yaml_config['gtfs_feeds'], orient='index')[
-                0].unique())
+            pd.DataFrame.from_dict(
+                yaml_config['gtfs_feeds'], orient='index')[0].unique())
         url_count = len(yaml_config['gtfs_feeds'])
         if unique_url_count != url_count:
             raise ValueError(
-                'duplicate values were found when the passed add_dict '
-                'dictionary was added to the existing dictionary. Feed URL '
-                'values must be unique.')
+                'duplicate values were found in YAML file: {}. Feed URL '
+                'values must be unique.'.format(yaml_file))
 
         gtfsfeeds = cls(gtfs_feeds=yaml_config.get('gtfs_feeds', {}))
-        log('{} YAML successfully loaded with {} feeds.'.format(yaml_file, len(
-            yaml_config['gtfs_feeds'])))
+        log('{} YAML successfully loaded with {:,} feeds.'.format(
+            yaml_file, len(yaml_config['gtfs_feeds'])))
 
         return gtfsfeeds
 
@@ -122,27 +121,29 @@ class urbanaccess_gtfsfeeds(object):
             raise ValueError('add_dict is not a dict')
         if not isinstance(replace, bool):
             raise ValueError('replace is not bool')
+        dtype_raise_error_msg = '{} must be a string'
 
-        if replace is not True:
-
+        # TODO: refactor to remove the need to have repeat code if
+        #  replace True/False
+        if replace is False:
             for key in add_dict.keys():
                 if key in self.gtfs_feeds.keys():
-                    raise ValueError(
-                        '{} passed in add_dict already exists in gtfs_feeds. '
-                        'Only unique keys are allowed to be added.'.format(
-                            key))
+                    msg = ('{} passed in add_dict already exists in '
+                           'gtfs_feeds. Only unique keys are allowed to be '
+                           'added.')
+                    raise ValueError(msg.format(key))
                 if not isinstance(key, str):
-                    raise ValueError('{} must be a string'.format(key))
-                for value in add_dict[key]:
-                    if not isinstance(value, str):
-                        raise ValueError('{} must be a string'.format(value))
+                    raise ValueError(dtype_raise_error_msg.format(key))
+                value = add_dict[key]
+                if not isinstance(value, str):
+                    raise ValueError(dtype_raise_error_msg.format(value))
 
             for key, value in add_dict.items():
                 if value in self.gtfs_feeds.values():
-                    raise ValueError('duplicate values were found when the '
-                                     'passed add_dict dictionary was added to '
-                                     'the existing dictionary. Feed URL '
-                                     'values must be unique.')
+                    msg = ('duplicate values were found when the passed '
+                           'add_dict dictionary was added to the existing '
+                           'dictionary. Feed URL values must be unique.')
+                    raise ValueError(msg)
             gtfs_feeds = self.gtfs_feeds.update(add_dict)
 
         else:
@@ -151,14 +152,14 @@ class urbanaccess_gtfsfeeds(object):
                     log('{} passed in add_dict will replace existing {} feed '
                         'in gtfs_feeds.'.format(key, key))
                 if not isinstance(key, str):
-                    raise ValueError('{} must be a string'.format(key))
-                for value in add_dict[key]:
-                    if not isinstance(value, str):
-                        raise ValueError('{} must be a string'.format(value))
-
+                    raise ValueError(dtype_raise_error_msg.format(key))
+                value = add_dict[key]
+                if not isinstance(value, str):
+                    raise ValueError(dtype_raise_error_msg.format(value))
             gtfs_feeds = self.gtfs_feeds.update(add_dict)
 
-        log('Added {} feeds to gtfs_feeds: {}'.format(len(add_dict), add_dict))
+        log('Added {:,} feeds to gtfs_feeds: {}'.format(
+            len(add_dict), add_dict))
 
         return gtfs_feeds
 
@@ -196,9 +197,8 @@ class urbanaccess_gtfsfeeds(object):
 
             for key in del_key:
                 if key not in self.gtfs_feeds.keys():
-                    raise ValueError(
-                        '{} key to delete was not found in gtfs_feeds'.format(
-                            key))
+                    msg = '{} key to delete was not found in gtfs_feeds'
+                    raise ValueError(msg.format(key))
                 del self.gtfs_feeds[key]
                 log('Removed {} feed from gtfs_feeds'.format(key))
 
@@ -222,21 +222,19 @@ class urbanaccess_gtfsfeeds(object):
         -------
         Nothing
         """
-
+        dtype_raise_error_msg = '{} must be a string'
         if not isinstance(gtfsfeeddir, str):
-            raise ValueError('gtfsfeeddir must be a string')
+            raise ValueError(dtype_raise_error_msg.format('gtfsfeeddir'))
         if not os.path.exists(gtfsfeeddir):
-            log(
-                '{} does not exist or was not found and will be '
-                'created'.format(
-                    gtfsfeeddir))
+            log('{} does not exist or was not found and will be '
+                'created'.format(gtfsfeeddir))
             os.makedirs(gtfsfeeddir)
         if not isinstance(yamlname, str):
-            raise ValueError('yaml must be a string')
+            raise ValueError(dtype_raise_error_msg.format('yamlname'))
         yaml_file = os.path.join(gtfsfeeddir, yamlname)
         if overwrite is False and os.path.isfile(yaml_file) is True:
             raise ValueError(
-                '{} already exists. Rename or turn overwrite to True'.format(
+                '{} already exists. Rename or set overwrite to True'.format(
                     yamlname))
         else:
             with open(yaml_file, 'w') as f:
