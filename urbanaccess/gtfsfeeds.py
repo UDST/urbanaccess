@@ -7,6 +7,7 @@ import logging as lg
 import time
 import ssl
 from six.moves.urllib import request
+import shutil
 
 from urbanaccess.utils import log
 from urbanaccess import config
@@ -645,7 +646,7 @@ def _unzip_util(zipfile_read_path, unzip_file_path, has_subzips):
         return sub_zip_filelist
 
 
-def unzip(zip_rootpath, delete_zips=True):
+def unzip(zip_rootpath, delete_zips=False):
     """
     unzip all GTFS feed zipfiles in a root directory with resulting text files
     in the root folder: gtfsfeed_text
@@ -655,13 +656,13 @@ def unzip(zip_rootpath, delete_zips=True):
     zip_rootpath : string
         root directory to place downloaded GTFS feed zipfiles
     delete_zips : bool, optional
-        if true the downloaded zipfiles will be removed
+        if true the directory specified in zip_rootpath will be deleted which
+         will delete all the downloaded zipfiles, default is False
 
     Returns
     -------
     Nothing
     """
-
     start_time = time.time()
 
     unzip_rootpath = os.path.join(
@@ -704,8 +705,8 @@ def unzip(zip_rootpath, delete_zips=True):
                 zfile, unzip_file_path))
 
     if delete_zips:
-        os.remove(zip_rootpath)
-        log('Deleted {} folder'.format(zip_rootpath))
+        shutil.rmtree(zip_rootpath)
+        log('Deleted {} folder and all its contents.'.format(zip_rootpath))
     msg = ('GTFS feed zipfile extraction completed. Took {:,.2f} seconds '
            'for {:,} file(s)')
     log(msg.format(time.time() - start_time, len(zipfilelist)))
