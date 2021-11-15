@@ -591,15 +591,27 @@ def _unzip_util(zipfile_read_path, unzip_file_path, has_subzips):
         directory, if there are none, will return Nothing
     """
     with zipfile.ZipFile(zipfile_read_path) as z:
+        zip_file_list = z.namelist()
         # required to deal with zipfiles that have subdirectories and
         # that were created on OSX
-        filelist = [file for file in z.namelist() if
-                    file.endswith(".txt") and not file.startswith(
-                        "__MACOSX")]
+        filelist = [file for file in zip_file_list if
+                    file.endswith(".txt") and not file.startswith("__MACOSX")]
         # in cases where the zip contains multiple zips of GTFS feeds
         # such as the case with the SEPTA GTFS feed
-        sub_zip_filelist = [file for file in z.namelist() if
+        sub_zip_filelist = [file for file in zip_file_list if
                             file.endswith(".zip")]
+        # Note: there must only be zips inside of the sub directory, if its a
+        # mix of zips and txt files we assume that the parent zip contained
+        # both its zipped txt contents and a copy of itself as a zip in which
+        # case the GTFS txt files will be dealt with correctly but we
+        # will ignore the subdirectory zip
+        if filelist and sub_zip_filelist:
+            msg = ('Warning: Zipfile contains {:,} zipfile(s): {} in addition '
+                   'to GTFS txt files: {}. Zipfile(s) inside of the parent '
+                   'zipfile will not be extracted.')
+            log(msg.format(len(sub_zip_filelist), sub_zip_filelist, filelist),
+                level=lg.WARNING)
+            sub_zip_filelist = []  # null subdirectory zipfile list
         if len(filelist) == 0 and len(sub_zip_filelist) > 0:
             msg = ('Zipfile contains {:,} zipfiles: {}. These will be '
                    'extracted as separate feeds.')
