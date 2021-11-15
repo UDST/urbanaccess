@@ -23,21 +23,21 @@ class urbanaccess_gtfsfeeds(object):
     ----------
     gtfs_feeds : dict
         dictionary of the name of the transit service or agency GTFS feed
-        as the key -note: this name will be used as the feed folder name.
+        as the key (Note: this name will be used as the feed folder name.
         If the GTFS feed does not have a agency name in the agency.txt file
-        this key will be used to name the agency- and
+        this key will be used to name the agency) and
         the GTFS feed URL as the value to pass to the GTFS downloader as:
         {unique name of GTFS feed or transit service/agency : URL of feed}
     """
 
-    def __init__(self,
-                 gtfs_feeds={}):
+    def __init__(self, gtfs_feeds={}):
 
         self.gtfs_feeds = gtfs_feeds
 
     @classmethod
-    def from_yaml(cls, gtfsfeeddir=os.path.join(config.settings.data_folder,
-                                                'gtfsfeeds'),
+    def from_yaml(cls,
+                  gtfsfeeddir=os.path.join(
+                      config.settings.data_folder, 'gtfsfeeds'),
                   yamlname='gtfsfeeds.yaml'):
         """
         Create an urbanaccess_gtfsfeeds instance from a saved YAML.
@@ -48,9 +48,10 @@ class urbanaccess_gtfsfeeds(object):
             Directory to load a YAML file.
         yamlname : str or file like, optional
             File name from which to load a YAML file.
+
         Returns
         -------
-        urbanaccess_gtfsfeeds
+        gtfsfeeds : object
         """
         dtype_raise_error_msg = '{} must be a string'
         if not isinstance(gtfsfeeddir, str):
@@ -97,6 +98,10 @@ class urbanaccess_gtfsfeeds(object):
     def to_dict(self):
         """
         Return a dict representation of an urbanaccess_gtfsfeeds instance.
+
+        Returns
+        -------
+        {'gtfs_feeds': urbanaccess_gtfsfeeds.gtfs_feeds} : dict
         """
         return {'gtfs_feeds': self.gtfs_feeds}
 
@@ -113,8 +118,12 @@ class urbanaccess_gtfsfeeds(object):
             as:
             {unique name of GTFS feed or transit service/agency : URL of feed}
         replace : bool, optional
-            If key of dict is already in the UrbanAccess replace
-            the existing dict value with the value passed
+            If key of dict is already in the urbanaccess_gtfsfeeds object,
+            replace the existing dict value with the value passed
+
+        Returns
+        -------
+        urbanaccess_gtfsfeeds : object
         """
 
         if not isinstance(add_dict, dict):
@@ -175,17 +184,19 @@ class urbanaccess_gtfsfeeds(object):
         remove_all : bool, optional
             if true, remove all keys from existing
             urbanaccess_gtfsfeeds instance
-        """
 
+        Returns
+        -------
+        Nothing
+
+        """
         if not isinstance(remove_all, bool):
             raise ValueError('remove_all is not bool')
 
         if del_key is None and remove_all:
             self.gtfs_feeds = {}
             log('Removed all feeds from gtfs_feeds')
-
         else:
-
             if not isinstance(del_key, (list, str)):
                 raise ValueError('del_key must be a string or list of strings')
             if remove_all:
@@ -202,10 +213,9 @@ class urbanaccess_gtfsfeeds(object):
                 del self.gtfs_feeds[key]
                 log('Removed {} feed from gtfs_feeds'.format(key))
 
-    def to_yaml(self, gtfsfeeddir=os.path.join(config.settings.data_folder,
-                                               'gtfsfeeds'),
-                yamlname='gtfsfeeds.yaml',
-                overwrite=False):
+    def to_yaml(self, gtfsfeeddir=os.path.join(
+        config.settings.data_folder, 'gtfsfeeds'),
+                yamlname='gtfsfeeds.yaml', overwrite=False):
         """
         Save an urbanaccess_gtfsfeeds representation to a YAML file.
 
@@ -278,12 +288,10 @@ def search(api='gtfsdataexch', search_text=None, search_field=None,
     search_result_df : pandas.DataFrame
         Dataframe of search results displaying full feed metadata
     """
-
-    log(
-        'Note: Your use of a GTFS feed is governed by each GTFS feed author '
-        'license terms. It is suggested you read the respective license '
-        'terms for the appropriate use of a GTFS feed.',
-        level=lg.WARNING)
+    msg = ('Note: Your use of a GTFS feed is governed by each GTFS feed author'
+           ' license terms. It is suggested you read the respective license '
+           'terms for the appropriate use of a GTFS feed.')
+    log(msg, level=lg.WARNING)
 
     if not isinstance(api, str):
         raise ValueError('{} must be a string'.format(api))
@@ -291,30 +299,27 @@ def search(api='gtfsdataexch', search_text=None, search_field=None,
         raise ValueError('{} is not currently a supported API'.format(api))
     if config.settings.gtfs_api[api] is None or not isinstance(
             config.settings.gtfs_api[api], str):
-        raise ValueError('{} is not defined or defined incorrectly'.format(
-            api))
+        raise ValueError('{} API is not defined or is '
+                         'defined incorrectly'.format(api))
     if not isinstance(match, str) or match not in ['contains', 'exact']:
         raise ValueError('match must be either: contains or exact')
     if not isinstance(add_feed, bool):
         raise ValueError('add_feed must be bool')
 
     if api == 'gtfsdataexch':
-        log(
-            'Warning: The GTFSDataExchange is no longer being maintained as '
-            'of Summer 2016. '
-            'Data accessed here may be out of date.', level=lg.WARNING)
+        log('Warning: The GTFSDataExchange is no longer being maintained as '
+            'of Summer 2016. Data accessed here may be out of date.',
+            level=lg.WARNING)
 
         feed_table = pd.read_table(config.settings.gtfs_api[api], sep=',')
-        feed_table['date_added'] = pd.to_datetime(feed_table['date_added'],
-                                                  unit='s')
+        feed_table['date_added'] = pd.to_datetime(
+            feed_table['date_added'], unit='s')
         feed_table['date_last_updated'] = pd.to_datetime(
             feed_table['date_last_updated'], unit='s')
 
         if search_text is None:
-            log(
-                'No search parameters were passed. Returning full list of {} '
-                'GTFS feeds:'.format(
-                    len(feed_table)))
+            log('No search parameters were passed. Returning full list of {} '
+                'GTFS feeds:'.format(len(feed_table)))
             return feed_table
         else:
             pass
@@ -343,12 +348,12 @@ def search(api='gtfsdataexch', search_text=None, search_field=None,
                 for text in search_text:
                     if match == 'contains':
                         search_result = feed_table[
-                            feed_table[col].str.contains(text, case=False,
-                                                         na=False)]
+                            feed_table[col].str.contains(
+                                text, case=False, na=False)]
                     if match == 'exact':
                         search_result = feed_table[
-                            feed_table[col].str.match(text, case=False,
-                                                      na=False)]
+                            feed_table[col].str.match(
+                                text, case=False, na=False)]
                     search_result_df = search_result_df.append(search_result)
                     search_result_df.drop_duplicates(inplace=True)
 
@@ -356,7 +361,6 @@ def search(api='gtfsdataexch', search_text=None, search_field=None,
             len(search_result_df), search_text, search_field))
 
         if len(search_result_df) != 0:
-
             if add_feed:
                 if overwrite_feed:
                     zip_url = search_result_df[
@@ -365,10 +369,8 @@ def search(api='gtfsdataexch', search_text=None, search_field=None,
                     search_result_dict = search_result_df.set_index('name')[
                         'dataexchange_url'].to_dict()
                     feeds.gtfs_feeds = search_result_dict
-                    log(
-                        'Replaced all records in gtfs_feed list with the {} '
-                        'found records:'.format(
-                            len(search_result_df)))
+                    log('Replaced all records in gtfs_feed list with the {} '
+                        'found records:'.format(len(search_result_df)))
                 else:
                     zip_url = search_result_df[
                                   'dataexchange_url'] + 'latest.zip'
@@ -379,7 +381,6 @@ def search(api='gtfsdataexch', search_text=None, search_field=None,
                     log('Added {} records to gtfs_feed list:'.format(
                         len(search_result_df)))
                 return search_result_dict
-
             else:
                 return search_result_df
 
@@ -399,17 +400,24 @@ def download(data_folder=os.path.join(config.settings.data_folder),
     data_folder : str, optional
         directory to download GTFS feed data to
     feed_name : str, optional
-        name of transit agency or service to use to name downloaded zipfile
+        name of transit agency or service to use to name downloaded zipfile.
+        If using feed_name and feed_url, cannot use feed_dict.
     feed_url : str, optional
         corresponding URL to the feed_name to use to download GTFS feed zipfile
     feed_dict : dict, optional
         Dictionary specifying the name of the transit service or
         agency GTFS feed as the key and the GTFS feed URL as the value:
-        {unique name of GTFS feed or transit service/agency : URL of feed}
+        {unique name of GTFS feed or transit service/agency : URL of feed}.
+        If using feed_dict, cannot use feed_name and feed_url.
     error_pause_duration : int, optional
         how long to pause in seconds before re-trying requests if error
     delete_zips : bool, optional
-        if true the downloaded zipfiles will be removed
+        if true the directory created by this function called 'gtfsfeed_zips'
+        that holds the downloaded zipfiles from each URL will be deleted.
+        This directory is located inside of the root data directory
+        specified in the 'data_folder' parameter under the the GTFS feed
+        directory for that zipfile for example:
+        data_folder\\feed_folder\\gtfsfeed_zips, default is False
     raise_url_error : bool, optional
         if true error will be raised when a request to a URL fails, URL
         failure response will be returned, else if false URL failures will
@@ -417,7 +425,7 @@ def download(data_folder=os.path.join(config.settings.data_folder),
         to continue.
     Returns
     -------
-    nothing
+    Nothing
     """
 
     if (feed_name is not None and feed_url is None) or (
@@ -476,8 +484,8 @@ def download(data_folder=os.path.join(config.settings.data_folder),
     # TODO: add file counter and print number to user
     for feed_name_key, feed_url_value in feeds.gtfs_feeds.items():
         start_time2 = time.time()
-        zipfile_path = os.path.join(download_folder, '{}.zip'.format(
-            feed_name_key))
+        zipfile_name = '{}.zip'.format(feed_name_key)
+        zipfile_path = os.path.join(download_folder, zipfile_name)
 
         # resolve issues where request results in certificate verify failure
         ssl._create_default_https_context = ssl._create_unverified_context
@@ -501,6 +509,8 @@ def download(data_folder=os.path.join(config.settings.data_folder),
                     log(msg_download_succeed.format(
                         feed_name_key, time.time() - start_time2,
                         os.path.getsize(zipfile_path)))
+                # deal with 429 Too Many Requests and 504 Gateway Timeout
+                # separately
                 elif status_code in [429, 504]:
                     msg = ('URL at {} returned status code {} and no data. '
                            'Re-trying request in {:.2f} seconds.')
@@ -535,13 +545,12 @@ def download(data_folder=os.path.join(config.settings.data_folder),
                         msg_no_connection.format(
                             feed_url_value, traceback.format_exc()))
         else:
+            # for non http links such as FTP
             try:
                 file = request.urlopen(feed_url_value)
                 _zipfile_type_check(file=file,
                                     feed_url_value=feed_url_value)
-                file_path = os.path.join(download_folder, '{}.zip'.format(
-                    feed_name_key))
-                with open(file_path, "wb") as local_file:
+                with open(zipfile_path, "wb") as local_file:
                     local_file.write(file.read())
                 log(msg_download_succeed.format(
                     feed_name_key, time.time() - start_time2,
@@ -562,6 +571,28 @@ def download(data_folder=os.path.join(config.settings.data_folder),
 
 
 def _unzip_util(zipfile_read_path, unzip_file_path, has_subzips):
+    """
+    unzip GTFS feed zipfile in a root directory with resulting text files
+    in the root folder: gtfsfeed_text. If zipfile contains only zipfiles in
+    its subdirectory, recursively these zips will be extracted separately
+    into their own directories inside of root folder: gtfsfeed_text
+
+    Parameters
+    ----------
+    zipfile_read_path : string
+        full path to directory where zipfile to unzip is located
+    unzip_file_path : string
+        full path to directory where to unzip zipfile
+    has_subzips : bool
+        if true the parent zipfile contains zipfiles in its subdirectory. If
+        true subdirectory zipfiles will be extracted as separate feed folders.
+
+    Returns
+    -------
+    sub_zip_filelist : list
+        list of zipfile names that exist inside of the parent zipfile
+        directory, if there are none, will return Nothing
+    """
     with zipfile.ZipFile(zipfile_read_path) as z:
         # required to deal with zipfiles that have subdirectories and
         # that were created on OSX
@@ -619,13 +650,13 @@ def unzip(zip_rootpath, delete_zips=True):
 
     Returns
     -------
-    nothing
+    Nothing
     """
 
     start_time = time.time()
 
-    unzip_rootpath = os.path.join(os.path.dirname(zip_rootpath),
-                                  'gtfsfeed_text')
+    unzip_rootpath = os.path.join(
+        os.path.dirname(zip_rootpath), 'gtfsfeed_text')
 
     if not os.path.exists(unzip_rootpath):
         os.makedirs(unzip_rootpath)
@@ -652,8 +683,8 @@ def unzip(zip_rootpath, delete_zips=True):
                     unzipfile_name, sub_zipfile.replace('.zip', ''))
                 sub_unzipfile_path = os.path.join(
                     os.path.split(unzip_file_path)[0], sub_unzipfile_name)
-                _unzip_util(sub_zipfile_path, sub_unzipfile_path,
-                            has_subzips=True)
+                _unzip_util(
+                    sub_zipfile_path, sub_unzipfile_path, has_subzips=True)
                 msg = ('{} with nested zipfile: {} successfully extracted '
                        'to: {}')
                 log(msg.format(zfile, sub_zipfile, sub_unzipfile_path))
@@ -673,24 +704,26 @@ def unzip(zip_rootpath, delete_zips=True):
 
 def _zipfile_type_check(file, feed_url_value):
     """
-    zipfile format checker helper
+    Helper function to check if HTTP response contains a zipfile.
+    Valid application content are: 'zip' or 'octet-stream'
 
     Parameters
     ----------
     file : http.client.HTTPResponse
-        loaded zipfile object in memory
+        loaded zipfile HTTPResponse object in memory
     feed_url_value : str
-        URL to download GTFS feed zipfile
+        URL to download GTFS feed zipfile for informative purposes
 
     Returns
     -------
-    nothing
+    Nothing
     """
     # TODO: check for a better method to support cases that are zips but
     #  dont have header info example: sanfordcommunityredevelopmentagency
     #  GTFS feed URL
-    if 'zip' not in file.info().get('Content-Type') is True \
-            or 'octet' not in file.info().get('Content-Type') is True:
+    content_type = file.info().get('Content-Type')
+    if 'zip' not in content_type is True \
+            or 'octet' not in content_type is True:
         raise ValueError(
             'data requested at {} is not a zipfile. '
-            'Data must be a zipfile'.format(feed_url_value))
+            'Data must be a zipfile.'.format(feed_url_value))
