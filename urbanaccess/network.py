@@ -1,19 +1,10 @@
 import time
 import os
-import geopy
-from geopy import distance
-
-from sklearn.neighbors import KDTree
 import pandas as pd
 
 from urbanaccess.utils import log, df_to_hdf5, hdf5_to_df
+from urbanaccess.network_utils import connector_edges
 from urbanaccess import config
-
-
-if int(geopy.__version__[0]) < 2:
-    dist_calc = distance.vincenty
-else:
-    dist_calc = distance.geodesic
 
 
 class urbanaccess_network(object):
@@ -51,34 +42,6 @@ class urbanaccess_network(object):
 
 # instantiate the UrbanAccess network object
 ua_network = urbanaccess_network()
-
-
-def _nearest_neighbor(df1, df2):
-    """
-    For a DataFrame of xy coordinates find the nearest xy
-    coordinates in a subsequent DataFrame
-
-    Parameters
-    ----------
-    df1 : pandas.DataFrame
-        DataFrame of records to return as the nearest record to records in df2
-    df2 : pandas.DataFrame
-        DataFrame of records with xy coordinates for which to find the
-        nearest record in df1 for
-    Returns
-    -------
-    df1.index.values[indexes] : pandas.Series
-        index of records in df1 that are nearest to the coordinates in df2
-    """
-    try:
-        df1_matrix = df1.to_numpy()
-        df2_matrix = df2.to_numpy()
-    except AttributeError:
-        df1_matrix = df1.values
-        df2_matrix = df2.values
-    kdt = KDTree(df1_matrix)
-    indexes = kdt.query(df2_matrix, k=1, return_distance=False)
-    return df1.index.values[indexes]
 
 
 def integrate_network(urbanaccess_network, headways=False,
@@ -140,7 +103,6 @@ def integrate_network(urbanaccess_network, headways=False,
         raise ValueError('headways must be bool type')
 
     if headways:
-
         if urbanaccess_gtfsfeeds_df is None or \
                 urbanaccess_gtfsfeeds_df.headways.empty or \
                 urbanaccess_gtfsfeeds_df.stops.empty:
@@ -177,7 +139,7 @@ def integrate_network(urbanaccess_network, headways=False,
             stops_df=urbanaccess_gtfsfeeds_df.stops,
             edges_w_routes=urbanaccess_network.transit_edges)
 
-        net_connector_edges = _connector_edges(
+        net_connector_edges = connector_edges(
             osm_nodes=urbanaccess_network.osm_nodes,
             transit_nodes=urbanaccess_network.transit_nodes,
             travel_speed_mph=3)
@@ -188,7 +150,7 @@ def integrate_network(urbanaccess_network, headways=False,
             headway_statistic=headway_statistic)
 
     else:
-        urbanaccess_network.net_connector_edges = _connector_edges(
+        urbanaccess_network.net_connector_edges = connector_edges(
             osm_nodes=urbanaccess_network.osm_nodes,
             transit_nodes=urbanaccess_network.transit_nodes,
             travel_speed_mph=3)
@@ -349,68 +311,6 @@ def _route_id_to_node(stops_df, edges_w_routes):
         'Took {:,.2f} seconds'.format(time.time() - start_time))
 
     return transit_nodes_wroutes
-
-
-def _connector_edges(osm_nodes, transit_nodes, travel_speed_mph=3):
-    """
-    Generate the connector edges between the OSM and transit edges and
-    weight by travel time
-
-    Parameters
-    ----------
-    osm_nodes : pandas.DataFrame
-        OSM nodes DataFrame
-    transit_nodes : pandas.DataFrame
-        transit nodes DataFrame
-    travel_speed_mph : int, optional
-        travel speed to use to calculate travel time across a
-        distance on an edge. units are in miles per hour (MPH)
-        for pedestrian travel this is assumed to be 3 MPH
-
-    Returns
-    -------
-    net_connector_edges : pandas.DataFrame
-
-    """
-    start_time = time.time()
-
-    transit_nodes['nearest_osm_node'] = _nearest_neighbor(
-        osm_nodes[['x', 'y']],
-        transit_nodes[['x', 'y']])
-
-    net_connector_edges = []
-
-    for transit_node_id, row in transit_nodes.iterrows():
-        # create new edge between the node in df2 (transit)
-        # and the node in OpenStreetMap (pedestrian)
-
-        osm_node_id = int(row['nearest_osm_node'])
-        osm_row = osm_nodes.loc[osm_node_id]
-
-        distance = dist_calc((row['y'], row['x']),
-                             (osm_row['y'], osm_row['x'])).miles
-        time_ped_to_transit = distance / travel_speed_mph * 60
-        time_transit_to_ped = distance / travel_speed_mph * 60
-
-        # save the edge
-        net_type = 'transit to osm'
-        net_connector_edges.append((transit_node_id, osm_node_id,
-                                    time_transit_to_ped, net_type))
-        # make the edge bi-directional
-        net_type = 'osm to transit'
-        net_connector_edges.append((osm_node_id, transit_node_id,
-                                    time_ped_to_transit, net_type))
-
-    net_connector_edges = pd.DataFrame(net_connector_edges,
-                                       columns=["from", "to",
-                                                "weight", "net_type"])
-
-    log(
-        'Connector edges between the OSM and transit network nodes '
-        'successfully completed. Took {:,.2f} seconds'.format(
-            time.time() - start_time))
-
-    return net_connector_edges
 
 
 def _format_pandana_edges_nodes(edge_df, node_df):
