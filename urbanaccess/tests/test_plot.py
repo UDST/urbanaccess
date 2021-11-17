@@ -152,6 +152,8 @@ def drive_nodes():
         'y': [
             37.796897, 37.799683, 37.800206, 37.800964, 37.803884,
             37.804270, 37.809158, 37.808645, 37.807921],
+        # name is not expected in OSM nodes but is used here as placeholder
+        # for custom columns and as a reference for tests
         'name': [
             '1 8th & Oak', '2 8th & Franklin', '3 8th & Broadway',
             '4 14th & Oak', '5 14th & Franklin', '6 14th & Broadway',
