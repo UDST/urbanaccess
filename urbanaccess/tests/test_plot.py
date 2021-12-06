@@ -413,6 +413,8 @@ def test_plot_save_w_path_and_filename(small_net, tmpdir, show_plot):
     if show_plot:
         imgplot = plt.imshow(img)
         plt.show()
+    # clean up test data
+    os.remove(file_name)
 
 
 def test_plot_save_w_default_name(small_net, show_plot):
@@ -430,8 +432,8 @@ def test_plot_save_w_default_name(small_net, show_plot):
         show=False, close=False, save=True, filepath=None, dpi=300,
         ax=None)
     # check that file was created
-    file_name = os.path.join(settings.images_folder,
-                             '{}.png'.format(settings.image_filename))
+    file_name = os.path.join(
+        settings.images_folder, '{}.png'.format(settings.image_filename))
     print('wrote test data to file: {}'.format(file_name))
     assert os.path.isfile(file_name)
     # read and show image
@@ -440,6 +442,8 @@ def test_plot_save_w_default_name(small_net, show_plot):
     if show_plot:
         imgplot = plt.imshow(img)
         plt.show()
+    # clean up test data
+    os.remove(file_name)
 
 
 def test_plot_save_w_filename_only(small_net, show_plot):
@@ -466,6 +470,8 @@ def test_plot_save_w_filename_only(small_net, show_plot):
     if show_plot:
         imgplot = plt.imshow(img)
         plt.show()
+    # clean up test data
+    os.remove(file_name)
 
 
 def test_plot_invalid_params(small_net, transit_nodes_invalid_xy, show_plot):
@@ -531,6 +537,10 @@ def test_plot_print_warn(small_net, capsys):
     # check that expected print prints
     captured = capsys.readouterr()
     assert 'Warning: Existing file' in captured.out
+    default_file = os.path.join(
+        settings.images_folder, '{}.png'.format(settings.image_filename))
+    # clean up test data
+    os.remove(default_file)
 
 
 def test_col_colors_case_1(small_net, capsys):
