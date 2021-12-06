@@ -229,3 +229,143 @@ def test_loadgtfsfeed_to_df_wo_agency(
         # check that df is not empty
         if key in expected_dfs:
             assert value.empty is False
+
+
+def test_loadgtfsfeed_to_df_invalid_params(
+        agency_a_feed_on_disk_wo_req_file):
+    feed_dir = agency_a_feed_on_disk_wo_req_file
+    with pytest.raises(ValueError) as excinfo:
+        loaded_feeds = gtfs_load.gtfsfeed_to_df(
+            gtfsfeed_path=None,
+            validation=False,
+            verbose=True,
+            bbox=None,
+            remove_stops_outsidebbox=False,
+            append_definitions=False)
+    expected_error = "Directory: 'test\\gtfsfeed_text' does not exist."
+    assert expected_error in str(excinfo.value)
+    with pytest.raises(ValueError) as excinfo:
+        non_existent_dir = os.path.join(feed_dir, 'test')
+        loaded_feeds = gtfs_load.gtfsfeed_to_df(
+            gtfsfeed_path=non_existent_dir,
+            validation=False,
+            verbose=True,
+            bbox=None,
+            remove_stops_outsidebbox=False,
+            append_definitions=False)
+    expected_error = "Directory: '{}' does not exist."
+    assert expected_error.format(non_existent_dir) in str(excinfo.value)
+    with pytest.raises(ValueError) as excinfo:
+        loaded_feeds = gtfs_load.gtfsfeed_to_df(
+            gtfsfeed_path=1,
+            validation=False,
+            verbose=True,
+            bbox=None,
+            remove_stops_outsidebbox=False,
+            append_definitions=False)
+    expected_error = 'gtfsfeed_path must be a string.'
+    assert expected_error in str(excinfo.value)
+    with pytest.raises(ValueError) as excinfo:
+        loaded_feeds = gtfs_load.gtfsfeed_to_df(
+            gtfsfeed_path=feed_dir,
+            validation=True,
+            verbose=True,
+            bbox=None,
+            remove_stops_outsidebbox=False,
+            append_definitions=False)
+    expected_error = ('Attempted to run validation but bbox, verbose, and or '
+                      'remove_stops_outsidebbox were set to None. These '
+                      'parameters must be specified for validation.')
+    assert expected_error in str(excinfo.value)
+
+
+def test_loadgtfsfeed_to_df_w_validation_remove_stops_True_bbox_large(
+        agency_a_feed_on_disk_wo_calendar_dates,
+        expected_urbanaccess_gtfs_df_keys):
+    # test that all stops are retained given bbox size
+    feed_dir = agency_a_feed_on_disk_wo_calendar_dates
+    loaded_feeds = gtfs_load.gtfsfeed_to_df(
+        gtfsfeed_path=feed_dir,
+        validation=True,
+        verbose=True,
+        bbox=(-122.2850583493, 37.7947251937, -122.2644589841, 37.8131711247),
+        remove_stops_outsidebbox=True,
+        append_definitions=False)
+    assert isinstance(loaded_feeds, urbanaccess_gtfs_df)
+    urbanaccess_gtfs_df_info = vars(loaded_feeds)
+    expected_dfs = ['stops', 'routes', 'trips', 'stop_times',
+                    'calendar']
+    assert expected_urbanaccess_gtfs_df_keys == sorted(list(
+        urbanaccess_gtfs_df_info.keys()))
+    for key, value in urbanaccess_gtfs_df_info.items():
+        assert isinstance(value, pd.core.frame.DataFrame)
+        # check that df is not empty
+        if key in expected_dfs:
+            assert value.empty is False
+
+
+def test_loadgtfsfeed_to_df_w_validation_remove_stops_True_bbox_small(
+        agency_a_feed_on_disk_wo_calendar_dates,
+        expected_urbanaccess_gtfs_df_keys):
+    # test that specific stops are removed given bbox size
+    feed_dir = agency_a_feed_on_disk_wo_calendar_dates
+    loaded_feeds = gtfs_load.gtfsfeed_to_df(
+        gtfsfeed_path=feed_dir,
+        validation=True,
+        verbose=True,
+        bbox=(-122.2702525556, 37.7992692881, -122.2625707089, 37.8036435628),
+        remove_stops_outsidebbox=True,
+        append_definitions=False)
+    assert isinstance(loaded_feeds, urbanaccess_gtfs_df)
+    urbanaccess_gtfs_df_info = vars(loaded_feeds)
+    expected_dfs_not_null = ['routes', 'trips', 'calendar']
+    expected_dfs_null = ['stops', 'stop_times']
+    assert expected_urbanaccess_gtfs_df_keys == sorted(list(
+        urbanaccess_gtfs_df_info.keys()))
+    for key, value in urbanaccess_gtfs_df_info.items():
+        assert isinstance(value, pd.core.frame.DataFrame)
+        # check that df is not empty
+        if key in expected_dfs_not_null:
+            assert value.empty is False
+    for key, value in urbanaccess_gtfs_df_info.items():
+        assert isinstance(value, pd.core.frame.DataFrame)
+        # check that df is empty to make sure bbox stop removal operation
+        # was successful
+        if key in expected_dfs_null:
+            assert value.empty is True
+
+
+def test_loadgtfsfeed_to_df_w_append_definitions_True(
+        agency_a_feed_on_disk_wo_calendar_dates,
+        expected_urbanaccess_gtfs_df_keys):
+    feed_dir = agency_a_feed_on_disk_wo_calendar_dates
+    loaded_feeds = gtfs_load.gtfsfeed_to_df(
+        gtfsfeed_path=feed_dir,
+        validation=False,
+        verbose=True,
+        bbox=None,
+        remove_stops_outsidebbox=False,
+        append_definitions=True)
+    assert isinstance(loaded_feeds, urbanaccess_gtfs_df)
+    urbanaccess_gtfs_df_info = vars(loaded_feeds)
+    expected_dfs = ['stops', 'routes', 'trips', 'stop_times',
+                    'calendar']
+    expected_attr_cols_dict = {'stops': ['wheelchair_boarding_desc',
+                                         'location_type_desc'],
+                               'routes': ['route_type_desc'],
+                               'stop_times': ['pickup_type_desc',
+                                              'drop_off_type_desc'],
+                               'trips': ['bikes_allowed_desc',
+                                         'wheelchair_accessible_desc']}
+
+    assert expected_urbanaccess_gtfs_df_keys == sorted(list(
+        urbanaccess_gtfs_df_info.keys()))
+    for table, df in urbanaccess_gtfs_df_info.items():
+        assert isinstance(df, pd.core.frame.DataFrame)
+        # check that df is not empty
+        if table in expected_dfs:
+            assert df.empty is False
+            # check that attr col was added to table
+            if table in expected_attr_cols_dict.keys():
+                for col in expected_attr_cols_dict[table]:
+                    assert col in df.columns
