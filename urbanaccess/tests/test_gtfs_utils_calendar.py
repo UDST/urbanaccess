@@ -774,12 +774,12 @@ def test_cal_srv_id_selector_warn(capsys,
             'parameters.') in captured.out
 
 
-def test_unique_service_id(
+def test_add_unique_service_id(
         calendar_dates_agency_a, calendar_agency_a):
     # remove the existing column from the test data
     calendar_agency_a.drop(columns=['unique_service_id'], inplace=True)
     df_list = [calendar_dates_agency_a, calendar_agency_a]
-    result = gtfs_utils_cal._unique_service_id(df_list)
+    result = gtfs_utils_cal._add_unique_service_id(df_list)
     assert isinstance(result, list)
     assert isinstance(result[0], pd.core.frame.DataFrame)
     assert isinstance(result[1], pd.core.frame.DataFrame)

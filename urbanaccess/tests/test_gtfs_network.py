@@ -9,6 +9,7 @@ import urbanaccess.gtfs.network as gtfs_network
 import urbanaccess.gtfs.load as gtfs_load
 from urbanaccess.network import urbanaccess_network
 from urbanaccess.gtfs.gtfsfeeds_dataframe import urbanaccess_gtfs_df
+from urbanaccess import config
 
 
 @pytest.fixture
@@ -1801,6 +1802,17 @@ def test_edge_impedance_by_route_type_invalid_params(
         funicular=-0.5)
     # should return a result even if route type is not found in DataFrame
     assert result.empty is False
+    with pytest.raises(ValueError) as excinfo:
+        config._ROUTES_MODE_TYPE_LOOKUP.update({13: 'test mode'})
+        result = gtfs_network.edge_impedance_by_route_type(
+            edge_route_type_impedance_df,
+            underground_rail='1',
+            intercity_rail=-0.5)
+    expected_error = ("ROUTES_MODE_TYPE_LOOKUP keys do not match keys in var_"
+                      "mode_id_lookup. Keys must match.")
+    assert expected_error in str(excinfo.value)
+    # reset config removing the test key
+    del config._ROUTES_MODE_TYPE_LOOKUP[13]
 
 
 def test_save_processed_gtfs_data(

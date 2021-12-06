@@ -1221,6 +1221,19 @@ def test_timetoseconds_invalid_params(stop_times_feed_1):
     assert expected_error in str(excinfo.value)
 
 
+def test_timetoseconds_negative_val_warn(capsys, stop_times_feed_1):
+    # create a negative time value
+    stop_times_feed_1['departure_time'].iloc[0] = '-3:20:20'
+    result = utils_format._timetoseconds(
+        stop_times_feed_1, time_cols=['departure_time'])
+    expected_print = ('Warning: Some stop times in departure_time column are '
+                      'negative. Time should be positive. Suggest checking'
+                      ' original GTFS feed stop_time file before proceeding')
+    # test that warning prints were printed
+    captured = capsys.readouterr()
+    assert expected_print in captured.out
+
+
 def test_timetoseconds_invalid_data(capsys, stop_times_feed_1):
     # add 2 records with invalid and large hr, min, sec values
     stop_times_feed_1['departure_time'].iloc[0] = '60:90:80'
@@ -1451,7 +1464,7 @@ def test_append_route_type_invalid_param(stops_feed_1, stop_times_feed_1,
     assert expected_error in str(excinfo.value)
 
 
-def test_add_unique_agencyid_case_1(
+def test_add_unique_agency_id_case_1(
         agency_a_feed_on_disk_wo_agency, stops_feed_1, stop_times_feed_1,
         routes_feed_1, trips_feed_1, calendar_feed_1, calendar_dates_feed_1):
     # case 1: no agency.txt file so we expect 'unique_agency_id' will be
@@ -1463,7 +1476,7 @@ def test_add_unique_agencyid_case_1(
     feed_path = agency_a_feed_on_disk_wo_agency
     expected_unique_agency_id = os.path.split(feed_path)[1]
     stops_df, routes_df, trips_df, stop_times_df, calendar_df, \
-        calendar_dates_df = utils_format._add_unique_agencyid(
+        calendar_dates_df = utils_format._add_unique_agency_id(
             agency_df=blank_agency,
             stops_df=stops_feed_1,
             routes_df=routes_feed_1,
@@ -1492,7 +1505,7 @@ def test_add_unique_agencyid_case_1(
         calendar_dates_feed_1)
 
 
-def test_add_unique_agencyid_case_2(
+def test_add_unique_agency_id_case_2(
         agency_a_feed_on_disk_wo_calendar_dates, agency_feed_3, stops_feed_1,
         stop_times_feed_1, routes_feed_1, trips_feed_1, calendar_feed_1,
         calendar_dates_feed_1):
@@ -1501,7 +1514,7 @@ def test_add_unique_agencyid_case_2(
     # using the agency_name in the agency.txt file
     feed_path = agency_a_feed_on_disk_wo_calendar_dates
     stops_df, routes_df, trips_df, stop_times_df, calendar_df, \
-        calendar_dates_df = utils_format._add_unique_agencyid(
+        calendar_dates_df = utils_format._add_unique_agency_id(
             agency_df=agency_feed_3,
             stops_df=stops_feed_1,
             routes_df=routes_feed_1,
@@ -1529,7 +1542,7 @@ def test_add_unique_agencyid_case_2(
         calendar_dates_feed_1)
 
 
-def test_add_unique_agencyid_case_3(
+def test_add_unique_agency_id_case_3(
         agency_a_feed_on_disk_wo_calendar_dates, agency_feed_2, stops_feed_2,
         stop_times_feed_2, routes_feed_2, trips_feed_2, calendar_feed_2,
         calendar_dates_feed_2):
@@ -1538,7 +1551,7 @@ def test_add_unique_agencyid_case_3(
     # the agency_id and agency_name in the agency.txt file
     feed_path = agency_a_feed_on_disk_wo_calendar_dates
     stops_df, routes_df, trips_df, stop_times_df, calendar_df, \
-        calendar_dates_df = utils_format._add_unique_agencyid(
+        calendar_dates_df = utils_format._add_unique_agency_id(
             agency_df=agency_feed_2,
             stops_df=stops_feed_2,
             routes_df=routes_feed_2,
@@ -1567,7 +1580,7 @@ def test_add_unique_agencyid_case_3(
         calendar_dates_feed_2)
 
 
-def test_add_unique_agencyid_case_4(
+def test_add_unique_agency_id_case_4(
         agency_a_feed_on_disk_wo_calendar_dates, agency_feed_1, stops_feed_1,
         stop_times_feed_1, routes_feed_1, trips_feed_1, calendar_feed_1,
         calendar_dates_feed_1):
@@ -1576,7 +1589,7 @@ def test_add_unique_agencyid_case_4(
     # the agency_name in the agency.txt file
     feed_path = agency_a_feed_on_disk_wo_calendar_dates
     stops_df, routes_df, trips_df, stop_times_df, calendar_df, \
-        calendar_dates_df = utils_format._add_unique_agencyid(
+        calendar_dates_df = utils_format._add_unique_agency_id(
             agency_df=agency_feed_1,
             stops_df=stops_feed_1,
             routes_df=routes_feed_1,
@@ -1604,7 +1617,7 @@ def test_add_unique_agencyid_case_4(
         calendar_dates_feed_1)
 
 
-def test_add_unique_agencyid_case_5(
+def test_add_unique_agency_id_case_5(
         agency_a_feed_on_disk_wo_calendar_dates, agency_feed_1, stops_feed_1,
         stop_times_feed_1, routes_feed_1, trips_feed_1, calendar_feed_1):
     # case 5: same as case 4 but with no calendar_dates.txt
@@ -1613,7 +1626,7 @@ def test_add_unique_agencyid_case_5(
     # workflow so replicate this df for this test
     blank_calendar_dates = pd.DataFrame()
     stops_df, routes_df, trips_df, stop_times_df, calendar_df, \
-        calendar_dates_df = utils_format._add_unique_agencyid(
+        calendar_dates_df = utils_format._add_unique_agency_id(
             agency_df=agency_feed_1,
             stops_df=stops_feed_1,
             routes_df=routes_feed_1,
@@ -1640,7 +1653,7 @@ def test_add_unique_agencyid_case_5(
     assert calendar_dates_df.equals(blank_calendar_dates)
 
 
-def test_add_unique_agencyid_case_6(
+def test_add_unique_agency_id_case_6(
         agency_a_feed_on_disk_wo_calendar_dates, agency_feed_1, stops_feed_1,
         stop_times_feed_1, routes_feed_1, trips_feed_1, calendar_dates_feed_1):
     # case 6: same as case 4 but with no calendar.txt
@@ -1649,7 +1662,7 @@ def test_add_unique_agencyid_case_6(
     # workflow so replicate this df for this test
     blank_calendar = pd.DataFrame()
     stops_df, routes_df, trips_df, stop_times_df, calendar_df, \
-        calendar_dates_df = utils_format._add_unique_agencyid(
+        calendar_dates_df = utils_format._add_unique_agency_id(
             agency_df=agency_feed_1,
             stops_df=stops_feed_1,
             routes_df=routes_feed_1,
@@ -1678,7 +1691,7 @@ def test_add_unique_agencyid_case_6(
     assert calendar_df.equals(blank_calendar)
 
 
-def test_add_unique_agencyid_multi_agency_id_mismatch_via_agency_txt(
+def test_add_unique_agency_id_multi_agency_id_mismatch_via_agency_txt(
         agency_a_feed_on_disk_wo_calendar_dates, agency_feed_2, stops_feed_2,
         stop_times_feed_2, routes_feed_2, trips_feed_2, calendar_feed_2,
         calendar_dates_feed_2):
@@ -1688,7 +1701,7 @@ def test_add_unique_agencyid_multi_agency_id_mismatch_via_agency_txt(
     # match existing records in routes.txt for test
     agency_feed_2['agency_id'].loc[1] = 'agency missing bus'
     stops_df, routes_df, trips_df, stop_times_df, calendar_df, \
-        calendar_dates_df = utils_format._add_unique_agencyid(
+        calendar_dates_df = utils_format._add_unique_agency_id(
             agency_df=agency_feed_2,
             stops_df=stops_feed_2,
             routes_df=routes_feed_2,
@@ -1718,7 +1731,7 @@ def test_add_unique_agencyid_multi_agency_id_mismatch_via_agency_txt(
         calendar_dates_feed_2)
 
 
-def test_add_unique_agencyid_multi_agency_id_mismatch_via_routes_txt(
+def test_add_unique_agency_id_multi_agency_id_mismatch_via_routes_txt(
         agency_a_feed_on_disk_wo_calendar_dates, agency_feed_2, stops_feed_2,
         stop_times_feed_2, routes_feed_2, trips_feed_2, calendar_feed_2,
         calendar_dates_feed_2):
@@ -1728,7 +1741,7 @@ def test_add_unique_agencyid_multi_agency_id_mismatch_via_routes_txt(
     # match existing records in agency.txt for test
     routes_feed_2['agency_id'].loc[0:1] = 'agency missing bus'
     stops_df, routes_df, trips_df, stop_times_df, calendar_df, \
-        calendar_dates_df = utils_format._add_unique_agencyid(
+        calendar_dates_df = utils_format._add_unique_agency_id(
             agency_df=agency_feed_2,
             stops_df=stops_feed_2,
             routes_df=routes_feed_2,
@@ -1758,7 +1771,7 @@ def test_add_unique_agencyid_multi_agency_id_mismatch_via_routes_txt(
         calendar_dates_feed_2)
 
 
-def test_add_unique_agencyid_value_errors(
+def test_add_unique_agency_id_value_errors(
         agency_a_feed_on_disk_wo_calendar_dates,
         agency_a_feed_on_disk_wo_agency, agency_feed_1, stops_feed_1,
         stop_times_feed_1, routes_feed_1, trips_feed_1, calendar_feed_1,
@@ -1768,7 +1781,7 @@ def test_add_unique_agencyid_value_errors(
     with pytest.raises(ValueError) as excinfo:
         # throw error if nulls_as_folder=False and no agency.txt file is found
         stops_df, routes_df, trips_df, stop_times_df, calendar_df, \
-            calendar_dates_df = utils_format._add_unique_agencyid(
+            calendar_dates_df = utils_format._add_unique_agency_id(
                 agency_df=agency_feed_1,
                 stops_df=stops_feed_1,
                 routes_df=routes_feed_1,
@@ -1792,7 +1805,7 @@ def test_add_unique_agencyid_value_errors(
         index = range(1)
         agency_df = pd.DataFrame(data, index)
         stops_df, routes_df, trips_df, stop_times_df, calendar_df, \
-            calendar_dates_df = utils_format._add_unique_agencyid(
+            calendar_dates_df = utils_format._add_unique_agency_id(
                 agency_df=agency_df,
                 stops_df=stops_feed_1,
                 routes_df=routes_feed_1,
@@ -1817,7 +1830,7 @@ def test_add_unique_agencyid_value_errors(
         index = range(1)
         agency_df = pd.DataFrame(data, index)
         stops_df, routes_df, trips_df, stop_times_df, calendar_df, \
-            calendar_dates_df = utils_format._add_unique_agencyid(
+            calendar_dates_df = utils_format._add_unique_agency_id(
                 agency_df=agency_df,
                 stops_df=stops_feed_1,
                 routes_df=routes_feed_1,
@@ -1841,7 +1854,7 @@ def test_add_unique_agencyid_value_errors(
         index = range(1)
         agency_df = pd.DataFrame(data, index)
         stops_df, routes_df, trips_df, stop_times_df, calendar_df, \
-            calendar_dates_df = utils_format._add_unique_agencyid(
+            calendar_dates_df = utils_format._add_unique_agency_id(
                 agency_df=agency_df,
                 stops_df=stops_feed_1,
                 routes_df=routes_feed_1,
@@ -1865,7 +1878,7 @@ def test_add_unique_agencyid_value_errors(
         index = range(1)
         agency_df = pd.DataFrame(data, index)
         stops_df, routes_df, trips_df, stop_times_df, calendar_df, \
-            calendar_dates_df = utils_format._add_unique_agencyid(
+            calendar_dates_df = utils_format._add_unique_agency_id(
                 agency_df=agency_df,
                 stops_df=stops_feed_1,
                 routes_df=routes_feed_1,
@@ -1889,7 +1902,7 @@ def test_add_unique_agencyid_value_errors(
         index = range(1)
         agency_df = pd.DataFrame(data, index)
         stops_df, routes_df, trips_df, stop_times_df, calendar_df, \
-            calendar_dates_df = utils_format._add_unique_agencyid(
+            calendar_dates_df = utils_format._add_unique_agency_id(
                 agency_df=agency_df,
                 stops_df=stops_feed_1,
                 routes_df=routes_feed_1,
@@ -1914,7 +1927,7 @@ def test_add_unique_agencyid_value_errors(
         index = range(2)
         agency_df = pd.DataFrame(data, index)
         stops_df, routes_df, trips_df, stop_times_df, calendar_df, \
-            calendar_dates_df = utils_format._add_unique_agencyid(
+            calendar_dates_df = utils_format._add_unique_agency_id(
                 agency_df=agency_df,
                 stops_df=stops_feed_1,
                 routes_df=routes_feed_1,

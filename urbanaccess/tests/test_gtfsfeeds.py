@@ -323,7 +323,7 @@ def test_feed_object():
     assert isinstance(feeds.to_dict(), dict)
 
 
-def test_to_dict(feed_object):
+def test_feed_to_dict(feed_object):
     assert isinstance(feed_object.to_dict(), dict)
     assert feed_object.to_dict() == {
         'gtfs_feeds': {
@@ -445,30 +445,6 @@ def test_to_yaml_feed(tmpdir, feed_dict3):
     feeds.remove_feed(remove_all=True)
 
 
-def test_to_yaml_feed_invalid(tmpdir, feed_dict3):
-    with pytest.raises(ValueError) as excinfo:
-        feeds.add_feed(add_dict=feed_dict3)
-        feeds.to_yaml(
-            gtfsfeeddir=1, yamlname='gtfsfeeds.yaml',
-            overwrite=True)
-    expected_error = 'gtfsfeeddir must be a string'
-    assert expected_error in str(excinfo.value)
-    with pytest.raises(ValueError) as excinfo:
-        feeds.to_yaml(
-            gtfsfeeddir=tmpdir.strpath, yamlname=1,
-            overwrite=True)
-    expected_error = 'yamlname must be a string'
-    assert expected_error in str(excinfo.value)
-    with pytest.raises(ValueError) as excinfo:
-        feeds.to_yaml(tmpdir.strpath, overwrite=True)
-        feeds.to_yaml(tmpdir.strpath, overwrite=False)
-    expected_error = ('gtfsfeeds.yaml already exists. '
-                      'Rename or set overwrite to True')
-    assert expected_error in str(excinfo.value)
-    # clear feeds from global memory
-    feeds.remove_feed(remove_all=True)
-
-
 def test_to_yaml_feed_create_dir(tmpdir, feed_dict3):
     path_to_create = os.path.join(tmpdir.strpath, 'temp')
     feeds.add_feed(add_dict=feed_dict3)
@@ -504,27 +480,6 @@ def test_from_yaml_feed_invalid(
         feed_yaml_invalid_3, feed_yaml_invalid_4, feed_yaml_invalid_5):
     with pytest.raises(ValueError) as excinfo:
         feeds_from_yaml = feeds.from_yaml(
-            gtfsfeeddir=1, yamlname='gtfsfeeds.yaml')
-    expected_error = 'gtfsfeeddir must be a string'
-    assert expected_error in str(excinfo.value)
-    with pytest.raises(ValueError) as excinfo:
-        feeds_from_yaml = feeds.from_yaml(
-            gtfsfeeddir='test_dir', yamlname='test.yaml')
-    expected_error = 'test_dir does not exist or was not found'
-    assert expected_error in str(excinfo.value)
-    with pytest.raises(ValueError) as excinfo:
-        feeds_from_yaml = feeds.from_yaml(
-            gtfsfeeddir=feed_yaml, yamlname=1)
-    expected_error = 'yaml must be a string'
-    assert expected_error in str(excinfo.value)
-    with pytest.raises(ValueError) as excinfo:
-        feeds_from_yaml = feeds.from_yaml(
-            gtfsfeeddir=feed_yaml_invalid_1,
-            yamlname='gtfsfeeds_invalid_1.yaml')
-    expected_error = 'gtfsfeeds_invalid_1.yaml is not a dict'
-    assert expected_error in str(excinfo.value)
-    with pytest.raises(ValueError) as excinfo:
-        feeds_from_yaml = feeds.from_yaml(
             gtfsfeeddir=feed_yaml_invalid_2,
             yamlname='gtfsfeeds_invalid_2.yaml')
     expected_error = 'key gtfs_feeds was not found in YAML file'
@@ -547,8 +502,7 @@ def test_from_yaml_feed_invalid(
             yamlname='gtfsfeeds_invalid_5.yaml')
     expected_error = (
         'duplicate values were found in YAML file: {}. Feed URL values must '
-        'be unique.'.format(os.path.join(
-            feed_yaml_invalid_5, 'gtfsfeeds_invalid_5.yaml')))
+        'be unique.'.format('gtfsfeeds_invalid_5.yaml'))
     assert expected_error in str(excinfo.value)
 
 
