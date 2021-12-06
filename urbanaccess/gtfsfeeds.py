@@ -60,6 +60,7 @@ class urbanaccess_gtfsfeeds(object):
         if validkey not in yaml_config.keys():
             raise ValueError('key gtfs_feeds was not found in YAML file')
 
+        dtype_raise_error_msg = '{} must be a string.'
         for key in yaml_config['gtfs_feeds'].keys():
             if not isinstance(key, str):
                 raise ValueError(dtype_raise_error_msg.format(key))
@@ -73,11 +74,11 @@ class urbanaccess_gtfsfeeds(object):
         if unique_url_count != url_count:
             raise ValueError(
                 'duplicate values were found in YAML file: {}. Feed URL '
-                'values must be unique.'.format(yaml_file))
+                'values must be unique.'.format(yamlname))
 
         gtfsfeeds = cls(gtfs_feeds=yaml_config.get('gtfs_feeds', {}))
         log('{} YAML successfully loaded with {:,} feeds.'.format(
-            yaml_file, len(yaml_config['gtfs_feeds'])))
+            yamlname, len(yaml_config['gtfs_feeds'])))
 
         return gtfsfeeds
 
