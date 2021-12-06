@@ -1,5 +1,4 @@
-import os
-import yaml
+import itertools
 import numpy as np
 
 from urbanaccess.utils import _dict_to_yaml, _yaml_to_dict
@@ -17,20 +16,37 @@ def _format_check(settings):
     -------
     Nothing
     """
+    gtfs_api_schema_keys = ['gtfsdataexch']
+    str_keys = ['data_folder', 'images_folder', 'image_filename',
+                'logs_folder', 'log_name', 'log_filename', 'txt_encoding']
+    bool_keys = ['log_file', 'log_console']
+    dict_keys = ['gtfs_api']
+    valid_keys = list(itertools.chain(str_keys, bool_keys, dict_keys))
+    valid_keys = sorted(valid_keys)
+    settings_keys = list(settings.keys())
 
-    valid_keys = ['data_folder', 'images_folder', 'image_filename', 'logs_folder',
-                  'log_file', 'log_console', 'log_name', 'log_filename',
-                  'txt_encoding', 'gtfs_api']
-
-    for key in settings.keys():
-        if key not in valid_keys:
-            raise ValueError('{} not found in list of valid configuration '
-                             'keys: {}.'.format(key, valid_keys))
-        if not isinstance(key, str):
-            raise ValueError('{} must be a string.'.format(key))
-        if key == 'log_file' or key == 'log_console':
+    if set(settings_keys) != set(valid_keys):
+        raise ValueError("Configuration keys: {} do not match required "
+                         "keys: {}.".format(settings_keys, valid_keys))
+    for key in settings_keys:
+        if key in str_keys:
+            if not isinstance(settings[key], str):
+                raise ValueError(
+                    "Key: '{}' value must be string.".format(key))
+        if key in bool_keys:
             if not isinstance(settings[key], bool):
-                raise ValueError('{} must be boolean.'.format(key))
+                raise ValueError(
+                    "Key: '{}' value must be boolean.".format(key))
+        if key in dict_keys:
+            for gtfs_api_key in settings['gtfs_api'].keys():
+                if gtfs_api_key not in gtfs_api_schema_keys:
+                    raise ValueError(
+                        "gtfs_api key: '{}' does not match valid key(s):"
+                        " {}.".format(gtfs_api_key, gtfs_api_schema_keys))
+                if not isinstance(settings['gtfs_api'][gtfs_api_key], str):
+                    raise ValueError(
+                        "gtfs_api key: '{}' value must be string.".format(
+                            gtfs_api_key))
 
 
 # TODO: make class CamelCase
