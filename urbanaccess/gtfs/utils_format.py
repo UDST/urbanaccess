@@ -394,9 +394,9 @@ def _stop_times_agencyid(stop_times_df, routes_df, trips_df,
 
 
 def _add_unique_agency_id(agency_df, stops_df, routes_df,
-                         trips_df, stop_times_df, calendar_df,
-                         calendar_dates_df, feed_folder,
-                         nulls_as_folder=True):
+                          trips_df, stop_times_df, calendar_df,
+                          calendar_dates_df, feed_folder,
+                          nulls_as_folder=True):
     """
     Create an unique agency ID for all GTFS feed DataFrames to enable unique
     relational table keys. Pathways to create the unique agency ID are:
