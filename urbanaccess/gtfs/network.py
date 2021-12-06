@@ -1127,8 +1127,8 @@ def edge_impedance_by_route_type(
     # used in this function in case changes are made in the config obj
     if set(sorted(route_type_dict.keys())) != set(
             sorted(var_mode_id_lookup.keys())):
-        ValueError('ROUTES_MODE_TYPE_LOOKUP keys do not match keys in '
-                   'var_mode_id_lookup. Keys must match.')
+        raise ValueError('ROUTES_MODE_TYPE_LOOKUP keys do not match keys in '
+                         'var_mode_id_lookup. Keys must match.')
     for key, value in route_type_dict.items():
         route_type_dict[key] = {'name': value,
                                 'multiplier': var_mode_id_lookup[key]}
