@@ -25,7 +25,9 @@ def _calc_headways_by_route_stop(df):
         DataFrame of statistics of route stop headways in units of minutes
     """
     # TODO: Optimize for speed
-
+    # TODO: Update to incorporate optional direction_id into group, if
+    #  direction_id doesnt exist do not use it since its an optional col
+    # TODO: Assess if we can simplify the results to return only unique records
     start_time = time.time()
 
     df = _add_unique_stop_route(df)
@@ -80,6 +82,8 @@ def _headway_handler(interpolated_stop_times_df, trips_df,
         DataFrame of statistics of route stop headways in units of minutes
         with relevant route and stop information
     """
+    # TODO: reconsider the use of inplace or copy incoming dfs
+    #  to memory to avoid changing in memory tables
     start_time = time.time()
 
     # add unique trip and route ID

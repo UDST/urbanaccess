@@ -121,6 +121,7 @@ def integrate_network(urbanaccess_network, headways=False,
                              'string'.format(headway_statistic))
 
         transit_edge_cols = urbanaccess_network.transit_edges.columns
+        # TODO: verify if these checks are still required in various use cases
         if 'node_id_from' not in transit_edge_cols or 'from' in \
                 transit_edge_cols:
             urbanaccess_network.transit_edges.rename(
@@ -338,6 +339,8 @@ def _format_pandana_edges_nodes(edge_df, node_df):
     # for edges make it the from and to columns
     node_df['id_int'] = range(1, len(node_df) + 1)
 
+    # TODO: reconsider the use of inplace or copy incoming dfs
+    #  to memory to avoid changing in memory tables
     edge_df.rename(columns={'id': 'edge_id'}, inplace=True)
     tmp = pd.merge(edge_df, node_df[['id', 'id_int']], left_on='from',
                    right_on='id', sort=False, copy=False, how='left')
