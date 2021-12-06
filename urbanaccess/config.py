@@ -2,6 +2,8 @@ import os
 import yaml
 import numpy as np
 
+from urbanaccess.utils import _dict_to_yaml, _yaml_to_dict
+
 
 def _format_check(settings):
     """
@@ -105,19 +107,7 @@ class urbanaccess_config(object):
         -------
         urbanaccess_config
         """
-
-        if not isinstance(configdir, str):
-            raise ValueError('configdir must be a string')
-        if not os.path.exists(configdir):
-            raise ValueError('{} does not exist or was not found'.format(
-                configdir))
-        if not isinstance(yamlname, str):
-            raise ValueError('yaml must be a string')
-
-        yaml_file = os.path.join(configdir, yamlname)
-
-        with open(yaml_file, 'r') as f:
-            yaml_config = yaml.safe_load(f)
+        yaml_config = _yaml_to_dict(yaml_dir=configdir, yaml_name=yamlname)
 
         settings = cls(
             data_folder=yaml_config.get('data_folder', 'data'),
@@ -174,23 +164,8 @@ class urbanaccess_config(object):
         -------
         Nothing
         """
-
-        if not isinstance(configdir, str):
-            raise ValueError('configdir must be a string')
-        if not os.path.exists(configdir):
-            raise ValueError('{} does not exist or was not found'.format(
-                configdir))
-            os.makedirs(configdir)
-        if not isinstance(yamlname, str):
-            raise ValueError('yaml must be a string')
-        yaml_file = os.path.join(configdir, yamlname)
-        if overwrite is False and os.path.isfile(yaml_file) is True:
-            raise ValueError(
-                '{} already exists. Rename or turn overwrite to True'.format(
-                    yamlname))
-        else:
-            with open(yaml_file, 'w') as f:
-                yaml.dump(self.to_dict(), f, default_flow_style=False)
+        _dict_to_yaml(dictionary=self.to_dict(), yaml_dir=configdir,
+                      yaml_name=yamlname, overwrite=overwrite)
 
 
 # set global variables

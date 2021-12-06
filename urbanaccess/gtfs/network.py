@@ -5,7 +5,9 @@ import time
 from datetime import datetime, timedelta
 import logging as lg
 
-from urbanaccess.utils import log, df_to_hdf5, hdf5_to_df
+from urbanaccess.utils import log, df_to_hdf5, hdf5_to_df, \
+    _add_unique_trip_id, _add_unique_stop_id, _add_unique_route_id
+
 from urbanaccess.gtfs.utils_validation import _check_time_range_format
 from urbanaccess.gtfs.utils_calendar import _calendar_service_id_selector, \
     _trip_selector, _highest_freq_trips_date
@@ -444,8 +446,7 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df):
     df_list = [calendar_selected_trips_df, stop_times_df]
 
     for index, df in enumerate(df_list):
-        df['unique_trip_id'] = (df['trip_id'].str.cat(
-            df['unique_agency_id'].astype('str'), sep='_'))
+        df = _add_unique_trip_id(df)
         df_list[index] = df
 
     # sort stop times inplace based on first to last stop in
@@ -631,9 +632,7 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df):
         final_stop_times_df['departure_time_sec_interpolate'].astype(int)
 
     # add unique stop ID
-    final_stop_times_df['unique_stop_id'] = (
-        final_stop_times_df['stop_id'].str.cat(
-            final_stop_times_df['unique_agency_id'].astype('str'), sep='_'))
+    final_stop_times_df = _add_unique_stop_id(final_stop_times_df)
 
     if missing_stop_times_count > 0:
         log('Departure stop time interpolation complete. '
@@ -918,9 +917,7 @@ def _stops_in_edge_table_selector(input_stops_df, input_stop_times_df):
     start_time = time.time()
 
     # add unique stop ID
-    input_stops_df['unique_stop_id'] = (
-        input_stops_df['stop_id'].str.cat(
-            input_stops_df['unique_agency_id'].astype('str'), sep='_'))
+    input_stops_df = _add_unique_stop_id(input_stops_df)
 
     # Select stop IDs that match stop IDs in the subset stop time data that
     # match day and time selection
@@ -954,9 +951,7 @@ def _format_transit_net_nodes(df):
 
     # add unique stop ID
     if 'unique_stop_id' not in df.columns:
-        df['unique_stop_id'] = (
-            df['stop_id'].str.cat(
-                df['unique_agency_id'].astype('str'), sep='_'))
+        df = _add_unique_stop_id(df)
 
     final_node_df = pd.DataFrame()
     final_node_df['node_id'] = df['unique_stop_id']
@@ -1001,9 +996,7 @@ def _route_type_to_edge(transit_edge_df, stop_time_df):
     start_time = time.time()
 
     # create unique trip IDs
-    stop_time_df['unique_trip_id'] = (
-        stop_time_df['trip_id'].str.cat(
-            stop_time_df['unique_agency_id'].astype('str'), sep='_'))
+    stop_time_df = _add_unique_trip_id(stop_time_df)
 
     # join route_id to the edge table
     merged_df = pd.merge(
@@ -1044,12 +1037,8 @@ def _route_id_to_edge(transit_edge_df, trips_df):
 
     if 'unique_route_id' not in transit_edge_df.columns:
         # create unique trip and route IDs
-        trips_df['unique_trip_id'] = (
-            trips_df['trip_id'].str.cat(
-                trips_df['unique_agency_id'].astype('str'), sep='_'))
-        trips_df['unique_route_id'] = (
-            trips_df['route_id'].str.cat(
-                trips_df['unique_agency_id'].astype('str'), sep='_'))
+        trips_df = _add_unique_trip_id(trips_df)
+        trips_df = _add_unique_route_id(trips_df)
 
         transit_edge_df_with_routes = pd.merge(
             transit_edge_df, trips_df[['unique_trip_id', 'unique_route_id']],

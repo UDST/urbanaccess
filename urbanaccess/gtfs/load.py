@@ -334,7 +334,7 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
                     agency_df = pd.DataFrame()
 
         stops_df, routes_df, trips_df, stop_times_df, calendar_df, \
-            calendar_dates_df = utils_format._add_unique_agencyid(
+            calendar_dates_df = utils_format._add_unique_agency_id(
                 agency_df=agency_df,
                 stops_df=stops_df,
                 routes_df=routes_df,

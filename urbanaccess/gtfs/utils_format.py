@@ -393,7 +393,7 @@ def _stop_times_agencyid(stop_times_df, routes_df, trips_df,
     return merged_df
 
 
-def _add_unique_agencyid(agency_df, stops_df, routes_df,
+def _add_unique_agency_id(agency_df, stops_df, routes_df,
                          trips_df, stop_times_df, calendar_df,
                          calendar_dates_df, feed_folder,
                          nulls_as_folder=True):

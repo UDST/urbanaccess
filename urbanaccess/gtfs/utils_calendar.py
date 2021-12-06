@@ -4,7 +4,7 @@ import time
 from datetime import datetime as dt
 import logging as lg
 
-from urbanaccess.utils import log
+from urbanaccess.utils import log, _add_unique_trip_id
 
 
 def _trip_schedule_selector_validate_params(calendar_dates_df, params):
@@ -1130,7 +1130,7 @@ def _calendar_service_id_selector(
         df_list.extend([calendar_df])
     if has_cal_dates:
         df_list.extend([calendar_dates_df])
-    df_list = _unique_service_id(df_list)
+    df_list = _add_unique_service_id(df_list)
 
     if has_cal:
         srvc_ids = _select_calendar_service_ids(
@@ -1197,7 +1197,7 @@ def _trip_selector(trips_df, service_ids, verbose=True):
         log('--------------------------------')
         log('Selecting trip_id(s) with active service_ids that match '
             'the specified calendar and or calendar date parameters...')
-    df_list = _unique_service_id([trips_df])
+    df_list = _add_unique_service_id([trips_df])
     subset_trip_df = trips_df.loc[
         trips_df['unique_service_id'].isin(service_ids)]
 
@@ -1286,7 +1286,7 @@ def _highest_freq_trips_date(trips_df, calendar_df, calendar_dates_df):
         df_list.extend([calendar_df])
     if has_cal_dates:
         df_list.extend([calendar_dates_df])
-    df_list = _unique_service_id(df_list)
+    df_list = _add_unique_service_id(df_list)
 
     if has_cal:
         # convert cols to datetime expected format: 'yyyymmdd' e.g.: '20130825'
@@ -1354,8 +1354,7 @@ def _highest_freq_trips_date(trips_df, calendar_df, calendar_dates_df):
                 {date: date_add_rmv_srv_id_dict[date]['add']})
 
     # select the trips and count
-    trips_df['unique_trip_id'] = trips_df['trip_id'].str.cat(
-        trips_df['unique_agency_id'].astype('str'), sep='_')
+    trips_df = _add_unique_trip_id(trips_df)
     date_trip_cnt = {}
     for date in unique_date_list:
         subset_trips_df = _trip_selector(
@@ -1417,7 +1416,7 @@ def _highest_freq_trips_date(trips_df, calendar_df, calendar_dates_df):
     return max_date
 
 
-def _unique_service_id(df_list):
+def _add_unique_service_id(df_list):
     """
     Create 'unique_service_id' column and values for a list of
     pandas.DataFrames
@@ -1431,10 +1430,9 @@ def _unique_service_id(df_list):
     -------
     df_list : list
         list of pandas.DataFrames with 'unique_service_id' column added
-
     """
     for index, df in enumerate(df_list):
-        df['unique_service_id'] = (df['service_id'].str.cat(
-            df['unique_agency_id'].astype('str'), sep='_'))
+        df['unique_service_id'] = df['service_id'].str.cat(
+            df['unique_agency_id'].astype('str'), sep='_')
         df_list[index] = df
     return df_list

@@ -2,7 +2,7 @@ import time
 import os
 import pandas as pd
 
-from urbanaccess.utils import log, df_to_hdf5, hdf5_to_df
+from urbanaccess.utils import log, df_to_hdf5, hdf5_to_df, _add_unique_stop_id
 from urbanaccess.network_utils import connector_edges
 from urbanaccess import config
 
@@ -273,9 +273,7 @@ def _route_id_to_node(stops_df, edges_w_routes):
     start_time = time.time()
 
     # create unique stop IDs
-    stops_df['unique_stop_id'] = (
-        stops_df['stop_id'].str.cat(
-            stops_df['unique_agency_id'].astype('str'), sep='_'))
+    stops_df = _add_unique_stop_id(stops_df)
 
     tmp1 = pd.merge(edges_w_routes[['node_id_from', 'node_id_route_from']],
                     stops_df[['unique_stop_id', 'stop_lat', 'stop_lon']],

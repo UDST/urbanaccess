@@ -1,4 +1,3 @@
-import yaml
 import pandas as pd
 import traceback
 import zipfile
@@ -11,6 +10,7 @@ import shutil
 
 from urbanaccess.utils import log
 from urbanaccess import config
+from urbanaccess.utils import _dict_to_yaml, _yaml_to_dict
 
 
 # TODO: make class CamelCase
@@ -54,22 +54,7 @@ class urbanaccess_gtfsfeeds(object):
         -------
         gtfsfeeds : object
         """
-        dtype_raise_error_msg = '{} must be a string'
-        if not isinstance(gtfsfeeddir, str):
-            raise ValueError(dtype_raise_error_msg.format('gtfsfeeddir'))
-        if not os.path.exists(gtfsfeeddir):
-            raise ValueError('{} does not exist or was not found'.format(
-                gtfsfeeddir))
-        if not isinstance(yamlname, str):
-            raise ValueError(dtype_raise_error_msg.format('yaml'))
-
-        yaml_file = os.path.join(gtfsfeeddir, yamlname)
-
-        with open(yaml_file, 'r') as f:
-            yaml_config = yaml.safe_load(f)
-
-        if not isinstance(yaml_config, dict):
-            raise ValueError('{} is not a dict'.format(yamlname))
+        yaml_config = _yaml_to_dict(yaml_dir=gtfsfeeddir, yaml_name=yamlname)
 
         validkey = 'gtfs_feeds'
         if validkey not in yaml_config.keys():
@@ -233,24 +218,8 @@ class urbanaccess_gtfsfeeds(object):
         -------
         Nothing
         """
-        dtype_raise_error_msg = '{} must be a string'
-        if not isinstance(gtfsfeeddir, str):
-            raise ValueError(dtype_raise_error_msg.format('gtfsfeeddir'))
-        if not os.path.exists(gtfsfeeddir):
-            log('{} does not exist or was not found and will be '
-                'created'.format(gtfsfeeddir))
-            os.makedirs(gtfsfeeddir)
-        if not isinstance(yamlname, str):
-            raise ValueError(dtype_raise_error_msg.format('yamlname'))
-        yaml_file = os.path.join(gtfsfeeddir, yamlname)
-        if overwrite is False and os.path.isfile(yaml_file) is True:
-            raise ValueError(
-                '{} already exists. Rename or set overwrite to True'.format(
-                    yamlname))
-        else:
-            with open(yaml_file, 'w') as f:
-                yaml.dump(self.to_dict(), f, default_flow_style=False)
-            log('{} file successfully created'.format(yaml_file))
+        _dict_to_yaml(dictionary=self.to_dict(), yaml_dir=gtfsfeeddir,
+                      yaml_name=yamlname, overwrite=overwrite)
 
 
 # instantiate the UrbanAccess GTFS feed object

@@ -3,6 +3,7 @@
 # log, _get_logger: https://github.com/gboeing/osmnx/blob/master/osmnx/utils.py
 
 import logging as lg
+import yaml
 import unicodedata
 import sys
 import datetime as dt
@@ -275,3 +276,134 @@ def hdf5_to_df(dir=None, filename=None, key=None):
                 key, store.keys()))
 
         return df
+
+
+def _yaml_to_dict(yaml_dir, yaml_name):
+    """
+    Load a YAML file into a dictionary.
+
+    Parameters
+    ----------
+    yaml_dir : str, optional
+        Directory to load a YAML file.
+    yaml_name : str or file like, optional
+        File name from which to load a YAML file.
+
+    Returns
+    -------
+    yaml_dict : dict
+    """
+    dtype_raise_error_msg = '{} must be a string.'
+    if not isinstance(yaml_dir, str):
+        raise ValueError(dtype_raise_error_msg.format('yaml directory'))
+    if not os.path.exists(yaml_dir):
+        raise ValueError('{} does not exist or was not found.'.format(
+            yaml_dir))
+    if not isinstance(yaml_name, str):
+        raise ValueError(dtype_raise_error_msg.format('yaml file name'))
+
+    yaml_file = os.path.join(yaml_dir, yaml_name)
+
+    with open(yaml_file, 'r') as f:
+        yaml_dict = yaml.safe_load(f)
+    if not isinstance(yaml_dict, dict):
+        raise ValueError('Yaml data must be a dictionary.')
+    return yaml_dict
+
+
+def _dict_to_yaml(dictionary, yaml_dir, yaml_name, overwrite=False):
+    """
+    Save dictionary to a YAML file.
+
+    Parameters
+    ----------
+    dictionary : dict
+        Dictionary to save in a YAML file.
+    yaml_dir : str, optional
+        Directory to save a YAML file.
+    yaml_name : str or file like, optional
+        File name to which to save a YAML file.
+    overwrite : bool, optional
+        if true, will overwrite an existing YAML
+        file in specified directory if file names are the same
+    Returns
+    -------
+    Nothing
+    """
+    if not isinstance(dictionary, dict):
+        raise ValueError('Data to convert to YAML must be a dictionary.')
+    dtype_raise_error_msg = '{} must be a string.'
+    if not isinstance(yaml_dir, str):
+        raise ValueError(dtype_raise_error_msg.format('yaml directory'))
+    if not os.path.exists(yaml_dir):
+        log('{} does not exist or was not found and will be '
+            'created.'.format(yaml_dir))
+        os.makedirs(yaml_dir)
+    if not isinstance(yaml_name, str):
+        raise ValueError(dtype_raise_error_msg.format('yaml file name'))
+    yaml_file = os.path.join(yaml_dir, yaml_name)
+    if overwrite is False and os.path.isfile(yaml_file) is True:
+        raise ValueError(
+            '{} already exists. Rename or set overwrite to True.'.format(
+                yaml_name))
+    else:
+        with open(yaml_file, 'w') as f:
+            yaml.dump(dictionary, f, default_flow_style=False)
+        log('{} file successfully created.'.format(yaml_file))
+
+
+def _add_unique_trip_id(df):
+    """
+    Create 'unique_trip_id' column and values in a pandas.DataFrame
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        pandas.DataFrame to generate 'unique_trip_id' column
+
+    Returns
+    -------
+    df : pandas.DataFrame
+        pandas.DataFrames with 'unique_trip_id' column added
+    """
+    df['unique_trip_id'] = df['trip_id'].str.cat(
+        df['unique_agency_id'].astype('str'), sep='_')
+    return df
+
+
+def _add_unique_route_id(df):
+    """
+    Create 'unique_route_id' column and values in a pandas.DataFrame
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        pandas.DataFrame to generate 'unique_route_id' column
+
+    Returns
+    -------
+    df : pandas.DataFrame
+        pandas.DataFrames with 'unique_route_id' column added
+    """
+    df['unique_route_id'] = df['route_id'].str.cat(
+        df['unique_agency_id'].astype('str'), sep='_')
+    return df
+
+
+def _add_unique_stop_id(df):
+    """
+    Create 'unique_stop_id' column and values in a pandas.DataFrame
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        pandas.DataFrame to generate 'unique_stop_id' column
+
+    Returns
+    -------
+    df : pandas.DataFrame
+        pandas.DataFrames with 'unique_stop_id' column added
+    """
+    df['unique_stop_id'] = df['stop_id'].str.cat(
+        df['unique_agency_id'].astype('str'), sep='_')
+    return df

@@ -2,7 +2,7 @@ import warnings
 import pandas as pd
 import time
 
-from urbanaccess.utils import log
+from urbanaccess.utils import log, _add_unique_trip_id, _add_unique_route_id
 from urbanaccess.gtfs.utils_validation import _check_time_range_format
 from urbanaccess.gtfs.network import _time_selector
 
@@ -29,9 +29,7 @@ def _calc_headways_by_route_stop(df):
 
     start_time = time.time()
 
-    df['unique_stop_route'] = (
-        df['unique_stop_id'].str.cat(
-            df['unique_route_id'].astype('str'), sep=','))
+    df = _add_unique_stop_route(df)
 
     stop_route_groups = df.groupby('unique_stop_route')
     log('Starting route stop headway calculation for {:,} route '
@@ -87,12 +85,8 @@ def _headway_handler(interpolated_stop_times_df, trips_df,
     start_time = time.time()
 
     # add unique trip and route ID
-    trips_df['unique_trip_id'] = (
-        trips_df['trip_id'].str.cat(
-            trips_df['unique_agency_id'].astype('str'), sep='_'))
-    trips_df['unique_route_id'] = (
-        trips_df['route_id'].str.cat(
-            trips_df['unique_agency_id'].astype('str'), sep='_'))
+    trips_df = _add_unique_trip_id(trips_df)
+    trips_df = _add_unique_route_id(trips_df)
 
     columns = ['unique_route_id', 'service_id', 'unique_trip_id',
                'unique_agency_id']
@@ -105,9 +99,7 @@ def _headway_handler(interpolated_stop_times_df, trips_df,
     trips_df = trips_df[columns]
 
     # add unique route ID
-    routes_df['unique_route_id'] = (
-        routes_df['route_id'].str.cat(
-            routes_df['unique_agency_id'].astype('str'), sep='_'))
+    routes_df = _add_unique_route_id(routes_df)
 
     columns = ['unique_route_id', 'route_long_name', 'route_type',
                'unique_agency_id']
@@ -133,9 +125,7 @@ def _headway_handler(interpolated_stop_times_df, trips_df,
         merge_df[['unique_stop_route', 'unique_stop_id', 'unique_route_id']],
         how='left', left_index=True, right_on='unique_stop_route', sort=False)
     headway_by_routestop_df.drop('unique_stop_route', axis=1, inplace=True)
-    headway_by_routestop_df['node_id_route'] = (
-        headway_by_routestop_df['unique_stop_id'].str.cat(
-            headway_by_routestop_df['unique_route_id'].astype('str'), sep='_'))
+    headway_by_routestop_df = _add_node_id_route(headway_by_routestop_df)
 
     log('Headway calculation complete. Took {:,.2f} seconds.'.format(
         time.time() - start_time))
@@ -182,3 +172,43 @@ def headways(gtfsfeeds_df, headway_timerange):
     gtfsfeeds_df.headways = headways_df
 
     return gtfsfeeds_df
+
+
+def _add_unique_stop_route(df):
+    """
+    Create 'unique_stop_route' column and values in a pandas.DataFrame.
+    Intended for use with headways.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        pandas.DataFrame to generate 'unique_stop_route' column
+
+    Returns
+    -------
+    df : pandas.DataFrame
+        pandas.DataFrames with 'unique_stop_route' column added
+    """
+    df['unique_stop_route'] = df['unique_stop_id'].str.cat(
+        df['unique_route_id'].astype('str'), sep=',')
+    return df
+
+
+def _add_node_id_route(df):
+    """
+    Create 'node_id_route' column and values in a pandas.DataFrame.
+    Intended for use with headways.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        pandas.DataFrame to generate 'node_id_route' column
+
+    Returns
+    -------
+    df : pandas.DataFrame
+        pandas.DataFrames with 'node_id_route' column added
+    """
+    df['node_id_route'] = df['unique_stop_id'].str.cat(
+        df['unique_route_id'].astype('str'), sep='_')
+    return df
