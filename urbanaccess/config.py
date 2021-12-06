@@ -158,8 +158,8 @@ class urbanaccess_config(object):
         yamlname : str or file like, optional
             File name to which to save a YAML file.
         overwrite : bool, optional
-            if true, overwrite an existing same name YAML
-            file in specified directory
+            if true, will overwrite an existing YAML
+            file in specified directory if file names are the same
         Returns
         -------
         Nothing

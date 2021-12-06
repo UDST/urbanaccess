@@ -140,7 +140,7 @@ def create_hdf5(dir=None, filename=None, overwrite_hdf5=False):
 
     Returns
     -------
-    None
+    Nothing
     """
     if dir is None:
         dir = config.settings.data_folder
@@ -203,20 +203,21 @@ def df_to_hdf5(data=None, key=None, overwrite_key=False, dir=None,
 
     Returns
     -------
-    None
+    Nothing
     """
     hdf5_save_path = create_hdf5(
         dir=dir, filename=filename, overwrite_hdf5=overwrite_hdf5)
 
     store = pd.HDFStore(hdf5_save_path, mode='r')
+    h5_key_str = ''.join(['/', key])
 
-    if not ''.join(['/', key]) in store.keys():
+    if h5_key_str not in store.keys():
         store.close()
         data.to_hdf(hdf5_save_path, key=key, mode='a', format='table')
         log('   DataFrame: {} saved in HDF5 store: {}.'.format(
             key, hdf5_save_path))
 
-    elif ''.join(['/', key]) in store.keys() and overwrite_key:
+    elif h5_key_str in store.keys() and overwrite_key:
         store.close()
         data.to_hdf(hdf5_save_path, key=key, mode='a', format='table')
         log('   Existing DataFrame: {} overwritten in HDF5 store: {}.'.format(

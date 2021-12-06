@@ -24,7 +24,6 @@ def _calc_headways_by_route_stop(df):
     DataFrame : pandas.DataFrame
         DataFrame of statistics of route stop headways in units of minutes
     """
-
     # TODO: Optimize for speed
 
     start_time = time.time()
@@ -35,20 +34,19 @@ def _calc_headways_by_route_stop(df):
     log('Starting route stop headway calculation for {:,} route '
         'stops...'.format(len(stop_route_groups)))
 
-    results = {}
-
     # suppress RuntimeWarning: Mean of empty slice. for this code block
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category='RuntimeWarning')
-
+        results = {}
+        col = 'departure_time_sec_interpolate'
         for unique_stop_route, stop_route_group in stop_route_groups:
-            stop_route_group.sort_values(['departure_time_sec_interpolate'],
-                                         ascending=True, inplace=True)
-            next_bus_time = (stop_route_group['departure_time_sec_interpolate']
-                             .iloc[1:].values)
-            prev_bus_time = (stop_route_group['departure_time_sec_interpolate']
-                             .iloc[:-1].values)
-            stop_route_group_headways = (next_bus_time - prev_bus_time) / 60
+            stop_route_group.sort_values([col], ascending=True, inplace=True)
+            next_veh_time = (stop_route_group[col].iloc[1:].values)
+            prev_veh_time = (stop_route_group[col].iloc[:-1].values)
+            # compute headway with:
+            # (next veh arrival time - previous veh arrival time) / 60 seconds
+            # = headway in min
+            stop_route_group_headways = (next_veh_time - prev_veh_time) / 60
             results[unique_stop_route] = (pd.Series(stop_route_group_headways)
                                           .describe())
 

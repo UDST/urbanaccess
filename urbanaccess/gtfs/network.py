@@ -678,7 +678,7 @@ def _time_selector(df, starttime, endtime, timerange_pad=None):
     starttime : str
         24 hour clock formatted time 1
     endtime : str
-        24 hour clock formatted time 2,
+        24 hour clock formatted time 2
     timerange_pad: str, optional
         string indicating the number of hours minutes seconds to pad after the
         end of the time interval specified in 'timerange'. Must follow format

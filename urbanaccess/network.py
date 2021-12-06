@@ -60,9 +60,9 @@ def integrate_network(urbanaccess_network, headways=False,
         if true, route stop level headways calculated in a previous step
         will be applied to the OSM to transit connector
         edge travel time weights as an approximate measure
-        of average passenger transit stop waiting time.
+        of average passenger transit stop wait time.
     urbanaccess_gtfsfeeds_df : object, optional
-        required if headways is true; the gtfsfeeds_dfs object that holds
+        required if 'headways' is true; the gtfsfeeds_dfs object that holds
         the corresponding headways and stops DataFrames
     headway_statistic : {'mean', 'std', 'min', 'max'}, optional
         required if headways is true; route stop headway
@@ -80,13 +80,15 @@ def integrate_network(urbanaccess_network, headways=False,
     urbanaccess_network.net_edges : pandas.DataFrame
     urbanaccess_network.net_nodes : pandas.DataFrame
     """
-
     if urbanaccess_network is None:
         raise ValueError('urbanaccess_network is not specified')
-    if urbanaccess_network.transit_edges.empty \
-            or urbanaccess_network.transit_nodes.empty \
-            or urbanaccess_network.osm_edges.empty \
-            or urbanaccess_network.osm_nodes.empty:
+    is_transit_edges_empty = urbanaccess_network.transit_edges.empty
+    is_transit_nodes_empty = urbanaccess_network.transit_nodes.empty
+    is_osm_edges_empty = urbanaccess_network.osm_edges.empty
+    is_osm_nodes_empty = urbanaccess_network.osm_nodes.empty
+
+    if is_transit_edges_empty or is_transit_nodes_empty or \
+            is_osm_edges_empty or is_osm_nodes_empty:
         raise ValueError(
             'one of the network objects: transit_edges, transit_nodes, '
             'osm_edges, or osm_nodes were found to be empty.')
@@ -103,17 +105,18 @@ def integrate_network(urbanaccess_network, headways=False,
         raise ValueError('headways must be bool type')
 
     if headways:
-        if urbanaccess_gtfsfeeds_df is None or \
-                urbanaccess_gtfsfeeds_df.headways.empty or \
-                urbanaccess_gtfsfeeds_df.stops.empty:
+        is_headway_df_empty = urbanaccess_gtfsfeeds_df.headways.empty
+        is_stops_df_empty = urbanaccess_gtfsfeeds_df.stops.empty
+        is_ua_gtfsfeeds_empty = urbanaccess_gtfsfeeds_df is None
+        if is_ua_gtfsfeeds_empty or is_headway_df_empty or is_stops_df_empty:
             raise ValueError(
-                'stops and headway DataFrames were not found in the '
+                'stops and or headway DataFrames were not found in the '
                 'urbanaccess_gtfsfeeds object. Please create these '
                 'DataFrames in order to use headways.')
 
         valid_stats = ['mean', 'std', 'min', 'max']
-        if headway_statistic not in valid_stats or not isinstance(
-                headway_statistic, str):
+        if headway_statistic not in valid_stats or \
+                not isinstance(headway_statistic, str):
             raise ValueError('{} is not a supported statistic or is not a '
                              'string'.format(headway_statistic))
 
@@ -157,8 +160,8 @@ def integrate_network(urbanaccess_network, headways=False,
 
     # change cols in transit edges and nodes
     if headways:
-        urbanaccess_network.transit_edges.rename(columns={
-            'node_id_route_from': 'from', 'node_id_route_to': 'to'},
+        urbanaccess_network.transit_edges.rename(
+            columns={'node_id_route_from': 'from', 'node_id_route_to': 'to'},
             inplace=True)
         urbanaccess_network.transit_edges.drop(['node_id_from', 'node_id_to'],
                                                inplace=True, axis=1)
@@ -169,8 +172,8 @@ def integrate_network(urbanaccess_network, headways=False,
         urbanaccess_network.transit_edges.rename(
             columns={'node_id_from': 'from', 'node_id_to': 'to'}, inplace=True)
         urbanaccess_network.transit_nodes.reset_index(inplace=True, drop=False)
-        urbanaccess_network.transit_nodes.rename(columns={'node_id': 'id'},
-                                                 inplace=True)
+        urbanaccess_network.transit_nodes.rename(
+            columns={'node_id': 'id'}, inplace=True)
 
     # concat all network components
     urbanaccess_network.net_edges = pd.concat(
@@ -225,28 +228,25 @@ def _add_headway_impedance(ped_to_transit_edges_df, headways_df,
     osm_to_transit_wheadway : pandas.DataFrame
 
     """
-
     start_time = time.time()
 
-    log(
-        '{} route stop headway will be used for pedestrian to transit edge '
-        'impedance.'.format(
-            headway_statistic))
+    log('{} route stop headway will be used for pedestrian to transit edge '
+        'impedance.'.format(headway_statistic))
 
-    osm_to_transit_wheadway = pd.merge(ped_to_transit_edges_df, headways_df[
-        [headway_statistic, 'node_id_route']],
-                                       how='left', left_on=['to'],
-                                       right_on=['node_id_route'], sort=False,
-                                       copy=False)
+    osm_to_transit_wheadway = pd.merge(
+        ped_to_transit_edges_df,
+        headways_df[[headway_statistic, 'node_id_route']],
+        how='left', left_on=['to'], right_on=['node_id_route'], sort=False,
+        copy=False)
+    # divide headway statistic result by 2 assuming uniform distribution
+    # of passenger arrival at stop
     osm_to_transit_wheadway['weight_tmp'] = osm_to_transit_wheadway[
-                                                'weight'] + (
-                                            osm_to_transit_wheadway[
-                                                headway_statistic] / 2.0)
+        'weight'] + (osm_to_transit_wheadway[headway_statistic] / 2.0)
     osm_to_transit_wheadway['weight_tmp'].fillna(
         osm_to_transit_wheadway['weight'], inplace=True)
     osm_to_transit_wheadway.drop('weight', axis=1, inplace=True)
-    osm_to_transit_wheadway.rename(columns={'weight_tmp': 'weight'},
-                                   inplace=True)
+    osm_to_transit_wheadway.rename(
+        columns={'weight_tmp': 'weight'}, inplace=True)
 
     log('Headway impedance calculation completed. Took {:,.2f} seconds'.format(
         time.time() - start_time))
@@ -256,7 +256,8 @@ def _add_headway_impedance(ped_to_transit_edges_df, headways_df,
 
 def _route_id_to_node(stops_df, edges_w_routes):
     """
-    Assign route ids to the transit nodes table
+    Assign route ids to the transit nodes table. Intended for use with
+    headway workflow.
 
     Parameters
     ----------
@@ -394,11 +395,12 @@ def save_network(urbanaccess_network, filename,
 
     Returns
     -------
-    None
+    Nothing
     """
     log('Writing HDF5 store...')
-    if urbanaccess_network is None or urbanaccess_network.net_edges.empty or \
-            urbanaccess_network.net_nodes.empty:
+    is_net_edges_empty = urbanaccess_network.net_edges.empty
+    is_net_nodes_empty = urbanaccess_network.net_nodes.empty
+    if urbanaccess_network is None or is_net_edges_empty or is_net_nodes_empty:
         raise ValueError('Either no urbanaccess_network specified or '
                          'net_edges or net_nodes are empty.')
 

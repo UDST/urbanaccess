@@ -859,8 +859,7 @@ def _apply_gtfs_definition(df, desc_dict):
     return df
 
 
-def _add_txt_definitions(stops_df, routes_df, stop_times_df,
-                         trips_df):
+def _add_txt_definitions(stops_df, routes_df, stop_times_df, trips_df):
     """
     Append GTFS definitions to stops, routes, stop times, and trips DataFrames
 

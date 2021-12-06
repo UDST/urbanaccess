@@ -63,10 +63,9 @@ def ua_network_from_bbox(lat_min=None, lng_min=None, lat_max=None,
 
     Returns
     -------
-    nodesfinal, edgesfinal : pandas.DataFrame
+    nodes, edges : pandas.DataFrame
 
     """
-
     start_time = time.time()
 
     # returned OSM data allows travel in both directions

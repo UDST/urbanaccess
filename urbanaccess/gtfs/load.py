@@ -223,20 +223,24 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
 
     start_time = time.time()
 
+    dir_error_msg = "Directory: '{}' does not exist."
     if gtfsfeed_path is None:
         gtfsfeed_path = os.path.join(
             config.settings.data_folder, 'gtfsfeed_text')
         if not os.path.exists(gtfsfeed_path):
-            raise ValueError('{} does not exist.'.format(gtfsfeed_path))
+            raise ValueError(dir_error_msg.format(gtfsfeed_path))
     else:
         if not os.path.exists(gtfsfeed_path):
-            raise ValueError('{} does not exist.'.format(gtfsfeed_path))
+            raise ValueError(dir_error_msg.format(gtfsfeed_path))
     if not isinstance(gtfsfeed_path, str):
         raise ValueError('gtfsfeed_path must be a string.')
 
     if validation:
-        if bbox is None or remove_stops_outsidebbox is None or verbose is \
-                None:
+        has_bbox_param = bbox is not None
+        has_remove_stops_param = remove_stops_outsidebbox is not None
+        has_verbose_param = verbose is not None
+        if not has_bbox_param or not has_remove_stops_param or not \
+                has_verbose_param:
             raise ValueError(
                 'Attempted to run validation but bbox, verbose, and or '
                 'remove_stops_outsidebbox were set to None. These parameters '
