@@ -90,9 +90,9 @@ def _get_logger(level=None, name=None, filename=None):
     -------
     logger : logger.logger
     """
-
+    # TODO: consider placing default lg.INFO 'log_level' as new config setting
     if level is None:
-        level = config.settings.log_level
+        level = lg.INFO
     if name is None:
         name = config.settings.log_name
     if filename is None:
