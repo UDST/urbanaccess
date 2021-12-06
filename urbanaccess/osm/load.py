@@ -82,33 +82,32 @@ def ua_network_from_bbox(lat_min=None, lng_min=None, lat_max=None,
     # remove low connectivity nodes and return cleaned nodes and edges
     if remove_lcn:
         log('Checking for low connectivity nodes...')
-        pandana_net = Network(nodes['x'], nodes['y'],
-                              edges['from'], edges['to'], edges[['distance']])
-        lcn = pandana_net.low_connectivity_nodes(impedance=10000, count=10,
-                                                 imp_name='distance')
-        log(
-            '{:,} out of {:,} nodes ({:.2f} percent of total) were '
-            'identified as having low connectivity and have '
-            'been removed.'.format(len(lcn), len(nodes),
-                                   (len(lcn) / len(nodes)) * 100))
+        # use twoway=True only for low connectivity purposes
+        pandana_net = Network(
+            node_x=nodes['x'], node_y=nodes['y'],
+            edge_from=edges['from'], edge_to=edges['to'],
+            edge_weights=edges[['distance']], twoway=True)
+        lcn = pandana_net.low_connectivity_nodes(
+            impedance=10000, count=10, imp_name='distance')
+        len_lcn = len(lcn)
+        len_nodes = len(nodes)
+        if len_lcn > 0:
+            rm_nodes = set(lcn)
 
-        rm_nodes = set(lcn)
+            nodes_to_keep = ~nodes.index.isin(rm_nodes)
+            edges_to_keep = ~(
+                edges['from'].isin(rm_nodes) | edges['to'].isin(rm_nodes))
 
-        nodes_to_keep = ~nodes.index.isin(rm_nodes)
-        edges_to_keep = ~(
-            edges['from'].isin(rm_nodes) | edges['to'].isin(rm_nodes))
+            nodes = nodes.loc[nodes_to_keep]
+            edges = edges.loc[edges_to_keep]
+            msg = ('{:,} out of {:,} node(s) ({:.2f} percent of total) were '
+                   'identified as having low connectivity and have '
+                   'been removed.')
+            log(msg.format(len_lcn, len_nodes, (len_lcn / len_nodes) * 100))
+        else:
+            log('No nodes were identified as having low connectivity.')
 
-        nodes = nodes.loc[nodes_to_keep]
-        edges = edges.loc[edges_to_keep]
+    log('Completed OSM data download and graph node and edge table '
+        'creation in {:,.2f} seconds.'.format(time.time() - start_time))
 
-        log('Completed OSM data download and graph node and edge table '
-            'creation in {:,.2f} seconds'.format(time.time() - start_time))
-
-        return nodes, edges
-
-    else:
-
-        log('Completed OSM data download and graph node and edge table '
-            'creation in {:,.2f} seconds'.format(time.time() - start_time))
-
-        return nodes, edges
+    return nodes, edges
