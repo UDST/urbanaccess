@@ -277,7 +277,7 @@ def _route_id_to_node(stops_df, edges_w_routes):
     stops_df = _add_unique_stop_id(stops_df)
 
     tmp1 = pd.merge(edges_w_routes[['node_id_from', 'node_id_route_from']],
-                    stops_df[['unique_stop_id', 'stop_lat', 'stop_lon']],
+                    stops_df,
                     how='left', left_on='node_id_from',
                     right_on='unique_stop_id', sort=False, copy=False)
     tmp1.rename(columns={'node_id_route_from': 'node_id_route',
@@ -285,7 +285,7 @@ def _route_id_to_node(stops_df, edges_w_routes):
                          'stop_lat': 'y'},
                 inplace=True)
     tmp2 = pd.merge(edges_w_routes[['node_id_to', 'node_id_route_to']],
-                    stops_df[['unique_stop_id', 'stop_lat', 'stop_lon']],
+                    stops_df,
                     how='left',
                     left_on='node_id_to',
                     right_on='unique_stop_id', sort=False, copy=False)
@@ -294,12 +294,13 @@ def _route_id_to_node(stops_df, edges_w_routes):
                          'stop_lat': 'y'},
                 inplace=True)
 
-    transit_nodes_wroutes = pd.concat([tmp1[['node_id_route', 'x', 'y']],
-                                       tmp2[['node_id_route', 'x', 'y']]],
-                                      axis=0)
+    transit_nodes_wroutes = pd.concat([tmp1, tmp2], axis=0)
 
     transit_nodes_wroutes.drop_duplicates(
         subset='node_id_route', keep='first', inplace=True)
+    # drop temp columns
+    transit_nodes_wroutes.drop(
+        columns=['node_id_to', 'node_id_to'], inplace=True)
     # set node index to be unique stop ID
     transit_nodes_wroutes = transit_nodes_wroutes.set_index('node_id_route')
 
