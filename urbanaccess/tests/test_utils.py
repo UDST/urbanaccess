@@ -1,12 +1,197 @@
 import pytest
 import os
+import numpy as np
 import yaml
 import logging as lg
 import pandas as pd
 import datetime as dt
+import networkx as nx
+from networkx.classes.multidigraph import MultiDiGraph
 
 from urbanaccess import utils
 from urbanaccess import config
+
+
+@pytest.fixture
+def transit_nodes():
+    data = {
+        'id': ['1_Lake_Stop',
+               '2_12th_Stop',
+               '3_19th_Stop'],
+        'x': [-122.26571, -122.27085, -122.26812],
+        'y': [37.79739, 37.80364, 37.80866],
+        'unique_agency_id': ['rail_agency'] * 3,
+        'route_type': [1] * 3,
+        'stop_name': ['Lake Stop', '12th Street Stop',
+                      '19th Street Stop'],
+        'stop_code': ['E', 'H', 'H'],
+        'net_type': ['transit'] * 3,
+        'nearest_osm_node': [1, 6, 7]
+    }
+    index = range(3)
+    df = pd.DataFrame(data, index)
+    return df
+
+
+@pytest.fixture
+def transit_edges():
+    # multi-trip edges
+    data = {
+        'from': ['1_Lake_Stop', '2_12th_Stop',
+                 '1_Lake_Stop', '2_12th_Stop',
+                 '1_Lake_Stop', '2_12th_Stop',
+                 '1_Lake_Stop', '2_12th_Stop',
+                 '2_12th_Stop', '3_19th_Stop',
+                 '2_12th_Stop', '3_19th_Stop',
+                 '2_12th_Stop', '3_19th_Stop',
+                 '2_12th_Stop', '3_19th_Stop',
+                 '1_Lake_Stop', '1_Lake_Stop',
+                 '1_Lake_Stop', '1_Lake_Stop'],
+        'to': ['2_12th_Stop', '3_19th_Stop',
+               '2_12th_Stop', '3_19th_Stop',
+               '2_12th_Stop', '3_19th_Stop',
+               '2_12th_Stop', '3_19th_Stop',
+               '2_12th_Stop', '1_Lake_Stop',
+               '2_12th_Stop', '1_Lake_Stop',
+               '2_12th_Stop', '1_Lake_Stop',
+               '2_12th_Stop', '1_Lake_Stop',
+               '3_19th_Stop', '3_19th_Stop',
+               '3_19th_Stop', '3_19th_Stop'],
+        'id': ['100_rail_agency_1', '100_rail_agency_2',
+               '100_rail_agency_1', '100_rail_agency_2',
+               '100_rail_agency_1', '100_rail_agency_2',
+               '100_rail_agency_1', '100_rail_agency_2',
+               '200_rail_agency_1', '200_rail_agency_2',
+               '200_rail_agency_1', '200_rail_agency_2',
+               '200_rail_agency_1', '200_rail_agency_2',
+               '200_rail_agency_1', '200_rail_agency_2',
+               '300_rail_agency_1', '300_rail_agency_1',
+               '300_rail_agency_1', '300_rail_agency_1'],
+        'weight': [15, 15, 15, 15, 15, 15, 15, 15,
+                   15, 15, 15, 15, 15, 15, 15, 15,
+                   5, 5, 5, 5],
+        'unique_agency_id': ['rail_agency'] * 20,
+        'unique_trip_id': ['100_rail_agency', '100_rail_agency',
+                           '100_rail_agency', '100_rail_agency',
+                           '100_rail_agency', '100_rail_agency',
+                           '100_rail_agency', '100_rail_agency',
+                           '200_rail_agency', '200_rail_agency',
+                           '200_rail_agency', '200_rail_agency',
+                           '200_rail_agency', '200_rail_agency',
+                           '200_rail_agency', '200_rail_agency',
+                           '300_rail_agency', '300_rail_agency',
+                           '300_rail_agency', '300_rail_agency'],
+        'sequence': [1, 2, 1, 2, 1, 2, 1, 2,
+                     1, 2, 1, 2, 1, 2, 1, 2,
+                     1, 1, 1, 1],
+        'unique_route_id': ['A_rail_agency', 'A_rail_agency',
+                            'A_rail_agency', 'A_rail_agency',
+                            'A_rail_agency', 'A_rail_agency',
+                            'A_rail_agency', 'A_rail_agency',
+                            'A_rail_agency', 'A_rail_agency',
+                            'A_rail_agency', 'A_rail_agency',
+                            'A_rail_agency', 'A_rail_agency',
+                            'A_rail_agency', 'A_rail_agency',
+                            'B_rail_agency', 'B_rail_agency',
+                            'B_rail_agency', 'B_rail_agency'],
+        'net_type': ['transit'] * 20,
+    }
+
+    index = range(20)
+    df = pd.DataFrame(data, index)
+    return df
+
+
+@pytest.fixture
+def drive_nodes():
+    data = {
+        'id': [1, 2, 3, 4, 5, 6, 7, 8, 9],
+        'x': [
+            -122.265474, -122.272543, -122.273680, -122.262834, -122.269889,
+            -122.271170, -122.268333, -122.266974, -122.264433],
+        'y': [
+            37.796897, 37.799683, 37.800206, 37.800964, 37.803884,
+            37.804270, 37.809158, 37.808645, 37.807921],
+        # name is not expected in OSM nodes but is used here as placeholder
+        # for custom columns and as a reference for tests
+        'name': [
+            '1 8th & Oak', '2 8th & Franklin', '3 8th & Broadway',
+            '4 14th & Oak', '5 14th & Franklin', '6 14th & Broadway',
+            '7 Berkley & Broadway', '8 Berkley & Franklin',
+            '9 Berkley & Harrison'],
+        'net_type': ['drive'] * 9}
+    index = range(9)
+    df = pd.DataFrame(data, index)
+    return df
+
+
+@pytest.fixture
+def drive_edges():
+    data = {
+        'from': [1, 2, 3, 6, 7, 8, 9, 4, 4, 5, 2, 5],
+        'to': [2, 3, 6, 7, 8, 9, 4, 1, 5, 6, 5, 8],
+        'name': ['8th', '8th', 'Broadway', 'Broadway', 'Berkley', 'Berkley',
+                 'Lakeside', 'Oak', '14th', '14th', 'Franklin', 'Franklin'],
+        'highway': ['residential', 'residential', 'primary', 'primary',
+                    'primary', 'primary', 'residential', 'residential',
+                    'primary', 'primary', 'residential', 'residential'],
+        'weight': [0.3, 0.3, 0.5, 0.5, 0.6, 0.6, 1, 0.8, 0.8, 0.8, 0.4, 0.4],
+        'oneway': ['yes', 'yes', 'no', 'no', 'no', 'no', 'yes', 'yes', 'no',
+                   'no', 'yes', 'yes'],
+        'net_type': ['drive'] * 12,
+    }
+    index = range(12)
+    df = pd.DataFrame(data, index)
+
+    twoway_df = df.loc[df['oneway'] == 'no']
+    twoway_df.rename(columns={'from': 'to', 'to': 'from'}, inplace=True)
+
+    edge_df = pd.concat([df, twoway_df], axis=0, ignore_index=True)
+    return edge_df
+
+
+@pytest.fixture
+def connector_edges():
+    data = {
+        'from': ['1_Lake_Stop', 1, '2_12th_Stop', 6, '3_19th_Stop', 7],
+        'to': [1, '1_Lake_Stop', 6, '2_12th_Stop', 7, '3_19th_Stop'],
+        'weight': [0.1, 0.1, 0.2, 0.2, 0.15, 0.15],
+        'net_type': ['transit to osm', 'osm to transit',
+                     'transit to osm', 'osm to transit',
+                     'transit to osm', 'osm to transit']}
+    index = range(6)
+    df = pd.DataFrame(data, index)
+    return df
+
+
+@pytest.fixture
+def small_net(transit_edges, drive_edges, connector_edges,
+              transit_nodes, drive_nodes):
+    edge_df = pd.concat(
+        [transit_edges, drive_edges, connector_edges], axis=0)
+    node_df = pd.concat(
+        [transit_nodes, drive_nodes], axis=0, ignore_index=True)
+
+    # create final expected columns
+    node_df['id_int'] = range(1, len(node_df) + 1)
+    edge_df.rename(columns={'id': 'edge_id'}, inplace=True)
+    tmp = pd.merge(
+        edge_df, node_df[['id', 'id_int']],
+        left_on='from', right_on='id', sort=False, copy=False,
+        how='left')
+    tmp['from_int'] = tmp['id_int']
+    tmp.drop(['id_int', 'id'], axis=1, inplace=True)
+    edge_df_wnumericid = pd.merge(
+        tmp, node_df[['id', 'id_int']],
+        left_on='to', right_on='id', sort=False, copy=False,
+        how='left')
+    edge_df_wnumericid['to_int'] = edge_df_wnumericid['id_int']
+    edge_df_wnumericid.drop(['id_int', 'id'], axis=1, inplace=True)
+
+    # create columns required for networkx export function
+    edge_df_wnumericid['id_int'] = range(1, len(edge_df_wnumericid) + 1)
+
+    return edge_df_wnumericid, node_df
 
 
 @pytest.fixture
@@ -425,3 +610,156 @@ def test_add_unique_stop_id():
     result = utils._add_unique_stop_id(
         df[['stop_id', 'unique_agency_id']])
     assert result.equals(df)
+
+
+def test_df_to_networkx(small_net):
+    edge_df, node_df = small_net
+    nx_graph = utils.df_to_networkx(
+        nodes=node_df, edges=edge_df,
+        from_id_col='from_int', to_id_col='to_int',
+        edge_id_col='id_int', edge_weight_col='weight',
+        node_id_col='id_int', node_x_col='x', node_y_col='y',
+        graph_name='urbanaccess network',
+        crs={'init': 'epsg:4326'})
+    # check networkx graph type
+    assert isinstance(nx_graph, MultiDiGraph)
+    # check metadata
+    assert nx_graph.graph['name'] == 'urbanaccess network'
+    assert nx_graph.graph['crs'] == {'init': 'epsg:4326'}
+    # check one col for expected data consistency
+    node_df = node_df.set_index('id_int')
+    expected_id_attr = node_df['id'].to_dict()
+    result_id_attr = nx.get_node_attributes(nx_graph, 'id')
+    assert result_id_attr == expected_id_attr
+    # check one edge record for expected data consistency
+    result_id_attr = nx.get_edge_attributes(nx_graph, 'id_int')
+    assert result_id_attr[(1, 2, 1)] == 1
+
+
+def test_df_to_networkx_invalid(small_net):
+    edge_df, node_df = small_net
+    with pytest.raises(ValueError) as excinfo:
+        nx_graph = utils.df_to_networkx(
+            nodes=node_df, edges=edge_df,
+            from_id_col=None, to_id_col='to_int',
+            edge_id_col='id_int', edge_weight_col='weight',
+            node_id_col='id_int', node_x_col='x', node_y_col='y',
+            graph_name='urbanaccess network',
+            crs={'init': 'epsg:4326'})
+    expected_error = 'required parameters cannot be None.'
+    assert expected_error in str(excinfo.value)
+    with pytest.raises(ValueError) as excinfo:
+        nx_graph = utils.df_to_networkx(
+            nodes=pd.DataFrame(), edges=edge_df,
+            from_id_col='from_int', to_id_col='to_int',
+            edge_id_col='id_int', edge_weight_col='weight',
+            node_id_col='id_int', node_x_col='x', node_y_col='y',
+            graph_name='urbanaccess network',
+            crs={'init': 'epsg:4326'})
+    expected_error = 'nodes DataFrame contains no records.'
+    assert expected_error in str(excinfo.value)
+    with pytest.raises(ValueError) as excinfo:
+        nx_graph = utils.df_to_networkx(
+            nodes=node_df, edges=pd.DataFrame(),
+            from_id_col='from_int', to_id_col='to_int',
+            edge_id_col='id_int', edge_weight_col='weight',
+            node_id_col='id_int', node_x_col='x', node_y_col='y',
+            graph_name='urbanaccess network',
+            crs={'init': 'epsg:4326'})
+    expected_error = 'edges DataFrame contains no records.'
+    assert expected_error in str(excinfo.value)
+    with pytest.raises(ValueError) as excinfo:
+        nx_graph = utils.df_to_networkx(
+            nodes=node_df, edges=edge_df,
+            from_id_col='from_int', to_id_col='to_int',
+            edge_id_col='id_int', edge_weight_col='weight',
+            node_id_col='id_int', node_x_col='x', node_y_col='y',
+            node_attr=['id_test'], edge_attr=None,
+            graph_name='urbanaccess network',
+            crs={'init': 'epsg:4326'})
+    expected_error = ("nodes DataFrame missing expected column(s) passed in"
+                      " 'node_attr' parameter.")
+    assert expected_error in str(excinfo.value)
+    with pytest.raises(ValueError) as excinfo:
+        nx_graph = utils.df_to_networkx(
+            nodes=node_df, edges=edge_df,
+            from_id_col='from_int', to_id_col='to_int',
+            edge_id_col='id_int', edge_weight_col='weight',
+            node_id_col='id_int', node_x_col='x', node_y_col='y',
+            node_attr=None, edge_attr=['id_test'],
+            graph_name='urbanaccess network',
+            crs={'init': 'epsg:4326'})
+    expected_error = ("edges DataFrame missing expected column(s) passed in"
+                      " 'edge_attr' parameter.")
+    assert expected_error in str(excinfo.value)
+    with pytest.raises(ValueError) as excinfo:
+        # make invalid edge df
+        invalid_edges_df = edge_df.copy()
+        invalid_edges_df.drop(columns=['from_int'], inplace=True)
+        nx_graph = utils.df_to_networkx(
+            nodes=node_df, edges=invalid_edges_df,
+            from_id_col='from_int', to_id_col='to_int',
+            edge_id_col='id_int', edge_weight_col='weight',
+            node_id_col='id_int', node_x_col='x', node_y_col='y',
+            graph_name='urbanaccess network',
+            crs={'init': 'epsg:4326'})
+    expected_error = ("edges DataFrame missing a required column. "
+                      "Expected columns: ['from_int', 'to_int', 'id_int', "
+                      "'weight'].")
+    assert expected_error in str(excinfo.value)
+    with pytest.raises(ValueError) as excinfo:
+        # make invalid node df
+        invalid_nodes_df = node_df.copy()
+        invalid_nodes_df.drop(columns=['id_int'], inplace=True)
+        nx_graph = utils.df_to_networkx(
+            nodes=invalid_nodes_df, edges=edge_df,
+            from_id_col='from_int', to_id_col='to_int',
+            edge_id_col='id_int', edge_weight_col='weight',
+            node_id_col='id_int', node_x_col='x', node_y_col='y',
+            graph_name='urbanaccess network',
+            crs={'init': 'epsg:4326'})
+    expected_error = ("nodes DataFrame missing a required column. "
+                      "Expected columns: ['id_int', 'x', 'y'].")
+    assert expected_error in str(excinfo.value)
+    with pytest.raises(ValueError) as excinfo:
+        # make invalid edge df
+        invalid_edges_df = edge_df.copy()
+        invalid_edges_df['from_int'] = np.nan
+        nx_graph = utils.df_to_networkx(
+            nodes=node_df, edges=invalid_edges_df,
+            from_id_col='from_int', to_id_col='to_int',
+            edge_id_col='id_int', edge_weight_col='weight',
+            node_id_col='id_int', node_x_col='x', node_y_col='y',
+            graph_name='urbanaccess network',
+            crs={'init': 'epsg:4326'})
+    expected_error = ("edges DataFrame have nulls in required column: "
+                      "from_int. No nulls allowed.")
+    assert expected_error in str(excinfo.value)
+    with pytest.raises(ValueError) as excinfo:
+        # make invalid node df
+        invalid_nodes_df = node_df.copy()
+        invalid_nodes_df['id_int'] = np.nan
+        nx_graph = utils.df_to_networkx(
+            nodes=invalid_nodes_df, edges=edge_df,
+            from_id_col='from_int', to_id_col='to_int',
+            edge_id_col='id_int', edge_weight_col='weight',
+            node_id_col='id_int', node_x_col='x', node_y_col='y',
+            graph_name='urbanaccess network',
+            crs={'init': 'epsg:4326'})
+    expected_error = ("nodes DataFrame have nulls in required column: id_int. "
+                      "No nulls allowed.")
+    assert expected_error in str(excinfo.value)
+    with pytest.raises(ValueError) as excinfo:
+        # make invalid node df
+        invalid_nodes_df = node_df.copy()
+        invalid_nodes_df['id_int'] = invalid_nodes_df['id_int'] + 2
+        nx_graph = utils.df_to_networkx(
+            nodes=invalid_nodes_df, edges=edge_df,
+            from_id_col='from_int', to_id_col='to_int',
+            edge_id_col='id_int', edge_weight_col='weight',
+            node_id_col='id_int', node_x_col='x', node_y_col='y',
+            graph_name='urbanaccess network',
+            crs={'init': 'epsg:4326'})
+    expected_error = ("node IDs in from_int column in edges DataFrame do "
+                      "not match node IDs in nodes DataFrame.")
+    assert expected_error in str(excinfo.value)

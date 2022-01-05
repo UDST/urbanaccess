@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from geopy import distance
 from sklearn.neighbors import KDTree
+from networkx.classes.multidigraph import MultiDiGraph
 
 from urbanaccess import network
 from urbanaccess.network import urbanaccess_network as ua_net
@@ -694,3 +695,21 @@ def test_add_headway_impedance(
     assert isinstance(result, pd.core.frame.DataFrame)
     assert result.empty is False
     assert result.equals(expected_connector_edges_w_headways_w_impedance)
+
+
+def test_ua_to_networkx(ua_net_object_expected_result):
+    nx_graph = network.ua_to_networkx(ua_net_object_expected_result)
+    assert isinstance(nx_graph, MultiDiGraph)
+
+
+def test_ua_to_networkx_invalid(expected_net_edges_nodes):
+    with pytest.raises(ValueError) as excinfo:
+        # make invalid data
+        nodes_df, edges_df = expected_net_edges_nodes
+        ua_net.net_edges = edges_df.copy()
+        nodes = nodes_df.copy()
+        nodes.index.name = 'id_test'
+        ua_net.net_nodes = nodes.copy()
+        nx_graph = network.ua_to_networkx(ua_net)
+    expected_error = "node DataFrame index name must be 'id_int'."
+    assert expected_error in str(excinfo.value)
