@@ -81,10 +81,10 @@ def transit_edges():
                  '1_Lake_Stop', '2_12th_Stop',
                  '1_Lake_Stop', '2_12th_Stop',
                  '1_Lake_Stop', '2_12th_Stop',
-                 '3_12th_Stop', '2_19th_Stop',
-                 '3_12th_Stop', '2_19th_Stop',
-                 '3_12th_Stop', '2_19th_Stop',
-                 '3_12th_Stop', '2_19th_Stop',
+                 '2_12th_Stop', '3_19th_Stop',
+                 '2_12th_Stop', '3_19th_Stop',
+                 '2_12th_Stop', '3_19th_Stop',
+                 '2_12th_Stop', '3_19th_Stop',
                  '1_Lake_Stop', '1_Lake_Stop',
                  '1_Lake_Stop', '1_Lake_Stop'],
         'to': ['2_12th_Stop', '3_19th_Stop',
@@ -623,7 +623,7 @@ def test_prep_edges(small_net):
     for col in expected_cols:
         assert col in edges_wlines.columns
         assert edges_wlines[col].isnull().sum() == 0
-    assert len(edges_wlines) == 36
+    assert len(edges_wlines) == 44
 
 
 def test_prep_edges_invalid(small_net):
