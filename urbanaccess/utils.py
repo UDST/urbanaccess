@@ -4,6 +4,7 @@
 
 import logging as lg
 import yaml
+import time
 import unicodedata
 import sys
 import datetime as dt
@@ -11,6 +12,14 @@ import os
 import pandas as pd
 
 from urbanaccess import config
+
+
+# networkx is an optional dependency so check if its installed and if not
+# will raise import error downstream where it is used
+try:
+    import networkx
+except ImportError:
+    networkx = None
 
 
 def log(message, level=None, name=None, filename=None):
@@ -408,3 +417,162 @@ def _add_unique_stop_id(df):
     df['unique_stop_id'] = df['stop_id'].str.cat(
         df['unique_agency_id'].astype('str'), sep='_')
     return df
+
+
+def df_to_networkx(
+        nodes=None, edges=None,
+        from_id_col=None, to_id_col=None,
+        edge_id_col=None, edge_weight_col=None,
+        node_id_col=None, node_x_col='x', node_y_col='y',
+        node_attr=None, edge_attr=None,
+        graph_name='urbanaccess network', crs={'init': 'epsg:4326'}):
+    """
+    Convert node and edge network DataFrames to a NetworkX MultiGraph. The
+    resulting network can then be used for further network analysis using
+    NetworkX.
+
+    Parameters
+    ----------
+    nodes : pandas.DataFrame
+        network nodes DataFrame
+    edges : pandas.DataFrame
+        network edges DataFrame
+    from_id_col : str
+        name of edge column holding the from node IDs that correspond to the
+        node table node IDs, typically values are ints
+    to_id_col : str
+        name of edge column holding the to node IDs that correspond to the
+        node table node IDs, typically values are ints
+    edge_id_col : str
+        name of edge column holding the unique edge IDs, typically values are
+        sequential ints
+    edge_weight_col : str
+        name of edge column holding the network impedance
+    node_id_col : str
+        name of node column holding the unique node IDs that correspond to
+        the edge from and to IDs, typically values are ints
+    node_x_col : str, optional
+        name of node column holding the x coordinates, default is 'x'
+    node_y_col : str, optional
+        name of node column holding the y coordinates, default is 'y'
+    node_attr : list, optional
+        list of column names as strings in the nodes table to add as graph
+        attributes. By default all columns will be added unless a subset is
+        specified in this parameter.
+    edge_attr : list, optional
+        list of column names as strings in the edges table to add as graph
+        attributes. By default all columns will be added unless a subset is
+        specified in this parameter.
+    graph_name : str, optional
+        optional NetworkX metadata of the name of the graph, default is
+        'urbanaccess network'
+    crs : dict, optional
+        optional NetworkX metadata specifying the coordinate system of the
+        'x' and 'y' coordinates, default is {'init': 'epsg:4326'}
+    Returns
+    -------
+    nx_graph : networkx.MultiGraph
+        node and edge network as a NetworkX MultiGraph
+    """
+    start_time = time.time()
+
+    if networkx is None:
+        raise ImportError("networkx must be installed to convert network "
+                          "to a NetworkX graph.")
+
+    req_params = [nodes, edges, from_id_col, to_id_col, edge_id_col,
+                  edge_weight_col, node_id_col, node_x_col, node_y_col,
+                  graph_name, crs]
+    for param in req_params:
+        if param is None:
+            raise ValueError('required parameters cannot be None.')
+
+    if len(nodes) == 0:
+        raise ValueError('nodes DataFrame contains no records.')
+    if len(edges) == 0:
+        raise ValueError('edges DataFrame contains no records.')
+
+    # by default use all columns in node and edge dfs, otherwise use cols
+    # that were passed
+    node_col_list = list(nodes.columns)
+    edge_col_list = list(edges.columns)
+    if node_attr is None:
+        node_attrs = node_col_list.copy()
+    else:
+        for col in node_attr:
+            if col not in node_col_list:
+                raise ValueError(
+                    "nodes DataFrame missing expected column(s) passed "
+                    "in 'node_attr' parameter.")
+    if edge_attr is None:
+        edge_attrs = edge_col_list.copy()
+    else:
+        for col in edge_attr:
+            if col not in edge_col_list:
+                raise ValueError(
+                    "edges DataFrame missing expected column(s) passed "
+                    "in 'edge_attr' parameter.")
+
+    # check that the minimum required cols are present and have no nulls
+    node_min_req_cols = [node_id_col, node_x_col, node_y_col]
+    edge_min_req_cols = [from_id_col, to_id_col, edge_id_col, edge_weight_col]
+    for col in node_min_req_cols:
+        if col not in node_col_list:
+            raise ValueError(
+                'nodes DataFrame missing a required column. Expected '
+                'columns: {}.'.format(node_min_req_cols))
+        else:
+            if nodes[col].isnull().sum() != 0:
+                raise ValueError(
+                    'nodes DataFrame have nulls in required column: {}. '
+                    'No nulls allowed.'.format(col))
+    for col in edge_min_req_cols:
+        if col not in edge_col_list:
+            raise ValueError(
+                'edges DataFrame missing a required column. Expected '
+                'columns: {}.'.format(edge_min_req_cols))
+        else:
+            if edges[col].isnull().sum() != 0:
+                raise ValueError(
+                    'edges DataFrame have nulls in required column: {}. '
+                    'No nulls allowed.'.format(col))
+
+    # check that node and edge node IDs match: this catches case 1: where
+    # node ids from and to id columns do not exist in node id table,
+    # and case 2: where nodes ids in nodes table do not exist in edge from
+    # and to ids
+    edge_cols = [from_id_col, to_id_col]
+    for col in edge_cols:
+        missing_edge_ids = edges.loc[~edges[col].isin(
+            nodes[node_id_col].unique())]
+        if len(missing_edge_ids) != 0:
+            raise ValueError(
+                'node IDs in {} column in edges DataFrame do not match node '
+                'IDs in nodes DataFrame.'.format(col))
+
+    log('Converting UrbanAccess network to NetworkX graph...')
+    # operate on a copy of the node and edge dfs
+    nodes_df = nodes.copy()
+    edges_df = edges.copy()
+    # instantiate the networkx graph object as a MultiDiGraph type
+    nx_graph = networkx.MultiDiGraph()
+
+    # build nx node information
+    nodes_df['nx_node'] = nodes_df[node_attrs].to_dict(orient='records')
+    nodes_df['nx_node'] = list(
+        nodes_df[[node_id_col, 'nx_node']].itertuples(index=False, name=None))
+    # build nx edge information
+    edges_df['nx_edge'] = edges_df[edge_attrs].to_dict(orient='records')
+    edges_df['nx_edge'] = list(
+        edges_df[[from_id_col, to_id_col, edge_id_col, 'nx_edge']].itertuples(
+            index=False, name=None))
+    # add node and edge nx information to nx graph
+    nx_graph.add_nodes_from(nodes_df['nx_node'].to_list())
+    nx_graph.add_edges_from(edges_df['nx_edge'].to_list())
+    # set standard metadata
+    nx_graph.graph['crs'] = crs
+    nx_graph.graph['name'] = graph_name
+
+    log('UrbanAccess network to NetworkX graph conversion complete. '
+        'Took {:,.2f} seconds.'.format(time.time() - start_time))
+    return nx_graph

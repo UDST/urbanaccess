@@ -2,7 +2,8 @@ import time
 import os
 import pandas as pd
 
-from urbanaccess.utils import log, df_to_hdf5, hdf5_to_df, _add_unique_stop_id
+from urbanaccess.utils import log, df_to_hdf5, hdf5_to_df, \
+    _add_unique_stop_id, df_to_networkx
 from urbanaccess.network_utils import connector_edges
 from urbanaccess import config
 
@@ -444,3 +445,51 @@ def load_network(dir=config.settings.data_folder, filename=None):
         os.path.join(dir, filename)))
 
     return ua_network
+
+
+def ua_to_networkx(urbanaccess_network):
+    """
+    Convert an urbanaccess integrated transit and pedestrian or drive
+    network to a NetworkX MultiGraph. The resulting network can then be used
+    for further network analysis using NetworkX.
+
+    urbanaccess network nodes are assumed to already have an unique int ID
+    index with name 'id_int' while edges will have an unique int ID
+    created on the fly in column 'id_int'. Also edges are assumed to have
+    from and to ID columns: 'from_int' and 'to_int' comprised of int IDs
+    and a 'weight' column holding network impedance. Nodes are assumed to
+    have an 'x' and 'y' column with coordinates in EPSIG 4326.
+
+    Parameters
+    ----------
+    urbanaccess_network : object
+        urbanaccess_network object with net_edges and net_nodes DataFrames
+
+    Returns
+    -------
+    nx_graph : networkx.MultiGraph
+        urbanaccess integrated transit and pedestrian or drive network as a
+         NetworkX MultiGraph
+    """
+    nodes = urbanaccess_network.net_nodes.copy()
+    edges = urbanaccess_network.net_edges.copy()
+
+    # nodes are expected to have index name label of 'id_int' so we can set
+    # index as a column
+    if nodes.index.name != 'id_int':
+        raise ValueError("node DataFrame index name must be 'id_int'.")
+    else:
+        nodes['id_int'] = nodes.index
+
+    # generate unique int ID on edges
+    edges['id_int'] = range(1, len(edges) + 1)
+
+    nx_graph = df_to_networkx(
+        nodes=nodes, edges=edges,
+        from_id_col='from_int', to_id_col='to_int',
+        edge_id_col='id_int', edge_weight_col='weight',
+        node_id_col='id_int', node_x_col='x', node_y_col='y',
+        graph_name='urbanaccess network',
+        crs={'init': 'epsg:4326'})
+
+    return nx_graph
