@@ -4,8 +4,11 @@ from setuptools import setup, find_packages
 with open('README.rst', 'r') as f:
     long_description = f.read()
 
-description = 'A tool for creating GTFS transit and OSM pedestrian networks ' \
-              'for use in Pandana accessibility analyses.'
+description = ('A tool for creating GTFS transit and OSM pedestrian networks '
+               'for use in Pandana accessibility analyses.')
+
+with open("requirements.txt") as f:
+    required_packages = [line.strip() for line in f.readlines()]
 
 setup(
     name='urbanaccess',
@@ -27,16 +30,7 @@ setup(
         'License :: OSI Approved :: GNU Affero General Public License v3'
     ],
     packages=find_packages(exclude=['*.tests']),
-    install_requires=[
-        'requests >= 2.9.1',
-        'six >= 1.11',
-        'pandas >= 0.17.0',
-        'numpy >= 1.11',
-        'osmnet >= 0.1.4',
-        'pandana >= 0.2.0',
-        'matplotlib >= 2.0',
-        'geopy >= 1.11.0',
-        'pyyaml >= 3.11',
-        'scikit-learn >= 0.17.1'
-    ]
+    install_requires=[required_packages],
+    extras_require={
+        "NetworkX": ["networkx"]}
 )
