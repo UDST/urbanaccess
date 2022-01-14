@@ -10,9 +10,9 @@ import sys
 import datetime as dt
 import os
 import pandas as pd
+import numpy as np
 
 from urbanaccess import config
-
 
 # networkx is an optional dependency so check if its installed and if not
 # will raise import error downstream where it is used
@@ -420,6 +420,7 @@ def _add_unique_stop_id(df):
 
 
 def df_to_networkx(
+        is_directed=None,
         nodes=None, edges=None,
         from_id_col=None, to_id_col=None,
         edge_id_col=None, edge_weight_col=None,
@@ -554,8 +555,18 @@ def df_to_networkx(
     # operate on a copy of the node and edge dfs
     nodes_df = nodes.copy()
     edges_df = edges.copy()
-    # instantiate the networkx graph object as a MultiDiGraph type
-    nx_graph = networkx.MultiDiGraph()
+
+    if is_directed:
+        #instantiate the networkx graph object as a MultiDiGraph type
+        nx_graph = networkx.MultiDiGraph()
+    else:
+        nx_graph = networkx.MultiGraph()
+
+    # add coordinates
+    coordinates = list(zip(nodes_df['x'], nodes_df['y']))
+    nodes_df['coords'] = coordinates
+    last_idx = len(coordinates) + 1
+    node_attrs.insert(last_idx, 'coords')
 
     # build nx node information
     nodes_df['nx_node'] = nodes_df[node_attrs].to_dict(orient='records')
@@ -576,3 +587,124 @@ def df_to_networkx(
     log('UrbanAccess network to NetworkX graph conversion complete. '
         'Took {:,.2f} seconds.'.format(time.time() - start_time))
     return nx_graph
+
+def get_node_relations_by_type(edges_df, nodes_df, rel_type):
+    """
+    Find multi-edges or self-loops between nodes within the urbanaccess
+    network's edges dataframe.
+
+    Parameters
+    ----------
+        edges_df(pd.DataFrame): net, transit or osm edges dataframe.
+        nodes_df (pd.DataFrame): net, transit or osm nodes dataframe
+        rel_type (str): self-loops for nodes connecting itself or multi-edges
+                        for A-> B or A <- B relations.
+    Returns:
+        dict: edges relation type keyed by node.
+    """
+
+    if rel_type not in ['self-loops', 'multi-edges']:
+        raise ValueError('Relation type must be specified as "/self-loops/" or "/multi-edges/".')
+
+    edges_count = []
+    edgescount_by_node= {}
+
+    for n in nodes_df['id'].unique():
+        # self-loops
+        if rel_type == 'self-loops':
+            df = edges_df.loc[(edges_df['from']==n) & (edges_df['to']==n)]
+            edges_count.append(len(df))
+            edgescount_by_node[n] = df
+            message_found = 'Number of self loops found: {}'
+
+        # multi-edges
+        else:
+            df = edges_df.loc[(edges_df['from']==n) | (edges_df['to']==n)]
+            node_pairs = df[['from','to']]
+            node_pairs.values.sort()
+            multi_edges = node_pairs.groupby(list(node_pairs)).size()
+            multi_edges_sum = multi_edges.sum()
+            edges_count.append(multi_edges_sum)
+            edgescount_by_node[n] = multi_edges
+            message_found = 'Number of parallel edges found: {}'
+
+    message_value = pd.Series(edges_count).sum()
+    print(message_found.format(message_value))
+
+    return edgescount_by_node
+
+def network_degree_stats(nx_graph):
+    """
+    Calculates the sum and average node degree of the network.
+
+    Parameters
+    ----------
+    nx_graph : networkx.MultiGraph or networkx.MultiDiGraph
+        NetworkX object with directed or undirected parallel edges
+
+    Returns
+    -------
+    dict : sum and average connections per node in the network.
+    """
+    degree_dict = nx_graph.degree()
+    degree_df = pd.DataFrame(degree_dict, columns=['node_id', 'degree'])
+    avg_degree = np.ceil(degree_df['degree'].mean())
+    sum_degree = degree_df['degree'].sum()
+
+    degree_stats = {'sum':sum_degree, 'mean':avg_degree}
+    return degree_stats
+
+def from_parallel_to_single_edges(nx_graph, weighted_connection, use_average_weights):
+    """
+    Convert a multigraph into simple graph.
+
+    Parameters
+    ----------
+    nx_graph : networkx.MultiGraph or networkx.MultiDiGraph
+        NetworkX object with directed or undirected parallel edges
+    weighted_connection : boolean
+        True if simple graph uses weighted connections between edges
+    use_average_weights : boolean
+        True if weight values between parallel edges are averaged. On
+        the contrary use False to sum them.
+
+    Returns
+    -------
+    nx_graph : networkx.Graph
+        NetworkX Graph with single edge connections
+
+    """
+    G = networkx.Graph()
+
+    for node in nx_graph.nodes():
+        # search the neighbors of each node
+        neighboors = nx_graph.neighbors(node)
+        for n in neighboors:
+            G.add_edge(node, n)
+            G.nodes[node]['id'] = nx_graph.nodes[node]['id']
+            G.nodes[node]['stop_name'] = nx_graph.nodes[node]['stop_name']
+            G.nodes[node]['unique_agency_id'] = nx_graph.nodes[node]['id']
+            G.nodes[node]['coords'] = nx_graph.nodes[node]['coords']
+
+            # if edges are weighted
+            if weighted_connection:
+                weight = 0
+                edges = []
+                for idx in nx_graph[node][n]:
+                    edges.append(idx)
+                    weight += nx_graph[node][n][idx]['weight']
+
+                edges_count = len(edges)
+                avg_weight = weight/edges_count
+
+                if use_average_weights:
+                    # can use the average weight of all the connections between nodes
+                    G.edges[node, n]['weight'] = round(avg_weight,2)
+                else:
+                    # or the sum of weights
+                    G.edges[node, n]['weight'] = round(weight,2)
+
+            else:
+                G.edges[node, n]['weight'] = 1
+
+    return G

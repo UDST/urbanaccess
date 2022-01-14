@@ -1,7 +1,6 @@
 import time
 import os
 import pandas as pd
-
 from urbanaccess.utils import log, df_to_hdf5, hdf5_to_df, \
     _add_unique_stop_id, df_to_networkx
 from urbanaccess.network_utils import connector_edges
@@ -447,7 +446,7 @@ def load_network(dir=config.settings.data_folder, filename=None):
     return ua_network
 
 
-def ua_to_networkx(urbanaccess_network):
+def ua_to_networkx(urbanaccess_network, is_directed=True):
     """
     Convert an urbanaccess integrated transit and pedestrian or drive
     network to a NetworkX MultiGraph. The resulting network can then be used
@@ -464,6 +463,8 @@ def ua_to_networkx(urbanaccess_network):
     ----------
     urbanaccess_network : object
         urbanaccess_network object with net_edges and net_nodes DataFrames
+    is_directed : boolean
+        True for networkx.MultiDiGraph and False for networkx.MultiGraph class.
 
     Returns
     -------
@@ -471,6 +472,7 @@ def ua_to_networkx(urbanaccess_network):
         urbanaccess integrated transit and pedestrian or drive network as a
          NetworkX MultiGraph
     """
+
     nodes = urbanaccess_network.net_nodes.copy()
     edges = urbanaccess_network.net_edges.copy()
 
@@ -485,6 +487,7 @@ def ua_to_networkx(urbanaccess_network):
     edges['id_int'] = range(1, len(edges) + 1)
 
     nx_graph = df_to_networkx(
+        is_directed,
         nodes=nodes, edges=edges,
         from_id_col='from_int', to_id_col='to_int',
         edge_id_col='id_int', edge_weight_col='weight',
