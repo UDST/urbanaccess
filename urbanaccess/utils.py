@@ -420,6 +420,7 @@ def _add_unique_stop_id(df):
 
 
 def df_to_networkx(
+        is_directed=None,
         nodes=None, edges=None,
         from_id_col=None, to_id_col=None,
         edge_id_col=None, edge_weight_col=None,
@@ -554,8 +555,18 @@ def df_to_networkx(
     # operate on a copy of the node and edge dfs
     nodes_df = nodes.copy()
     edges_df = edges.copy()
-    # instantiate the networkx graph object as a MultiDiGraph type
-    nx_graph = networkx.MultiDiGraph()
+
+    if is_directed:
+        #instantiate the networkx graph object as a MultiDiGraph type
+        nx_graph = networkx.MultiDiGraph()
+    else:
+        nx_graph = networkx.MultiGraph()
+
+    # add coordinates
+    coordinates = list(zip(nodes_df['x'], nodes_df['y']))
+    nodes_df['coords'] = coordinates
+    last_idx = len(coordinates) + 1
+    node_attrs.insert(last_idx, 'coords')
 
     # build nx node information
     nodes_df['nx_node'] = nodes_df[node_attrs].to_dict(orient='records')
