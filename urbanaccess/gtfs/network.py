@@ -999,17 +999,11 @@ def _route_type_to_edge(transit_edge_df, stop_time_df):
     stop_time_df = _add_unique_trip_id(stop_time_df)
 
     # join route_id to the edge table
-    merged_df = pd.merge(
-        transit_edge_df, stop_time_df[['unique_trip_id', 'route_type']],
-        how='left', on='unique_trip_id', sort=False, copy=False)
-    merged_df.drop_duplicates(
-        subset='unique_trip_id', keep='first', inplace=True)
-    # need to get unique records here to have a one to one join -
-    # this serves as the look up table
-    # join the look up table created above to the table of interest
-    transit_edge_df_w_routetype = pd.merge(
-        transit_edge_df, merged_df[['route_type', 'unique_trip_id']],
-        how='left', on='unique_trip_id', sort=False, copy=False)
+    transit_edge_df = transit_edge_df.reset_index().set_index('unique_trip_id')
+    stop_time_df = stop_time_df[['unique_trip_id', 'route_type']].set_index('unique_trip_id')
+    stop_time_df = stop_time_df[~stop_time_df.index.duplicated(keep='first')]
+    merged_df = transit_edge_df.join(stop_time_df[['route_type']])
+    transit_edge_df_w_routetype = merged_df.reset_index()
 
     log('Route type successfully joined to transit edges. '
         'Took {:,.2f} seconds.'.format(time.time() - start_time))
