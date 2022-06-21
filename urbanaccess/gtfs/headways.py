@@ -42,15 +42,26 @@ def _calc_headways_by_route_stop(df):
         results = {}
         col = 'departure_time_sec_interpolate'
         for unique_stop_route, stop_route_group in stop_route_groups:
-            stop_route_group.sort_values([col], ascending=True, inplace=True)
-            next_veh_time = (stop_route_group[col].iloc[1:].values)
-            prev_veh_time = (stop_route_group[col].iloc[:-1].values)
-            # compute headway with:
-            # (next veh arrival time - previous veh arrival time) / 60 seconds
-            # = headway in min
-            stop_route_group_headways = (next_veh_time - prev_veh_time) / 60
-            results[unique_stop_route] = (pd.Series(stop_route_group_headways)
-                                          .describe())
+            stop_route_group_headways = pd.DataFrame()
+            if 'direction_id' not in stop_route_group.columns:
+                stop_route_group.sort_values([col], ascending=True, inplace=True)
+                next_veh_time = (stop_route_group[col].iloc[1:].values)
+                prev_veh_time = (stop_route_group[col].iloc[:-1].values)
+                # compute headway with:
+                # (next veh arrival time - previous veh arrival time) / 60 seconds
+                # = headway in min
+                stop_route_group_headways = (next_veh_time - prev_veh_time) / 60
+                results[unique_stop_route] = (pd.Series(stop_route_group_headways)
+                                              .describe())
+            else:
+                for direction in stop_route_group.direction_id.unique():
+                    stop_route_group_dir = stop_route_group[stop_route_group['direction_id']==direction]
+                    stop_route_group_dir.sort_values([col], ascending=True, inplace=True)
+                    next_veh_time = (stop_route_group_dir[col].iloc[1:].values)
+                    prev_veh_time = (stop_route_group_dir[col].iloc[:-1].values)
+                    headways_dir = pd.DataFrame((next_veh_time - prev_veh_time) / 60, columns=['headway'])
+                    stop_route_group_headways = stop_route_group_headways.append(headways_dir)
+                results[unique_stop_route] = (stop_route_group_headways['headway'].describe())
 
     log('Route stop headway calculation complete. Took {:,.2f} seconds'.format(
         time.time() - start_time))
