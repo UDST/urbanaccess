@@ -60,7 +60,7 @@ def _calc_headways_by_route_stop(df):
                     next_veh_time = (stop_route_group_dir[col].iloc[1:].values)
                     prev_veh_time = (stop_route_group_dir[col].iloc[:-1].values)
                     headways_dir = pd.DataFrame((next_veh_time - prev_veh_time) / 60, columns=['headway'])
-                    stop_route_group_headways = stop_route_group_headways.append(headways_dir)
+                    stop_route_group_headways = pd.concat([stop_route_group_headways, headways_dir])
                 results[unique_stop_route] = (stop_route_group_headways['headway'].describe())
 
     log('Route stop headway calculation complete. Took {:,.2f} seconds'.format(
