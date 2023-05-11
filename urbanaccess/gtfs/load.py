@@ -210,6 +210,7 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
     gtfsfeeds_dfs.routes : pandas.DataFrame
     gtfsfeeds_dfs.trips : pandas.DataFrame
     gtfsfeeds_dfs.stop_times : pandas.DataFrame
+    gtfsfeeds_dfs.shapes : pandas.DataFrame
     gtfsfeeds_dfs.calendar : pandas.DataFrame
     gtfsfeeds_dfs.calendar_dates : pandas.DataFrame
     """
@@ -218,6 +219,7 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
     merged_routes_df = pd.DataFrame()
     merged_trips_df = pd.DataFrame()
     merged_stop_times_df = pd.DataFrame()
+    merged_shapes_df = pd.DataFrame()
     merged_calendar_df = pd.DataFrame()
     merged_calendar_dates_df = pd.DataFrame()
 
@@ -336,25 +338,34 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
                         textfile=textfile)
                 else:
                     agency_df = pd.DataFrame()
+            if textfile == 'shapes.txt':
+                if textfile in textfilelist:
+                    shapes_df = utils_format._read_gtfs_file(
+                            textfile_path=os.path.join(gtfsfeed_path, folder),
+                            textfile=textfile)
+                else:
+                    shapes_df = pd.DataFrame()
 
-        stops_df, routes_df, trips_df, stop_times_df, calendar_df, \
+        stops_df, routes_df, trips_df, stop_times_df, shapes_df, calendar_df, \
             calendar_dates_df = utils_format._add_unique_agency_id(
                 agency_df=agency_df,
                 stops_df=stops_df,
                 routes_df=routes_df,
                 trips_df=trips_df,
                 stop_times_df=stop_times_df,
+                shapes_df=shapes_df,
                 calendar_df=calendar_df,
                 calendar_dates_df=calendar_dates_df,
                 feed_folder=os.path.join(gtfsfeed_path, folder),
                 nulls_as_folder=True)
 
-        stops_df, routes_df, trips_df, stop_times_df, calendar_df, \
+        stops_df, routes_df, trips_df, stop_times_df, shapes_df, calendar_df, \
             calendar_dates_df = utils_format._add_unique_gtfsfeed_id(
                 stops_df=stops_df,
                 routes_df=routes_df,
                 trips_df=trips_df,
                 stop_times_df=stop_times_df,
+                shapes_df=shapes_df,
                 calendar_df=calendar_df,
                 calendar_dates_df=calendar_dates_df,
                 feed_folder=folder,
@@ -393,6 +404,8 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
             trips_df, ignore_index=True)
         merged_stop_times_df = merged_stop_times_df.append(
             stop_times_df, ignore_index=True)
+        merged_shapes_df = merged_shapes_df.append(
+            shapes_df, ignore_index=True)
         merged_calendar_df = merged_calendar_df.append(
             calendar_df, ignore_index=True)
         merged_calendar_dates_df = merged_calendar_dates_df.append(
@@ -417,6 +430,7 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
     gtfsfeeds_dfs.routes = merged_routes_df
     gtfsfeeds_dfs.trips = merged_trips_df
     gtfsfeeds_dfs.stop_times = merged_stop_times_df
+    gtfsfeeds_dfs.shapes = merged_shapes_df
     gtfsfeeds_dfs.calendar = merged_calendar_df
     gtfsfeeds_dfs.calendar_dates = merged_calendar_dates_df
 
