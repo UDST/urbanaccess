@@ -143,23 +143,25 @@ def _txt_header_whitespace_check(
                                 file_path,
                                 encoding=txt_encoding) as f:
                             lines = f.readlines()
-                    line_wo_whitespace = re.sub(r'\s+', '', lines[0]) + '\n'
-                    # only write the file if there are changes to be made
-                    if lines[0] != line_wo_whitespace:
-                        msg = 'Removing whitespace from header(s) in: {}...'
-                        log(msg.format(file_path))
-                        lines[0] = line_wo_whitespace
-                        # Write to file
-                        if six.PY2:
-                            with open(
-                                    file_path, 'w') as f:
-                                f.writelines(lines)
-                        else:
-                            # write with default 'utf-8' encoding
-                            with open(
-                                    file_path, 'w',
-                                    encoding=txt_encoding) as f:
-                                f.writelines(lines)
+                    if len(lines) != 0:
+                        line_wo_whitespace = re.sub(r'\s+', '', lines[0]) + '\n'
+                        # only write the file if there are changes to be made
+                        if lines[0] != line_wo_whitespace:
+                            msg = ('Removing whitespace from '
+                                   'header(s) in: {}...')
+                            log(msg.format(file_path))
+                            lines[0] = line_wo_whitespace
+                            # Write to file
+                            if six.PY2:
+                                with open(
+                                        file_path, 'w') as f:
+                                    f.writelines(lines)
+                            else:
+                                # write with default 'utf-8' encoding
+                                with open(
+                                        file_path, 'w',
+                                        encoding=txt_encoding) as f:
+                                    f.writelines(lines)
                 except Exception as e:
                     msg = 'Unable to process: {}. Exception: {}'
                     raise Exception(log(msg.format(file_path, e),
