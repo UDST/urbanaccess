@@ -115,7 +115,8 @@ def _read_gtfs_file(textfile_path, textfile):
 
     if numeric_converter is not None:
         for col in numeric_converter:
-            df[col] = pd.to_numeric(df[col])
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col])
 
     record_cnt = len(df)
     msg = ('     Successfully read: {} with {:,} record(s). '
