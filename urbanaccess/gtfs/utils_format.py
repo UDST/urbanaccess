@@ -1124,8 +1124,11 @@ def _remove_whitespace(df, textfile, col_list=None):
 
     # remove leading and trailing spaces in values for columns in list
     if col_list:
+        # rebuild col_list so that it doesnt fail on expected columns that were
+        # not present in the file
+        present_col_list = [col for col in col_list if col in after_cols]
         df_copy = df.copy()
-        for col in col_list:
+        for col in present_col_list:
             before_count = df_copy[col].str.len().sum()
             df_copy[col] = df_copy[col].str.rstrip().str.lstrip()
             after_count = df_copy[col].str.len().sum()
