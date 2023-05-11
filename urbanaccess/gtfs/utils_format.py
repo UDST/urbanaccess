@@ -884,7 +884,7 @@ def _timetoseconds(df, time_cols):
         series_df = col_series.to_frame(name=''.join([col, '_sec']))
 
         # check if times are negative if so display warning
-        if (series_df > 1).any()[0]:
+        if (series_df < 0).any()[0]:
             log('Warning: Some stop times in {} column are negative. '
                 'Time should be positive. Suggest checking original '
                 'GTFS feed stop_time file before proceeding.'.format(col),
