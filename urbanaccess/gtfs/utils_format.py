@@ -1155,5 +1155,9 @@ def _list_raw_txt_columns(file):
     df : list
         list of columns in txt file
     """
-    df = pd.read_csv(file)
+    try:
+        df = pd.read_csv(file)
+    except Exception as e:
+        msg = 'Unable to process: {}. Exception: {}'
+        raise ValueError(msg.format(file, e))
     return list(df.columns)
