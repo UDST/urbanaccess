@@ -65,13 +65,19 @@ def _read_gtfs_file(textfile_path, textfile):
                 '{} is missing required column(s): {}.'.format(
                     textfile, missing_req_cols))
 
-    # if optional dtype col exists include it in req_dtypes dict
-    if opt_dtypes is not None:
-        for col_name, dtype in opt_dtypes.items():
-            if col_name in col_list:
-                req_dtypes.update({col_name: dtype})
+    # build dtypes dict
+    if req_dtypes is not None or opt_dtypes is not None:
+        dtype_dict = {}
+        dtype_dict.update(req_dtypes)
+        # if optional dtype col exists include it in dtypes dict
+        if opt_dtypes is not None:
+            for col_name, dtype in opt_dtypes.items():
+                if col_name in col_list:
+                    dtype_dict.update({col_name: dtype})
+    else:
+        dtype_dict = None
 
-    df = pd.read_csv(file_path, dtype=req_dtypes, low_memory=False)
+    df = pd.read_csv(file_path, dtype=dtype_dict, low_memory=False)
 
     # print warning or raise error when table is empty depending on the table
     if df.empty:
