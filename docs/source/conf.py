@@ -28,11 +28,11 @@ templates_path = ['_templates']
 source_suffix = '.rst'
 master_doc = 'index'
 project = u'UrbanAccess'
-author = u'UrbanSim Inc.'
+author = u'UrbanSim Inc. and Samuel D. Blanchard'
 copyright = u'{}, {}'.format(datetime.now().year, author)
 version = u'0.2.2'
-release = u'0.2.2'
-language = None
+release = version
+language = 'en'
 
 # List of patterns to ignore when looking for source files.
 exclude_patterns = ['_build']
@@ -54,7 +54,7 @@ html_static_path = ['_static']
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'UrbanAccessdoc'
 html_show_sphinx = False
-html_show_sourcelink = True
+html_show_sourcelink = False
 
 # -- Options for LaTeX output ---------------------------------------------
 latex_elements = {

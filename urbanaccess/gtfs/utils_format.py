@@ -65,23 +65,35 @@ def _read_gtfs_file(textfile_path, textfile):
                 '{} is missing required column(s): {}.'.format(
                     textfile, missing_req_cols))
 
-    # if optional dtype col exists include it in req_dtypes dict
-    if opt_dtypes is not None:
-        for col_name, dtype in opt_dtypes.items():
-            if col_name in col_list:
-                req_dtypes.update({col_name: dtype})
+    # build dtypes dict
+    if req_dtypes is not None or opt_dtypes is not None:
+        dtype_dict = {}
+        dtype_dict.update(req_dtypes)
+        # if optional dtype col exists include it in dtypes dict
+        if opt_dtypes is not None:
+            for col_name, dtype in opt_dtypes.items():
+                if col_name in col_list:
+                    dtype_dict.update({col_name: dtype})
+    else:
+        dtype_dict = None
 
-    df = pd.read_csv(file_path, dtype=req_dtypes, low_memory=False)
+    df = pd.read_csv(file_path, dtype=dtype_dict, low_memory=False)
 
     # print warning or raise error when table is empty depending on the table
     if df.empty:
         cal_file_warnings = {'calendar': 'calendar_dates.txt',
                              'calendar_dates': 'calendar.txt'}
+        shape_file_warnings = {'shapes': 'shapes.txt'}
         if file_name in cal_file_warnings.keys():
             warning_msg = (
                 '     {} has no records. This could indicate that this feed '
                 'is using {} instead of {}.txt for service_ids.')
             log(warning_msg.format(textfile, cal_file_warnings[file_name],
+                                   file_name), level=lg.WARNING)
+        elif file_name in shape_file_warnings.keys():
+            warning_msg = (
+                '     {} has no records. This feed does not use {}.txt.')
+            log(warning_msg.format(textfile, shape_file_warnings[file_name],
                                    file_name), level=lg.WARNING)
         else:
             raise ValueError('{} has no records. '
@@ -103,7 +115,8 @@ def _read_gtfs_file(textfile_path, textfile):
 
     if numeric_converter is not None:
         for col in numeric_converter:
-            df[col] = pd.to_numeric(df[col])
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col])
 
     record_cnt = len(df)
     msg = ('     Successfully read: {} with {:,} record(s). '
@@ -149,7 +162,6 @@ def _calendar_dates_agencyid(calendar_dates_df, routes_df,
         'service_id', 'unique_agency_id']).size()
     group_counts = group.reset_index(level=1)
     # check if service_ids are associated with more than one agency
-
     if any(group_counts.index.value_counts().values > 1):
         feed_name = os.path.split(feed_folder)[1]
         log('GTFS feed: {!s}, calendar_dates uses the same service_id across '
@@ -393,8 +405,63 @@ def _stop_times_agencyid(stop_times_df, routes_df, trips_df,
     return merged_df
 
 
+def _shapes_agencyid(shapes_df, trips_df, routes_df, agency_df, feed_folder):
+    """
+    Assign unique agency ID to shapes DataFrame
+
+    Parameters
+    ----------
+    shapes_df : pandas:DataFrame
+        shapes DataFrame
+    trips_df : pandas:DataFrame
+        trips DataFrame
+    routes_df : pandas:DataFrame
+        routes DataFrame
+    agency_df : pandas:DataFrame
+        agency DataFrame
+    feed_folder : str
+        name of GTFS feed folder
+        
+    Returns
+    -------
+    merged_df : pandas.DataFrame
+    """
+    tmp1 = pd.merge(routes_df, agency_df, how='left', on='agency_id',
+                    sort=False, copy=False)
+    merged_df = pd.merge(trips_df[['shape_id', 'trip_id', 'route_id']], 
+                         tmp1, how='left',
+                         on='route_id', sort=False, copy=False)
+    merged_df['unique_agency_id'] = _generate_unique_agency_id(
+        merged_df, 'agency_name')
+    
+    group = merged_df[['shape_id', 'unique_agency_id']].groupby([
+        'shape_id', 'unique_agency_id']).size()
+    group_counts = group.reset_index(level=1)
+    # check if shape_ids are associated with more than one agency
+    if any(group_counts.index.value_counts().values > 1):
+        feed_name = os.path.split(feed_folder)[1]
+        log('GTFS feed: {!s}, shapes uses the same shape_id across '
+            'multiple agency_ids. This feed shapes table will be '
+            'modified from its original format to provide shape_ids for '
+            'each agency using a one to many join.'.format(feed_name))
+
+        tmp = merged_df[['shape_id', 'unique_agency_id']].drop_duplicates(
+            ['shape_id', 'unique_agency_id'], inplace=False)
+        merged_df = tmp.merge(shapes_df, 'left', on='shape_id')
+
+    else:   
+        merged_df.drop_duplicates(
+            subset='shape_id', keep='first', inplace=True)
+    
+        merged_df = pd.merge(shapes_df, 
+                             merged_df[['unique_agency_id', 'shape_id']],
+                             how='left', on='shape_id',
+                             sort=False, copy=False)
+    return merged_df
+
+
 def _add_unique_agency_id(agency_df, stops_df, routes_df,
-                          trips_df, stop_times_df, calendar_df,
+                          trips_df, stop_times_df, shapes_df, calendar_df,
                           calendar_dates_df, feed_folder,
                           nulls_as_folder=True):
     """
@@ -430,6 +497,8 @@ def _add_unique_agency_id(agency_df, stops_df, routes_df,
         trips DataFrame
     stop_times_df : pandas:DataFrame
         stop times DataFrame
+    shapes_df : pandas:DataFrame
+        shapes DataFrame
     calendar_df : pandas:DataFrame
         calendar DataFrame
     calendar_dates_df : pandas:DataFrame
@@ -441,7 +510,7 @@ def _add_unique_agency_id(agency_df, stops_df, routes_df,
         name will be used as the unique agency ID
     Returns
     -------
-    stops_df, routes_df, trips_df, stop_times_df, calendar_df,
+    stops_df, routes_df, trips_df, stop_times_df, shapes_df, calendar_df,
     calendar_dates_df : pandas.DataFrame
         Returns all input GTFS DataFrames with a unique agency ID column
         and value for all tables and records.
@@ -461,7 +530,8 @@ def _add_unique_agency_id(agency_df, stops_df, routes_df,
                'stop_times': stop_times_df}
 
     optional_df_dict = {'calendar': calendar_df,
-                        'calendar_dates': calendar_dates_df}
+                        'calendar_dates': calendar_dates_df,
+                        'shapes': shapes_df}
     # if optional calendar or calendar_dates_df are not empty then add it
     # to the processing list
     for name, df in optional_df_dict.items():
@@ -561,6 +631,16 @@ def _add_unique_agency_id(agency_df, stops_df, routes_df,
 
             # below, apply the unique agency ID to all GTFS dfs via
             # merge operations
+            # if optional shapes_df is not empty then process it
+            if shapes_df.empty is False:
+                subset_trips_df_w_shpid = trips_df[
+                    ['trip_id', 'route_id', 'shape_id']]
+                shapes_replacement_df = _shapes_agencyid(
+                    shapes_df=shapes_df,
+                    routes_df=subset_routes_df,
+                    trips_df=subset_trips_df_w_shpid,
+                    agency_df=subset_agency_df,
+                    feed_folder=feed_folder)
 
             # if optional calendar_dates_df is not empty then process it
             if calendar_dates_df.empty is False:
@@ -609,8 +689,11 @@ def _add_unique_agency_id(agency_df, stops_df, routes_df,
                        'trips': trips_replacement_df,
                        'stop_times': stop_times_replacement_df}
 
-            # if optional calendar or calendar_dates_df are not empty then
-            # add it to the processing list
+            # if optional shapes, calendar, or calendar_dates_df are not
+            # empty then add it to the processing list
+            if shapes_df.empty is False:
+                df_dict.update(
+                    {'shapes': shapes_replacement_df})
             if calendar_df.empty is False:
                 df_dict.update(
                     {'calendar': calendar_replacement_df})
@@ -645,7 +728,8 @@ def _add_unique_agency_id(agency_df, stops_df, routes_df,
     #  TODO: this dict may be redundant check if can refactor
     optional_df_dict = {
         'calendar': calendar_df,
-        'calendar_dates': calendar_dates_df}
+        'calendar_dates': calendar_dates_df,
+        'shapes': shapes_df}
     # if optional calendar or calendar_dates_df are empty then return
     # the original empty df with an empty agency ID column
     for name, df in optional_df_dict.items():
@@ -655,7 +739,7 @@ def _add_unique_agency_id(agency_df, stops_df, routes_df,
 
     # ensure returned items in list are always in the same expected order
     df_list = [df_dict['stops'], df_dict['routes'], df_dict['trips'],
-               df_dict['stop_times'], df_dict['calendar'],
+               df_dict['stop_times'], df_dict['shapes'], df_dict['calendar'],
                df_dict['calendar_dates']]
 
     log('Unique agency ID operation complete. '
@@ -664,8 +748,8 @@ def _add_unique_agency_id(agency_df, stops_df, routes_df,
 
 
 def _add_unique_gtfsfeed_id(stops_df, routes_df, trips_df,
-                            stop_times_df, calendar_df, calendar_dates_df,
-                            feed_folder, feed_number):
+                            stop_times_df, shapes_df, calendar_df, 
+                            calendar_dates_df, feed_folder, feed_number):
     """
     Create an unique GTFS feed specific ID for all GTFS feed DataFrames to
     enable tracking of specific feeds
@@ -680,6 +764,8 @@ def _add_unique_gtfsfeed_id(stops_df, routes_df, trips_df,
         trips DataFrame
     stop_times_df : pandas:DataFrame
         stop times DataFrame
+    shapes_df : pandas:DataFrame
+        shapes DataFrame
     calendar_df : pandas:DataFrame
         calendar DataFrame
     calendar_dates_df : pandas:DataFrame
@@ -690,7 +776,7 @@ def _add_unique_gtfsfeed_id(stops_df, routes_df, trips_df,
         current number iteration of GTFS feed being read in root directory
     Returns
     -------
-    stops_df, routes_df, trips_df, stop_times_df, calendar_df,
+    stops_df, routes_df, trips_df, stop_times_df, shapes_df, calendar_df,
     calendar_dates_df : pandas.DataFrame
     """
     start_time = time.time()
@@ -701,7 +787,8 @@ def _add_unique_gtfsfeed_id(stops_df, routes_df, trips_df,
                'stop_times': stop_times_df}
 
     optional_df_dict = {'calendar': calendar_df,
-                        'calendar_dates': calendar_dates_df}
+                        'calendar_dates': calendar_dates_df,
+                        'shapes': shapes_df}
     # if optional calendar or calendar_dates_df are not empty then add it
     # to the processing list
     for name, df in optional_df_dict.items():
@@ -725,7 +812,7 @@ def _add_unique_gtfsfeed_id(stops_df, routes_df, trips_df,
 
     # ensure returned items in list are always in the same expected order
     df_list = [df_dict['stops'], df_dict['routes'], df_dict['trips'],
-               df_dict['stop_times'], df_dict['calendar'],
+               df_dict['stop_times'], df_dict['shapes'], df_dict['calendar'],
                df_dict['calendar_dates']]
 
     log('Unique GTFS feed ID operation complete. '
@@ -797,7 +884,7 @@ def _timetoseconds(df, time_cols):
         series_df = col_series.to_frame(name=''.join([col, '_sec']))
 
         # check if times are negative if so display warning
-        if (series_df > 1).any()[0]:
+        if (series_df < 0).any()[0]:
             log('Warning: Some stop times in {} column are negative. '
                 'Time should be positive. Suggest checking original '
                 'GTFS feed stop_time file before proceeding.'.format(col),
@@ -1037,8 +1124,11 @@ def _remove_whitespace(df, textfile, col_list=None):
 
     # remove leading and trailing spaces in values for columns in list
     if col_list:
+        # rebuild col_list so that it doesnt fail on expected columns that were
+        # not present in the file
+        present_col_list = [col for col in col_list if col in after_cols]
         df_copy = df.copy()
-        for col in col_list:
+        for col in present_col_list:
             before_count = df_copy[col].str.len().sum()
             df_copy[col] = df_copy[col].str.rstrip().str.lstrip()
             after_count = df_copy[col].str.len().sum()
@@ -1065,5 +1155,9 @@ def _list_raw_txt_columns(file):
     df : list
         list of columns in txt file
     """
-    df = pd.read_csv(file)
+    try:
+        df = pd.read_csv(file)
+    except Exception as e:
+        msg = 'Unable to process: {}. Exception: {}'
+        raise ValueError(msg.format(file, e))
     return list(df.columns)
