@@ -398,20 +398,20 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
             trips_df=trips_df[['trip_id', 'route_id']],
             info_to_append='route_type_to_stop_times')
 
-        merged_stops_df = merged_stops_df._append(
-            stops_df, ignore_index=True)
-        merged_routes_df = merged_routes_df._append(
-            routes_df, ignore_index=True)
-        merged_trips_df = merged_trips_df._append(
-            trips_df, ignore_index=True)
-        merged_stop_times_df = merged_stop_times_df._append(
-            stop_times_df, ignore_index=True)
-        merged_shapes_df = merged_shapes_df._append(
-            shapes_df, ignore_index=True)
-        merged_calendar_df = merged_calendar_df._append(
-            calendar_df, ignore_index=True)
-        merged_calendar_dates_df = merged_calendar_dates_df._append(
-            calendar_dates_df, ignore_index=True)
+        merged_stops_df = pd.concat([merged_stops_df,
+            stops_df], ignore_index=True)
+        merged_routes_df = pd.concat([merged_routes_df,
+            routes_df], ignore_index=True)
+        merged_trips_df = pd.concat([merged_trips_df,
+            trips_df], ignore_index=True)
+        merged_stop_times_df = pd.concat([merged_stop_times_df,
+            stop_times_df], ignore_index=True)
+        merged_shapes_df = pd.concat([merged_shapes_df,
+            shapes_df], ignore_index=True)
+        merged_calendar_df = pd.concat([merged_calendar_df,
+            calendar_df], ignore_index=True)
+        merged_calendar_dates_df = pd.concat([merged_calendar_dates_df,
+            calendar_dates_df], ignore_index=True)
 
         # print break to visually separate each GTFS feed log
         log('--------------------------------')
