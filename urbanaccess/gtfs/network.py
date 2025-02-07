@@ -5,8 +5,12 @@ import time
 from datetime import datetime, timedelta
 import logging as lg
 
-from urbanaccess.utils import log, df_to_hdf5, hdf5_to_df
+from urbanaccess.utils import log, df_to_hdf5, hdf5_to_df, \
+    _add_unique_trip_id, _add_unique_stop_id, _add_unique_route_id
+
 from urbanaccess.gtfs.utils_validation import _check_time_range_format
+from urbanaccess.gtfs.utils_calendar import _calendar_service_id_selector, \
+    _trip_selector, _highest_freq_trips_date
 from urbanaccess.network import ua_network
 from urbanaccess import config
 from urbanaccess.gtfs.gtfsfeeds_dataframe import gtfsfeeds_dfs, \
@@ -17,8 +21,8 @@ pd.options.mode.chained_assignment = None
 
 def create_transit_net(
         gtfsfeeds_dfs,
-        day,
-        timerange,
+        day=None,
+        timerange=None,
         calendar_dates_lookup=None,
         overwrite_existing_stop_times_int=False,
         use_existing_stop_times_int=False,
@@ -26,7 +30,12 @@ def create_transit_net(
         save_dir=config.settings.data_folder,
         save_filename=None,
         timerange_pad=None,
-        time_aware=False):
+        time_aware=False,
+        date=None,
+        date_range=None,
+        use_highest_freq_trips_date=False,
+        simplify=False
+):
     """
     Create a travel time weight network graph in units of
     minutes from GTFS data
@@ -38,9 +47,18 @@ def create_transit_net(
         stop_times, calendar, calendar_dates (optional) and
         stop_times_int (optional)
     day : {'monday', 'tuesday', 'wednesday', 'thursday',
-    'friday', 'saturday', 'sunday'}
-        day of the week to extract transit schedule from that
-        corresponds to the day in the GTFS calendar
+    'friday', 'saturday', 'sunday'}, optional
+        day of the week to extract active service IDs in calendar and or
+        calendar_dates tables. If GTFS feeds have only calendar, service IDs
+        that are active on day specified will be extracted. If GTFS feeds
+        have only calendar_dates, service IDs that are active on dates
+        that match the day of the week specified will be extracted where
+        exception_type = 1 (service is added for date). If GTFS feeds have
+        both calendar and calendar_dates, calendar service IDs that are
+        active on day specified will be extracted and calendar_dates
+        service IDs that are active on dates that match the day of the week
+        specified will be added to those found in the calendar where
+        exception_type = 1 (service is added for date).
     timerange : list
         time range to extract transit schedule from in a list with time
         1 and time 2 as strings. It is suggested the time range
@@ -52,10 +70,12 @@ def create_transit_net(
     calendar_dates_lookup : dict, optional
         dictionary of the lookup column (key) as a string and corresponding
         string (value) as string or list of strings to use to subset trips
-        using the calendar_dates DataFrame. Search will be exact. If none,
-        then the calendar_dates DataFrame will not be used to select trips
-        that are not in the calendar DataFrame. Note search will select all
-        records that meet each key value pair criteria.
+        using the calendar_dates DataFrame. Parameter should only be used if
+        there is a high degree of certainly that the GTFS feed in use has
+        service_ids listed in calendar_dates that would otherwise not be
+        selected if using any of the other calendar_dates parameters such as:
+         'day', 'date' or 'date_range'. Search will be exact and will select
+         all records that meet each key value pair criteria.
         Example: {'schedule_type' : 'WD'} or {'schedule_type' : ['WD', 'SU']}
     overwrite_existing_stop_times_int : bool, optional
         if true, and if there is an existing stop_times_int
@@ -83,6 +103,63 @@ def create_transit_net(
         from the stop_times table will be included in the transit edge table
         where 'departure_time' is the departure time at node_id_from stop and
         'arrival_time' is the arrival time at node_id_to stop
+    date : str, optional
+        date to extract active service IDs in calendar and or
+        calendar_dates tables specified as a string in YYYY-MM-DD format,
+        e.g. '2013-03-09'. If GTFS feeds have only calendar, service IDs
+        that are active on the date specified (where the date is within the
+        date range given by the start_date and end_date columns) and
+        that date's day of the week will be extracted. If GTFS feeds have
+        only calendar_dates, service IDs that are active on the date
+        specified will be extracted where exception_type = 1
+        (service is added for date). If GTFS feeds have both calendar
+        and calendar_dates, calendar service IDs that are active on the date
+        specified (where the date is within the date range given by the
+        start_date and end_date columns) and that date's day of the week
+        will be extracted and calendar_dates service IDs that are active
+        on the date specified will be added to those found in the
+        calendar where exception_type = 1 (service is added for date)
+        and service IDs that are inactive on the date specified will be
+        removed from those found in the calendar where exception_type = 2
+        (service is removed for date).
+    date_range : list, optional
+        date range to extract active service IDs in calendar and or
+        calendar_dates tables specified as a 2 element list of strings
+        where the first element is the first date and the second element
+        is the last date in the date range. Dates should be specified
+        as strings in YYYY-MM-DD format, e.g. ['2013-03-09', '2013-09-01'].
+        If GTFS feeds have only calendar, service IDs that are active
+        within the date range specified (where the date range is within
+        the date range given by the start_date and end_date columns)
+        will be extracted. If GTFS feeds have only calendar_dates,
+        service IDs that are active within the date range specified
+        will be extracted where exception_type = 1
+        (service is added for date). If GTFS feeds have both calendar
+        and calendar_dates, calendar service IDs that are active within
+        the date range specified (where the date range is within the date
+        range given by the state_date and end_date columns) will be
+        extracted and calendar_dates service IDs that are active within
+        the date range specified will be added to those found in the
+        calendar where exception_type = 1 (service is added for date).
+        This parameter is best utilized if its known that the GTFS
+        feed calendar table has seasonal service IDs.
+    use_highest_freq_trips_date : boolean, optional
+        when True, the date that contains the highest number of active trips
+        will be determined and will be used to select active service IDs.
+        See the docstring for the 'date' parameter to understand how the
+        'date' is then used to select service IDs. If multiple dates are found
+        to contain the highest number of trips, and they contain the same
+        trip IDs, one date from those found will be used. If they do not
+        contain the same trip IDs, an error will be raised to prompt you
+        to explicitly set one of the dates found as the date in the 'date'
+        parameter.
+    simplify : boolean
+        when True, the transit network is significantly reduced in size by
+        collapsing trips that share identical characteristics including
+        agency, travel time, stop sequence, and route into one unique
+        representative trip with its corresponding edges. It is suggested to
+        use simplification when using networks with network analysis tools
+        such as Pandana for computational efficiency. Default is False.
 
     Returns
     -------
@@ -118,6 +195,11 @@ def create_transit_net(
     if overwrite_existing_stop_times_int and use_existing_stop_times_int:
         raise ValueError('overwrite_existing_stop_times_int and '
                          'use_existing_stop_times_int cannot both be True.')
+    if use_highest_freq_trips_date and any([day, date, date_range]):
+        raise ValueError("Only one parameter: 'use_highest_freq_trips_date' "
+                         "or one of 'day', 'date', or 'date_range' can be "
+                         "used at a time or both 'day' and 'date_range' can "
+                         "be used.")
 
     columns = ['route_id',
                'direction_id',
@@ -128,21 +210,50 @@ def create_transit_net(
     if 'direction_id' not in gtfsfeeds_dfs.trips.columns:
         columns.remove('direction_id')
 
-    # TODO: support use case where only calendar_dates is in use: make 'day'
-    #  optional as None but require either day or calendar_dates_lookup
-    #  to exist but both are not required
-    calendar_selected_trips_df = _trip_schedule_selector(
-        input_trips_df=gtfsfeeds_dfs.trips[columns],
-        input_calendar_df=gtfsfeeds_dfs.calendar,
-        input_calendar_dates_df=gtfsfeeds_dfs.calendar_dates,
-        day=day,
-        calendar_dates_lookup=calendar_dates_lookup)
+    # since data can be composed of multiple feeds and agencies,
+    # run calendar service ID operations on each individual agency to
+    # be transparent on what service IDs are being extracted from
+    # each agency
+    active_service_ids = []
+    agency_id_col = 'unique_agency_id'
+    agency_ids = gtfsfeeds_dfs.trips[agency_id_col].unique()
+    for agency in agency_ids:
+        log('--------------------------------')
+        log('Running active service ID selection operation for '
+            'agency: {}'.format(agency))
+        agency_trips = gtfsfeeds_dfs.trips.loc[
+            gtfsfeeds_dfs.trips[agency_id_col] == agency]
+        agency_calendar = gtfsfeeds_dfs.calendar.loc[
+            gtfsfeeds_dfs.calendar[agency_id_col] == agency]
+        agency_calendar_dates = gtfsfeeds_dfs.calendar_dates.loc[
+            gtfsfeeds_dfs.calendar_dates[agency_id_col] == agency]
+
+        if use_highest_freq_trips_date:
+            date = _highest_freq_trips_date(
+                agency_trips,
+                agency_calendar,
+                agency_calendar_dates)
+
+        agency_active_service_ids = _calendar_service_id_selector(
+            calendar_df=agency_calendar,
+            calendar_dates_df=agency_calendar_dates,
+            day=day,
+            date=date,
+            date_range=date_range,
+            cal_dates_lookup=calendar_dates_lookup)
+        # combine each agency's active service IDs
+        active_service_ids.extend(agency_active_service_ids)
+
+    # use aggregated active_service_ids to get all active trip IDs
+    calendar_selected_trips_df = _trip_selector(
+        trips_df=gtfsfeeds_dfs.trips[columns],
+        service_ids=active_service_ids)
 
     # proceed to calc stop_times_int if stop_times_int is already empty, or
     # overwrite existing is True, or use existing is False
-    if gtfsfeeds_dfs.stop_times_int.empty or \
-            overwrite_existing_stop_times_int or use_existing_stop_times_int \
-            is False:
+    existing_stop_times_int = gtfsfeeds_dfs.stop_times_int.empty
+    if existing_stop_times_int or overwrite_existing_stop_times_int or \
+            use_existing_stop_times_int is False:
         if overwrite_existing_stop_times_int:
             log('   Overwriting existing stop_times_int DataFrame...')
         gtfsfeeds_dfs.stop_times_int = _interpolate_stop_times(
@@ -184,6 +295,24 @@ def create_transit_net(
     transit_edges = _route_id_to_edge(
         transit_edge_df=transit_edges, trips_df=gtfsfeeds_dfs.trips)
 
+    transit_nodes = _remove_nodes_not_in_edges(
+        nodes=transit_nodes, edges=transit_edges,
+        from_id_col='node_id_from', to_id_col='node_id_to')
+
+    if transit_edges.empty:
+        msg = (
+            "Resulting transit network edges have 0 record(s). Most likely "
+            "the 'timerange' and or calendar selection parameters resulted in "
+            "a network with no active trips within the schedule window "
+            "specified. It is suggested to expand the 'timerange' and or "
+            "alter the calendar selection parameters to enlarge the time "
+            "window for selecting active trips.")
+        raise ValueError(msg)
+
+    if simplify:
+        transit_edges, transit_nodes = _simplify_transit_net(
+            transit_edges, transit_nodes)
+
     # assign node and edge net type
     transit_nodes['net_type'] = 'transit'
     transit_edges['net_type'] = 'transit'
@@ -198,277 +327,100 @@ def create_transit_net(
     return ua_network
 
 
-def _trip_schedule_selector(input_trips_df, input_calendar_df,
-                            input_calendar_dates_df, day,
-                            calendar_dates_lookup=None):
+def _simplify_transit_net(edges, nodes):
     """
-    Select trips that correspond to a specific schedule in either calendar.txt
-    and or calendar_dates.txt by finding service_ids that correspond to the
-    specified search parameters and the trips related to those service_ids
+    Simplifies edge and node tables by removing trips from the edge table
+    that have identical properties that result in duplicate edge attributes
+    for use in routing engines such as Pandana. Edges are grouped by
+    columns: 'node_id_from', 'node_id_to', 'weight', 'unique_agency_id',
+    'sequence', 'route_type', and 'unique_route_id'. If multiple trip IDs are
+    found to have the exact same attributes in those columns, only one
+    representative trip ID and its corresponding edges will be preserved out
+    of the group.
 
     Parameters
     ----------
-    input_trips_df : pandas.DataFrame
-        trips DataFrame
-    input_calendar_df : pandas.DataFrame
-        calendar DataFrame
-    input_calendar_dates_df : pandas.DataFrame
-        calendar_dates DataFrame
-    day : {'monday', 'tuesday', 'wednesday', 'thursday',
-    'friday', 'saturday', 'sunday'}
-        day of the week to extract transit schedule that corresponds to the
-        day in the GTFS calendar
-    calendar_dates_lookup : dict, optional
-        dictionary of the lookup column (key) as a string and corresponding
-        string (value) as string or list of strings to use to subset trips
-        using the calendar_dates DataFrame. Search will be exact. If none,
-        then the calendar_dates DataFrame will not be used to select trips
-        that are not in the calendar DataFrame. Note search will select all
-        records that meet each key value pair criteria.
-        Example: {'schedule_type' : 'WD'} or {'schedule_type' : ['WD', 'SU']}
+    edges : pandas.DataFrame
+        edges DataFrame to simplify
+    nodes : pandas.DataFrame
+        nodes DataFrame to simplify
 
     Returns
     -------
-    calendar_selected_trips_df : pandas.DataFrame
-
+    simp_edges : pandas.DataFrame
+        simplified edge DataFrame
+    simp_nodes : pandas.DataFrame
+        simplified node DataFrame
     """
+    # TODO: add option for groups that are duplicates, place trip ids
+    #  of the groups that are removed in a new column as list of
+    #  strings for downstream debugging or for informative trip counts
+    # TODO: can simplify even more by reducing along edge shared attr in
+    #  addition to trips, must ensure that stop ids are connected
     start_time = time.time()
 
-    valid_days = ['monday', 'tuesday', 'wednesday', 'thursday',
-                  'friday', 'saturday', 'sunday']
+    log('Running transit network simplification...')
 
-    if day not in valid_days:
-        valid_days_str = str(valid_days).replace('[', '').replace(']', '')
-        raise ValueError('Incorrect day specified. Must be one of lowercase '
-                         'strings: {}.'.format(valid_days_str))
+    if edges.empty:
+        raise ValueError(
+            'Unable to simplify transit network. Edges have 0 records to '
+            'simplify.')
 
-    # check format of calendar_dates_lookup
-    if calendar_dates_lookup is not None:
-        if not isinstance(calendar_dates_lookup, dict):
-            raise ValueError(
-                'calendar_dates_lookup parameter must be a dictionary.')
-        for key in calendar_dates_lookup.keys():
-            if not isinstance(key, str):
-                raise ValueError('calendar_dates_lookup key: {} '
-                                 'must be a string.'.format(key))
+    # columns to use for group to group value comparison to identify
+    # groups of similar values for simplification
+    col_list = ['node_id_from', 'node_id_to', 'weight', 'unique_agency_id',
+                'sequence', 'route_type', 'unique_route_id']
 
-            if isinstance(calendar_dates_lookup[key], str):
-                value = [calendar_dates_lookup[key]]
-            else:
-                if not isinstance(calendar_dates_lookup[key], list):
-                    raise ValueError(
-                        'calendar_dates_lookup value: {} must be a string or '
-                        'a list of strings.'.format(
-                            calendar_dates_lookup[key]))
-                else:
-                    value = calendar_dates_lookup[key]
+    # group records that have identical values for each col in col_list
+    # tag each record in group as True if the group exists more than once
+    id_col = 'unique_trip_id'
+    edges_wdup = edges.groupby(id_col)[col_list].agg(tuple).sum(1).duplicated()
 
-            for string in value:
-                if not isinstance(string, str):
-                    raise ValueError('calendar_dates_lookup value: {} '
-                                     'must contain strings.'.format(value))
+    # remove records where their group was duplicated
+    simp_edges = edges.loc[edges[id_col].isin(edges_wdup[~edges_wdup].index)]
 
-    # check if calendar dfs and related params are empty or not to determine
-    # what will be used in processing
-    has_calendar = input_calendar_df.empty is False
-    has_calendar_param = day is not None
-    has_calendar_dates = input_calendar_dates_df.empty is False
-    has_calendar_dates_param = calendar_dates_lookup is not None
+    # simplify nodes by removing nodes that do not exist in the simplified
+    # edge table, this catches edges cases but normally there should never be
+    # node ids in the node table that are not in the edge table
+    simp_nodes = _remove_nodes_not_in_edges(
+        nodes=nodes, edges=simp_edges,
+        from_id_col='node_id_from', to_id_col='node_id_to')
 
-    if not has_calendar:
-        log('calendar table has no records and will not be used to '
-            'select trips.')
-        if has_calendar_param:
-            log("Warning: calendar is empty. "
-                "Unable to use the 'day' parameter.", level=lg.WARNING)
-    if has_calendar_dates:
-        if not has_calendar_dates_param:
-            log("calendar_dates table has records however the "
-                "'calendar_dates_lookup' parameter is None, no trips will be "
-                "selected using calendar_dates.")
+    # calculate various data len and print statistics
+    trip_remove_cnt = len(edges_wdup.loc[edges_wdup == True])  # noqa
+    trip_org_tot_cnt = len(edges[id_col].unique())
+    trip_proc_tot_cnt = len(simp_edges[id_col].unique())
+    trip_remove_pct = (trip_remove_cnt / trip_org_tot_cnt) * 100
+    edge_org_rec_tot_cnt = len(edges)
+    edge_proc_rec_tot_cnt = len(simp_edges)
+    edge_remove_cnt = edge_org_rec_tot_cnt - edge_proc_rec_tot_cnt
+    edge_remove_pct = (edge_remove_cnt / edge_org_rec_tot_cnt) * 100
+    msg = ('Transit edges have been simplified removing {:,} trip(s) '
+           '({:.2f} percent) (reduced from {:,} to {:,} trip(s)) '
+           'resulting in the removal of {:,} edge(s) ({:.2f} percent) '
+           '(reduced from {:,} to {:,} edges(s)).')
+    if edge_remove_cnt > 0:
+        log(msg.format(trip_remove_cnt, trip_remove_pct,
+                       trip_org_tot_cnt, trip_proc_tot_cnt,
+                       edge_remove_cnt, edge_remove_pct,
+                       edge_org_rec_tot_cnt, edge_proc_rec_tot_cnt))
     else:
-        log('calendar_dates table has no records and will not be used to '
-            'select trips.')
-        if has_calendar_dates_param:
-            raise ValueError("calendar_dates is empty. Unable to use the "
-                             "'calendar_dates_lookup' parameter. Set to None.")
+        log('Transit edges cannot be further simplified.')
 
-    # create unique service IDs for dfs in list if they are not empty
-    df_list = [input_trips_df]
-    if has_calendar:
-        df_list.extend([input_calendar_df])
-    if has_calendar_dates:
-        df_list.extend([input_calendar_dates_df])
-    for index, df in enumerate(df_list):
-        df['unique_service_id'] = (df['service_id'].str.cat(
-                df['unique_agency_id'].astype('str'), sep='_'))
-        df_list[index] = df
-
-    service_ids_df = pd.DataFrame()
-
-    # collect service IDs that match search parameters in calendar.txt
-    if has_calendar and has_calendar_param:
-        # select service IDs where day specified has a 1 = service
-        # runs on that day
-        log('Using calendar to extract service_ids to select trips...')
-        service_ids_df = input_calendar_df[(input_calendar_df[day] == 1)]
-        service_ids_df = service_ids_df[['unique_service_id']]
-        num_cal_service_ids_extracted = len(service_ids_df)
-        log('{:,} service_ids were extracted from calendar.'.format(
-            num_cal_service_ids_extracted))
-
-        # generate information needed to tell user the status of their trips in
-        # terms of service_ids in calendar table
-        trips_in_calendar = input_trips_df.loc[
-            input_trips_df['unique_service_id'].isin(
-                service_ids_df['unique_service_id'])]
-        trips_notin_calendar = input_trips_df.loc[
-            ~input_trips_df['unique_service_id'].isin(
-                service_ids_df['unique_service_id'])]
-        cnt_input_trips_df = len(input_trips_df)
-        cnt_trips_in_calendar = len(trips_in_calendar)
-        pct_trips_in_calendar = round(cnt_trips_in_calendar / len(
-            input_trips_df) * 100, 2)
-
-        feeds_wtrips_in_cal = trips_in_calendar['unique_feed_id'].unique()
-        print_feed_ids = [' '.join(feed_id.split('_')[:-1]) for feed_id in
-                          feeds_wtrips_in_cal]
-        feeds_wotrips_in_cal = trips_notin_calendar['unique_feed_id'].unique()
-        if print_feed_ids:
-            log('{:,} trip(s) {:.2f} percent of {:,} total trip records were '
-                'found in calendar for GTFS feed(s): {}.'.format(
-                    cnt_trips_in_calendar, pct_trips_in_calendar,
-                    cnt_input_trips_df, print_feed_ids))
-
-        feed_id_not_in_cal = [x for x in feeds_wotrips_in_cal if
-                              x not in feeds_wtrips_in_cal]
-        for feed_id in feed_id_not_in_cal:
-            trip_feed_name = ' '.join(feed_id.split('_')[:-1])
-            log('0 trip(s) 0 percent of {:,} total trip records were '
-                'found in calendar for GTFS feed: {}.'.format(
-                    cnt_input_trips_df, trip_feed_name))
-
-        # warn user that if they have a calendar_dates table and they
-        # expected more trips to be selected from the calendar table that
-        # they should consider using the calendar_dates table to supplement
-        # the selection of trips
-        if has_calendar_dates and len(trips_notin_calendar) > 0 and \
-                has_calendar_dates_param is False:
-            warning_msg = (
-                'NOTE: If you expected more trips to have been extracted and '
-                'your GTFS feed(s) have a calendar_dates file, consider '
-                'utilizing the calendar_dates_lookup parameter in order to '
-                'add additional trips based on information inside of '
-                'calendar_dates. This should only be done if you know the '
-                'corresponding GTFS feed is using calendar_dates instead of '
-                'calendar to specify service_ids. When in doubt do not use '
-                'the calendar_dates_lookup parameter.')
-            log(warning_msg, level=lg.WARNING)
-
-        if len(feeds_wtrips_in_cal) != len(feeds_wotrips_in_cal) and \
-                calendar_dates_lookup is None:
-            for feed_id in feeds_wotrips_in_cal:
-                trip_feed_name = ' '.join(feed_id.split('_')[:-1])
-                log('{:,} trip(s) {:.2f} percent of {:,} total trip records '
-                    'were not found in calendar for GTFS feed: {}.'.format(
-                        cnt_trips_in_calendar, pct_trips_in_calendar,
-                        cnt_input_trips_df, trip_feed_name))
-                if feed_id not in feeds_wtrips_in_cal:
-                    log('Warning: GTFS feed: {} no trips were selected using '
-                        'calendar. It is suggested you use the '
-                        'calendar_dates_lookup parameter to utilize this '
-                        'feed\'s calendar_dates file.'.format(trip_feed_name),
-                        level=lg.WARNING)
-    else:
-        num_cal_service_ids_extracted = 0
-        cnt_input_trips_df = 0
-
-    # collect service IDs that match search parameters in calendar_dates.txt
-    if has_calendar_dates and has_calendar_dates_param:
-        # look for service_ids inside of calendar_dates if calendar does not
-        # supply enough service_ids to select trips by
-        if has_calendar:
-            if len(trips_notin_calendar) > 0:
-                log('Using calendar_dates to supplement service_ids extracted '
-                    'from calendar to select trips...')
-
-        subset_result_df = pd.DataFrame()
-
-        for col_name_key, string_value in calendar_dates_lookup.items():
-            if col_name_key not in input_calendar_dates_df.columns:
-                raise ValueError('Column: {} not found in calendar_dates '
-                                 'DataFrame.'.format(col_name_key))
-            if col_name_key not in input_calendar_dates_df.select_dtypes(
-                    include=[object]).columns:
-                raise ValueError('Column: {} must be object type.'.format(
-                    col_name_key))
-
-            if not isinstance(string_value, list):
-                string_value = [string_value]
-
-            for text in string_value:
-                # TODO: modify this in order to allow subset based on GTFS
-                #  feed name or a or/and condition
-                subset_result = input_calendar_dates_df[
-                    input_calendar_dates_df[col_name_key].str.match(
-                        text, case=False, na=False)]
-                cnt_subset_result = len(subset_result)
-                if cnt_subset_result != 0:
-                    feed_id_list = subset_result['unique_feed_id'].unique()
-                    for index, id in enumerate(feed_id_list):
-                        feed_id_list[index] = ' '.join(id.split('_')[:-1])
-
-                    log('Found {:,} record(s) that matched query: column: {} '
-                        'and string: {} for GTFS feed(s): {}.'.format(
-                         cnt_subset_result, col_name_key, text, feed_id_list))
-
-                    subset_result_df = subset_result_df.append(subset_result)
-
-        subset_result_df.drop_duplicates(inplace=True)
-        subset_result_df = subset_result_df[['unique_service_id']]
-
-        num_caldates_service_ids_extracted = len(subset_result_df)
-        tot_service_ids_extracted = \
-            num_caldates_service_ids_extracted + num_cal_service_ids_extracted
-        log('An additional {:,} service_id(s) were extracted from '
-            'calendar_dates. Total service_id(s) extracted: {:,}.'.format(
-             num_caldates_service_ids_extracted, tot_service_ids_extracted))
-        service_ids_df = service_ids_df.append(subset_result_df)
-        service_ids_df.drop_duplicates(inplace=True)
-
-    if service_ids_df.empty:
-        raise ValueError('No service_id(s) were found with '
-                         'the specified calendar and or calendar_dates '
-                         'search parameters.')
-
-    # select and create df of trips that match the service IDs for the day of
-    # the week specified merge calendar df that has service IDs for
-    # specified day with trips df
-    calendar_selected_trips_df = input_trips_df.loc[
-        input_trips_df['unique_service_id'].isin(
-            service_ids_df['unique_service_id'])]
-
-    sort_columns = ['route_id', 'trip_id', 'direction_id']
-    if 'direction_id' not in calendar_selected_trips_df.columns:
-        sort_columns.remove('direction_id')
-    calendar_selected_trips_df.sort_values(by=sort_columns, inplace=True)
-    calendar_selected_trips_df.reset_index(drop=True, inplace=True)
-    calendar_selected_trips_df.drop('unique_service_id', axis=1, inplace=True)
-
-    calendar_selected_trips_count = len(calendar_selected_trips_df)
-    if calendar_dates_lookup is None:
-        log('{:,} of {:,} total trips were extracted representing calendar '
-            'day: {}. Took {:,.2f} seconds.'.format(
-             calendar_selected_trips_count, cnt_input_trips_df, day,
-             time.time() - start_time))
-    else:
-        log('{:,} of {:,} total trips were extracted representing calendar '
-            'day: {} and calendar_dates search parameters: {}. '
-            'Took {:,.2f} seconds.'.format(
-             calendar_selected_trips_count, cnt_input_trips_df, day,
-             calendar_dates_lookup, time.time() - start_time))
-
-    return calendar_selected_trips_df
+    node_org_tot_cnt = len(nodes)
+    node_proc_tot_cnt = len(simp_nodes)
+    # if nodes have a different count after simplification notify the user,
+    # however this should never occur
+    if node_org_tot_cnt != node_proc_tot_cnt:
+        node_remove_cnt = node_org_tot_cnt - node_proc_tot_cnt
+        node_remove_pct = (node_remove_cnt / node_org_tot_cnt) * 100
+        msg = ('Transit nodes have been simplified removing {:,} nodes(s) '
+               '({:.2f} percent) (reduced from {:,} to {:,} nodes(s)).')
+        log(msg.format(node_remove_cnt, node_remove_pct, node_org_tot_cnt,
+                       node_proc_tot_cnt))
+    log('Transit edge simplification complete. '
+        'Took {:,.2f} seconds.'.format(time.time() - start_time))
+    return simp_edges, simp_nodes
 
 
 def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df):
@@ -488,15 +440,13 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df):
     final_stop_times_df : pandas.DataFrame
 
     """
-
     start_time = time.time()
 
     # create unique trip IDs
     df_list = [calendar_selected_trips_df, stop_times_df]
 
     for index, df in enumerate(df_list):
-        df['unique_trip_id'] = (df['trip_id'].str.cat(
-            df['unique_agency_id'].astype('str'), sep='_'))
+        df = _add_unique_trip_id(df)
         df_list[index] = df
 
     # sort stop times inplace based on first to last stop in
@@ -682,9 +632,7 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df):
         final_stop_times_df['departure_time_sec_interpolate'].astype(int)
 
     # add unique stop ID
-    final_stop_times_df['unique_stop_id'] = (
-        final_stop_times_df['stop_id'].str.cat(
-            final_stop_times_df['unique_agency_id'].astype('str'), sep='_'))
+    final_stop_times_df = _add_unique_stop_id(final_stop_times_df)
 
     if missing_stop_times_count > 0:
         log('Departure stop time interpolation complete. '
@@ -730,7 +678,7 @@ def _time_selector(df, starttime, endtime, timerange_pad=None):
     starttime : str
         24 hour clock formatted time 1
     endtime : str
-        24 hour clock formatted time 2,
+        24 hour clock formatted time 2
     timerange_pad: str, optional
         string indicating the number of hours minutes seconds to pad after the
         end of the time interval specified in 'timerange'. Must follow format
@@ -835,6 +783,16 @@ def _format_transit_net_edge(stop_times_df, time_aware=False):
     log('Starting transformation process for {:,} '
         'total trips...'.format(len(stop_times_df['unique_trip_id'].unique())))
 
+    if stop_times_df.empty:
+        raise ValueError(
+            "Unable to continue processing transit network. stop_times "
+            "table has 0 records. Most likely the 'timerange' and or "
+            "calendar selection parameters resulted in a network with no "
+            "active trips within the schedule window specified. It is "
+            "suggested to expand the 'timerange' and or alter the calendar "
+            "selection parameters to enlarge the time window for selecting "
+            "active trips.")
+
     # subset to only columns needed for processing
     cols_of_interest = ['unique_trip_id', 'stop_id', 'unique_stop_id',
                         'timediff', 'stop_sequence', 'unique_agency_id',
@@ -854,7 +812,7 @@ def _format_transit_net_edge(stop_times_df, time_aware=False):
     for trip, tmp_trip_df in stop_times_df.groupby(['unique_trip_id']):
         # if 'time_aware', also create arrival and departure time cols
         if time_aware:
-            edge_df = pd.DataFrame({
+            edge_df = pd.DataFrame.from_dict({
                 "node_id_from": tmp_trip_df['unique_stop_id'].iloc[:-1].values,
                 "node_id_to": tmp_trip_df['unique_stop_id'].iloc[1:].values,
                 "weight": tmp_trip_df['timediff'].iloc[1:].values,
@@ -869,9 +827,9 @@ def _format_transit_net_edge(stop_times_df, time_aware=False):
                 # arrival_time at node_id_to stop
                 "arrival_time":
                     tmp_trip_df['arrival_time'].iloc[1:].values
-            })
+            }, orient='index').T.ffill()
         else:
-            edge_df = pd.DataFrame({
+            edge_df = pd.DataFrame.from_dict({
                 "node_id_from": tmp_trip_df['unique_stop_id'].iloc[:-1].values,
                 "node_id_to": tmp_trip_df['unique_stop_id'].iloc[1:].values,
                 "weight": tmp_trip_df['timediff'].iloc[1:].values,
@@ -880,7 +838,7 @@ def _format_transit_net_edge(stop_times_df, time_aware=False):
                 # set unique trip ID without edge order to join other data
                 # later
                 "unique_trip_id": trip
-            })
+            }, orient='index').T.ffill().dropna()
 
         # Set current trip ID to edge ID column adding edge order at
         # end of string
@@ -959,9 +917,7 @@ def _stops_in_edge_table_selector(input_stops_df, input_stop_times_df):
     start_time = time.time()
 
     # add unique stop ID
-    input_stops_df['unique_stop_id'] = (
-        input_stops_df['stop_id'].str.cat(
-            input_stops_df['unique_agency_id'].astype('str'), sep='_'))
+    input_stops_df = _add_unique_stop_id(input_stops_df)
 
     # Select stop IDs that match stop IDs in the subset stop time data that
     # match day and time selection
@@ -995,9 +951,7 @@ def _format_transit_net_nodes(df):
 
     # add unique stop ID
     if 'unique_stop_id' not in df.columns:
-        df['unique_stop_id'] = (
-            df['stop_id'].str.cat(
-                df['unique_agency_id'].astype('str'), sep='_'))
+        df = _add_unique_stop_id(df)
 
     final_node_df = pd.DataFrame()
     final_node_df['node_id'] = df['unique_stop_id']
@@ -1042,22 +996,14 @@ def _route_type_to_edge(transit_edge_df, stop_time_df):
     start_time = time.time()
 
     # create unique trip IDs
-    stop_time_df['unique_trip_id'] = (
-        stop_time_df['trip_id'].str.cat(
-            stop_time_df['unique_agency_id'].astype('str'), sep='_'))
+    stop_time_df = _add_unique_trip_id(stop_time_df)
 
     # join route_id to the edge table
-    merged_df = pd.merge(
-        transit_edge_df, stop_time_df[['unique_trip_id', 'route_type']],
-        how='left', on='unique_trip_id', sort=False, copy=False)
-    merged_df.drop_duplicates(
-        subset='unique_trip_id', keep='first', inplace=True)
-    # need to get unique records here to have a one to one join -
-    # this serves as the look up table
-    # join the look up table created above to the table of interest
-    transit_edge_df_w_routetype = pd.merge(
-        transit_edge_df, merged_df[['route_type', 'unique_trip_id']],
-        how='left', on='unique_trip_id', sort=False, copy=False)
+    transit_edge_df = transit_edge_df.reset_index().set_index('unique_trip_id')
+    stop_time_df = stop_time_df[['unique_trip_id', 'route_type']].set_index('unique_trip_id')
+    stop_time_df = stop_time_df[~stop_time_df.index.duplicated(keep='first')]
+    merged_df = transit_edge_df.join(stop_time_df[['route_type']])
+    transit_edge_df_w_routetype = merged_df.reset_index()
 
     log('Route type successfully joined to transit edges. '
         'Took {:,.2f} seconds.'.format(time.time() - start_time))
@@ -1085,12 +1031,8 @@ def _route_id_to_edge(transit_edge_df, trips_df):
 
     if 'unique_route_id' not in transit_edge_df.columns:
         # create unique trip and route IDs
-        trips_df['unique_trip_id'] = (
-            trips_df['trip_id'].str.cat(
-                trips_df['unique_agency_id'].astype('str'), sep='_'))
-        trips_df['unique_route_id'] = (
-            trips_df['route_id'].str.cat(
-                trips_df['unique_agency_id'].astype('str'), sep='_'))
+        trips_df = _add_unique_trip_id(trips_df)
+        trips_df = _add_unique_route_id(trips_df)
 
         transit_edge_df_with_routes = pd.merge(
             transit_edge_df, trips_df[['unique_trip_id', 'unique_route_id']],
@@ -1179,8 +1121,8 @@ def edge_impedance_by_route_type(
     # used in this function in case changes are made in the config obj
     if set(sorted(route_type_dict.keys())) != set(
             sorted(var_mode_id_lookup.keys())):
-        ValueError('ROUTES_MODE_TYPE_LOOKUP keys do not match keys in '
-                   'var_mode_id_lookup. Keys must match.')
+        raise ValueError('ROUTES_MODE_TYPE_LOOKUP keys do not match keys in '
+                         'var_mode_id_lookup. Keys must match.')
     for key, value in route_type_dict.items():
         route_type_dict[key] = {'name': value,
                                 'multiplier': var_mode_id_lookup[key]}
@@ -1359,3 +1301,29 @@ def _check_if_index_name_in_cols(df):
     cols = df.columns.values
     iname = df.index.name
     return (iname in cols)
+
+
+def _remove_nodes_not_in_edges(nodes, edges, from_id_col, to_id_col):
+    """
+    Helper function to remove nodes from node DataFrame that are not found
+    in the edges DataFrame
+
+    Parameters
+    ----------
+    nodes : pandas.DataFrame
+        nodes DataFrame
+    edges : pandas.DataFrame
+        edges DataFrame
+    from_id_col : str
+        name of from ID column
+    to_id_col : str
+        name of to ID column
+
+    Returns
+    -------
+    nodes_df : pandas.DataFrame
+        node DataFrame with only the nodes that exist in the edge DataFrame
+    """
+    edge_node_list = set(edges[from_id_col]) | set(edges[to_id_col])
+    nodes_df = nodes.loc[nodes.index.isin(edge_node_list)]
+    return nodes_df

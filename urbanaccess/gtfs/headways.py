@@ -2,7 +2,7 @@ import warnings
 import pandas as pd
 import time
 
-from urbanaccess.utils import log
+from urbanaccess.utils import log, _add_unique_trip_id, _add_unique_route_id
 from urbanaccess.gtfs.utils_validation import _check_time_range_format
 from urbanaccess.gtfs.network import _time_selector
 
@@ -24,35 +24,44 @@ def _calc_headways_by_route_stop(df):
     DataFrame : pandas.DataFrame
         DataFrame of statistics of route stop headways in units of minutes
     """
-
     # TODO: Optimize for speed
-
+    # TODO: Update to incorporate optional direction_id into group, if
+    #  direction_id doesnt exist do not use it since its an optional col
+    # TODO: Assess if we can simplify the results to return only unique records
     start_time = time.time()
 
-    df['unique_stop_route'] = (
-        df['unique_stop_id'].str.cat(
-            df['unique_route_id'].astype('str'), sep=','))
+    df = _add_unique_stop_route(df)
 
     stop_route_groups = df.groupby('unique_stop_route')
     log('Starting route stop headway calculation for {:,} route '
         'stops...'.format(len(stop_route_groups)))
 
-    results = {}
-
     # suppress RuntimeWarning: Mean of empty slice. for this code block
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category='RuntimeWarning')
-
+        results = {}
+        col = 'departure_time_sec_interpolate'
         for unique_stop_route, stop_route_group in stop_route_groups:
-            stop_route_group.sort_values(['departure_time_sec_interpolate'],
-                                         ascending=True, inplace=True)
-            next_bus_time = (stop_route_group['departure_time_sec_interpolate']
-                             .iloc[1:].values)
-            prev_bus_time = (stop_route_group['departure_time_sec_interpolate']
-                             .iloc[:-1].values)
-            stop_route_group_headways = (next_bus_time - prev_bus_time) / 60
-            results[unique_stop_route] = (pd.Series(stop_route_group_headways)
-                                          .describe())
+            stop_route_group_headways = pd.DataFrame()
+            if 'direction_id' not in stop_route_group.columns:
+                stop_route_group.sort_values([col], ascending=True, inplace=True)
+                next_veh_time = (stop_route_group[col].iloc[1:].values)
+                prev_veh_time = (stop_route_group[col].iloc[:-1].values)
+                # compute headway with:
+                # (next veh arrival time - previous veh arrival time) / 60 seconds
+                # = headway in min
+                stop_route_group_headways = (next_veh_time - prev_veh_time) / 60
+                results[unique_stop_route] = (pd.Series(stop_route_group_headways)
+                                              .describe())
+            else:
+                for direction in stop_route_group.direction_id.unique():
+                    stop_route_group_dir = stop_route_group[stop_route_group['direction_id']==direction]
+                    stop_route_group_dir.sort_values([col], ascending=True, inplace=True)
+                    next_veh_time = (stop_route_group_dir[col].iloc[1:].values)
+                    prev_veh_time = (stop_route_group_dir[col].iloc[:-1].values)
+                    headways_dir = pd.DataFrame((next_veh_time - prev_veh_time) / 60, columns=['headway'])
+                    stop_route_group_headways = pd.concat([stop_route_group_headways, headways_dir])
+                results[unique_stop_route] = (stop_route_group_headways['headway'].describe())
 
     log('Route stop headway calculation complete. Took {:,.2f} seconds'.format(
         time.time() - start_time))
@@ -84,15 +93,13 @@ def _headway_handler(interpolated_stop_times_df, trips_df,
         DataFrame of statistics of route stop headways in units of minutes
         with relevant route and stop information
     """
+    # TODO: reconsider the use of inplace or copy incoming dfs
+    #  to memory to avoid changing in memory tables
     start_time = time.time()
 
     # add unique trip and route ID
-    trips_df['unique_trip_id'] = (
-        trips_df['trip_id'].str.cat(
-            trips_df['unique_agency_id'].astype('str'), sep='_'))
-    trips_df['unique_route_id'] = (
-        trips_df['route_id'].str.cat(
-            trips_df['unique_agency_id'].astype('str'), sep='_'))
+    trips_df = _add_unique_trip_id(trips_df)
+    trips_df = _add_unique_route_id(trips_df)
 
     columns = ['unique_route_id', 'service_id', 'unique_trip_id',
                'unique_agency_id']
@@ -105,9 +112,7 @@ def _headway_handler(interpolated_stop_times_df, trips_df,
     trips_df = trips_df[columns]
 
     # add unique route ID
-    routes_df['unique_route_id'] = (
-        routes_df['route_id'].str.cat(
-            routes_df['unique_agency_id'].astype('str'), sep='_'))
+    routes_df = _add_unique_route_id(routes_df)
 
     columns = ['unique_route_id', 'route_long_name', 'route_type',
                'unique_agency_id']
@@ -133,9 +138,7 @@ def _headway_handler(interpolated_stop_times_df, trips_df,
         merge_df[['unique_stop_route', 'unique_stop_id', 'unique_route_id']],
         how='left', left_index=True, right_on='unique_stop_route', sort=False)
     headway_by_routestop_df.drop('unique_stop_route', axis=1, inplace=True)
-    headway_by_routestop_df['node_id_route'] = (
-        headway_by_routestop_df['unique_stop_id'].str.cat(
-            headway_by_routestop_df['unique_route_id'].astype('str'), sep='_'))
+    headway_by_routestop_df = _add_node_id_route(headway_by_routestop_df)
 
     log('Headway calculation complete. Took {:,.2f} seconds.'.format(
         time.time() - start_time))
@@ -182,3 +185,43 @@ def headways(gtfsfeeds_df, headway_timerange):
     gtfsfeeds_df.headways = headways_df
 
     return gtfsfeeds_df
+
+
+def _add_unique_stop_route(df):
+    """
+    Create 'unique_stop_route' column and values in a pandas.DataFrame.
+    Intended for use with headways.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        pandas.DataFrame to generate 'unique_stop_route' column
+
+    Returns
+    -------
+    df : pandas.DataFrame
+        pandas.DataFrames with 'unique_stop_route' column added
+    """
+    df['unique_stop_route'] = df['unique_stop_id'].str.cat(
+        df['unique_route_id'].astype('str'), sep=',')
+    return df
+
+
+def _add_node_id_route(df):
+    """
+    Create 'node_id_route' column and values in a pandas.DataFrame.
+    Intended for use with headways.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        pandas.DataFrame to generate 'node_id_route' column
+
+    Returns
+    -------
+    df : pandas.DataFrame
+        pandas.DataFrames with 'node_id_route' column added
+    """
+    df['node_id_route'] = df['unique_stop_id'].str.cat(
+        df['unique_route_id'].astype('str'), sep='_')
+    return df

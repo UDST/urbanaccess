@@ -152,6 +152,8 @@ def drive_nodes():
         'y': [
             37.796897, 37.799683, 37.800206, 37.800964, 37.803884,
             37.804270, 37.809158, 37.808645, 37.807921],
+        # name is not expected in OSM nodes but is used here as placeholder
+        # for custom columns and as a reference for tests
         'name': [
             '1 8th & Oak', '2 8th & Franklin', '3 8th & Broadway',
             '4 14th & Oak', '5 14th & Franklin', '6 14th & Broadway',
@@ -411,6 +413,8 @@ def test_plot_save_w_path_and_filename(small_net, tmpdir, show_plot):
     if show_plot:
         imgplot = plt.imshow(img)
         plt.show()
+    # clean up test data
+    os.remove(file_name)
 
 
 def test_plot_save_w_default_name(small_net, show_plot):
@@ -428,8 +432,8 @@ def test_plot_save_w_default_name(small_net, show_plot):
         show=False, close=False, save=True, filepath=None, dpi=300,
         ax=None)
     # check that file was created
-    file_name = os.path.join(settings.images_folder,
-                             '{}.png'.format(settings.image_filename))
+    file_name = os.path.join(
+        settings.images_folder, '{}.png'.format(settings.image_filename))
     print('wrote test data to file: {}'.format(file_name))
     assert os.path.isfile(file_name)
     # read and show image
@@ -438,6 +442,8 @@ def test_plot_save_w_default_name(small_net, show_plot):
     if show_plot:
         imgplot = plt.imshow(img)
         plt.show()
+    # clean up test data
+    os.remove(file_name)
 
 
 def test_plot_save_w_filename_only(small_net, show_plot):
@@ -464,6 +470,8 @@ def test_plot_save_w_filename_only(small_net, show_plot):
     if show_plot:
         imgplot = plt.imshow(img)
         plt.show()
+    # clean up test data
+    os.remove(file_name)
 
 
 def test_plot_invalid_params(small_net, transit_nodes_invalid_xy, show_plot):
@@ -529,6 +537,10 @@ def test_plot_print_warn(small_net, capsys):
     # check that expected print prints
     captured = capsys.readouterr()
     assert 'Warning: Existing file' in captured.out
+    default_file = os.path.join(
+        settings.images_folder, '{}.png'.format(settings.image_filename))
+    # clean up test data
+    os.remove(default_file)
 
 
 def test_col_colors_case_1(small_net, capsys):

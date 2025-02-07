@@ -186,7 +186,8 @@ def _validate_gtfs(stops_df, feed_folder,
 
 def _check_time_range_format(timerange):
     """
-    Check time range value format for expected schema
+    Check time range value format for expected schema and raise value error
+    if format is invalid
 
     Parameters
     ----------
@@ -197,8 +198,10 @@ def _check_time_range_format(timerange):
 
     Returns
     -------
-    None
+    Nothing
     """
+    if timerange is None:
+        raise ValueError('timerange cannot be None.')
     time_error_statement = (
         '{} starttime and endtime are not in the correct format. '
         'Format should be a 24 hour clock in the following format: 08:00:00 '

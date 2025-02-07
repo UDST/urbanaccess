@@ -143,23 +143,25 @@ def _txt_header_whitespace_check(
                                 file_path,
                                 encoding=txt_encoding) as f:
                             lines = f.readlines()
-                    line_wo_whitespace = re.sub(r'\s+', '', lines[0]) + '\n'
-                    # only write the file if there are changes to be made
-                    if lines[0] != line_wo_whitespace:
-                        msg = 'Removing whitespace from header(s) in: {}...'
-                        log(msg.format(file_path))
-                        lines[0] = line_wo_whitespace
-                        # Write to file
-                        if six.PY2:
-                            with open(
-                                    file_path, 'w') as f:
-                                f.writelines(lines)
-                        else:
-                            # write with default 'utf-8' encoding
-                            with open(
-                                    file_path, 'w',
-                                    encoding=txt_encoding) as f:
-                                f.writelines(lines)
+                    if len(lines) != 0:
+                        line_wo_whitespace = re.sub(r'\s+', '', lines[0]) + '\n'
+                        # only write the file if there are changes to be made
+                        if lines[0] != line_wo_whitespace:
+                            msg = ('Removing whitespace from '
+                                   'header(s) in: {}...')
+                            log(msg.format(file_path))
+                            lines[0] = line_wo_whitespace
+                            # Write to file
+                            if six.PY2:
+                                with open(
+                                        file_path, 'w') as f:
+                                    f.writelines(lines)
+                            else:
+                                # write with default 'utf-8' encoding
+                                with open(
+                                        file_path, 'w',
+                                        encoding=txt_encoding) as f:
+                                    f.writelines(lines)
                 except Exception as e:
                     msg = 'Unable to process: {}. Exception: {}'
                     raise Exception(log(msg.format(file_path, e),
@@ -210,6 +212,7 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
     gtfsfeeds_dfs.routes : pandas.DataFrame
     gtfsfeeds_dfs.trips : pandas.DataFrame
     gtfsfeeds_dfs.stop_times : pandas.DataFrame
+    gtfsfeeds_dfs.shapes : pandas.DataFrame
     gtfsfeeds_dfs.calendar : pandas.DataFrame
     gtfsfeeds_dfs.calendar_dates : pandas.DataFrame
     """
@@ -218,25 +221,30 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
     merged_routes_df = pd.DataFrame()
     merged_trips_df = pd.DataFrame()
     merged_stop_times_df = pd.DataFrame()
+    merged_shapes_df = pd.DataFrame()
     merged_calendar_df = pd.DataFrame()
     merged_calendar_dates_df = pd.DataFrame()
 
     start_time = time.time()
 
+    dir_error_msg = "Directory: '{}' does not exist."
     if gtfsfeed_path is None:
         gtfsfeed_path = os.path.join(
             config.settings.data_folder, 'gtfsfeed_text')
         if not os.path.exists(gtfsfeed_path):
-            raise ValueError('{} does not exist.'.format(gtfsfeed_path))
+            raise ValueError(dir_error_msg.format(gtfsfeed_path))
     else:
         if not os.path.exists(gtfsfeed_path):
-            raise ValueError('{} does not exist.'.format(gtfsfeed_path))
+            raise ValueError(dir_error_msg.format(gtfsfeed_path))
     if not isinstance(gtfsfeed_path, str):
         raise ValueError('gtfsfeed_path must be a string.')
 
     if validation:
-        if bbox is None or remove_stops_outsidebbox is None or verbose is \
-                None:
+        has_bbox_param = bbox is not None
+        has_remove_stops_param = remove_stops_outsidebbox is not None
+        has_verbose_param = verbose is not None
+        if not has_bbox_param or not has_remove_stops_param or not \
+                has_verbose_param:
             raise ValueError(
                 'Attempted to run validation but bbox, verbose, and or '
                 'remove_stops_outsidebbox were set to None. These parameters '
@@ -332,25 +340,34 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
                         textfile=textfile)
                 else:
                     agency_df = pd.DataFrame()
+            if textfile == 'shapes.txt':
+                if textfile in textfilelist:
+                    shapes_df = utils_format._read_gtfs_file(
+                            textfile_path=os.path.join(gtfsfeed_path, folder),
+                            textfile=textfile)
+                else:
+                    shapes_df = pd.DataFrame()
 
-        stops_df, routes_df, trips_df, stop_times_df, calendar_df, \
-            calendar_dates_df = utils_format._add_unique_agencyid(
+        stops_df, routes_df, trips_df, stop_times_df, shapes_df, calendar_df, \
+            calendar_dates_df = utils_format._add_unique_agency_id(
                 agency_df=agency_df,
                 stops_df=stops_df,
                 routes_df=routes_df,
                 trips_df=trips_df,
                 stop_times_df=stop_times_df,
+                shapes_df=shapes_df,
                 calendar_df=calendar_df,
                 calendar_dates_df=calendar_dates_df,
                 feed_folder=os.path.join(gtfsfeed_path, folder),
                 nulls_as_folder=True)
 
-        stops_df, routes_df, trips_df, stop_times_df, calendar_df, \
+        stops_df, routes_df, trips_df, stop_times_df, shapes_df, calendar_df, \
             calendar_dates_df = utils_format._add_unique_gtfsfeed_id(
                 stops_df=stops_df,
                 routes_df=routes_df,
                 trips_df=trips_df,
                 stop_times_df=stop_times_df,
+                shapes_df=shapes_df,
                 calendar_df=calendar_df,
                 calendar_dates_df=calendar_dates_df,
                 feed_folder=folder,
@@ -381,18 +398,20 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
             trips_df=trips_df[['trip_id', 'route_id']],
             info_to_append='route_type_to_stop_times')
 
-        merged_stops_df = merged_stops_df.append(
-            stops_df, ignore_index=True)
-        merged_routes_df = merged_routes_df.append(
-            routes_df, ignore_index=True)
-        merged_trips_df = merged_trips_df.append(
-            trips_df, ignore_index=True)
-        merged_stop_times_df = merged_stop_times_df.append(
-            stop_times_df, ignore_index=True)
-        merged_calendar_df = merged_calendar_df.append(
-            calendar_df, ignore_index=True)
-        merged_calendar_dates_df = merged_calendar_dates_df.append(
-            calendar_dates_df, ignore_index=True)
+        merged_stops_df = pd.concat([merged_stops_df,
+            stops_df], ignore_index=True)
+        merged_routes_df = pd.concat([merged_routes_df,
+            routes_df], ignore_index=True)
+        merged_trips_df = pd.concat([merged_trips_df,
+            trips_df], ignore_index=True)
+        merged_stop_times_df = pd.concat([merged_stop_times_df,
+            stop_times_df], ignore_index=True)
+        merged_shapes_df = pd.concat([merged_shapes_df,
+            shapes_df], ignore_index=True)
+        merged_calendar_df = pd.concat([merged_calendar_df,
+            calendar_df], ignore_index=True)
+        merged_calendar_dates_df = pd.concat([merged_calendar_dates_df,
+            calendar_dates_df], ignore_index=True)
 
         # print break to visually separate each GTFS feed log
         log('--------------------------------')
@@ -413,6 +432,7 @@ def gtfsfeed_to_df(gtfsfeed_path=None, validation=False, verbose=True,
     gtfsfeeds_dfs.routes = merged_routes_df
     gtfsfeeds_dfs.trips = merged_trips_df
     gtfsfeeds_dfs.stop_times = merged_stop_times_df
+    gtfsfeeds_dfs.shapes = merged_shapes_df
     gtfsfeeds_dfs.calendar = merged_calendar_df
     gtfsfeeds_dfs.calendar_dates = merged_calendar_dates_df
 

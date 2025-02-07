@@ -36,12 +36,14 @@ def create_osm_net(osm_edges, osm_nodes,
     start_time = time.time()
 
     if not isinstance(network_type, str) or network_type is None:
-        raise ValueError('{!s} network_type passed is either not a '
-                         'string or is None'.format(network_type))
+        raise ValueError("'{!s}' network_type passed is either not a "
+                         "string or is None.".format(network_type))
 
-    # assign impedance to OSM edges
-    osm_edges['weight'] = (osm_edges[
-                               'distance'] / 1609.34) / travel_speed_mph * 60
+    # assign impedance to OSM edges where:
+    # (distance in meters / 1 mile in meters) /
+    # speed in mph * mph in mile per minute
+    osm_edges['weight'] = \
+        (osm_edges['distance'] / 1609.34) / travel_speed_mph * 60
 
     # assign node and edge net type
     osm_edges['net_type'] = network_type
@@ -50,9 +52,8 @@ def create_osm_net(osm_edges, osm_nodes,
     ua_network.osm_nodes = osm_nodes
     ua_network.osm_edges = osm_edges
 
-    log(
-        'Created OSM network with travel time impedance using a travel speed '
-        'of {} MPH. Took {:,.2f} seconds'.format(
+    log('Created OSM network with travel time impedance using a travel speed '
+        'of {} MPH. Took {:,.2f} seconds.'.format(
             travel_speed_mph, time.time() - start_time))
 
     return ua_network

@@ -3,6 +3,9 @@ import os
 import pandas as pd
 import numpy as np
 
+from urbanaccess.tests.test_gtfs_headways import \
+    _build_expected_hw_intermediate_stop_times_data
+
 
 @pytest.fixture
 def agency_feed_1():
@@ -295,8 +298,8 @@ def calendar_feed_1():
         'friday': [1, 1, 1, 0],
         'saturday': [0, 0, 0, 1],
         'sunday': [0, 0, 0, 1],
-        'start_date': [20161224] * 4,
-        'end_date': [20170318] * 4}
+        'start_date': ['20161224'] * 4,
+        'end_date': ['20170318'] * 4}
 
     index = range(4)
 
@@ -318,8 +321,8 @@ def calendar_feed_2():
         'friday': [1, 1, 1, 0],
         'saturday': [0, 0, 0, 1],
         'sunday': [0, 0, 0, 1],
-        'start_date': [20161224] * 4,
-        'end_date': [20170318] * 4}
+        'start_date': ['20161224'] * 4,
+        'end_date': ['20170318'] * 4}
 
     index = range(4)
 
@@ -338,29 +341,12 @@ def calendar_feed_4():
         'friday': [1],
         'saturday': [0],
         'sunday': [0],
-        'start_date': [20161224],
-        'end_date': [20170318]}
+        'start_date': ['20161224'],
+        'end_date': ['20170318']}
 
     index = range(1)
 
     df = pd.DataFrame(data, index)
-    return df
-
-
-@pytest.fixture
-def calendar_empty():
-    columns = {'service_id',
-               'monday',
-               'tuesday',
-               'wednesday',
-               'thursday',
-               'friday',
-               'saturday',
-               'sunday',
-               'start_date',
-               'end_date'}
-
-    df = pd.DataFrame(columns=columns)
     return df
 
 
@@ -371,8 +357,8 @@ def calendar_dates_feed_1():
                        'weekday-2',
                        'weekday-3',
                        'weekend-1'],
-        'date': [20161224, 20170318, 20160424, 20161230],
-        'exception_type': [1, 2, 1, 1],
+        'date': ['20161224', '20170318', '20160424', '20161230'],
+        'exception_type': ['1', '2', '1', '1'],
         'schedule_type': ['WD', 'WD', 'WD', 'WE']}
 
     index = range(4)
@@ -388,8 +374,8 @@ def calendar_dates_feed_2():
                        'weekday-2',
                        'weekday-3',
                        'weekend-1'],
-        'date': [20161224, 20170318, 20160424, 20161230],
-        'exception_type': [1, 2, 1, 1],
+        'date': ['20161224', '20170318', '20160424', '20161230'],
+        'exception_type': ['1', '2', '1', '1'],
         'schedule_type': ['WD', 'WD', 'WD', 'SA']
     }
 
@@ -403,8 +389,8 @@ def calendar_dates_feed_2():
 def calendar_dates_feed_4():
     data = {
         'service_id': ['wk-1'],
-        'date': [20161224],
-        'exception_type': [1]}
+        'date': ['20161224'],
+        'exception_type': ['1']}
 
     index = range(1)
 
@@ -681,6 +667,221 @@ def stop_times_feed_4():
     return df
 
 
+@pytest.fixture
+def hw_stops_df_1_agency():
+    # intended for use in headway tests
+    data = {
+        'stop_id': ['1', '2', '3', '4', '5', '6',
+                    '7', '8', '9'],
+        'stop_name': ['ave a', 'ave b', 'ave c', 'ave d', 'ave e', 'ave f',
+                      '1st st', '2nd st', '3rd st'],
+        'stop_lat': [37.797484, 37.774963, 37.803664, 37.80787, 37.828415,
+                     37.844601, 37.664174, 37.591208, 37.905628],
+        'stop_lon': [-122.265609, -122.224274, -122.271604, -122.269029,
+                     -122.267227, -122.251793, -122.444116, -122.017867,
+                     -122.067423],
+        'location_type': [1, 1, 1, 1, 1, 1,
+                          2, 2, 2],
+        'wheelchair_boarding': [1, 0, 0, 0, 0, 0,
+                                1, 1, 1],
+        'unique_agency_id': ['agency_a_city_a'] * 9
+    }
+    index = range(9)
+    df = pd.DataFrame(data, index)
+    return df
+
+
+@pytest.fixture
+def hw_routes_df_1_agency():
+    # intended for use in headway tests
+    data = {
+        'agency_id': ['agency a city a'] * 2,
+        'route_id': ['10-101', 'B1'],
+        'route_long_name': ['Route 10-101', 'B1 Express'],
+        'route_type': [3, 2],
+        'unique_agency_id': ['agency_a_city_a'] * 2,
+        'unique_feed_id': ['feed_1'] * 2}
+    index = range(2)
+    df = pd.DataFrame(data, index)
+    return df
+
+
+@pytest.fixture
+def hw_stop_times_int_df_1_agency():
+    # intended for use in headway tests
+
+    # only generate the data that is expected, leaving out: arrival_time,
+    # departure_time
+
+    # outbound direction
+    data = {
+        'trip_id': ['a1', 'a1',
+                    'a1', 'a1',
+                    'a1', 'a1',
+                    'B1', 'B1',
+                    'B1'],
+        'stop_id': [1, 2, 3, 4, 5, 6,
+                    7, 8, 9],
+        'stop_sequence': [1, 2, 3, 4, 5, 6,
+                          1, 2, 3],
+        'unique_agency_id': ['agency_a_city_a'] * 9,
+        'unique_feed_id': ['feed_1'] * 9,
+        'route_type': [3, 3, 3, 3, 3, 3,
+                       2, 2, 2],
+        'departure_time_sec': [
+            22500.0, 22620.0, 22860.0, 23100.0, 23580.0, 23940.0,
+            22500.0, 22680.0, 22980.0],
+        # nan, 2, 4, 4, 8, 6 # min
+        # nan, 3, 5 # min
+        'timediff': [
+            np.nan, 120, 240, 240, 480, 360,
+            np.nan, 180, 300]
+    }
+    index = range(9)
+    direction_0 = pd.DataFrame(data, index)
+
+    # inbound direction
+    data = {
+        'trip_id': ['a2', 'a2',
+                    'a2', 'a2',
+                    'a2', 'a2',
+                    'B2', 'B2',
+                    'B2'],
+        'stop_id': [6, 5, 4, 3, 2, 1,
+                    9, 8, 7],
+        'stop_sequence': [1, 2, 3, 4, 5, 6,
+                          1, 2, 3],
+        'unique_agency_id': ['agency_a_city_a'] * 9,
+        'unique_feed_id': ['feed_1'] * 9,
+        'route_type': [3, 3, 3, 3, 3, 3,
+                       2, 2, 2],
+        'departure_time_sec': [
+            23940.0, 23580.0, 23100.0, 22860.0, 22620.0, 22500.0,
+            22980.0, 22680.0, 22500.0],
+        # nan, 2, 4, 4, 8, 6 # min
+        # nan, 3, 5 # min
+        'timediff': [
+            np.nan, 360, 480, 240, 240, 120,
+            np.nan, 300, 180]
+    }
+    index = range(9)
+    direction_1 = pd.DataFrame(data, index)
+
+    df = pd.concat([direction_1, direction_0], ignore_index=True)
+
+    # make multiple trips that stop at the same stops but at offset times
+    # so we can replicate headways for each route
+    merged_dfs = df.copy()
+    trip_count = 5
+    # set some trips to have even headways
+    even_headway = 1200
+    # set some trips to have uneven headways but predicable
+    uneven_headway = {1: 900, 2: 1200, 3: 500, 4: 600, 5: 1800}
+    for trip_id in range(trip_count):
+        df_2 = df.copy()
+        trip_num = trip_id + 1
+        # 20 min headways for (1200 sec) with even spacing
+        col = 'departure_time_sec'
+        trip = 'a1'
+        df_2.loc[df['trip_id'] == trip, col] = \
+            df_2.loc[df['trip_id'] == trip, col] + even_headway
+        trip = 'a2'
+        df_2.loc[df['trip_id'] == trip, col] = \
+            df_2.loc[df['trip_id'] == trip, col] + even_headway
+        # 15-30 min headways for (900-1200 sec) with uneven spacing and
+        trip = 'B1'
+        df_2.loc[df_2['trip_id'] == trip, col] = \
+            df_2.loc[df['trip_id'] == trip, col] + uneven_headway[trip_num]
+        trip = 'B2'
+        df_2.loc[df_2['trip_id'] == trip, col] = \
+            df_2.loc[df['trip_id'] == trip, col] + uneven_headway[trip_num]
+        df_2['trip_id'] = df_2['trip_id'] + '_{}'.format(trip_num)
+
+        merged_dfs = merged_dfs.append(df_2, ignore_index=True)
+
+    # add the other expected cols
+    merged_dfs['departure_time_sec_interpolate'] = merged_dfs[
+        'departure_time_sec'].astype('int')
+    merged_dfs['unique_stop_id'] = (
+        merged_dfs['stop_id'].astype('str').str.cat(
+            merged_dfs['unique_agency_id'].astype('str'), sep='_'))
+    merged_dfs['unique_trip_id'] = merged_dfs['trip_id'].str.cat(
+        merged_dfs['unique_agency_id'].astype('str'), sep='_')
+
+    return merged_dfs
+
+
+@pytest.fixture
+def hw_trips_df_1_agency():
+    # intended for use in headway tests
+    data = {
+        'route_id': ['10-101', '10-101',
+                     'B1', 'B1'],
+        'trip_id': ['a1', 'a2',
+                    'B1', 'B2'],
+        'service_id': ['weekday-1'] * 4,
+        'direction_id': [1, 0,
+                         1, 0],
+        'unique_agency_id': ['agency_a_city_a'] * 4,
+        'unique_feed_id': ['feed_1'] * 4}
+    index = range(4)
+    df = pd.DataFrame(data, index)
+
+    # expand trips to match what is in the test stop_times table
+    merged_dfs = df.copy()
+    trip_count = 5
+    for trip_id in range(trip_count):
+        df_2 = df.copy()
+        trip_num = trip_id + 1
+        df_2['trip_id'] = df_2['trip_id'] + '_{}'.format(trip_num)
+        merged_dfs = merged_dfs.append(df_2, ignore_index=True)
+
+    return merged_dfs
+
+
+@pytest.fixture()
+def hw_headways_df_1_agency(
+        hw_trips_df_1_agency, hw_routes_df_1_agency,
+        hw_stop_times_int_df_1_agency):
+    # intended for use in headway tests
+
+    # build expected headway table
+    int_stop_times = _build_expected_hw_intermediate_stop_times_data(
+        trips_df=hw_trips_df_1_agency,
+        routes_df=hw_routes_df_1_agency,
+        stop_times_df=hw_stop_times_int_df_1_agency)
+
+    int_stop_times['unique_stop_route'] = (
+        int_stop_times['unique_stop_id'].str.cat(
+            int_stop_times['unique_route_id'].astype('str'), sep=','))
+
+    stop_route_groups = int_stop_times.groupby('unique_stop_route')
+
+    results = {}
+    col = 'departure_time_sec_interpolate'
+    for unique_stop_route, stop_route_group in stop_route_groups:
+        stop_route_group.sort_values([col], ascending=True, inplace=True)
+        next_veh_time = (stop_route_group[col].iloc[1:].values)
+        prev_veh_time = (stop_route_group[col].iloc[:-1].values)
+        stop_route_group_headways = (next_veh_time - prev_veh_time) / 60
+        results[unique_stop_route] = (pd.Series(stop_route_group_headways)
+                                      .describe())
+
+    headway_by_routestop_df = pd.DataFrame(results).T
+
+    headway_by_routestop_df = pd.merge(
+        headway_by_routestop_df,
+        int_stop_times[
+            ['unique_stop_route', 'unique_stop_id', 'unique_route_id']],
+        how='left', left_index=True, right_on='unique_stop_route', sort=False)
+    headway_by_routestop_df.drop('unique_stop_route', axis=1, inplace=True)
+    headway_by_routestop_df['node_id_route'] = (
+        headway_by_routestop_df['unique_stop_id'].str.cat(
+            headway_by_routestop_df['unique_route_id'].astype('str'), sep='_'))
+
+    return headway_by_routestop_df
+
+
 @pytest.fixture()
 def agency_a_feed_on_disk_wo_calendar_dates(
         tmpdir,
@@ -820,6 +1021,27 @@ def agency_a_feed_on_disk_w_calendar_and_calendar_dates_empty_txt(
                       'calendar': calendar_feed_1,
                       'calendar_dates': calendar_dates_feed_1}
     feed_path = os.path.join(tmpdir.strpath, 'empty_txt_test')
+    os.makedirs(feed_path)
+    print('writing test data to dir: {}'.format(feed_path))
+    for feed_file, feed_df in feed_file_dict.items():
+        feed_file_name = '{}.txt'.format(feed_file)
+        feed_df.to_csv(os.path.join(feed_path, feed_file_name), index=False)
+    return feed_path
+
+
+@pytest.fixture()
+def agency_b_feed_on_disk_w_calendar_and_calendar_dates(
+        tmpdir,
+        agency_feed_2, stop_times_feed_2, stops_feed_2,
+        routes_feed_2, trips_feed_2, calendar_feed_2, calendar_dates_feed_2):
+    feed_file_dict = {'agency': agency_feed_2,
+                      'stop_times': stop_times_feed_2,
+                      'stops': stops_feed_2,
+                      'routes': routes_feed_2,
+                      'trips': trips_feed_2,
+                      'calendar': calendar_feed_2,
+                      'calendar_dates': calendar_dates_feed_2}
+    feed_path = os.path.join(tmpdir.strpath, 'agency_b_w_both_calendars')
     os.makedirs(feed_path)
     print('writing test data to dir: {}'.format(feed_path))
     for feed_file, feed_df in feed_file_dict.items():

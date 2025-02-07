@@ -1,19 +1,10 @@
 import time
 import os
-import geopy
-from geopy import distance
-
-from sklearn.neighbors import KDTree
 import pandas as pd
 
-from urbanaccess.utils import log, df_to_hdf5, hdf5_to_df
+from urbanaccess.utils import log, df_to_hdf5, hdf5_to_df, _add_unique_stop_id
+from urbanaccess.network_utils import connector_edges
 from urbanaccess import config
-
-
-if int(geopy.__version__[0]) < 2:
-    dist_calc = distance.vincenty
-else:
-    dist_calc = distance.geodesic
 
 
 class urbanaccess_network(object):
@@ -53,34 +44,6 @@ class urbanaccess_network(object):
 ua_network = urbanaccess_network()
 
 
-def _nearest_neighbor(df1, df2):
-    """
-    For a DataFrame of xy coordinates find the nearest xy
-    coordinates in a subsequent DataFrame
-
-    Parameters
-    ----------
-    df1 : pandas.DataFrame
-        DataFrame of records to return as the nearest record to records in df2
-    df2 : pandas.DataFrame
-        DataFrame of records with xy coordinates for which to find the
-        nearest record in df1 for
-    Returns
-    -------
-    df1.index.values[indexes] : pandas.Series
-        index of records in df1 that are nearest to the coordinates in df2
-    """
-    try:
-        df1_matrix = df1.to_numpy()
-        df2_matrix = df2.to_numpy()
-    except AttributeError:
-        df1_matrix = df1.values
-        df2_matrix = df2.values
-    kdt = KDTree(df1_matrix)
-    indexes = kdt.query(df2_matrix, k=1, return_distance=False)
-    return df1.index.values[indexes]
-
-
 def integrate_network(urbanaccess_network, headways=False,
                       urbanaccess_gtfsfeeds_df=None, headway_statistic='mean'):
     """
@@ -97,9 +60,9 @@ def integrate_network(urbanaccess_network, headways=False,
         if true, route stop level headways calculated in a previous step
         will be applied to the OSM to transit connector
         edge travel time weights as an approximate measure
-        of average passenger transit stop waiting time.
+        of average passenger transit stop wait time.
     urbanaccess_gtfsfeeds_df : object, optional
-        required if headways is true; the gtfsfeeds_dfs object that holds
+        required if 'headways' is true; the gtfsfeeds_dfs object that holds
         the corresponding headways and stops DataFrames
     headway_statistic : {'mean', 'std', 'min', 'max'}, optional
         required if headways is true; route stop headway
@@ -117,13 +80,15 @@ def integrate_network(urbanaccess_network, headways=False,
     urbanaccess_network.net_edges : pandas.DataFrame
     urbanaccess_network.net_nodes : pandas.DataFrame
     """
-
     if urbanaccess_network is None:
         raise ValueError('urbanaccess_network is not specified')
-    if urbanaccess_network.transit_edges.empty \
-            or urbanaccess_network.transit_nodes.empty \
-            or urbanaccess_network.osm_edges.empty \
-            or urbanaccess_network.osm_nodes.empty:
+    is_transit_edges_empty = urbanaccess_network.transit_edges.empty
+    is_transit_nodes_empty = urbanaccess_network.transit_nodes.empty
+    is_osm_edges_empty = urbanaccess_network.osm_edges.empty
+    is_osm_nodes_empty = urbanaccess_network.osm_nodes.empty
+
+    if is_transit_edges_empty or is_transit_nodes_empty or \
+            is_osm_edges_empty or is_osm_nodes_empty:
         raise ValueError(
             'one of the network objects: transit_edges, transit_nodes, '
             'osm_edges, or osm_nodes were found to be empty.')
@@ -140,22 +105,23 @@ def integrate_network(urbanaccess_network, headways=False,
         raise ValueError('headways must be bool type')
 
     if headways:
-
-        if urbanaccess_gtfsfeeds_df is None or \
-                urbanaccess_gtfsfeeds_df.headways.empty or \
-                urbanaccess_gtfsfeeds_df.stops.empty:
+        is_headway_df_empty = urbanaccess_gtfsfeeds_df.headways.empty
+        is_stops_df_empty = urbanaccess_gtfsfeeds_df.stops.empty
+        is_ua_gtfsfeeds_empty = urbanaccess_gtfsfeeds_df is None
+        if is_ua_gtfsfeeds_empty or is_headway_df_empty or is_stops_df_empty:
             raise ValueError(
-                'stops and headway DataFrames were not found in the '
+                'stops and or headway DataFrames were not found in the '
                 'urbanaccess_gtfsfeeds object. Please create these '
                 'DataFrames in order to use headways.')
 
         valid_stats = ['mean', 'std', 'min', 'max']
-        if headway_statistic not in valid_stats or not isinstance(
-                headway_statistic, str):
+        if headway_statistic not in valid_stats or \
+                not isinstance(headway_statistic, str):
             raise ValueError('{} is not a supported statistic or is not a '
                              'string'.format(headway_statistic))
 
         transit_edge_cols = urbanaccess_network.transit_edges.columns
+        # TODO: verify if these checks are still required in various use cases
         if 'node_id_from' not in transit_edge_cols or 'from' in \
                 transit_edge_cols:
             urbanaccess_network.transit_edges.rename(
@@ -177,7 +143,7 @@ def integrate_network(urbanaccess_network, headways=False,
             stops_df=urbanaccess_gtfsfeeds_df.stops,
             edges_w_routes=urbanaccess_network.transit_edges)
 
-        net_connector_edges = _connector_edges(
+        net_connector_edges = connector_edges(
             osm_nodes=urbanaccess_network.osm_nodes,
             transit_nodes=urbanaccess_network.transit_nodes,
             travel_speed_mph=3)
@@ -188,15 +154,15 @@ def integrate_network(urbanaccess_network, headways=False,
             headway_statistic=headway_statistic)
 
     else:
-        urbanaccess_network.net_connector_edges = _connector_edges(
+        urbanaccess_network.net_connector_edges = connector_edges(
             osm_nodes=urbanaccess_network.osm_nodes,
             transit_nodes=urbanaccess_network.transit_nodes,
             travel_speed_mph=3)
 
     # change cols in transit edges and nodes
     if headways:
-        urbanaccess_network.transit_edges.rename(columns={
-            'node_id_route_from': 'from', 'node_id_route_to': 'to'},
+        urbanaccess_network.transit_edges.rename(
+            columns={'node_id_route_from': 'from', 'node_id_route_to': 'to'},
             inplace=True)
         urbanaccess_network.transit_edges.drop(['node_id_from', 'node_id_to'],
                                                inplace=True, axis=1)
@@ -207,8 +173,8 @@ def integrate_network(urbanaccess_network, headways=False,
         urbanaccess_network.transit_edges.rename(
             columns={'node_id_from': 'from', 'node_id_to': 'to'}, inplace=True)
         urbanaccess_network.transit_nodes.reset_index(inplace=True, drop=False)
-        urbanaccess_network.transit_nodes.rename(columns={'node_id': 'id'},
-                                                 inplace=True)
+        urbanaccess_network.transit_nodes.rename(
+            columns={'node_id': 'id'}, inplace=True)
 
     # concat all network components
     urbanaccess_network.net_edges = pd.concat(
@@ -217,8 +183,12 @@ def integrate_network(urbanaccess_network, headways=False,
          urbanaccess_network.net_connector_edges], axis=0)
 
     urbanaccess_network.net_nodes = pd.concat(
-        [urbanaccess_network.transit_nodes,
-         urbanaccess_network.osm_nodes], axis=0)
+        [
+            urbanaccess_network.transit_nodes,
+            urbanaccess_network.osm_nodes.assign(id=urbanaccess_network.osm_nodes.index),
+        ],
+        axis=0,
+    )
 
     urbanaccess_network.net_edges, urbanaccess_network.net_nodes = \
         _format_pandana_edges_nodes(edge_df=urbanaccess_network.net_edges,
@@ -263,28 +233,25 @@ def _add_headway_impedance(ped_to_transit_edges_df, headways_df,
     osm_to_transit_wheadway : pandas.DataFrame
 
     """
-
     start_time = time.time()
 
-    log(
-        '{} route stop headway will be used for pedestrian to transit edge '
-        'impedance.'.format(
-            headway_statistic))
+    log('{} route stop headway will be used for pedestrian to transit edge '
+        'impedance.'.format(headway_statistic))
 
-    osm_to_transit_wheadway = pd.merge(ped_to_transit_edges_df, headways_df[
-        [headway_statistic, 'node_id_route']],
-                                       how='left', left_on=['to'],
-                                       right_on=['node_id_route'], sort=False,
-                                       copy=False)
+    osm_to_transit_wheadway = pd.merge(
+        ped_to_transit_edges_df,
+        headways_df[[headway_statistic, 'node_id_route']],
+        how='left', left_on=['to'], right_on=['node_id_route'], sort=False,
+        copy=False)
+    # divide headway statistic result by 2 assuming uniform distribution
+    # of passenger arrival at stop
     osm_to_transit_wheadway['weight_tmp'] = osm_to_transit_wheadway[
-                                                'weight'] + (
-                                            osm_to_transit_wheadway[
-                                                headway_statistic] / 2.0)
+        'weight'] + (osm_to_transit_wheadway[headway_statistic] / 2.0)
     osm_to_transit_wheadway['weight_tmp'].fillna(
         osm_to_transit_wheadway['weight'], inplace=True)
     osm_to_transit_wheadway.drop('weight', axis=1, inplace=True)
-    osm_to_transit_wheadway.rename(columns={'weight_tmp': 'weight'},
-                                   inplace=True)
+    osm_to_transit_wheadway.rename(
+        columns={'weight_tmp': 'weight'}, inplace=True)
 
     log('Headway impedance calculation completed. Took {:,.2f} seconds'.format(
         time.time() - start_time))
@@ -294,7 +261,8 @@ def _add_headway_impedance(ped_to_transit_edges_df, headways_df,
 
 def _route_id_to_node(stops_df, edges_w_routes):
     """
-    Assign route ids to the transit nodes table
+    Assign route ids to the transit nodes table. Intended for use with
+    headway workflow.
 
     Parameters
     ----------
@@ -311,12 +279,10 @@ def _route_id_to_node(stops_df, edges_w_routes):
     start_time = time.time()
 
     # create unique stop IDs
-    stops_df['unique_stop_id'] = (
-        stops_df['stop_id'].str.cat(
-            stops_df['unique_agency_id'].astype('str'), sep='_'))
+    stops_df = _add_unique_stop_id(stops_df)
 
     tmp1 = pd.merge(edges_w_routes[['node_id_from', 'node_id_route_from']],
-                    stops_df[['unique_stop_id', 'stop_lat', 'stop_lon']],
+                    stops_df,
                     how='left', left_on='node_id_from',
                     right_on='unique_stop_id', sort=False, copy=False)
     tmp1.rename(columns={'node_id_route_from': 'node_id_route',
@@ -324,7 +290,7 @@ def _route_id_to_node(stops_df, edges_w_routes):
                          'stop_lat': 'y'},
                 inplace=True)
     tmp2 = pd.merge(edges_w_routes[['node_id_to', 'node_id_route_to']],
-                    stops_df[['unique_stop_id', 'stop_lat', 'stop_lon']],
+                    stops_df,
                     how='left',
                     left_on='node_id_to',
                     right_on='unique_stop_id', sort=False, copy=False)
@@ -333,12 +299,13 @@ def _route_id_to_node(stops_df, edges_w_routes):
                          'stop_lat': 'y'},
                 inplace=True)
 
-    transit_nodes_wroutes = pd.concat([tmp1[['node_id_route', 'x', 'y']],
-                                       tmp2[['node_id_route', 'x', 'y']]],
-                                      axis=0)
+    transit_nodes_wroutes = pd.concat([tmp1, tmp2], axis=0)
 
     transit_nodes_wroutes.drop_duplicates(
         subset='node_id_route', keep='first', inplace=True)
+    # drop temp columns
+    transit_nodes_wroutes.drop(
+        columns=['node_id_to', 'node_id_to'], inplace=True)
     # set node index to be unique stop ID
     transit_nodes_wroutes = transit_nodes_wroutes.set_index('node_id_route')
 
@@ -348,69 +315,7 @@ def _route_id_to_node(stops_df, edges_w_routes):
     log('routes successfully joined to transit nodes. '
         'Took {:,.2f} seconds'.format(time.time() - start_time))
 
-    return transit_nodes_wroutes
-
-
-def _connector_edges(osm_nodes, transit_nodes, travel_speed_mph=3):
-    """
-    Generate the connector edges between the OSM and transit edges and
-    weight by travel time
-
-    Parameters
-    ----------
-    osm_nodes : pandas.DataFrame
-        OSM nodes DataFrame
-    transit_nodes : pandas.DataFrame
-        transit nodes DataFrame
-    travel_speed_mph : int, optional
-        travel speed to use to calculate travel time across a
-        distance on an edge. units are in miles per hour (MPH)
-        for pedestrian travel this is assumed to be 3 MPH
-
-    Returns
-    -------
-    net_connector_edges : pandas.DataFrame
-
-    """
-    start_time = time.time()
-
-    transit_nodes['nearest_osm_node'] = _nearest_neighbor(
-        osm_nodes[['x', 'y']],
-        transit_nodes[['x', 'y']])
-
-    net_connector_edges = []
-
-    for transit_node_id, row in transit_nodes.iterrows():
-        # create new edge between the node in df2 (transit)
-        # and the node in OpenStreetMap (pedestrian)
-
-        osm_node_id = int(row['nearest_osm_node'])
-        osm_row = osm_nodes.loc[osm_node_id]
-
-        distance = dist_calc((row['y'], row['x']),
-                             (osm_row['y'], osm_row['x'])).miles
-        time_ped_to_transit = distance / travel_speed_mph * 60
-        time_transit_to_ped = distance / travel_speed_mph * 60
-
-        # save the edge
-        net_type = 'transit to osm'
-        net_connector_edges.append((transit_node_id, osm_node_id,
-                                    time_transit_to_ped, net_type))
-        # make the edge bi-directional
-        net_type = 'osm to transit'
-        net_connector_edges.append((osm_node_id, transit_node_id,
-                                    time_ped_to_transit, net_type))
-
-    net_connector_edges = pd.DataFrame(net_connector_edges,
-                                       columns=["from", "to",
-                                                "weight", "net_type"])
-
-    log(
-        'Connector edges between the OSM and transit network nodes '
-        'successfully completed. Took {:,.2f} seconds'.format(
-            time.time() - start_time))
-
-    return net_connector_edges
+    return transit_nodes_wroutes.dropna(subset=['x', 'y'])
 
 
 def _format_pandana_edges_nodes(edge_df, node_df):
@@ -437,28 +342,36 @@ def _format_pandana_edges_nodes(edge_df, node_df):
     # Pandana requires IDs that are integer: for nodes - make it the index,
     # for edges make it the from and to columns
     node_df['id_int'] = range(1, len(node_df) + 1)
+    node_df['id_int'] = node_df.id_int.astype(int)
 
+    # TODO: reconsider the use of inplace or copy incoming dfs
+    #  to memory to avoid changing in memory tables
     edge_df.rename(columns={'id': 'edge_id'}, inplace=True)
-    tmp = pd.merge(edge_df, node_df[['id', 'id_int']], left_on='from',
-                   right_on='id', sort=False, copy=False, how='left')
-    tmp['from_int'] = tmp['id_int']
-    tmp.drop(['id_int', 'id'], axis=1, inplace=True)
-    edge_df_wnumericid = pd.merge(tmp, node_df[['id', 'id_int']], left_on='to',
-                                  right_on='id', sort=False, copy=False,
-                                  how='left')
-    edge_df_wnumericid['to_int'] = edge_df_wnumericid['id_int']
-    edge_df_wnumericid.drop(['id_int', 'id'], axis=1, inplace=True)
+    id_to_int = node_df.set_index('id')['id_int'].astype(int)
+    edge_df = edge_df.merge(id_to_int.rename('from_int').astype(int), left_on='from',
+                   right_index=True, how='left')
+    
+    #tmp = pd.merge(edge_df, node_df[['id', 'id_int']], left_on='from',
+    #               right_on='id', sort=False, copy=False, how='left')
+    #tmp['from_int'] = tmp['id_int']
+    #tmp.drop(['id_int', 'id'], axis=1, inplace=True)
+    edge_df = edge_df.merge(id_to_int.rename('to_int').astype(int), left_on='to', right_index=True, how='left')
+    
+    # edge_df_wnumericid = pd.merge(tmp, node_df[['id', 'id_int']], left_on='to',
+    #                               right_on='id', sort=False, copy=False,
+    #                               how='left')
+    #edge_df_wnumericid['to_int'] = edge_df_wnumericid['id_int']
+    #edge_df_wnumericid.drop(['id_int', 'id'], axis=1, inplace=True)
     # turn mixed dtype cols into all same format
-    col_list = edge_df_wnumericid.select_dtypes(include=['object']).columns
+    col_list = edge_df.select_dtypes(include=["object"]).columns
     for col in col_list:
         try:
-            edge_df_wnumericid[col] = edge_df_wnumericid[col].astype(str)
+            edge_df[col] = edge_df[col].astype(str)
         # deal with edge cases where typically the name of a street is not
         # in an uniform string encoding such as names with accents
         except UnicodeEncodeError:
             log('Fixed unicode error in {} column'.format(col))
-            edge_df_wnumericid[col] = edge_df_wnumericid[col].str.encode(
-                'utf-8')
+            edge_df[col] = edge_df[col].str.encode("utf-8")
 
     node_df.set_index('id_int', drop=True, inplace=True)
     # turn mixed dtype col into all same format
@@ -469,7 +382,7 @@ def _format_pandana_edges_nodes(edge_df, node_df):
     log('Edge and node tables formatted for Pandana with integer node IDs: '
         'id_int, to_int, and from_int. Took {:,.2f} seconds'.format(
             time.time() - start_time))
-    return edge_df_wnumericid, node_df
+    return edge_df, node_df.dropna(subset=["x", "y"])
 
 
 def save_network(urbanaccess_network, filename,
@@ -496,11 +409,12 @@ def save_network(urbanaccess_network, filename,
 
     Returns
     -------
-    None
+    Nothing
     """
     log('Writing HDF5 store...')
-    if urbanaccess_network is None or urbanaccess_network.net_edges.empty or \
-            urbanaccess_network.net_nodes.empty:
+    is_net_edges_empty = urbanaccess_network.net_edges.empty
+    is_net_nodes_empty = urbanaccess_network.net_nodes.empty
+    if urbanaccess_network is None or is_net_edges_empty or is_net_nodes_empty:
         raise ValueError('Either no urbanaccess_network specified or '
                          'net_edges or net_nodes are empty.')
 

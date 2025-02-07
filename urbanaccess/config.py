@@ -1,6 +1,7 @@
-import os
-import yaml
+import itertools
 import numpy as np
+
+from urbanaccess.utils import _dict_to_yaml, _yaml_to_dict
 
 
 def _format_check(settings):
@@ -15,20 +16,37 @@ def _format_check(settings):
     -------
     Nothing
     """
+    gtfs_api_schema_keys = ['gtfsdataexch']
+    str_keys = ['data_folder', 'images_folder', 'image_filename',
+                'logs_folder', 'log_name', 'log_filename', 'txt_encoding']
+    bool_keys = ['log_file', 'log_console']
+    dict_keys = ['gtfs_api']
+    valid_keys = list(itertools.chain(str_keys, bool_keys, dict_keys))
+    valid_keys = sorted(valid_keys)
+    settings_keys = list(settings.keys())
 
-    valid_keys = ['data_folder', 'images_folder', 'image_filename', 'logs_folder',
-                  'log_file', 'log_console', 'log_name', 'log_filename',
-                  'txt_encoding', 'gtfs_api']
-
-    for key in settings.keys():
-        if key not in valid_keys:
-            raise ValueError('{} not found in list of valid configuration '
-                             'keys: {}.'.format(key, valid_keys))
-        if not isinstance(key, str):
-            raise ValueError('{} must be a string.'.format(key))
-        if key == 'log_file' or key == 'log_console':
+    if set(settings_keys) != set(valid_keys):
+        raise ValueError("Configuration keys: {} do not match required "
+                         "keys: {}.".format(settings_keys, valid_keys))
+    for key in settings_keys:
+        if key in str_keys:
+            if not isinstance(settings[key], str):
+                raise ValueError(
+                    "Key: '{}' value must be string.".format(key))
+        if key in bool_keys:
             if not isinstance(settings[key], bool):
-                raise ValueError('{} must be boolean.'.format(key))
+                raise ValueError(
+                    "Key: '{}' value must be boolean.".format(key))
+        if key in dict_keys:
+            for gtfs_api_key in settings['gtfs_api'].keys():
+                if gtfs_api_key not in gtfs_api_schema_keys:
+                    raise ValueError(
+                        "gtfs_api key: '{}' does not match valid key(s):"
+                        " {}.".format(gtfs_api_key, gtfs_api_schema_keys))
+                if not isinstance(settings['gtfs_api'][gtfs_api_key], str):
+                    raise ValueError(
+                        "gtfs_api key: '{}' value must be string.".format(
+                            gtfs_api_key))
 
 
 # TODO: make class CamelCase
@@ -105,19 +123,7 @@ class urbanaccess_config(object):
         -------
         urbanaccess_config
         """
-
-        if not isinstance(configdir, str):
-            raise ValueError('configdir must be a string')
-        if not os.path.exists(configdir):
-            raise ValueError('{} does not exist or was not found'.format(
-                configdir))
-        if not isinstance(yamlname, str):
-            raise ValueError('yaml must be a string')
-
-        yaml_file = os.path.join(configdir, yamlname)
-
-        with open(yaml_file, 'r') as f:
-            yaml_config = yaml.safe_load(f)
+        yaml_config = _yaml_to_dict(yaml_dir=configdir, yaml_name=yamlname)
 
         settings = cls(
             data_folder=yaml_config.get('data_folder', 'data'),
@@ -168,29 +174,14 @@ class urbanaccess_config(object):
         yamlname : str or file like, optional
             File name to which to save a YAML file.
         overwrite : bool, optional
-            if true, overwrite an existing same name YAML
-            file in specified directory
+            if true, will overwrite an existing YAML
+            file in specified directory if file names are the same
         Returns
         -------
         Nothing
         """
-
-        if not isinstance(configdir, str):
-            raise ValueError('configdir must be a string')
-        if not os.path.exists(configdir):
-            raise ValueError('{} does not exist or was not found'.format(
-                configdir))
-            os.makedirs(configdir)
-        if not isinstance(yamlname, str):
-            raise ValueError('yaml must be a string')
-        yaml_file = os.path.join(configdir, yamlname)
-        if overwrite is False and os.path.isfile(yaml_file) is True:
-            raise ValueError(
-                '{} already exists. Rename or turn overwrite to True'.format(
-                    yamlname))
-        else:
-            with open(yaml_file, 'w') as f:
-                yaml.dump(self.to_dict(), f, default_flow_style=False)
+        _dict_to_yaml(dictionary=self.to_dict(), yaml_dir=configdir,
+                      yaml_name=yamlname, overwrite=overwrite)
 
 
 # set global variables
@@ -279,7 +270,7 @@ _TRIPS_WHEELCHAIR_ACCESSIBLE = {
 _GTFS_TXT_FILE_TYPES = {
     'required_files': ['stops.txt', 'routes.txt', 'trips.txt',
                        'stop_times.txt'],
-    'optional_files': ['agency.txt'],
+    'optional_files': ['agency.txt', 'shapes.txt'],
     'calendar_files': ['calendar.txt', 'calendar_dates.txt']}
 
 _SUPPORTED_GTFS_TXT_FILES = []
@@ -300,7 +291,10 @@ _GTFS_READ_TXT_CONFIG = {
               'remove_whitespace': ['stop_id'],
               'min_required_cols': ['stop_id', 'stop_lat', 'stop_lon']},
     'routes': {'req_dtypes': {'route_id': object},
-               'opt_dtypes': None,
+               'opt_dtypes': {'route_short_name': object,
+                              'route_long_name': object,
+                              'route_color': object,
+                              'route_text_color': object},
                'numeric_converter': None,
                'remove_whitespace': ['route_id'],
                'min_required_cols': ['route_id']},
@@ -309,7 +303,8 @@ _GTFS_READ_TXT_CONFIG = {
                              'route_id': object},
               'opt_dtypes': {'shape_id': object},
               'numeric_converter': None,
-              'remove_whitespace': ['trip_id', 'service_id', 'route_id'],
+              'remove_whitespace': ['trip_id', 'service_id', 'route_id', 
+                                    'shape_id'],
               'min_required_cols': ['trip_id', 'service_id', 'route_id']},
 
     'stop_times': {'req_dtypes': {'trip_id': object,
@@ -318,10 +313,20 @@ _GTFS_READ_TXT_CONFIG = {
                                   'arrival_time': object},
                    'opt_dtypes': None,
                    'numeric_converter': None,
-                   'remove_whitespace': ['trip_id', 'stop_id'],
+                   'remove_whitespace': ['trip_id', 'stop_id',
+                                         'departure_time', 'arrival_time'],
                    'min_required_cols': ['trip_id', 'stop_id',
                                          'departure_time', 'arrival_time']},
-    'calendar': {'req_dtypes': {'service_id': object},
+    'shapes': {'req_dtypes': {'shape_id': object},
+              'opt_dtypes': None,
+              'numeric_converter': ['shape_pt_lat', 'shape_pt_lon',
+                                    'shape_pt_sequence'],
+              'remove_whitespace': ['shape_id'],
+              'min_required_cols': ['shape_id', 'shape_pt_lat',
+                                    'shape_pt_lon', 'shape_pt_sequence']},
+    'calendar': {'req_dtypes': {'service_id': object,
+                                'start_date': object,
+                                'end_date': object},
                  'opt_dtypes': None,
                  'numeric_converter': ['monday', 'tuesday', 'wednesday',
                                        'thursday', 'friday', 'saturday',
@@ -331,7 +336,9 @@ _GTFS_READ_TXT_CONFIG = {
                                        'wednesday', 'thursday', 'friday',
                                        'saturday', 'sunday', 'start_date',
                                        'end_date']},
-    'calendar_dates': {'req_dtypes': {'service_id': object},
+    'calendar_dates': {'req_dtypes': {'service_id': object,
+                                      'date': object,
+                                      'exception_type': object},
                        'opt_dtypes': None,
                        'numeric_converter': None,
                        'remove_whitespace': ['service_id'],

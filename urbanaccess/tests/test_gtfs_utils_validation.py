@@ -412,3 +412,10 @@ def test_check_time_range_format_invalid_params():
         utils_v._check_time_range_format(['10:00:00', '07:00:00'])
     expected_error = ("['10:00:00', '07:00:00'] {}".format(msg))
     assert expected_error in str(excinfo.value)
+    with pytest.raises(ValueError) as excinfo:
+        utils_v._check_time_range_format(None)
+    assert 'timerange cannot be None.' in str(excinfo.value)
+    with pytest.raises(ValueError) as excinfo:
+        utils_v._check_time_range_format(['07:00:000', '11:00:00'])
+    expected_error = ("['07:00:000', '11:00:00'] {}".format(msg))
+    assert expected_error in str(excinfo.value)

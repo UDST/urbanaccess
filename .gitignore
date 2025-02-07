@@ -14,6 +14,7 @@
 /demo/logs
 /demo/data
 /tests/images
+/tests/data
 /tests/logs
 /tests/integration/data
 /tests/integration/logs
