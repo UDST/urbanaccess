@@ -159,8 +159,7 @@ def calendar_agency_a_datetime(calendar_agency_a):
     cols = ['start_date', 'end_date']
     for col in cols:
         calendar_agency_a[col] = pd.to_datetime(
-            calendar_agency_a[col], format='%y%m%d',
-            infer_datetime_format=True)
+            calendar_agency_a[col], format='mixed')
     return calendar_agency_a
 
 
@@ -168,8 +167,7 @@ def calendar_agency_a_datetime(calendar_agency_a):
 def calendar_dates_agency_a_datetime(calendar_dates_agency_a):
     col = 'date'
     calendar_dates_agency_a[col] = pd.to_datetime(
-        calendar_dates_agency_a[col], format='%y%m%d',
-        infer_datetime_format=True)
+        calendar_dates_agency_a[col], format='mixed')
     return calendar_dates_agency_a
 
 

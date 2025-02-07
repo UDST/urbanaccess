@@ -183,8 +183,12 @@ def integrate_network(urbanaccess_network, headways=False,
          urbanaccess_network.net_connector_edges], axis=0)
 
     urbanaccess_network.net_nodes = pd.concat(
-        [urbanaccess_network.transit_nodes,
-         urbanaccess_network.osm_nodes], axis=0)
+        [
+            urbanaccess_network.transit_nodes,
+            urbanaccess_network.osm_nodes.assign(id=urbanaccess_network.osm_nodes.index),
+        ],
+        axis=0,
+    )
 
     urbanaccess_network.net_edges, urbanaccess_network.net_nodes = \
         _format_pandana_edges_nodes(edge_df=urbanaccess_network.net_edges,
@@ -311,7 +315,7 @@ def _route_id_to_node(stops_df, edges_w_routes):
     log('routes successfully joined to transit nodes. '
         'Took {:,.2f} seconds'.format(time.time() - start_time))
 
-    return transit_nodes_wroutes
+    return transit_nodes_wroutes.dropna(subset=['x', 'y'])
 
 
 def _format_pandana_edges_nodes(edge_df, node_df):
@@ -338,30 +342,36 @@ def _format_pandana_edges_nodes(edge_df, node_df):
     # Pandana requires IDs that are integer: for nodes - make it the index,
     # for edges make it the from and to columns
     node_df['id_int'] = range(1, len(node_df) + 1)
+    node_df['id_int'] = node_df.id_int.astype(int)
 
     # TODO: reconsider the use of inplace or copy incoming dfs
     #  to memory to avoid changing in memory tables
     edge_df.rename(columns={'id': 'edge_id'}, inplace=True)
-    tmp = pd.merge(edge_df, node_df[['id', 'id_int']], left_on='from',
-                   right_on='id', sort=False, copy=False, how='left')
-    tmp['from_int'] = tmp['id_int']
-    tmp.drop(['id_int', 'id'], axis=1, inplace=True)
-    edge_df_wnumericid = pd.merge(tmp, node_df[['id', 'id_int']], left_on='to',
-                                  right_on='id', sort=False, copy=False,
-                                  how='left')
-    edge_df_wnumericid['to_int'] = edge_df_wnumericid['id_int']
-    edge_df_wnumericid.drop(['id_int', 'id'], axis=1, inplace=True)
+    id_to_int = node_df.set_index('id')['id_int'].astype(int)
+    edge_df = edge_df.merge(id_to_int.rename('from_int').astype(int), left_on='from',
+                   right_index=True, how='left')
+    
+    #tmp = pd.merge(edge_df, node_df[['id', 'id_int']], left_on='from',
+    #               right_on='id', sort=False, copy=False, how='left')
+    #tmp['from_int'] = tmp['id_int']
+    #tmp.drop(['id_int', 'id'], axis=1, inplace=True)
+    edge_df = edge_df.merge(id_to_int.rename('to_int').astype(int), left_on='to', right_index=True, how='left')
+    
+    # edge_df_wnumericid = pd.merge(tmp, node_df[['id', 'id_int']], left_on='to',
+    #                               right_on='id', sort=False, copy=False,
+    #                               how='left')
+    #edge_df_wnumericid['to_int'] = edge_df_wnumericid['id_int']
+    #edge_df_wnumericid.drop(['id_int', 'id'], axis=1, inplace=True)
     # turn mixed dtype cols into all same format
-    col_list = edge_df_wnumericid.select_dtypes(include=['object']).columns
+    col_list = edge_df.select_dtypes(include=["object"]).columns
     for col in col_list:
         try:
-            edge_df_wnumericid[col] = edge_df_wnumericid[col].astype(str)
+            edge_df[col] = edge_df[col].astype(str)
         # deal with edge cases where typically the name of a street is not
         # in an uniform string encoding such as names with accents
         except UnicodeEncodeError:
             log('Fixed unicode error in {} column'.format(col))
-            edge_df_wnumericid[col] = edge_df_wnumericid[col].str.encode(
-                'utf-8')
+            edge_df[col] = edge_df[col].str.encode("utf-8")
 
     node_df.set_index('id_int', drop=True, inplace=True)
     # turn mixed dtype col into all same format
@@ -372,7 +382,7 @@ def _format_pandana_edges_nodes(edge_df, node_df):
     log('Edge and node tables formatted for Pandana with integer node IDs: '
         'id_int, to_int, and from_int. Took {:,.2f} seconds'.format(
             time.time() - start_time))
-    return edge_df_wnumericid, node_df
+    return edge_df, node_df.dropna(subset=["x", "y"])
 
 
 def save_network(urbanaccess_network, filename,

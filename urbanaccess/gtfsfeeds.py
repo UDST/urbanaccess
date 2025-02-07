@@ -325,7 +325,7 @@ def search(api='gtfsdataexch', search_text=None, search_field=None,
                         search_result = feed_table[
                             feed_table[col].str.match(
                                 text, case=False, na=False)]
-                    search_result_df = search_result_df.append(search_result)
+                    search_result_df = search_result_df._append(search_result)
                     search_result_df.drop_duplicates(inplace=True)
 
         log('Found {} records that matched {} inside {} columns:'.format(

@@ -812,7 +812,7 @@ def _format_transit_net_edge(stop_times_df, time_aware=False):
     for trip, tmp_trip_df in stop_times_df.groupby(['unique_trip_id']):
         # if 'time_aware', also create arrival and departure time cols
         if time_aware:
-            edge_df = pd.DataFrame({
+            edge_df = pd.DataFrame.from_dict({
                 "node_id_from": tmp_trip_df['unique_stop_id'].iloc[:-1].values,
                 "node_id_to": tmp_trip_df['unique_stop_id'].iloc[1:].values,
                 "weight": tmp_trip_df['timediff'].iloc[1:].values,
@@ -827,9 +827,9 @@ def _format_transit_net_edge(stop_times_df, time_aware=False):
                 # arrival_time at node_id_to stop
                 "arrival_time":
                     tmp_trip_df['arrival_time'].iloc[1:].values
-            })
+            }, orient='index').T.ffill()
         else:
-            edge_df = pd.DataFrame({
+            edge_df = pd.DataFrame.from_dict({
                 "node_id_from": tmp_trip_df['unique_stop_id'].iloc[:-1].values,
                 "node_id_to": tmp_trip_df['unique_stop_id'].iloc[1:].values,
                 "weight": tmp_trip_df['timediff'].iloc[1:].values,
@@ -838,7 +838,7 @@ def _format_transit_net_edge(stop_times_df, time_aware=False):
                 # set unique trip ID without edge order to join other data
                 # later
                 "unique_trip_id": trip
-            })
+            }, orient='index').T.ffill().dropna()
 
         # Set current trip ID to edge ID column adding edge order at
         # end of string
