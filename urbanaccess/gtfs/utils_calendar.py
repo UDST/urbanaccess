@@ -1353,8 +1353,32 @@ def _highest_freq_trips_date(trips_df, calendar_df, calendar_dates_df):
             date_srv_id_dict.update(
                 {date: date_add_rmv_srv_id_dict[date]['add']})
 
-    # select the trips and count
+    # TODO: put these cleaning operations in a function
+    # there can be cases where calendar or calendar_dates have servive IDs
+    # listed that are not listed in trips so we prune these out of the max
+    # date selection
     trips_df = _add_unique_trip_id(trips_df)
+    all_active_service_ids = list(trips_df['unique_service_id'].unique())
+    new_d = {}
+    for d, srv_id_list in date_srv_id_dict.items():
+        updated_srv_id_list = [srv_id for srv_id in srv_id_list if srv_id in 
+                               all_active_service_ids]
+        new_d.update({d: updated_srv_id_list})
+    date_srv_id_dict = new_d.copy()
+
+    # prune dict and date list to remove dates that have no active service IDs.
+    # If there are no dates with active service IDs then pass through and
+    # raise error downstream in _trip_selector
+    date_srv_id_dict_cnt = len(date_srv_id_dict)
+    date_srv_id_dict_wo_trips = {
+        k: v for k, v in date_srv_id_dict.items() if v == []}
+    if date_srv_id_dict_cnt > len(date_srv_id_dict_wo_trips):
+        date_srv_id_dict = {
+            k: v for k, v in date_srv_id_dict.items() if v != []}
+    unique_date_list = [d for d in unique_date_list if
+                        d in date_srv_id_dict.keys()]
+
+    # select the trips and count
     date_trip_cnt = {}
     for date in unique_date_list:
         subset_trips_df = _trip_selector(
