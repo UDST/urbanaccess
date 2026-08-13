@@ -92,7 +92,7 @@ def _read_gtfs_file(textfile_path, textfile):
                                    file_name), level=lg.WARNING)
         elif file_name in shape_file_warnings.keys():
             warning_msg = (
-                '     {} has no records. This feed does not use {}.txt.')
+                '     {} has no records. This feed does not use {}.')
             log(warning_msg.format(textfile, shape_file_warnings[file_name],
                                    file_name), level=lg.WARNING)
         else:

@@ -400,7 +400,7 @@ def _simplify_transit_net(edges, nodes, keep_max_stop_trip=True):
     # tag each record in group as True if the group exists more than once
     id_col = 'unique_trip_id'
     edges_wdup = edges.groupby(id_col)[col_list].agg(tuple).sum(1).duplicated()
-
+    
     # remove records where their group was duplicated
     simp_edges = edges.loc[edges[id_col].isin(edges_wdup[~edges_wdup].index)]
 
@@ -458,7 +458,7 @@ def _simplify_transit_net(edges, nodes, keep_max_stop_trip=True):
             simp_edges['unique_trip_id'].isin(max_stop_trip_ids)]
 
     # simplify nodes by removing nodes that do not exist in the simplified
-    # edge table, this catches edges cases but normally there should never be
+    # edge table, this catches edge cases but normally there should never be
     # node ids in the node table that are not in the edge table
     simp_nodes = _remove_nodes_not_in_edges(
         nodes=nodes, edges=simp_edges,
@@ -476,7 +476,7 @@ def _simplify_transit_net(edges, nodes, keep_max_stop_trip=True):
     msg = ('Transit edges have been simplified removing {:,} trip(s) '
            '({:.2f} percent) (reduced from {:,} to {:,} trip(s)) '
            'resulting in the removal of {:,} edge(s) ({:.2f} percent) '
-           '(reduced from {:,} to {:,} edges(s)).')
+           '(reduced from {:,} to {:,} edge(s)).')
     if edge_remove_cnt > 0:
         log(msg.format(trip_remove_cnt, trip_remove_pct,
                        trip_org_tot_cnt, trip_proc_tot_cnt,
@@ -570,7 +570,7 @@ def _interpolate_stop_times(stop_times_df, calendar_selected_trips_df):
         log('Starting departure stop time interpolation...')
         log('Departure time records missing from trips following the '
             'specified schedule: {:,} ({:.2f} percent of {:,} total '
-            'records.)'.format(
+            'records).'.format(
              missing_stop_times_count,
              (missing_stop_times_count / len(stop_times_df)) * 100,
              len(stop_times_df['departure_time_sec'])))
