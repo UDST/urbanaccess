@@ -34,7 +34,8 @@ def create_transit_net(
         date=None,
         date_range=None,
         use_highest_freq_trips_date=False,
-        simplify=False
+        simplify=False,
+        simplify_keep_max_stop_trip=True
 ):
     """
     Create a travel time weight network graph in units of
@@ -160,6 +161,14 @@ def create_transit_net(
         representative trip with its corresponding edges. It is suggested to
         use simplification when using networks with network analysis tools
         such as Pandana for computational efficiency. Default is False.
+    simplify_keep_max_stop_trip : boolean
+        default is True. If True, routes with multiple trips will be
+        simplified to two representative trips, one for each direction of
+        travel, by selecting the one trip in each direction that serves the
+        greatest number of stops in the edge table. This is intended to keep
+        each route's trip that best represents the fullest extent of the
+        route within the selected time period. This requires the 'direction_id'
+        column from the trips.txt to be on the edge table.
 
     Returns
     -------
@@ -295,6 +304,9 @@ def create_transit_net(
     transit_edges = _route_id_to_edge(
         transit_edge_df=transit_edges, trips_df=gtfsfeeds_dfs.trips)
 
+    transit_edges = _direction_id_to_edge(
+        transit_edge_df=transit_edges, trips_df=gtfsfeeds_dfs.trips)
+
     transit_nodes = _remove_nodes_not_in_edges(
         nodes=transit_nodes, edges=transit_edges,
         from_id_col='node_id_from', to_id_col='node_id_to')
@@ -311,7 +323,8 @@ def create_transit_net(
 
     if simplify:
         transit_edges, transit_nodes = _simplify_transit_net(
-            transit_edges, transit_nodes)
+            edges=transit_edges, nodes=transit_nodes,
+            keep_max_stop_trip=simplify_keep_max_stop_trip)
 
     # assign node and edge net type
     transit_nodes['net_type'] = 'transit'
@@ -327,7 +340,7 @@ def create_transit_net(
     return ua_network
 
 
-def _simplify_transit_net(edges, nodes):
+def _simplify_transit_net(edges, nodes, keep_max_stop_trip=True):
     """
     Simplifies edge and node tables by removing trips from the edge table
     that have identical properties that result in duplicate edge attributes
@@ -344,6 +357,14 @@ def _simplify_transit_net(edges, nodes):
         edges DataFrame to simplify
     nodes : pandas.DataFrame
         nodes DataFrame to simplify
+    keep_max_stop_trip: bool
+        default is True. If True, routes with multiple trips will be
+        simplified to two representative trips, one for each direction of 
+        travel, by selecting the one trip in each direction that serves the 
+        greatest number of stops in the edge table. This is intended to keep 
+        each route's trip that best represents the fullest extent of the 
+        route within the selected time period. This requires the 'direction_id'
+        column from the trips.txt to be on the edge table.
 
     Returns
     -------
@@ -357,9 +378,13 @@ def _simplify_transit_net(edges, nodes):
     #  strings for downstream debugging or for informative trip counts
     # TODO: can simplify even more by reducing along edge shared attr in
     #  addition to trips, must ensure that stop ids are connected
+    # TODO: if using keep_max_stop_trip could infer direction of each trip
+    #  if trip is missing direction_id so we can bypass the direction_id data
+    #  schema requirements when using this param
     start_time = time.time()
-
-    log('Running transit network simplification...')
+    
+    log(f'Running transit network simplification with '
+        f'keep_max_stop_trip: {keep_max_stop_trip}...')
 
     if edges.empty:
         raise ValueError(
@@ -378,6 +403,59 @@ def _simplify_transit_net(edges, nodes):
 
     # remove records where their group was duplicated
     simp_edges = edges.loc[edges[id_col].isin(edges_wdup[~edges_wdup].index)]
+
+    if keep_max_stop_trip:
+        grp_cols = ['unique_route_id', 'unique_trip_id']
+        unique_cols = ['unique_route_id']
+        direction_id_col = 'direction_id'
+        # direction id is optional however it is required to use 
+        # keep_max_stop_trip and is important for simplification so that we 
+        # can simplify a route to a representative trip in each direction of 
+        # travel.
+
+        if direction_id_col in simp_edges.columns:
+            grp_cols.extend([direction_id_col])
+            unique_cols.extend([direction_id_col])
+            
+            # check if values are not what is expected - note that it is
+            # possible for all trips to only have one direction for example
+            # if trip is a loop so we do not always expect both a 1 and 0
+            # direction to be present but we do expect at a minimum one of
+            # the values. nan can also represent a loop but not always.
+            direction_id_col_vals = list(simp_edges[direction_id_col].unique())
+            expected_direction_id_vals = [0, 1]
+            if not set(direction_id_col_vals).issubset(expected_direction_id_vals):
+                error_msg = (
+                    f'{direction_id_col} has value(s): '
+                    f'{direction_id_col_vals} but {expected_direction_id_vals}'
+                    f' were expected. It is suggested to check and modify '
+                    f'the trips.txt file for incorrect {direction_id_col} '
+                    f'value(s) when trying to simplify the edge table when '
+                    f'using keep_max_stop_trip=True. Otherwise, if these '
+                    f'value(s) are expected it is suggested to set '
+                    f'keep_max_stop_trip to False.')
+                raise ValueError(error_msg)
+        else:
+            error_msg = (
+                f'{direction_id_col} is a required column in the edge table '
+                f'in order to simplify the edge table to collapse multi trip '
+                f'routes into two representative trips, one for each '
+                f'direction of travel. Likely this optional column does '
+                f'not exist in the trips.txt file. In this case it is '
+                f'suggested to set keep_max_stop_trip to False.')
+            raise ValueError(error_msg)
+
+        route_edge_cnt_by_trip = simp_edges.groupby(
+            grp_cols).size().reset_index()
+        route_edge_cnt_by_trip = route_edge_cnt_by_trip.rename(
+            columns={0: 'count'})
+        route_edge_cnt_by_trip_max = route_edge_cnt_by_trip.sort_values(
+            'count', ascending=True).drop_duplicates(
+            unique_cols, keep='last')
+        max_stop_trip_ids = list(
+            route_edge_cnt_by_trip_max['unique_trip_id'].unique())
+        simp_edges = simp_edges.loc[
+            simp_edges['unique_trip_id'].isin(max_stop_trip_ids)]
 
     # simplify nodes by removing nodes that do not exist in the simplified
     # edge table, this catches edges cases but normally there should never be
@@ -1048,6 +1126,45 @@ def _route_id_to_edge(transit_edge_df, trips_df):
         'Took {:,.2f} seconds.'.format(time.time() - start_time))
 
     return transit_edge_df_with_routes
+
+
+def _direction_id_to_edge(transit_edge_df, trips_df):
+    """
+    Append direction IDs to transit edge table for reference
+
+    Parameters
+    ----------
+    transit_edge_df : pandas.DataFrame
+        transit edge DataFrame
+    trips_df : pandas.DataFrame
+        trips DataFrame
+
+    Returns
+    -------
+    transit_edge_df_with_direction_id : pandas.DataFrame
+
+    """
+    start_time = time.time()
+
+    transit_edge_df_proc = transit_edge_df.copy()
+    
+    # direction id is optional and may not be present
+    if 'direction_id' in trips_df.columns:
+        if 'unique_trip_id' not in transit_edge_df_proc.columns:
+            # create unique trip and route IDs
+            trips_df = _add_unique_trip_id(trips_df)
+
+        # build lookup table of unique trip ids to direction ids
+        lookup_dict = dict(
+            zip(trips_df['unique_trip_id'], trips_df['direction_id']))
+
+        transit_edge_df_proc['direction_id'] = transit_edge_df_proc[
+            'unique_trip_id'].map(lookup_dict)
+
+        log('Direction ID successfully joined to transit edges. '
+            'Took {:,.2f} seconds.'.format(time.time() - start_time))
+
+    return transit_edge_df_proc
 
 
 def edge_impedance_by_route_type(
