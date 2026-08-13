@@ -7,6 +7,7 @@ import time
 import ssl
 from six.moves.urllib import request
 import shutil
+from io import BytesIO
 
 from urbanaccess.utils import log
 from urbanaccess import config
@@ -538,11 +539,53 @@ def download(data_folder=os.path.join(config.settings.data_folder),
     unzip(zip_rootpath=download_folder, delete_zips=delete_zips)
 
 
-def _unzip_util(zipfile_read_path, unzip_file_path, has_subzips):
+def _list_zip_files_in_zip(zip_file_list):
+    sub_zip_filelist = [file for file in zip_file_list if
+                        file.endswith(".zip")]
+    return sub_zip_filelist
+
+
+def _list_txt_files_in_zip(zip_file_list):
+    filelist = [file for file in zip_file_list if
+                file.endswith(".txt") and not file.startswith("__MACOSX")]
+    return filelist
+
+
+def _validate_gtfs_zip_structure(zip_object):
+    z_files = zip_object.namelist()
+    # required to deal with zipfiles that have subdirectories and
+    # that were created on OSX
+    txt_filelist = _list_txt_files_in_zip(zip_file_list=z_files)
+    # in cases where the zip contains multiple zips of GTFS feeds
+    # such as the case with the SEPTA and Victoria Australia GTFS feeds
+    sub_zip_filelist = _list_zip_files_in_zip(zip_file_list=z_files)
+    sub_zip_cnt = len(sub_zip_filelist)
+    # Note: there must only be zips inside of the sub directory, if its a
+    # mix of zips and txt files we assume that the parent zip contained
+    # both its zipped txt contents and a copy of itself as a zip in which
+    # case the GTFS txt files will be dealt with correctly but we
+    # will ignore the subdirectory zip
+    if txt_filelist and sub_zip_filelist:
+        msg = ('Warning: Zipfile contains {:,} zipfile(s): {} in addition '
+               'to GTFS txt files: {}. Zipfile(s) inside of the parent '
+               'zipfile will not be extracted.')
+        log(msg.format(sub_zip_cnt, sub_zip_filelist, txt_filelist),
+            level=lg.WARNING)
+        sub_zip_filelist = []  # null subdirectory zipfile list
+
+    sub_zip_cnt = len(sub_zip_filelist)
+    if len(txt_filelist) == 0 and sub_zip_cnt > 0:
+        msg = ('Zipfile contains {:,} zipfiles: {}. These will be '
+               'extracted as separate feeds.')
+        log(msg.format(sub_zip_cnt, sub_zip_filelist))
+    return txt_filelist, sub_zip_filelist
+
+
+def _unzip_util(zipfile_read_path, unzip_file_path):
     """
     unzip GTFS feed zipfile in a root directory with resulting text files
     in the root folder: gtfsfeed_text. If zipfile contains only zipfiles in
-    its subdirectory, recursively these zips will be extracted separately
+    its subdirectory, each zipfile will be extracted separately
     into their own directories inside of root folder: gtfsfeed_text
 
     Parameters
@@ -551,69 +594,56 @@ def _unzip_util(zipfile_read_path, unzip_file_path, has_subzips):
         full path to directory where zipfile to unzip is located
     unzip_file_path : string
         full path to directory where to unzip zipfile
-    has_subzips : bool
-        if true the parent zipfile contains zipfiles in its subdirectory. If
-        true subdirectory zipfiles will be extracted as separate feed folders.
 
     Returns
     -------
-    sub_zip_filelist : list
-        list of zipfile names that exist inside of the parent zipfile
-        directory, if there are none, will return Nothing
+    Nothing
     """
-    with zipfile.ZipFile(zipfile_read_path) as z:
-        zip_file_list = z.namelist()
-        # required to deal with zipfiles that have subdirectories and
-        # that were created on OSX
-        filelist = [file for file in zip_file_list if
-                    file.endswith(".txt") and not file.startswith("__MACOSX")]
-        # in cases where the zip contains multiple zips of GTFS feeds
-        # such as the case with the SEPTA GTFS feed
-        sub_zip_filelist = [file for file in zip_file_list if
-                            file.endswith(".zip")]
-        # Note: there must only be zips inside of the sub directory, if its a
-        # mix of zips and txt files we assume that the parent zip contained
-        # both its zipped txt contents and a copy of itself as a zip in which
-        # case the GTFS txt files will be dealt with correctly but we
-        # will ignore the subdirectory zip
-        if filelist and sub_zip_filelist:
-            msg = ('Warning: Zipfile contains {:,} zipfile(s): {} in addition '
-                   'to GTFS txt files: {}. Zipfile(s) inside of the parent '
-                   'zipfile will not be extracted.')
-            log(msg.format(len(sub_zip_filelist), sub_zip_filelist, filelist),
-                level=lg.WARNING)
-            sub_zip_filelist = []  # null subdirectory zipfile list
-        if len(filelist) == 0 and len(sub_zip_filelist) > 0:
-            msg = ('Zipfile contains {:,} zipfiles: {}. These will be '
-                   'extracted as separate feeds.')
-            log(msg.format(len(sub_zip_filelist), sub_zip_filelist))
-            extract_subzips = True
+    with zipfile.ZipFile(zipfile_read_path, 'r') as z:
+        txt_filelist, sub_zip_filelist = _validate_gtfs_zip_structure(
+            zip_object=z)
+        if not sub_zip_filelist:
+            if not os.path.exists(unzip_file_path):
+                log('{} does not exist. Directory was created'.format(
+                    unzip_file_path))
+                os.makedirs(unzip_file_path)
+            for txt_file in txt_filelist:
+                file_path = os.path.join(
+                    unzip_file_path, os.path.basename(txt_file))
+                with open(file_path, 'wb') as f:
+                    f.write(z.read(txt_file))
+                    f.close()
         else:
-            extract_subzips = False
+            for sub_zip_path in sub_zip_filelist:
+                # read the inner zip
+                sub_zip_z = z.read(sub_zip_path)
+                with zipfile.ZipFile(BytesIO(sub_zip_z), 'r') as z_sub:
+                    txt_filelist, sub_zip_filelist = \
+                        _validate_gtfs_zip_structure(zip_object=z_sub)
 
-        if has_subzips:
-            if not os.path.exists(unzip_file_path):
-                os.makedirs(unzip_file_path)
-            for file in filelist:
-                file_path = os.path.join(
-                    unzip_file_path, os.path.basename(file))
-                with open(file_path, 'wb') as f:
-                    f.write(z.read(file))
-                    f.close()
-        else:
-            if extract_subzips:
-                filelist = sub_zip_filelist.copy()
-            if not os.path.exists(unzip_file_path):
-                os.makedirs(unzip_file_path)
-            for file in filelist:
-                file_path = os.path.join(
-                    unzip_file_path, os.path.basename(file))
-                with open(file_path, 'wb') as f:
-                    f.write(z.read(file))
-                    f.close()
+                    # make unzip dir name unique in case others exist, there 
+                    # can be cases where the sub_zip_path is located in a 
+                    # nested directory so we use the subdirectories as part 
+                    # of the new dir renaming schema and flatten it out to 
+                    # just one directory per sub_zip_path
+                    sub_zip_path_parts = os.path.split(sub_zip_path)
+                    sub_zip_path_flat = '_'.join(
+                        sub_zip_path_parts).replace('.zip', '')
+                    sub_unzip_file_path = os.path.join(
+                        os.path.dirname(unzip_file_path), sub_zip_path_flat)
+                    
+                    if not os.path.exists(sub_unzip_file_path):
+                        log('{} does not exist. Directory was created'.format(
+                                sub_unzip_file_path))
+                        os.makedirs(sub_unzip_file_path)
+                    for txt_file in txt_filelist:
+                        file_path = os.path.join(
+                            sub_unzip_file_path, os.path.basename(txt_file))
+                        with open(file_path, 'wb') as f:
+                            f.write(z_sub.read(txt_file))
+                            f.close()
+                    z_sub.close()
         z.close()
-    if not has_subzips:
-        return sub_zip_filelist
 
 
 def unzip(zip_rootpath, delete_zips=False):
@@ -638,10 +668,6 @@ def unzip(zip_rootpath, delete_zips=False):
     unzip_rootpath = os.path.join(
         os.path.dirname(zip_rootpath), 'gtfsfeed_text')
 
-    if not os.path.exists(unzip_rootpath):
-        os.makedirs(unzip_rootpath)
-        log('{} does not exist. Directory was created'.format(unzip_rootpath))
-
     zipfilelist = [zipfilename for zipfilename in os.listdir(zip_rootpath) if
                    zipfilename.endswith(".zip")]
     if len(zipfilelist) == 0:
@@ -652,27 +678,11 @@ def unzip(zip_rootpath, delete_zips=False):
         unzipfile_name = zfile.replace('.zip', '')
         unzip_file_path = os.path.join(unzip_rootpath, unzipfile_name)
         zipfile_read_path = os.path.join(zip_rootpath, zfile)
-
-        sub_zip_filelist = _unzip_util(zipfile_read_path, unzip_file_path,
-                                       has_subzips=False)
-        if len(sub_zip_filelist) != 0:
-            for sub_zipfile in sub_zip_filelist:
-                sub_zipfile_path = os.path.join(unzip_file_path, sub_zipfile)
-                # make unzip dir name unique in case others exist
-                sub_unzipfile_name = '{}_{}'.format(
-                    unzipfile_name, sub_zipfile.replace('.zip', ''))
-                sub_unzipfile_path = os.path.join(
-                    os.path.split(unzip_file_path)[0], sub_unzipfile_name)
-                _unzip_util(
-                    sub_zipfile_path, sub_unzipfile_path, has_subzips=True)
-                msg = ('{} with nested zipfile: {} successfully extracted '
-                       'to: {}')
-                log(msg.format(zfile, sub_zipfile, sub_unzipfile_path))
-                os.remove(sub_zipfile_path)  # remove the nested zip
-            os.rmdir(unzip_file_path)  # remove the dir that had the nested zip
-        else:
-            log('{} successfully extracted to: {}'.format(
-                zfile, unzip_file_path))
+        _unzip_util(
+            zipfile_read_path=zipfile_read_path,
+            unzip_file_path=unzip_file_path)
+        log('{} successfully extracted to: {}'.format(
+            zfile, unzip_file_path))
 
     if delete_zips:
         shutil.rmtree(zip_rootpath)
