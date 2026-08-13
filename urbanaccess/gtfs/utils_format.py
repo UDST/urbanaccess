@@ -966,14 +966,22 @@ def _add_txt_definitions(stops_df, routes_df, stop_times_df, trips_df):
     stops_df, routes_df, stop_times_df, trips_df : pandas.DataFrame
     """
     # define description value mappings from config
-    stops_desc = {'location_type': config._STOPS_LOCATION_TYPE_LOOKUP,
-                  'wheelchair_boarding': config._STOPS_WHEELCHAIR_BOARDINGS}
-    routes_desc = {'route_type': config._ROUTES_MODE_TYPE_LOOKUP}
-    stop_times_desc = {'pickup_type': config._STOP_TIMES_PICKUP_TYPE,
-                       'drop_off_type': config._STOP_TIMES_DROP_OFF_TYPE,
-                       'timepoint': config._STOP_TIMES_TIMEPOINT}
-    trips_desc = {'bikes_allowed': config._TRIPS_BIKES_ALLOWED,
-                  'wheelchair_accessible': config._TRIPS_WHEELCHAIR_ACCESSIBLE}
+    stops_desc = {
+        'location_type': config._STOPS_LOCATION_TYPE_LOOKUP,
+        'wheelchair_boarding': config._STOPS_WHEELCHAIR_BOARDINGS}
+    # combine the normal and extended route types into one dict
+    route_type_dict = config._ROUTES_MODE_TYPE_LOOKUP.copy()
+    route_type_extended_dict = config._EXTENDED_ROUTES_MODE_TYPE_LOOKUP.copy()
+    route_type_dict.update(route_type_extended_dict)
+    routes_desc = {
+        'route_type': route_type_dict}
+    stop_times_desc = {
+        'pickup_type': config._STOP_TIMES_PICKUP_TYPE,
+        'drop_off_type': config._STOP_TIMES_DROP_OFF_TYPE,
+        'timepoint': config._STOP_TIMES_TIMEPOINT}
+    trips_desc = {
+        'bikes_allowed': config._TRIPS_BIKES_ALLOWED,
+        'wheelchair_accessible': config._TRIPS_WHEELCHAIR_ACCESSIBLE}
 
     # apply value mappings to dfs
     stops_df = _apply_gtfs_definition(
