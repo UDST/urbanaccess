@@ -362,6 +362,11 @@ def _format_pandana_edges_nodes(edge_df, node_df):
             log('Fixed unicode error in {} column'.format(col))
             edge_df_wnumericid[col] = edge_df_wnumericid[col].str.encode(
                 'utf-8')
+    
+    # edge index must be unique for pandana
+    if len(edge_df_wnumericid.index.unique()) != len(edge_df_wnumericid):
+        log('Edge index is not unique, resetting index...')
+        edge_df_wnumericid = edge_df_wnumericid.reset_index(drop=True)
 
     node_df.set_index('id_int', drop=True, inplace=True)
     # turn mixed dtype col into all same format
