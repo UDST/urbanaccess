@@ -26,15 +26,15 @@ setup(
     ],
     packages=find_packages(exclude=['*.tests']),
     install_requires=[
-        'requests >= 2.9.1',
-        'six >= 1.11',
+        'requests >= 2.31, < 3',
+        'six >= 1.16, < 2',
         'pandas >= 1.5, < 2',
         'numpy >= 1.23.5, < 2',
         'osmnet >= 0.1.7',
-        'pandana >= 0.7, < 0.9',
+        'pandana >= 0.7, < 0.8',
         'matplotlib >= 3.5, < 3.8',
-        'geopy >= 2.0',
-        'pyyaml >= 6.0',
+        'geopy >= 2.0, < 3',
+        'pyyaml >= 6.0, < 7',
         'scikit-learn >= 1.2, < 1.4'
     ]
 )
