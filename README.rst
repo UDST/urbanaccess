@@ -24,6 +24,37 @@ network data acquisition, validation, and processing; 2) computing an
 integrated pedestrian and transit weighted network graph; and 3) network
 analysis using Pandana.
 
+Project scope
+-------------
+
+**Status:** Active
+
+**Mission:** UrbanAccess provides tools for constructing and preparing
+integrated transit and pedestrian networks from open transportation data for
+accessibility analysis.
+
+The project maintains and develops:
+
+* GTFS transit-network ingestion and validation;
+* pedestrian street-network integration;
+* schedule- and time-dependent network impedance;
+* multimodal pedestrian/transit graph construction;
+* standardized node, edge, and impedance representations; and
+* interoperable outputs for network-analysis and accessibility libraries.
+
+UrbanAccess focuses on reproducible preparation and integration of multimodal
+network data. It is designed to work with maintained libraries for OSM
+acquisition and network analysis.
+
+Development that improves compatibility, reliability, data integration,
+reproducibility, and interoperability is welcome within this scope. Material
+changes to the project's mission are considered through UDST's
+organization-level governance process.
+
+See the `UDST Project Directory
+<https://github.com/UDST/.github/blob/main/PROJECTS.md>`__ for
+organization-wide project status and policy.
+
 UrbanAccess offers the following tools:
 
 * GTFS and OSM network data acquisition via APIs
@@ -125,4 +156,3 @@ Related UDST libraries
 .. |Build Status| image:: https://travis-ci.org/UDST/urbanaccess.svg?branch=master
    :target: https://travis-ci.org/UDST/urbanaccess
 .. |Integrated AC Transit and BART transit and pedestrian network travel times for Oakland, CA| image:: docs/source/_images/travel_time_net.png
-
