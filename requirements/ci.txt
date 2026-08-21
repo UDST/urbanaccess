@@ -1,0 +1,18 @@
+# Known-working maintenance baseline for deterministic CI.
+# Expand this envelope in the dedicated compatibility PRs tracked in #95.
+build==1.2.2.post1
+cartopy==0.24.1
+geopy==2.4.1
+matplotlib==3.7.5
+numpy==1.26.4
+osmnet==0.1.7
+pandana==0.7
+pandas==1.5.3
+pycodestyle==2.12.1
+pytest==8.3.5
+PyYAML==6.0.2
+requests==2.32.3
+scikit-learn==1.3.2
+scipy==1.11.4
+six==1.16.0
+tables==3.10.1

@@ -8,6 +8,7 @@ def bbox1():
     return (-122.2762870789, 37.8211879615, -122.2701716423, 37.8241329692)
 
 
+@pytest.mark.network
 def test_column_names(bbox1):
     nodes, edges = ua_network_from_bbox(
         bbox=bbox1, network_type='walk',

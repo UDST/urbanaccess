@@ -15,14 +15,12 @@ setup(
     long_description=long_description,
     author='UrbanSim Inc. and Samuel D. Blanchard',
     url='https://github.com/UDST/urbanaccess',
+    python_requires='>=3.10,<3.12',
     classifiers=[
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3 :: Only',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
         'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: GNU Affero General Public License v3'
     ],
@@ -30,13 +28,13 @@ setup(
     install_requires=[
         'requests >= 2.9.1',
         'six >= 1.11',
-        'pandas >= 0.17.0',
-        'numpy >= 1.11',
-        'osmnet >= 0.1.4',
-        'pandana >= 0.2.0',
-        'matplotlib >= 2.0',
-        'geopy >= 1.11.0',
-        'pyyaml >= 3.11',
-        'scikit-learn >= 0.17.1'
+        'pandas >= 1.5, < 2',
+        'numpy >= 1.23.5, < 2',
+        'osmnet >= 0.1.7',
+        'pandana >= 0.7, < 0.9',
+        'matplotlib >= 3.5, < 3.8',
+        'geopy >= 2.0',
+        'pyyaml >= 6.0',
+        'scikit-learn >= 1.2, < 1.4'
     ]
 )

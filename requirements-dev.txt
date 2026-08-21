@@ -1,12 +1,12 @@
 # Additional requirements for development and testing
 
 # testing
-pytest
-pycodestyle
+pytest >= 8, < 9
+pycodestyle >= 2.12, < 3
+build >= 1.2, < 2
 
 # testing demo notebook
 jupyter
-fiona <= 1.8.18  # fixes issue with travis
 cartopy  # requires conda
 pyepsg
 
