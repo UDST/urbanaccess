@@ -13,9 +13,10 @@ setup(
     license='AGPL',
     description=description,
     long_description=long_description,
+    long_description_content_type='text/x-rst',
     author='UrbanSim Inc. and Samuel D. Blanchard',
     url='https://github.com/UDST/urbanaccess',
-    python_requires='>=3.10,<3.12',
+    python_requires='>=3.10',
     classifiers=[
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3 :: Only',
@@ -26,15 +27,15 @@ setup(
     ],
     packages=find_packages(exclude=['*.tests']),
     install_requires=[
-        'requests >= 2.31, < 3',
-        'six >= 1.16, < 2',
-        'pandas >= 1.5, < 2',
-        'numpy >= 1.23.5, < 2',
+        'requests >= 2.32',
+        'six >= 1.16',
+        'pandas >= 1.5, < 2',  # Pandas 2 compatibility tracked in #95
+        'numpy >= 1.26, < 2',  # NumPy 2 requires Pandas 2
         'osmnet >= 0.1.7',
-        'pandana >= 0.7, < 0.8',
-        'matplotlib >= 3.5, < 3.8',
-        'geopy >= 2.0, < 3',
-        'pyyaml >= 6.0, < 7',
-        'scikit-learn >= 1.2, < 1.4'
+        'pandana >= 0.7',
+        'matplotlib >= 3.7',
+        'geopy >= 2.4',
+        'pyyaml >= 6.0',
+        'scikit-learn >= 1.3'
     ]
 )
