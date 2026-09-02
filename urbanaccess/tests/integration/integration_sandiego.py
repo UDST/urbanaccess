@@ -45,8 +45,6 @@ loaded_feeds = urbanaccess.gtfs.load.gtfsfeed_to_df(data_path,
 transit_net = urbanaccess.gtfs.network.create_transit_net(
     gtfsfeeds_dfs=loaded_feeds,
     day='monday',
-    calendar_dates_lookup={'exception_note': ['FINAL', 'WD'],
-                           'schedule_type': 'WD'},
     timerange=['07:00:00', '10:00:00'])
 
 # This is the standard map projection for California

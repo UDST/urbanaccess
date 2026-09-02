@@ -89,15 +89,14 @@ jobs:
         run: |
           cd urbanaccess/tests/integration
           python remove_nb_magic.py -in simple_example.py -out simple_example_clean.py
-      # Allowed to fail: ua_network_from_bbox() is broken pending an OSMnet
-      # update and release, same root cause as the xfail in test_osm_network.py.
-      - name: Run demo notebook script (requires OSMnet update and release)
+      # Allowed to fail: Expected failure given GTFSDataExchange is no longer active notebook needs a re-write to remove those references and an update and release of OSMnet is required
+      - name: Run demo notebook script (requires removal of GTFSDataExchange and an OSMnet update and release)
         continue-on-error: true
         run: |
           cd demo
           python simple_example_clean.py
-      # Allowed to fail: same OSMnet issue as above.
-      - name: Run Madison integration test (requires OSMnet update and release)
+      # Allowed to fail: Expected failure update and release of OSMnet is required and .str accessor error on agency.txt dtype config is already solved in a more recent branch
+      - name: Run Madison integration test (requires OSMnet update and release and use of latest branch to solve .str accessor error)
         continue-on-error: true
         run: |
           cd urbanaccess/tests/integration
