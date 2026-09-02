@@ -111,6 +111,7 @@ def test_from_yaml_feed(feed_yaml):
     feeds.remove_feed(remove_all=True)
 
 
+@pytest.mark.network
 def test_search_contains_gtfs_data_exchange():
     search_result = gtfsfeeds.search(api='gtfsdataexch',
                                      search_text=['ac transit', 'santa rosa'],
@@ -131,6 +132,7 @@ def test_search_contains_gtfs_data_exchange():
         assert value in list(search_result['dataexchange_id'])
 
 
+@pytest.mark.network
 def test_search_contains_add_feed_gtfs_data_exchange():
     gtfsfeeds.search(api='gtfsdataexch',
                      search_text='ac transit',
@@ -152,6 +154,7 @@ def test_search_contains_add_feed_gtfs_data_exchange():
     feeds.remove_feed(remove_all=True)
 
 
+@pytest.mark.network
 def test_search_exact_search_field_gtfs_data_exchange():
     # test search field
     search_result = gtfsfeeds.search(api='gtfsdataexch',
@@ -161,6 +164,7 @@ def test_search_exact_search_field_gtfs_data_exchange():
     assert len(search_result) == 8
 
 
+@pytest.mark.network
 def test_download_gtfs_feed_via_feed_object(feed_dict3, tmpdir):
     feeds.add_feed(add_dict=feed_dict3)
     tmp_path = tmpdir.strpath
@@ -184,6 +188,7 @@ def test_download_gtfs_feed_via_feed_object(feed_dict3, tmpdir):
     feeds.remove_feed(remove_all=True)
 
 
+@pytest.mark.network
 def test_download_gtfs_feed_via_feed_name_and_dict(tmpdir):
     tmp_path = tmpdir.strpath
     gtfsfeeds.download(

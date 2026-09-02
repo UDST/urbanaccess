@@ -1182,14 +1182,16 @@ def test_list_raw_txt_columns(calendar_dates_txt_w_invalid_values):
 
 def test_timetoseconds(stop_times_feed_1):
     # create 1 record that is missing a 0 in the hr position
-    stop_times_feed_1['departure_time'].iloc[8] = '1:20:00'
+    stop_times_feed_1.loc[8, 'departure_time'] = '1:20:00'
+    expected = stop_times_feed_1.copy()
+    expected.loc[8, 'departure_time'] = '01:20:00'
     result = utils_format._timetoseconds(
         stop_times_feed_1, time_cols=['departure_time'])
     # check that 'departure_time_sec' was created and is not empty
     assert 'departure_time_sec' in result.columns
     assert result['departure_time_sec'].empty is False
     # remainder of df should not have changed
-    assert result[stop_times_feed_1.columns].equals(stop_times_feed_1)
+    assert result[expected.columns].equals(expected)
     # ensure subset of values are correct
     # check conversion of 06:15:00 is 22500.0 sec past midnight
     assert result.iloc[0]['departure_time_sec'] == 22500.0

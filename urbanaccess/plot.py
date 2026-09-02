@@ -2,7 +2,6 @@ import pandas as pd
 import os
 import logging as lg
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
 from matplotlib import collections as mc
 import numpy as np
 import time
@@ -275,7 +274,7 @@ def col_colors(df, col, num_bins=5, cmap='Spectral', start=0.1, stop=0.9):
                'To avoid duplicate edges, {:,} bins used.')
         log(msg.format(bins_used))
 
-    color_list = [cm.get_cmap(cmap)(x) for x in np.linspace(
+    color_list = [plt.get_cmap(cmap)(x) for x in np.linspace(
         start, stop, bins_used)]
     cleaned_categories = [int(cat) for cat in categories]
     colors = [color_list[cat] for cat in cleaned_categories]

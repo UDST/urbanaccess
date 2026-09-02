@@ -575,8 +575,9 @@ def test_recursive_category_gen(small_net):
     assert bins_used == num_bins
     # expect 44 where each edge has a color
     assert len(categories) == len(edge_df)
-    assert categories.dtype == pd.api.types.CategoricalDtype(
-        categories=None, ordered=True)
+    assert isinstance(categories.dtype, pd.api.types.CategoricalDtype)
+    assert categories.cat.ordered is True
+    assert list(categories.cat.categories) == [0, 1]
     assert all(categories.value_counts() == expected_cats)
 
 
