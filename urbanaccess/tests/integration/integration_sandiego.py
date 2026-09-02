@@ -9,19 +9,22 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 
 import urbanaccess
+from urbanaccess.gtfsfeeds import feeds
 
 start_time = time.time()
 
 name = 'san diego'
+url = 'https://www.sdmts.com/google_transit_files/google_transit.zip'
 
 print('-------------------------')
 print('Starting integration test for {}...'.format(name))
 
+new_feed = {name: url}
+feeds.add_feed(new_feed)
+
 script_path = os.path.dirname(os.path.realpath(__file__))
 root_path = os.path.join(script_path, 'data', name)
 data_path = os.path.join(root_path, 'gtfsfeed_text')
-
-urbanaccess.gtfsfeeds.search(search_text=name, add_feed=True)
 
 urbanaccess.gtfsfeeds.download(data_folder=root_path)
 

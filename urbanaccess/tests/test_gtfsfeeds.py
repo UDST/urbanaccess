@@ -18,29 +18,26 @@ def feed_dict1():
 def feed_dict2():
     return {
         'Bay Area Rapid Transit':
-            'http://www.gtfs-data-exchange.com/agency/bay-area-rapid-transit'
-            '/latest.zip'}
+            'https://www.bart.gov/dev/schedules/google_transit.zip'}
 
 
 @pytest.fixture
 def feed_dict3():
     return {
-        'ac transit': 'http://www.actransit.org/wp-content/uploads'
-                      '/GTFSJune182017B.zip',
+        'ac transit':
+            'http://www.actransit.org/wp-content/uploads/GTFSJune182017B.zip',
         'Bay Area Rapid Transit':
-            'http://www.gtfs-data-exchange.com/agency/bay-area-rapid-transit'
-            '/latest.zip'}
+            'https://www.bart.gov/dev/schedules/google_transit.zip'}
 
 
 @pytest.fixture
 def feed_yaml(tmpdir):
     yaml_dict = {
         'gtfs_feeds': {
-            'ac transit': 'http://www.actransit.org/wp-content/uploads'
-                          '/GTFSJune182017B.zip',
+            'ac transit':
+                'http://www.actransit.org/wp-content/uploads/GTFSJune182017B.zip',
             'Bay Area Rapid Transit':
-                'http://www.gtfs-data-exchange.com/agency/bay-area-rapid'
-                '-transit/latest.zip'}}
+                'https://www.bart.gov/dev/schedules/google_transit.zip'}}
 
     yaml_path = os.path.join(tmpdir.strpath, 'gtfsfeeds.yaml')
     with open(yaml_path, 'w') as f:
@@ -100,8 +97,7 @@ def test_from_yaml_feed(feed_yaml):
     assert isinstance(feeds_from_yaml, gtfsfeeds.urbanaccess_gtfsfeeds)
     assert len(feeds_from_yaml.gtfs_feeds.keys()) == 2
 
-    valid_feed = ('http://www.gtfs-data-exchange.com/'
-                  'agency/bay-area-rapid-transit/latest.zip')
+    valid_feed = ('https://www.bart.gov/dev/schedules/google_transit.zip')
     assert feeds_from_yaml.gtfs_feeds['Bay Area Rapid Transit'] == valid_feed
 
     valid_feed = ('http://www.actransit.org/wp-content/'
@@ -170,7 +166,6 @@ def test_search_exact_search_field_gtfs_data_exchange():
     assert len(search_result) == 8
 
 
-@pytest.mark.network
 def test_download_gtfs_feed_via_feed_object(feed_dict3, tmpdir):
     feeds.add_feed(add_dict=feed_dict3)
     tmp_path = tmpdir.strpath
@@ -194,22 +189,19 @@ def test_download_gtfs_feed_via_feed_object(feed_dict3, tmpdir):
     feeds.remove_feed(remove_all=True)
 
 
-@pytest.mark.network
 def test_download_gtfs_feed_via_feed_name_and_dict(tmpdir):
     tmp_path = tmpdir.strpath
     gtfsfeeds.download(
         data_folder=tmp_path,
         feed_name='test_agency',
-        feed_url=('http://www.gtfs-data-exchange.com/'
-                  'agency/bay-area-rapid-transit/latest.zip'),
+        feed_url=('https://www.bart.gov/dev/schedules/google_transit.zip'),
         feed_dict=None,
         error_pause_duration=5, delete_zips=False)
 
     gtfsfeeds.download(
         data_folder=tmp_path,
         feed_dict={
-            'test_agency_dict': 'http://www.gtfs-data-exchange.com/agency/'
-                                'ac-transit/latest.zip'},
+            'test_agency_dict': 'http://www.actransit.org/wp-content/uploads/GTFSJune182017B.zip'},
         error_pause_duration=5, delete_zips=False)
 
     filelist = ['test_agency.zip', 'test_agency_dict.zip']
