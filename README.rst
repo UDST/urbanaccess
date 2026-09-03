@@ -153,6 +153,6 @@ Related UDST libraries
 -  `Pandana <https://github.com/UDST/pandana>`__
 -  `OSMnet <https://github.com/UDST/osmnet>`__
 
-.. |Build Status| image:: https://travis-ci.org/UDST/urbanaccess.svg?branch=master
-   :target: https://travis-ci.org/UDST/urbanaccess
+.. |Build Status| image:: https://github.com/UDST/urbanaccess/actions/workflows/ci.yml/badge.svg?branch=dev
+   :target: https://github.com/UDST/urbanaccess/actions/workflows/ci.yml
 .. |Integrated AC Transit and BART transit and pedestrian network travel times for Oakland, CA| image:: docs/source/_images/travel_time_net.png
