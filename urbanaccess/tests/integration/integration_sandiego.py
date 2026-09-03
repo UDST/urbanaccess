@@ -9,19 +9,22 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 
 import urbanaccess
+from urbanaccess.gtfsfeeds import feeds
 
 start_time = time.time()
 
 name = 'san diego'
+url = 'https://www.sdmts.com/google_transit_files/google_transit.zip'
 
 print('-------------------------')
 print('Starting integration test for {}...'.format(name))
 
+new_feed = {name: url}
+feeds.add_feed(new_feed)
+
 script_path = os.path.dirname(os.path.realpath(__file__))
 root_path = os.path.join(script_path, 'data', name)
 data_path = os.path.join(root_path, 'gtfsfeed_text')
-
-urbanaccess.gtfsfeeds.search(search_text=name, add_feed=True)
 
 urbanaccess.gtfsfeeds.download(data_folder=root_path)
 
@@ -42,8 +45,6 @@ loaded_feeds = urbanaccess.gtfs.load.gtfsfeed_to_df(data_path,
 transit_net = urbanaccess.gtfs.network.create_transit_net(
     gtfsfeeds_dfs=loaded_feeds,
     day='monday',
-    calendar_dates_lookup={'exception_note': ['FINAL', 'WD'],
-                           'schedule_type': 'WD'},
     timerange=['07:00:00', '10:00:00'])
 
 # This is the standard map projection for California

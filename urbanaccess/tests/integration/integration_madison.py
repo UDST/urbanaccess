@@ -10,7 +10,7 @@ from urbanaccess.gtfsfeeds import feeds
 start_time = time.time()
 
 name = 'madison'
-url = 'http://www.gtfs-data-exchange.com/agency/city-of-madison/latest.zip'
+url = 'http://transitdata.cityofmadison.com/GTFS/mmt_gtfs.zip'
 
 print('-------------------------')
 print('Starting integration test for {}...'.format(name))
