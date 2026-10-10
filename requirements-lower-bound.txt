@@ -1,6 +1,6 @@
 # Lower-bound runtime dependency set for compatibility testing.
 # Each pin is the declared minimum in setup.py; raise them together.
-geopy==2.4.1
+geopy==2.5.0
 matplotlib==3.7.5
 numpy==1.26.4
 osmnet==0.1.7
